@@ -1,0 +1,53 @@
+{% load i18n %}
+<nav class="navbar navbar-expand-lg app-navbar sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-semibold" href="{% url 'core:home' %}">
+            <i class="bi bi-envelope-heart me-1"></i>{{ SITE_NAME }}
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+                aria-controls="mainNav" aria-expanded="false" aria-label="Abrir menu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNav">
+            <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
+                {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'weddings:list' %}">
+                            <i class="bi bi-calendar-heart me-1"></i>Os meus casamentos
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="avatar-initials">{{ user.initials }}</span>
+                            <span class="d-none d-lg-inline">{{ user.display_name }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                            <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">
+                                <i class="bi bi-person me-2"></i>Perfil</a></li>
+                            <li><a class="dropdown-item" href="{% url 'account_email' %}">
+                                <i class="bi bi-envelope me-2"></i>Emails</a></li>
+                            <li><a class="dropdown-item" href="{% url 'account_change_password' %}">
+                                <i class="bi bi-key me-2"></i>Alterar palavra-passe</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form method="post" action="{% url 'account_logout' %}" class="px-1">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item text-danger">
+                                        <i class="bi bi-box-arrow-right me-2"></i>Terminar sessão
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'account_login' %}">Entrar</a></li>
+                    <li class="nav-item">
+                        <a class="btn btn-primary btn-sm px-3" href="{% url 'account_signup' %}">Criar conta</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>

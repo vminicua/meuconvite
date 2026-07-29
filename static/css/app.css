@@ -1,0 +1,378 @@
+/* =====================================================================
+   MeuConvite — administration interface
+   Bootstrap 5 is loaded first; this file only adds the platform's own
+   look and the few components Bootstrap does not provide.
+   ===================================================================== */
+
+:root {
+    --mc-gold: #c8a96a;
+    --mc-gold-dark: #a98c4f;
+    --mc-ink: #1f2933;
+    --mc-surface: #ffffff;
+    --mc-muted: #6c757d;
+
+    --bs-primary: var(--mc-gold);
+    --bs-primary-rgb: 200, 169, 106;
+    --bs-link-color: var(--mc-gold-dark);
+    --bs-link-hover-color: var(--mc-ink);
+    --bs-body-color: var(--mc-ink);
+    --bs-font-sans-serif: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+}
+
+body.app-body {
+    background-color: #f7f6f3;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+/* --- Buttons ------------------------------------------------------- */
+.btn-primary {
+    --bs-btn-bg: var(--mc-gold);
+    --bs-btn-border-color: var(--mc-gold);
+    --bs-btn-hover-bg: var(--mc-gold-dark);
+    --bs-btn-hover-border-color: var(--mc-gold-dark);
+    --bs-btn-active-bg: var(--mc-gold-dark);
+    --bs-btn-active-border-color: var(--mc-gold-dark);
+    --bs-btn-disabled-bg: var(--mc-gold);
+    --bs-btn-disabled-border-color: var(--mc-gold);
+    --bs-btn-color: #fff;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-active-color: #fff;
+    --bs-btn-disabled-color: #fff;
+}
+
+/* --- Navbar -------------------------------------------------------- */
+.app-navbar {
+    background-color: var(--mc-surface);
+    border-bottom: 1px solid rgba(0, 0, 0, .075);
+}
+
+.app-navbar .navbar-brand {
+    color: var(--mc-ink);
+}
+
+.app-navbar .navbar-brand i {
+    color: var(--mc-gold);
+}
+
+.avatar-initials {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background-color: var(--mc-gold);
+    color: #fff;
+    font-size: .75rem;
+    font-weight: 600;
+}
+
+.avatar-initials--lg {
+    width: 3.25rem;
+    height: 3.25rem;
+    font-size: 1.1rem;
+}
+
+.app-footer {
+    background-color: var(--mc-surface);
+}
+
+/* --- Authentication pages (django-allauth) ------------------------- */
+.auth-shell {
+    max-width: 34rem;
+}
+
+.auth-shell > * {
+    background-color: var(--mc-surface);
+    border: 1px solid rgba(0, 0, 0, .075);
+    border-radius: .75rem;
+    padding: 2rem;
+    box-shadow: 0 .125rem .5rem rgba(0, 0, 0, .04);
+}
+
+.auth-shell .messages > * {
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+    background: transparent;
+}
+
+/* --- Landing page -------------------------------------------------- */
+.hero {
+    background: linear-gradient(180deg, #fffdf8 0%, #f7f6f3 100%);
+}
+
+.feature-card {
+    background-color: var(--mc-surface);
+    border: 1px solid rgba(0, 0, 0, .06);
+    border-radius: .75rem;
+    padding: 1.5rem;
+}
+
+.feature-card__icon {
+    font-size: 1.5rem;
+    color: var(--mc-gold);
+    display: block;
+    margin-bottom: .75rem;
+}
+
+.invite-preview {
+    background: var(--mc-surface);
+    border-radius: 1rem;
+    padding: .75rem;
+    border: 1px solid rgba(0, 0, 0, .06);
+}
+
+.invite-preview__inner {
+    border: 1px solid var(--mc-gold);
+    border-radius: .75rem;
+    padding: 2rem 1.5rem;
+    text-align: center;
+}
+
+.invite-preview__hello {
+    font-size: .95rem;
+    color: var(--mc-muted);
+    margin-bottom: .5rem;
+}
+
+.invite-preview__names {
+    font-size: 1.75rem;
+    color: var(--mc-gold-dark);
+    margin-bottom: .5rem;
+    font-family: Georgia, "Times New Roman", serif;
+}
+
+.invite-preview__text {
+    color: var(--mc-muted);
+    font-size: .9rem;
+}
+
+.invite-preview__events {
+    text-align: left;
+    display: inline-block;
+}
+
+/* --- Wedding area -------------------------------------------------- */
+.wedding-header {
+    background-color: var(--mc-surface);
+    border: 1px solid rgba(0, 0, 0, .06);
+    border-radius: .75rem;
+    padding: 1.25rem;
+}
+
+.wedding-nav .nav-link {
+    color: var(--mc-ink);
+    border-radius: 2rem;
+    padding: .35rem .9rem;
+    font-size: .9rem;
+    white-space: nowrap;
+}
+
+.wedding-nav .nav-link.active {
+    background-color: var(--mc-gold);
+    color: #fff;
+}
+
+.wedding-card .countdown-pill {
+    display: inline-block;
+    font-size: .75rem;
+    padding: .2rem .7rem;
+    border-radius: 2rem;
+    background-color: rgba(200, 169, 106, .15);
+    color: var(--mc-gold-dark);
+}
+
+.countdown-pill--past {
+    background-color: rgba(0, 0, 0, .05);
+    color: var(--mc-muted);
+}
+
+.stat-tile {
+    background-color: var(--mc-surface);
+    border: 1px solid rgba(0, 0, 0, .06);
+    border-radius: .75rem;
+    padding: 1rem;
+    height: 100%;
+}
+
+.stat-tile__value {
+    font-size: 1.75rem;
+    font-weight: 600;
+    line-height: 1.1;
+    color: var(--mc-ink);
+}
+
+.stat-tile__label {
+    font-size: .8rem;
+    color: var(--mc-muted);
+}
+
+/* --- Timeline / checklist / wizard --------------------------------- */
+.timeline__item {
+    display: flex;
+    gap: 1rem;
+    padding: .75rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, .05);
+}
+
+.timeline__item:last-child {
+    border-bottom: 0;
+}
+
+.timeline__time {
+    min-width: 3.5rem;
+    font-weight: 600;
+    color: var(--mc-gold-dark);
+}
+
+.checklist__item {
+    padding: .35rem 0;
+}
+
+.checklist__item--done {
+    color: var(--mc-muted);
+}
+
+.wizard-steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+
+.wizard-steps__item {
+    font-size: .75rem;
+    padding: .25rem .75rem;
+    border-radius: 2rem;
+    background-color: rgba(0, 0, 0, .04);
+    color: var(--mc-muted);
+}
+
+.wizard-steps__item.active {
+    background-color: var(--mc-gold);
+    color: #fff;
+}
+
+.setup-steps__item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: .75rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, .05);
+}
+
+.setup-steps__item:last-child {
+    border-bottom: 0;
+}
+
+.setup-steps__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, .05);
+    color: var(--mc-muted);
+    flex-shrink: 0;
+}
+
+.setup-steps__item--done .setup-steps__icon {
+    background-color: rgba(25, 135, 84, .12);
+    color: #198754;
+}
+
+/* --- Schedule reordering ------------------------------------------ */
+.schedule-item__handle {
+    cursor: grab;
+    touch-action: none;
+}
+
+.schedule-item__time {
+    min-width: 4rem;
+    color: var(--mc-gold-dark);
+}
+
+.schedule-item.sortable-ghost {
+    opacity: .4;
+}
+
+.schedule-item.sortable-chosen {
+    background-color: rgba(200, 169, 106, .08);
+}
+
+/* --- Design preview ------------------------------------------------ */
+.colour-preview {
+    border: 1px solid rgba(0, 0, 0, .08);
+    border-radius: .75rem;
+    overflow: hidden;
+}
+
+.colour-preview__cover {
+    height: 9rem;
+    background-color: rgba(0, 0, 0, .04);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.colour-preview__cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.colour-preview__body {
+    padding: 1.25rem;
+    text-align: center;
+    background-color: var(--mc-surface);
+}
+
+.colour-preview__names {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.4rem;
+    color: var(--preview-primary, var(--mc-gold));
+    margin-bottom: .25rem;
+}
+
+.colour-preview__date {
+    font-size: .85rem;
+    color: var(--preview-secondary, var(--mc-ink));
+    margin-bottom: 1rem;
+}
+
+.colour-preview__button {
+    display: inline-block;
+    padding: .4rem 1.25rem;
+    border-radius: 2rem;
+    background-color: var(--preview-primary, var(--mc-gold));
+    color: #fff;
+    font-size: .85rem;
+}
+
+/* --- Misc ---------------------------------------------------------- */
+.empty-state {
+    background-color: var(--mc-surface);
+    border: 1px dashed rgba(0, 0, 0, .12);
+    border-radius: .75rem;
+}
+
+.errorlist {
+    list-style: none;
+    padding: 0;
+    margin: .25rem 0 0;
+    color: var(--bs-danger);
+    font-size: .875rem;
+}
+
+@media (max-width: 575.98px) {
+    .stat-tile__value {
+        font-size: 1.4rem;
+    }
+}

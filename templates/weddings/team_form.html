@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Permissões · {{ membership.user.display_name }}{% endblock %}
+
+{% block content %}
+{% include "partials/wedding_nav.html" %}
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-transparent">
+                <span class="fw-semibold">{{ membership.user.display_name }}</span>
+                <span class="text-body-secondary small">· {{ membership.user.email }}</span>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% include "partials/form_fields.html" %}
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Guardar permissões</button>
+                        <a href="{% url 'weddings:team' wedding.pk %}" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

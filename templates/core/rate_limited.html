@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Demasiados pedidos · {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7 text-center py-5">
+        <i class="bi bi-hourglass-split display-4 text-body-secondary"></i>
+        <h1 class="h4 mt-3">Aguarde um momento</h1>
+        <p class="text-body-secondary">{{ message }}</p>
+        <a href="{% url 'core:home' %}" class="btn btn-outline-secondary mt-2">Voltar ao início</a>
+    </div>
+</div>
+{% endblock %}

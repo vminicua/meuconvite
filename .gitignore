@@ -1,0 +1,77 @@
+# =====================================================================
+# Segredos — NUNCA versionar
+# =====================================================================
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+secrets.json
+credentials.json
+
+# =====================================================================
+# Python
+# =====================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+ENV/
+
+# =====================================================================
+# Django
+# =====================================================================
+db.sqlite3
+db.sqlite3-journal
+*.sqlite3
+/staticfiles/
+/media/
+/logs/
+*.log
+local_settings.py
+
+# Ficheiros de tradução compilados (gerados por compilemessages)
+*.mo
+
+# =====================================================================
+# Backups e dumps — podem conter dados pessoais de convidados
+# =====================================================================
+/backups/
+*.sql
+*.sql.gz
+*.dump
+*.tar.gz
+
+# =====================================================================
+# Ferramentas de desenvolvimento
+# =====================================================================
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.tox/
+
+# =====================================================================
+# Editores e sistema operativo
+# =====================================================================
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+*~
+
+# =====================================================================
+# Claude Code (configuração local da máquina)
+# =====================================================================
+.claude/settings.local.json

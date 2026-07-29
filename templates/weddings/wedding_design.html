@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Aspecto do convite · {{ wedding.couple_names }}{% endblock %}
+
+{% block content %}
+{% include "partials/wedding_nav.html" %}
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-header bg-transparent fw-semibold">Aspecto do convite</div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+                    {% include "partials/form_fields.html" %}
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-header bg-transparent fw-semibold">Pré-visualização das cores</div>
+            <div class="card-body">
+                <div class="colour-preview" style="--preview-primary: {{ wedding.primary_color }}; --preview-secondary: {{ wedding.secondary_color }};">
+                    <div class="colour-preview__cover">
+                        {% if wedding.cover_image %}
+                            <img src="{{ wedding.cover_image.url }}" alt="Fotografia de capa">
+                        {% else %}
+                            <span class="text-body-secondary small">Sem fotografia de capa</span>
+                        {% endif %}
+                    </div>
+                    <div class="colour-preview__body">
+                        <p class="colour-preview__names">{{ wedding.couple_names }}</p>
+                        <p class="colour-preview__date">{{ wedding.main_date|date:"d F Y" }}</p>
+                        <span class="colour-preview__button">Confirmar presença</span>
+                    </div>
+                </div>
+                <p class="small text-body-secondary mt-3 mb-0">
+                    Os templates completos (clássico, luxo e capulana) são aplicados na Fase 4.
+                    As cores escolhidas aqui já ficam guardadas.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

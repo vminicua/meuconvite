@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Perfil · {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <h1 class="h4 mb-4">O meu perfil</h1>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <span class="avatar-initials avatar-initials--lg">{{ user.initials }}</span>
+                    <div>
+                        <div class="fw-semibold">{{ user.display_name }}</div>
+                        <div class="text-body-secondary small">{{ user.email }}</div>
+                        {% if user.is_email_verified %}
+                            <span class="badge text-bg-success mt-1">Email verificado</span>
+                        {% else %}
+                            <span class="badge text-bg-warning mt-1">Email por verificar</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <form method="post" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                    {% endif %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }}</label>
+                            {{ form.first_name }}
+                            {{ form.first_name.errors }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }}</label>
+                            {{ form.last_name }}
+                            {{ form.last_name.errors }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.phone.id_for_label }}">{{ form.phone.label }}</label>
+                            {{ form.phone }}
+                            {{ form.phone.errors }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.preferred_language.id_for_label }}">{{ form.preferred_language.label }}</label>
+                            {{ form.preferred_language }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label" for="{{ form.avatar.id_for_label }}">{{ form.avatar.label }}</label>
+                            {{ form.avatar }}
+                            <div class="form-text">JPG, PNG ou WEBP até 5 MB.</div>
+                            {{ form.avatar.errors }}
+                        </div>
+                    </div>
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Guardar alterações</button>
+                        <a href="{% url 'weddings:list' %}" class="btn btn-outline-secondary">Voltar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="h6">Segurança da conta</h2>
+                <p class="small text-body-secondary">
+                    O endereço de email é usado para iniciar sessão e recuperar a palavra-passe.
+                </p>
+                <div class="d-flex flex-wrap gap-2">
+                    <a class="btn btn-outline-secondary btn-sm" href="{% url 'account_email' %}">Gerir emails</a>
+                    <a class="btn btn-outline-secondary btn-sm" href="{% url 'account_change_password' %}">Alterar palavra-passe</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

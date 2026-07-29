@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Definições · {{ wedding.couple_names }}{% endblock %}
+
+{% block content %}
+{% include "partials/wedding_nav.html" %}
+
+<div class="row">
+    <div class="col-lg-9">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-transparent fw-semibold">Definições gerais</div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% include "partials/form_fields.html" %}
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Guardar alterações</button>
+                        <a href="{% url 'weddings:detail' wedding.pk %}" class="btn btn-outline-secondary">Voltar ao painel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% if capabilities.is_owner and wedding.status != 'archived' %}
+            <div class="card border-warning shadow-sm">
+                <div class="card-body">
+                    <h2 class="h6">Arquivar casamento</h2>
+                    <p class="small text-body-secondary mb-3">
+                        O casamento deixa de aparecer na lista e as páginas públicas deixam de responder.
+                        <strong>Nenhum dado é eliminado</strong> — convidados, confirmações e histórico continuam guardados.
+                    </p>
+                    <form method="post" action="{% url 'weddings:archive' wedding.pk %}"
+                          data-confirm="Arquivar este casamento? Poderá continuar a consultar os dados.">
+                        {% csrf_token %}
+                        <button class="btn btn-outline-warning btn-sm">Arquivar</button>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% comment %}
+Generic Bootstrap rendering of a form.
+
+Widgets already carry their CSS classes (core.forms.BootstrapFormMixin),
+so this partial only takes care of layout, labels, help text and errors.
+{% endcomment %}
+{% if form.non_field_errors %}
+    <div class="alert alert-danger">
+        {% for error in form.non_field_errors %}<div>{{ error }}</div>{% endfor %}
+    </div>
+{% endif %}
+
+<div class="row g-3">
+    {% for field in form.visible_fields %}
+        {% if field.field.widget.input_type == "checkbox" %}
+            <div class="col-md-6">
+                <div class="form-check mt-md-4">
+                    {{ field }}
+                    <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+                    {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+            </div>
+        {% else %}
+            <div class="{{ field.field.widget.attrs.wrapper_class|default:'col-md-6' }}">
+                <label class="form-label" for="{{ field.id_for_label }}">
+                    {{ field.label }}{% if field.field.required %} <span class="text-danger">*</span>{% endif %}
+                </label>
+                {{ field }}
+                {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+                {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>
+{% for field in form.hidden_fields %}{{ field }}{% endfor %}

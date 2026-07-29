@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Assistente · {{ wedding.couple_names }}{% endblock %}
+
+{% block content %}
+{% include "partials/wedding_nav.html" %}
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">Preparação do casamento</span>
+                <span class="small text-body-secondary">{{ progress }}% concluído</span>
+            </div>
+            <div class="card-body">
+                <div class="progress mb-4" role="progressbar" aria-label="Progresso"
+                     aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar" style="width: {{ progress }}%"></div>
+                </div>
+
+                <ol class="setup-steps list-unstyled mb-0">
+                    {% for item in checklist %}
+                        <li class="setup-steps__item {% if item.done %}setup-steps__item--done{% endif %}">
+                            <span class="setup-steps__icon">
+                                <i class="bi {% if item.done %}bi-check-lg{% else %}bi-dash-lg{% endif %}"></i>
+                            </span>
+                            <div class="flex-grow-1">
+                                <div class="fw-semibold">{{ item.label }}</div>
+                                {% if item.required %}
+                                    <span class="small text-body-secondary">Necessário para publicar</span>
+                                {% else %}
+                                    <span class="small text-body-secondary">Recomendado</span>
+                                {% endif %}
+                            </div>
+                            {% if item.url_name %}
+                                <a href="{% url item.url_name wedding.pk %}" class="btn btn-sm btn-outline-secondary">
+                                    {% if item.done %}Rever{% else %}Configurar{% endif %}
+                                </a>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="h6">Publicação</h2>
+                {% if wedding.status == 'published' %}
+                    <p class="small text-body-secondary">Este casamento já está publicado.</p>
+                    <a href="{% url 'weddings:detail' wedding.pk %}" class="btn btn-outline-secondary btn-sm w-100">Ir para o painel</a>
+                {% elif can_publish %}
+                    <p class="small text-body-secondary">
+                        Está tudo pronto. Ao publicar, a página do casamento e os convites passam a estar acessíveis.
+                    </p>
+                    <form method="post" action="{% url 'weddings:publish' wedding.pk %}">
+                        {% csrf_token %}
+                        <button class="btn btn-primary w-100">Publicar casamento</button>
+                    </form>
+                {% else %}
+                    <p class="small text-body-secondary mb-0">
+                        Complete os passos marcados como necessários para poder publicar.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card shadow-sm mt-3">
+            <div class="card-body">
+                <h2 class="h6">Fases seguintes</h2>
+                <ul class="small text-body-secondary mb-0 ps-3">
+                    <li>Convidados, famílias e importação de Excel</li>
+                    <li>Convites individuais e confirmações</li>
+                    <li>QR Codes, mesas e check-in</li>
+                    <li>Templates visuais e página pública</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

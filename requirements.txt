@@ -1,0 +1,35 @@
+# MeuConvite - dependencies
+# Python 3.12+
+
+# --- Core ---
+Django>=5.2,<6.0
+django-environ>=0.14,<1.0
+
+# --- Authentication ---
+django-allauth>=65.18,<66.0
+
+# --- Media / images ---
+Pillow>=12.0
+
+# --- Filtering / UI helpers ---
+django-filter>=26.0
+
+# --- Static files (used when the host does not serve /static directly) ---
+whitenoise>=6.12
+
+# --- QR Codes (pure python, no system dependencies) ---
+segno>=1.6
+
+# --- Exports ---
+openpyxl>=3.1          # Excel import/export
+reportlab>=4.0         # PDF generation (no system libraries required)
+
+# --- Database drivers (install ONLY the one matching the server engine) ---
+# Production server confirmed: MariaDB 11.4.12 (cPanel/CloudLinux).
+# Install on the server with:  pip install mysqlclient
+# mysqlclient>=2.2
+# Fallback if mysqlclient cannot be compiled (missing mysql_config):
+# pymysql>=1.1   (see DEPLOYMENT.md §0.2)
+#
+# PostgreSQL (not used by this project):
+# psycopg[binary]>=3.2

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}{% if location %}Editar local{% else %}Novo local{% endif %} · {{ wedding.couple_names }}{% endblock %}
+
+{% block content %}
+{% include "partials/wedding_nav.html" %}
+
+<div class="row">
+    <div class="col-lg-9">
+        <div class="card shadow-sm">
+            <div class="card-header bg-transparent fw-semibold">
+                {% if location %}Editar “{{ location.name }}”{% else %}Novo local{% endif %}
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% include "partials/form_fields.html" %}
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            {% if location %}Guardar alterações{% else %}Criar local{% endif %}
+                        </button>
+                        <a href="{% url 'events:location_list' wedding.pk %}" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

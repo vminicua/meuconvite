@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% comment %}
+Plugs every django-allauth page into the MeuConvite layout.
+
+allauth's templates fill `head_title` and `content`; `content` is passed
+straight through to the project base and the card look is applied with
+CSS (`.auth-shell`) so no block name is used twice.
+{% endcomment %}
+
+{% block title %}{% block head_title %}Conta{% endblock %} · {{ SITE_NAME }}{% endblock %}
+
+{% block main_class %}container py-5 auth-shell{% endblock %}

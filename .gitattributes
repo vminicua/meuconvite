@@ -1,0 +1,20 @@
+# The project is developed on Windows and runs on Linux (cPanel/Passenger).
+# Normalise line endings in the repository to LF so files copied to the
+# server never carry CRLF.
+* text=auto eol=lf
+
+# Binary files must never be converted.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.mp3 binary
+*.m4a binary
+*.ogg binary
+*.woff binary
+*.woff2 binary
+*.xlsx binary
+*.mo binary

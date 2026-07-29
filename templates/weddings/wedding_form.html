@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Novo casamento · {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="wizard-steps mb-4">
+            <span class="wizard-steps__item active">1. Noivos</span>
+            <span class="wizard-steps__item">2. Eventos</span>
+            <span class="wizard-steps__item">3. Locais</span>
+            <span class="wizard-steps__item">4. Programa</span>
+            <span class="wizard-steps__item">5. Aspecto</span>
+            <span class="wizard-steps__item">6. Convidados</span>
+            <span class="wizard-steps__item">7. Publicar</span>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h1 class="h5 mb-1">Informações dos noivos</h1>
+                <p class="text-body-secondary small mb-4">
+                    Pode alterar tudo isto mais tarde nas definições do casamento.
+                </p>
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                    {% endif %}
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.bride_full_name.id_for_label }}">Nome completo da noiva</label>
+                            {{ form.bride_full_name }}
+                            {{ form.bride_full_name.errors }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.groom_full_name.id_for_label }}">Nome completo do noivo</label>
+                            {{ form.groom_full_name }}
+                            {{ form.groom_full_name.errors }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.bride_short_name.id_for_label }}">Nome curto da noiva</label>
+                            {{ form.bride_short_name }}
+                            <div class="form-text">{{ form.bride_short_name.help_text }}</div>
+                            {{ form.bride_short_name.errors }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.groom_short_name.id_for_label }}">Nome curto do noivo</label>
+                            {{ form.groom_short_name }}
+                            <div class="form-text">{{ form.groom_short_name.help_text }}</div>
+                            {{ form.groom_short_name.errors }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="{{ form.main_date.id_for_label }}">Data principal</label>
+                            {{ form.main_date }}
+                            {{ form.main_date.errors }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="{{ form.city.id_for_label }}">Cidade</label>
+                            {{ form.city }}
+                            {{ form.city.errors }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="{{ form.country.id_for_label }}">País</label>
+                            {{ form.country }}
+                            {{ form.country.errors }}
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary">Criar e continuar</button>
+                        <a href="{% url 'weddings:list' %}" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

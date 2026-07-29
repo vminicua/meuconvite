@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Locais · {{ wedding.couple_names }}{% endblock %}
+
+{% block content %}
+{% include "partials/wedding_nav.html" %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+        <h2 class="h5 mb-1">Locais</h2>
+        <p class="small text-body-secondary mb-0">Igrejas, salas, casas de família e outros pontos de encontro.</p>
+    </div>
+    {% if capabilities.can_manage_events %}
+        <a href="{% url 'events:location_create' wedding.pk %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>Novo local
+        </a>
+    {% endif %}
+</div>
+
+{% if locations %}
+    <div class="row g-3">
+        {% for location in locations %}
+            <div class="col-md-6">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h3 class="h6 mb-1">{{ location.name }}</h3>
+                        {% if location.address %}
+                            <p class="small text-body-secondary mb-2">
+                                <i class="bi bi-geo-alt me-1"></i>{{ location.address }}
+                            </p>
+                        {% endif %}
+                        {% if location.description %}
+                            <p class="small mb-2">{{ location.description|linebreaksbr }}</p>
+                        {% endif %}
+                        <ul class="list-unstyled small text-body-secondary mb-0">
+                            {% if location.contact_phone %}<li><i class="bi bi-telephone me-1"></i>{{ location.contact_phone }}</li>{% endif %}
+                            {% if location.parking_information %}<li><i class="bi bi-p-square me-1"></i>{{ location.parking_information }}</li>{% endif %}
+                            {% if location.transport_information %}<li><i class="bi bi-bus-front me-1"></i>{{ location.transport_information }}</li>{% endif %}
+                        </ul>
+                    </div>
+                    <div class="card-footer bg-transparent d-flex gap-2">
+                        {% if location.directions_url %}
+                            <a href="{{ location.directions_url }}" target="_blank" rel="noopener noreferrer"
+                               class="btn btn-sm btn-outline-secondary"><i class="bi bi-map me-1"></i>Mapa</a>
+                        {% endif %}
+                        {% if capabilities.can_manage_events %}
+                            <a href="{% url 'events:location_edit' wedding.pk location.pk %}" class="btn btn-sm btn-outline-secondary">Editar</a>
+                            <form method="post" action="{% url 'events:location_delete' wedding.pk location.pk %}" class="ms-auto"
+                                  data-confirm="Eliminar o local “{{ location.name }}”? Os eventos associados ficam sem local.">
+                                {% csrf_token %}
+                                <button class="btn btn-sm btn-outline-danger">Eliminar</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="empty-state text-center py-5">
+        <i class="bi bi-geo-alt display-5 text-body-secondary"></i>
+        <h3 class="h6 mt-3">Ainda não há locais</h3>
+        <p class="text-body-secondary small">Adicione o local da cerimónia e da recepção.</p>
+        {% if capabilities.can_manage_events %}
+            <a href="{% url 'events:location_create' wedding.pk %}" class="btn btn-primary">Criar local</a>
+        {% endif %}
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Eventos · {{ wedding.couple_names }}{% endblock %}
+
+{% block content %}
+{% include "partials/wedding_nav.html" %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+        <h2 class="h5 mb-1">Eventos da celebração</h2>
+        <p class="small text-body-secondary mb-0">
+            Cerimónia religiosa, cerimónia civil, copo de água, lobolo, xiguiane ou qualquer outro
+            momento — cada um com o seu local, horário e regras próprias.
+        </p>
+    </div>
+    {% if capabilities.can_manage_events %}
+        <a href="{% url 'events:create' wedding.pk %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>Novo evento
+        </a>
+    {% endif %}
+</div>
+
+{% if events %}
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Evento</th>
+                        <th>Data e hora</th>
+                        <th>Local</th>
+                        <th>Regras</th>
+                        <th class="text-end">Acções</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in events %}
+                        <tr class="{% if not event.is_active %}opacity-50{% endif %}">
+                            <td>
+                                <div class="fw-semibold">{{ event.name }}</div>
+                                <div class="small text-body-secondary">{{ event.get_event_type_display }}</div>
+                                {% if event.host_family %}
+                                    <div class="small text-body-secondary">Anfitriã: {{ event.host_family }}</div>
+                                {% endif %}
+                            </td>
+                            <td class="text-nowrap">
+                                {{ event.date|date:"d/m/Y"|default:"—" }}
+                                <div class="small text-body-secondary">{{ event.time_range_display|default:"" }}</div>
+                            </td>
+                            <td>
+                                {% if event.location %}
+                                    {{ event.location.name }}
+                                    {% if event.effective_map_url %}
+                                        <a href="{{ event.effective_map_url }}" target="_blank" rel="noopener noreferrer"
+                                           class="ms-1 small"><i class="bi bi-map"></i></a>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-body-secondary small">Por definir</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if event.requires_rsvp %}<span class="badge text-bg-light border">Confirmação</span>{% endif %}
+                                {% if event.requires_qr_code %}<span class="badge text-bg-light border">QR Code</span>{% endif %}
+                                {% if not event.show_to_all_guests %}<span class="badge text-bg-light border">Restrito</span>{% endif %}
+                                {% if not event.is_active %}<span class="badge text-bg-secondary">Inactivo</span>{% endif %}
+                            </td>
+                            <td class="text-end text-nowrap">
+                                {% if capabilities.can_manage_events %}
+                                    <a href="{% url 'events:edit' wedding.pk event.pk %}" class="btn btn-sm btn-outline-secondary">Editar</a>
+                                    <form method="post" action="{% url 'events:delete' wedding.pk event.pk %}" class="d-inline"
+                                          data-confirm="Eliminar o evento “{{ event.name }}”? Esta acção não pode ser anulada.">
+                                        {% csrf_token %}
+                                        <button class="btn btn-sm btn-outline-danger">Eliminar</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% else %}
+    <div class="empty-state text-center py-5">
+        <i class="bi bi-calendar2-week display-5 text-body-secondary"></i>
+        <h3 class="h6 mt-3">Ainda não há eventos</h3>
+        <p class="text-body-secondary small">Comece pela cerimónia principal e acrescente os restantes momentos.</p>
+        {% if capabilities.can_manage_events %}
+            <a href="{% url 'events:create' wedding.pk %}" class="btn btn-primary">Criar evento</a>
+        {% endif %}
+    </div>
+{% endif %}
+
+<div class="mt-4 d-flex gap-2">
+    <a href="{% url 'events:location_list' wedding.pk %}" class="btn btn-outline-secondary btn-sm">Gerir locais</a>
+    <a href="{% url 'events:schedule' wedding.pk %}" class="btn btn-outline-secondary btn-sm">Gerir programa</a>
+</div>
+{% endblock %}

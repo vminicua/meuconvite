@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ SITE_NAME }} — convites digitais para casamentos em Moçambique{% endblock %}
+{% block robots %}index,follow{% endblock %}
+{% block meta_description %}Crie convites digitais personalizados, faça a gestão de convidados, confirmações de presença, mesas e check-in com QR Code. Feito para casamentos em Moçambique.{% endblock %}
+{% block main_class %}{% endblock %}
+
+{% block content %}
+<section class="hero py-5">
+    <div class="container py-lg-4">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <span class="badge rounded-pill text-bg-light border mb-3">Feito para Moçambique</span>
+                <h1 class="display-5 fw-semibold mb-3">Convites digitais para o vosso casamento</h1>
+                <p class="lead text-body-secondary mb-4">
+                    Cerimónia religiosa, cerimónia civil, copo de água, recepção, lobolo, xiguiane
+                    ou qualquer outro momento: cada evento com a sua lista de convidados,
+                    confirmações, mesas e QR Code próprio.
+                </p>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{% url 'account_signup' %}" class="btn btn-primary btn-lg px-4">Começar agora</a>
+                    <a href="{% url 'account_login' %}" class="btn btn-outline-secondary btn-lg px-4">Já tenho conta</a>
+                </div>
+                <p class="small text-body-secondary mt-3 mb-0">
+                    Sem instalação. Os convidados abrem o convite no telemóvel.
+                </p>
+            </div>
+            <div class="col-lg-6">
+                <div class="invite-preview shadow-sm">
+                    <div class="invite-preview__inner">
+                        <p class="invite-preview__hello">Caro Carlos Matola,</p>
+                        <p class="invite-preview__names">Natércia &amp; Hivaldo</p>
+                        <p class="invite-preview__text">têm o prazer de o convidar para celebrar o seu casamento.</p>
+                        <hr>
+                        <p class="mb-1 small"><strong>Lugares reservados:</strong> 2</p>
+                        <ul class="invite-preview__events small list-unstyled mb-0">
+                            <li><i class="bi bi-check-circle text-success me-1"></i>Cerimónia Religiosa</li>
+                            <li><i class="bi bi-check-circle text-success me-1"></i>Cerimónia Civil</li>
+                            <li><i class="bi bi-check-circle text-success me-1"></i>Copo de Água</li>
+                            <li class="text-body-secondary"><i class="bi bi-x-circle me-1"></i>Xiguiane</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-body-tertiary">
+    <div class="container">
+        <h2 class="h4 text-center mb-5">Tudo o que a organização do casamento precisa</h2>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card h-100">
+                    <i class="bi bi-calendar2-week feature-card__icon"></i>
+                    <h3 class="h6">Vários eventos</h3>
+                    <p class="small text-body-secondary mb-0">
+                        Cada evento com data, local, traje, programa e lista de convidados própria.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card h-100">
+                    <i class="bi bi-people feature-card__icon"></i>
+                    <h3 class="h6">Convidados e famílias</h3>
+                    <p class="small text-body-secondary mb-0">
+                        Importe a lista de Excel, organize por famílias e defina acompanhantes.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card h-100">
+                    <i class="bi bi-envelope-paper-heart feature-card__icon"></i>
+                    <h3 class="h6">Convites individuais</h3>
+                    <p class="small text-body-secondary mb-0">
+                        Uma ligação segura por convidado, pronta a partilhar por WhatsApp.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card h-100">
+                    <i class="bi bi-check2-square feature-card__icon"></i>
+                    <h3 class="h6">Confirmações de presença</h3>
+                    <p class="small text-body-secondary mb-0">
+                        Saiba quem vem, com quantas pessoas e a que eventos.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card h-100">
+                    <i class="bi bi-grid-3x3-gap feature-card__icon"></i>
+                    <h3 class="h6">Mesas e lugares</h3>
+                    <p class="small text-body-secondary mb-0">
+                        Distribua os convidados por mesas e zonas, com controlo de capacidade.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card h-100">
+                    <i class="bi bi-qr-code-scan feature-card__icon"></i>
+                    <h3 class="h6">Check-in com QR Code</h3>
+                    <p class="small text-body-secondary mb-0">
+                        Entrada rápida e sem filas, com registo de quem já chegou.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container text-center">
+        <h2 class="h4 mb-3">Comece pelo essencial</h2>
+        <p class="text-body-secondary mb-4">
+            Crie a sua conta, configure o casamento e adicione os eventos. Leva poucos minutos.
+        </p>
+        <a href="{% url 'account_signup' %}" class="btn btn-primary btn-lg px-4">Criar a minha conta</a>
+    </div>
+</section>
+{% endblock %}
