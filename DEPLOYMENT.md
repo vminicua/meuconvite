@@ -464,11 +464,66 @@ aplicadas em produção sem backup verificado imediatamente antes.
 | Domínio `meuconvite.co.mz` | **Por configurar** (§9.0) | 29/07/2026 |
 | SSH | `<HOST_CPANEL>`, porta e utilizador conforme o `.env` / gestor de passwords | 29/07/2026 |
 
-### Passos ainda por executar no servidor
+---
 
-1. Converter a base para utf8mb4 (§0.1).
-2. Adicionar o domínio `meuconvite.co.mz` e apontar o DNS (§9.0).
-3. Criar a aplicação Python 3.12 no cPanel (§1).
-4. Enviar o código e o `.env`, instalar dependências (§2–§3, §5).
-5. `migrate`, `collectstatic`, `createsuperuser` (§6, §7, §10).
-6. SSL, cron de sessões e cron de backup (§9, §11, §12).
+## 18. Registo do primeiro deploy (29/07/2026)
+
+Executado por SSH. Estado final: **aplicação em produção e a responder em
+`https://meuconvite.co.mz/`**.
+
+| Passo | Resultado |
+| ----- | --------- |
+| Base convertida para utf8mb4 | ✅ `utf8mb4 / utf8mb4_unicode_ci` (base estava vazia) |
+| Aplicação Python criada | ✅ Python 3.12.13, Passenger, `app-root=meuconvite`, URI `/` |
+| Código enviado | ✅ 121 ficheiros por SFTP (lista vinda de `git ls-files`) |
+| `.env` | ✅ enviado com `chmod 600`, com `DJANGO_SETTINGS_MODULE` de produção activo |
+| Dependências | ✅ `requirements.txt` + `mysqlclient 2.2.8` (compilou sem problemas) |
+| Migrations | ✅ 19 tabelas criadas no MariaDB, todas em `utf8mb4_unicode_ci` |
+| Ficheiros estáticos | ✅ 132 ficheiros, 396 pós-processados, manifesto WhiteNoise criado |
+| `check --deploy` | ✅ apenas o aviso de HSTS (desactivado por decisão, §9.1) |
+| HTTPS | ✅ certificado válido; `http` responde 301 para `https` |
+| Email | ✅ exim local (`localhost:25`), sem credenciais para gerir |
+| Superutilizador | ✅ criado com password aleatória descartada — definir pela recuperação de password |
+| Cron de backup | ✅ diário às 02h30, retenção de 14 dias, primeiro backup validado |
+| Cron de sessões | ✅ `clearsessions` aos domingos às 04h00 |
+
+Verificação final das páginas:
+
+| Página | Código |
+| ------ | ------ |
+| `/` | 200 |
+| `/accounts/login/` · `/accounts/signup/` · `/accounts/password/reset/` | 200 |
+| `/estado/` | 200 (`{"status": "ok"}`) |
+| `/casamentos/` (privada) | 302 para login |
+| `/painel-meuconvite/` (admin) | 302 para login |
+| `/nao-existe/` | 404 |
+| `/static/css/app.<hash>.css` | 200 |
+
+Cabeçalhos confirmados: `x-frame-options: DENY`,
+`x-content-type-options: nosniff`, `referrer-policy: same-origin`.
+
+### Armadilha encontrada (e resolvida)
+
+O `manage.py` assumia `config.settings.development`, pelo que o primeiro
+`migrate` no servidor criou um `db.sqlite3` em vez de escrever no MariaDB. O
+`manage.py` passou a **ler o `.env` antes de escolher o módulo de settings** e a
+imprimir em `stderr` qual o módulo em uso:
+
+```text
+[meuconvite] settings: config.settings.production
+```
+
+O `db.sqlite3` acidental (apenas tabelas vazias) foi movido para
+`~/backups/db.sqlite3.acidental-deploy` em vez de eliminado.
+
+### Pendente
+
+1. **Deliverability do email** — confirmar SPF/DKIM em *cPanel → Email
+   Deliverability* para `meuconvite.co.mz`. Sem DKIM, os emails de verificação
+   podem cair no spam.
+2. **HSTS** — activar `SECURE_HSTS_SECONDS=2592000` depois de alguns dias
+   estáveis em HTTPS (§9.1).
+3. **Caixa `nao-responder@meuconvite.co.mz`** — opcional; o envio já funciona,
+   mas respostas dos convidados a esse endereço não têm destino.
+4. **Password do superutilizador** — definir através de "Esqueceu-se da
+   palavra-passe?" ou por SSH com `manage.py changepassword`.

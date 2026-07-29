@@ -209,4 +209,13 @@ tokens seguros, permissões por objeto e auditoria.
 
 ## Deploy
 
-Ver `DEPLOYMENT.md` (cPanel + Passenger, sem acesso root e sem Docker).
+**Em produção desde 29/07/2026:** <https://meuconvite.co.mz/>
+(cPanel + Passenger, Python 3.12.13, MariaDB 11.4.12 em utf8mb4).
+
+Ver `DEPLOYMENT.md` — o §18 tem o registo do primeiro deploy e o que ficou
+pendente; o §14 tem o procedimento de atualização.
+
+> `manage.py` lê o `.env` **antes** de escolher o módulo de settings e imprime
+> em `stderr` qual está a usar (`[meuconvite] settings: …`). No servidor o `.env`
+> define `DJANGO_SETTINGS_MODULE=config.settings.production`; localmente essa
+> linha está comentada, pelo que o ambiente local usa SQLite.
