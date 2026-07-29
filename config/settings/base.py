@@ -175,7 +175,10 @@ ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_USER_MODEL_EMAIL_FIELD = "email"
 ACCOUNT_LOGIN_METHODS = {"email"}
 ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
-ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+# "optional": quem cria conta entra imediatamente na aplicação. O email de
+# confirmação continua a ser enviado, mas nunca bloqueia o acesso.
+# Para deixar de enviar esse email por completo, mudar para "none".
+ACCOUNT_EMAIL_VERIFICATION = "optional"
 ACCOUNT_EMAIL_SUBJECT_PREFIX = "[MeuConvite] "
 ACCOUNT_CONFIRM_EMAIL_ON_GET = False
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
@@ -196,14 +199,20 @@ ACCOUNT_RATE_LIMITS = {
 # ---------------------------------------------------------------------
 # Internationalisation
 # ---------------------------------------------------------------------
+# A interface é em português de Portugal. `pt` é o código que o Django e o
+# django-allauth usam para as traduções europeias (pt_BR é o Brasil).
 LANGUAGE_CODE = env("LANGUAGE_CODE", default="pt")
 TIME_ZONE = env("TIME_ZONE", default="Africa/Maputo")
 USE_I18N = True
 USE_TZ = True
 
+# Apenas o português está activo: a interface é sempre em português,
+# independentemente do idioma configurado no navegador do utilizador.
+# A infra-estrutura de i18n fica pronta (LocaleMiddleware, LOCALE_PATHS,
+# strings marcadas para tradução) — para acrescentar inglês mais tarde
+# basta voltar a incluir ("en", "English") nesta lista.
 LANGUAGES = [
     ("pt", "Português"),
-    ("en", "English"),
 ]
 LOCALE_PATHS = [BASE_DIR / "locale"]
 
@@ -291,9 +300,10 @@ else:
 # Email
 # ---------------------------------------------------------------------
 DEFAULT_FROM_EMAIL = env(
-    "DEFAULT_FROM_EMAIL", default="MeuConvite <nao-responder@meuconvite.co.mz>"
+    "DEFAULT_FROM_EMAIL", default="MeuConvite <noreply@meuconvite.co.mz>"
 )
 SERVER_EMAIL = env("SERVER_EMAIL", default=DEFAULT_FROM_EMAIL)
+SUPPORT_EMAIL = env("SUPPORT_EMAIL", default="info@meuconvite.co.mz")
 
 # ---------------------------------------------------------------------
 # Application specific

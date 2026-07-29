@@ -44,24 +44,34 @@ class UserModelTests(TestCase):
 
 
 class SignupTests(TestCase):
-    def test_signup_creates_an_account_and_sends_a_verification_email(self) -> None:
-        response = self.client.post(
-            reverse("account_signup"),
-            data={
-                "first_name": "Natércia",
-                "last_name": "Matola",
-                "email": "nova@example.com",
-                "phone": "841234567",
-                "password1": "CasamentoSeguro2026",
-                "password2": "CasamentoSeguro2026",
-            },
-        )
+    def _signup(self, **overrides):
+        data = {
+            "first_name": "Natércia",
+            "last_name": "Matola",
+            "email": "nova@example.com",
+            "phone": "841234567",
+            "password1": "CasamentoSeguro2026",
+            "password2": "CasamentoSeguro2026",
+        }
+        data.update(overrides)
+        return self.client.post(reverse("account_signup"), data=data)
+
+    def test_signup_creates_the_account_with_the_extra_fields(self) -> None:
+        response = self._signup()
         self.assertEqual(response.status_code, 302)
 
         user = User.objects.get(email="nova@example.com")
         self.assertEqual(user.first_name, "Natércia")
         self.assertEqual(user.phone, "+258841234567")
-        self.assertFalse(user.is_email_verified)
+
+    def test_signup_signs_the_user_in_immediately(self) -> None:
+        """Verificar o email não pode bloquear a entrada na aplicação."""
+        response = self._signup()
+        self.assertIn("_auth_user_id", self.client.session)
+        self.assertRedirects(response, reverse("weddings:list"))
+
+    def test_signup_still_sends_the_confirmation_email(self) -> None:
+        self._signup()
         self.assertEqual(len(mail.outbox), 1)
 
     def test_email_must_be_unique(self) -> None:
@@ -100,13 +110,13 @@ class LoginTests(TestCase):
             AuditLog.objects.filter(action=AuditAction.LOGIN, user=self.user).exists()
         )
 
-    def test_login_is_blocked_until_the_email_is_verified(self) -> None:
+    def test_login_works_even_with_an_unverified_email(self) -> None:
         unverified = create_user("porverificar@example.com", is_email_verified=False)
         self.client.post(
             reverse("account_login"),
             data={"login": unverified.email, "password": DEFAULT_PASSWORD},
         )
-        self.assertNotIn("_auth_user_id", self.client.session)
+        self.assertIn("_auth_user_id", self.client.session)
 
     def test_wrong_password_does_not_authenticate(self) -> None:
         self.client.post(

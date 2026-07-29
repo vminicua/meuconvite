@@ -10,5 +10,6 @@ def site_settings(request: HttpRequest) -> dict:
         "SITE_NAME": getattr(settings, "SITE_NAME", "MeuConvite"),
         "SITE_DOMAIN": getattr(settings, "SITE_DOMAIN", "meuconvite.co.mz"),
         "SITE_BASE_URL": getattr(settings, "SITE_BASE_URL", ""),
+        "SUPPORT_EMAIL": getattr(settings, "SUPPORT_EMAIL", ""),
         "DEBUG": settings.DEBUG,
     }

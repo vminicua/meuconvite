@@ -1,0 +1,95 @@
+{% load static %}
+{% comment %}
+Exemplo de convite mostrado na página inicial.
+
+É HTML e SVG, não uma imagem: fica nítido em qualquer ecrã, pesa poucos
+KB e mostra exactamente o que a plataforma gera — incluindo um QR Code
+verdadeiro.
+{% endcomment %}
+<div class="invite" role="img"
+     aria-label="Exemplo de convite digital de Natércia e Hivaldo, com programa do dia e confirmação de presença por QR Code">
+
+    <!-- Painel: confirmação de presença -->
+    <article class="invite__panel invite__panel--side invite__panel--rsvp">
+        <h3 class="invite__side-title">Confirmação<br>de presença</h3>
+        <svg class="invite__divider" viewBox="0 0 160 20" aria-hidden="true"><use href="#mc-divider"/></svg>
+        <p class="invite__qr-hint">Leia o QR Code</p>
+        <img src="{% static 'img/demo-qr.svg' %}" alt="" class="invite__qr" width="128" height="128" loading="lazy">
+        <p class="invite__side-text">Os convidados confirmam:</p>
+        <ul class="invite__side-list">
+            <li>Nome completo</li>
+            <li>Número de pessoas</li>
+            <li>Telefone e email</li>
+            <li>Eventos em que estarão</li>
+            <li>Restrições alimentares</li>
+            <li>Mensagem aos noivos</li>
+        </ul>
+        <p class="invite__side-foot">Natércia &amp; Hivaldo — 14 de Novembro de 2026</p>
+    </article>
+
+    <!-- Painel central -->
+    <article class="invite__panel invite__panel--main">
+        <svg class="invite__flora invite__flora--tr" viewBox="0 0 220 220" aria-hidden="true"><use href="#mc-bouquet"/></svg>
+        <svg class="invite__flora invite__flora--bl" viewBox="0 0 220 220" aria-hidden="true"><use href="#mc-bouquet"/></svg>
+
+        <div class="invite__main-inner">
+            <svg class="invite__hearts" viewBox="0 0 80 60" aria-hidden="true"><use href="#mc-hearts"/></svg>
+            <p class="invite__eyebrow">Vamos casar</p>
+
+            <p class="invite__names">
+                Natércia
+                <span class="invite__amp">&amp;</span>
+                Hivaldo
+            </p>
+
+            <svg class="invite__divider" viewBox="0 0 160 20" aria-hidden="true"><use href="#mc-divider"/></svg>
+
+            <p class="invite__greeting">Caro Carlos Matola,</p>
+            <p class="invite__text">
+                com alegria convidamo-lo para celebrar<br>o nosso casamento
+            </p>
+
+            <p class="invite__date">14 de Novembro de 2026</p>
+            <p class="invite__time">Início: 09h00</p>
+
+            <div class="invite__seats">
+                <span class="invite__seats-label">Lugares reservados</span>
+                <span class="invite__seats-value">2</span>
+            </div>
+
+            <ul class="invite__events">
+                <li><i class="bi bi-check-circle-fill"></i> Cerimónia Religiosa</li>
+                <li><i class="bi bi-check-circle-fill"></i> Cerimónia Civil</li>
+                <li><i class="bi bi-check-circle-fill"></i> Copo de Água</li>
+                <li class="is-off"><i class="bi bi-x-circle"></i> Xiguiane</li>
+            </ul>
+        </div>
+    </article>
+
+    <!-- Painel: programa -->
+    <article class="invite__panel invite__panel--side invite__panel--program">
+        <h3 class="invite__side-title">Programa</h3>
+        <svg class="invite__divider" viewBox="0 0 160 20" aria-hidden="true"><use href="#mc-divider"/></svg>
+
+        <ol class="invite__timeline">
+            <li><i class="bi bi-bank"></i><span class="invite__hour">09h00</span> Cerimónia Religiosa</li>
+            <li><i class="bi bi-journal-check"></i><span class="invite__hour">11h30</span> Cerimónia Civil</li>
+            <li><i class="bi bi-cup-straw"></i><span class="invite__hour">14h30</span> Welcome Drink</li>
+            <li><i class="bi bi-cup-hot"></i><span class="invite__hour">15h00</span> Copo de Água</li>
+            <li><i class="bi bi-camera"></i><span class="invite__hour">15h30</span> Sessão Fotográfica</li>
+            <li><i class="bi bi-cake2"></i><span class="invite__hour">18h30</span> Corte do Bolo</li>
+            <li><i class="bi bi-music-note-beamed"></i><span class="invite__hour">19h30</span> Abertura da Sala</li>
+        </ol>
+
+        <h3 class="invite__side-title invite__side-title--sm">Locais</h3>
+        <p class="invite__side-text">
+            Paróquia de Santo António<br>
+            Salão A Flor da Lily
+        </p>
+    </article>
+</div>
+
+<p class="invite__caption">
+    <i class="bi bi-stars"></i>
+    Exemplo gerado pela plataforma — o QR Code acima é real
+</p>

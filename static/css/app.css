@@ -103,61 +103,8 @@ main {
     background: transparent;
 }
 
-/* --- Landing page -------------------------------------------------- */
-.hero {
-    background: linear-gradient(180deg, #fffdf8 0%, #f7f6f3 100%);
-}
-
-.feature-card {
-    background-color: var(--mc-surface);
-    border: 1px solid rgba(0, 0, 0, .06);
-    border-radius: .75rem;
-    padding: 1.5rem;
-}
-
-.feature-card__icon {
-    font-size: 1.5rem;
-    color: var(--mc-gold);
-    display: block;
-    margin-bottom: .75rem;
-}
-
-.invite-preview {
-    background: var(--mc-surface);
-    border-radius: 1rem;
-    padding: .75rem;
-    border: 1px solid rgba(0, 0, 0, .06);
-}
-
-.invite-preview__inner {
-    border: 1px solid var(--mc-gold);
-    border-radius: .75rem;
-    padding: 2rem 1.5rem;
-    text-align: center;
-}
-
-.invite-preview__hello {
-    font-size: .95rem;
-    color: var(--mc-muted);
-    margin-bottom: .5rem;
-}
-
-.invite-preview__names {
-    font-size: 1.75rem;
-    color: var(--mc-gold-dark);
-    margin-bottom: .5rem;
-    font-family: Georgia, "Times New Roman", serif;
-}
-
-.invite-preview__text {
-    color: var(--mc-muted);
-    font-size: .9rem;
-}
-
-.invite-preview__events {
-    text-align: left;
-    display: inline-block;
-}
+/* A página inicial tem folha de estilos própria (static/css/home.css),
+   carregada apenas nessa página para não pesar na aplicação. */
 
 /* --- Wedding area -------------------------------------------------- */
 .wedding-header {

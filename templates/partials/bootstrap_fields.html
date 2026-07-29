@@ -1,0 +1,35 @@
+{% load core_extras %}
+{% comment %}
+Renderiza um formulário com o aspecto Bootstrap, acrescentando as classes
+aos widgets. Usado pelas páginas de conta (django-allauth) e por qualquer
+formulário cujos widgets não venham já preparados.
+
+Uso: {% include "partials/bootstrap_fields.html" with form=form %}
+{% endcomment %}
+{% if form.non_field_errors %}
+    <div class="alert alert-danger">
+        {% for error in form.non_field_errors %}<div>{{ error }}</div>{% endfor %}
+    </div>
+{% endif %}
+
+{% for field in form.visible_fields %}
+    {% if field.field.widget.input_type == "checkbox" %}
+        <div class="form-check mb-3">
+            {{ field|add_class:"form-check-input" }}
+            <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+            {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+        </div>
+    {% else %}
+        <div class="mb-3">
+            <label class="form-label" for="{{ field.id_for_label }}">
+                {{ field.label }}{% if field.field.required %} <span class="text-danger">*</span>{% endif %}
+            </label>
+            {{ field|add_class:"form-control" }}
+            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+            {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+        </div>
+    {% endif %}
+{% endfor %}
+
+{% for field in form.hidden_fields %}{{ field }}{% endfor %}
