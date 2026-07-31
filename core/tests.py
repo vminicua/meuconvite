@@ -38,11 +38,14 @@ class PublicPageTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "form-control")
 
-    def test_signup_page_renders_with_the_extra_fields(self) -> None:
+    def test_signup_page_only_asks_for_name_email_and_password(self) -> None:
         response = self.client.get(reverse("account_signup"))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "first_name")
-        self.assertContains(response, "phone")
+        self.assertContains(response, 'name="name"')
+        self.assertContains(response, 'name="email"')
+        self.assertContains(response, 'name="password1"')
+        self.assertNotContains(response, 'name="password2"')
+        self.assertNotContains(response, 'name="phone"')
 
     def test_password_reset_page_renders(self) -> None:
         response = self.client.get(reverse("account_reset_password"))

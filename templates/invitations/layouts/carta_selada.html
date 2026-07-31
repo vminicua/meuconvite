@@ -1,0 +1,80 @@
+{% include "invitations/_ornaments.html" %}
+
+{% if template.has_cover %}
+    <section class="inv-cover" id="inv-cover">
+        <div class="inv-cover__paper">
+            <p class="inv-cover__eyebrow">{% if guest_name %}Para{% else %}Convite de{% endif %}</p>
+            <p class="inv-cover__guest">{{ guest_name|default:wedding.display_names }}</p>
+
+            <svg class="inv-cover__seal" viewBox="0 0 120 120" aria-hidden="true">
+                <use href="#inv-seal"/>
+                <text x="60" y="70" text-anchor="middle" class="inv-cover__monogram">{{ monogram }}</text>
+            </svg>
+
+            <p class="inv-cover__note">{{ wedding.category_name }} · {{ wedding.main_date|date:"d/m/Y" }}</p>
+            <button type="button" class="inv-btn inv-btn--light" data-open-invitation>
+                Abrir o convite
+            </button>
+        </div>
+    </section>
+{% endif %}
+
+<main class="inv-main" id="inv-main" {% if template.has_cover %}hidden{% endif %}>
+    <header class="inv-hero">
+        <svg class="inv-hero__corner inv-hero__corner--tl" viewBox="0 0 120 120" aria-hidden="true"><use href="#inv-corner"/></svg>
+        <svg class="inv-hero__corner inv-hero__corner--br" viewBox="0 0 120 120" aria-hidden="true"><use href="#inv-corner"/></svg>
+
+        {% if wedding.cover_image %}
+            <div class="inv-hero__photo">
+                <img src="{{ wedding.cover_image.url }}" alt="">
+            </div>
+        {% endif %}
+
+        <p class="inv-hero__eyebrow">{{ invitation_eyebrow }}</p>
+        <h1 class="inv-hero__names">
+            {{ wedding.primary_short_name }}
+            {% if wedding.secondary_short_name %}
+                <span class="inv-hero__amp">{{ wedding.names_separator }}</span>
+                {{ wedding.secondary_short_name }}
+            {% endif %}
+        </h1>
+
+        <svg class="inv-divider" viewBox="0 0 200 24" aria-hidden="true"><use href="#inv-divider"/></svg>
+
+        {% if guest_name %}
+            <p class="inv-hero__greeting">Caro(a) {{ guest_name }},</p>
+        {% endif %}
+        <p class="inv-hero__text">
+            {{ wedding.full_names }} {{ invitation_greeting }}
+        </p>
+
+        <p class="inv-hero__date">{{ wedding.main_date|date:"d \d\e F \d\e Y" }}</p>
+        {% if first_moment and first_moment.start_time %}
+            <p class="inv-hero__time">Início: {{ first_moment.start_time|time:"H\hi" }}</p>
+        {% endif %}
+
+        {% include "invitations/_countdown.html" %}
+
+        {% if seats %}
+            <p class="inv-seats"><span>Lugares reservados</span><strong>{{ seats }}</strong></p>
+        {% endif %}
+    </header>
+
+    {% if wedding.welcome_message %}
+        <section class="inv-section">
+            <p class="inv-text inv-text--lead">{{ wedding.welcome_message|linebreaksbr }}</p>
+        </section>
+    {% endif %}
+
+    {% if wedding.story %}
+        <section class="inv-section inv-section--story">
+            <h2 class="inv-section__title">A nossa história</h2>
+            <svg class="inv-divider" viewBox="0 0 200 24" aria-hidden="true"><use href="#inv-divider"/></svg>
+            <p class="inv-text">{{ wedding.story|linebreaksbr }}</p>
+        </section>
+    {% endif %}
+
+    {% include "invitations/_schedule.html" %}
+    {% include "invitations/_venues.html" %}
+    {% include "invitations/_rsvp.html" %}
+</main>

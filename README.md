@@ -1,8 +1,9 @@
 # MeuConvite
 
-Plataforma SaaS de convites digitais para casamentos em Moçambique
-(`meuconvite.co.mz`): cerimónia religiosa, cerimónia civil, recepção, copo de
-água, lobolo, xiguiane e quaisquer outros eventos personalizados.
+Plataforma SaaS de convites digitais para **qualquer tipo de evento** em
+Moçambique (`meuconvite.co.mz`): casamentos, lobolo, aniversários, batismos,
+formaturas, chá de bebé, eventos corporativos — cada tipo com os seus campos,
+momentos e programa.
 
 - **Interface**: português
 - **Código, nomes técnicos e comentários**: inglês
@@ -37,6 +38,10 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
+```bash
+pip install -r requirements-dev.txt
+```
+
 Se ainda não existir um `.env` (não vem no repositório):
 
 ```bash
@@ -46,9 +51,21 @@ copy .env.example .env
 > Se já tiver um `.env` com credenciais reais, **não execute o comando acima** —
 > substituiria o ficheiro.
 
-Em desenvolvimento o `.env` é opcional: as predefinições usam SQLite, `DEBUG=True`
-e envio de emails para a consola. Mesmo com um `.env` de produção presente, o
-ambiente local continua em SQLite (ver *Configuração da base de dados*).
+O desenvolvimento corre contra a **mesma base de dados de produção**, através de
+um túnel SSH. Numa janela:
+
+```bash
+python scripts/dev_tunnel.py
+```
+
+E noutra:
+
+```bash
+python manage.py runserver
+```
+
+Os **testes nunca tocam nessa base**: correm sempre em SQLite em memória
+(ver `config/settings/development.py`).
 
 ```bash
 python manage.py migrate
@@ -102,13 +119,80 @@ accounts/          utilizador personalizado (login por email), perfil, adaptador
 audit/             registo de auditoria das ações críticas
 weddings/          casamento (fronteira de isolamento), equipa e permissões
 events/            eventos, locais e programa do dia
+templates_manager/ catálogo dos templates visuais de convite
+subscriptions/     planos, limites, pagamentos por M-Pesa
+scripts/           túnel de desenvolvimento, deploy e backup
 templates/         Django Templates (interface em português)
 static/            CSS e JavaScript próprios
 ```
 
 Aplicações previstas para as fases seguintes: `guests`, `invitations`, `rsvps`,
-`seating`, `checkin`, `templates_manager`, `notifications`, `subscriptions`,
-`reports`.
+`seating`, `checkin`, `notifications`, `subscriptions`, `reports`.
+
+### Tipos de evento
+
+`events.EventCategory` descreve cada tipo de evento e é **gerido pela equipa
+MeuConvite na administração** — acrescentar um tipo novo não exige código. Cada
+tipo define:
+
+- se há um ou dois protagonistas, e como se chamam (`Nome da noiva`/`Nome do
+  noivo`, `Nome do aniversariante`, `Família anfitriã`…);
+- os **campos próprios** pedidos ao criar o evento (`field_schema`, em JSON);
+- os **momentos** e o **programa** criados automaticamente (`default_moments`,
+  `default_schedule`), para o evento não nascer vazio;
+- a frase usada no convite.
+
+```bash
+python manage.py seed_event_categories
+```
+
+Cria os oito tipos iniciais: casamento, lobolo, aniversário, batismo,
+formatura, chá de bebé, evento corporativo e "outro evento".
+
+### Campos definidos por dados
+
+`core/schema.py` é o mecanismo comum a dois sítios onde os campos não são
+conhecidos à partida: os campos próprios de cada tipo de evento e os campos que
+o utilizador acrescenta ao **programa** do seu evento
+(`Wedding.schedule_field_schema`). Valida o esquema, constrói os campos de
+formulário (`extra__<chave>`) e recolhe os valores para JSON. Tipos suportados:
+texto, texto longo, número, data, hora, ligação, lista de opções e sim/não.
+
+### Subscrições e pagamentos
+
+| Pacote | Convidados | Preço indicativo |
+| ------ | ---------: | ---------------: |
+| Gratuito | 20 | — |
+| Essencial 50 | 50 | 750 MZN |
+| Celebração 100 | 100 | 1 500 MZN |
+| Premium 200 | 200 | 2 500 MZN |
+| Grande Evento 500 | 500 | 4 500 MZN |
+
+```bash
+python manage.py seed_plans
+```
+
+> Os preços são um ponto de partida e devem ser confirmados na administração.
+> `seed_plans` **não** altera preços de pacotes existentes sem `--update-prices`.
+
+O circuito de pagamento é manual e propositadamente simples: o utilizador pede
+o pacote, a plataforma gera uma referência (`MC-XXXXXX`), ele paga por **M-Pesa
+para 840297715** e envia o comprovativo por **WhatsApp** (botão com a mensagem
+já preenchida). A equipa confirma em *Administração → Pagamentos* e o pacote é
+activado por `subscriptions.services.confirm_payment`.
+
+`subscriptions.services.limits(wedding)` é o único ponto de verdade sobre
+limites; `check_can_add_guests(wedding, n)` é o ponto único de verificação, que
+a aplicação `guests` (fase 2) passará a chamar.
+
+### Templates de convite
+
+O catálogo está em `templates_manager/registry.py` — 13 templates, cada um com
+paleta e tipos de letra próprios (clássico dourado, luxo preto, capulana
+moçambicana, floral rosa, minimalista, verde oliva, azul marinho, terracota,
+bordeaux, tropical, lavanda, areia dourada e noite estrelada). São escolhidos
+na galeria do ecrã **Aspecto** e o código escolhido é validado no servidor.
+Acrescentar um template novo é acrescentar uma entrada nessa lista.
 
 ### Padrões de código
 
@@ -133,10 +217,19 @@ Aplicações previstas para as fases seguintes: `guests`, `invitations`, `rsvps`
 
 ### Modelos da fase 1
 
+> **Dívida técnica assumida:** o modelo do evento chama-se ainda `Wedding` em
+> Python (e a aplicação `weddings/`), por a plataforma ter começado dedicada a
+> casamentos. A interface já diz "evento" em todo o lado e os campos são
+> genéricos (`primary_name`, `secondary_name`). O renomear das classes fica para
+> um passo próprio, para não misturar uma mudança mecânica grande com trabalho
+> funcional.
+
 | Modelo | Aplicação | Notas |
 | ------ | --------- | ----- |
 | `User` | accounts | UUID, login por email, sem username |
-| `Wedding` | weddings | slug único + `public_token`, estado, cores, template, prazos |
+| `EventCategory` | events | tipo de evento, com campos e momentos próprios |
+| `Wedding` | weddings | o evento: slug + `public_token`, tipo, `extra_data`, estado, cores |
+| `Plan` · `Subscription` · `Payment` | subscriptions | pacotes, limites e pagamentos M-Pesa |
 | `WeddingMember` | weddings | função + 7 permissões individuais, único por (casamento, utilizador) |
 | `WeddingLocation` | events | endereço, mapa, coordenadas, estacionamento, transporte |
 | `WeddingEvent` | events | tipo (inclui lobolo e xiguiane), data/hora, família anfitriã, traje, regras de RSVP/QR |
@@ -181,15 +274,17 @@ DB_PORT=5432
 Instale apenas o driver correspondente (`mysqlclient` ou `psycopg[binary]`) —
 ambos estão comentados no `requirements.txt`.
 
-> ⚠️ A base remota foi criada em `latin1`. **Antes do primeiro `migrate`** tem de
-> ser convertida para `utf8mb4` (`DEPLOYMENT.md` §0.1), caso contrário nomes com
-> acentos e emoji ficam corrompidos. Como a base está vazia, a conversão não
-> afeta dados nenhuns.
+**Desenvolvimento e produção partilham a mesma base de dados.** Como o MariaDB
+do cPanel só aceita ligações a partir do próprio servidor, o ambiente local
+liga-se por um túnel SSH (`scripts/dev_tunnel.py`), que abre
+`127.0.0.1:3307 → servidor 127.0.0.1:3306`. As variáveis `DEV_DB_HOST` e
+`DEV_DB_PORT` do `.env` apontam para essa ponta local; no servidor são ignoradas.
 
-**Desenvolvimento local usa sempre SQLite**, mesmo com o `.env` de produção
-presente: `config/settings/development.py` ignora as credenciais remotas. Para
-trabalhar contra a base remota através de um túnel SSH, defina
-`DEV_DB_FROM_ENV=True`.
+> ⚠️ Trabalhar contra a base de produção significa que **qualquer alteração é
+> imediatamente real**. Por isso: os testes correm sempre em SQLite em memória,
+> o `runserver` avisa em cada arranque a que base está ligado, e nenhuma
+> migração é executada pelo script de deploy — `migrate` é sempre um passo
+> deliberado (`DEPLOYMENT.md` §14).
 
 ### Ficheiros de ambiente
 

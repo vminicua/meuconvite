@@ -2,14 +2,127 @@ from __future__ import annotations
 
 from datetime import datetime
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from core.models import BaseModel
+from core.schema import FIELD_TYPES, normalise_schema, validate_schema
 from core.utils import unique_slugify
 from core.validators import validate_phone
 from weddings.models import Wedding
+
+
+class EventCategoryQuerySet(models.QuerySet):
+    def active(self) -> "EventCategoryQuerySet":
+        return self.filter(is_active=True)
+
+
+class EventCategory(BaseModel):
+    """
+    Tipo de evento suportado pela plataforma (casamento, aniversário,
+    lobolo, batismo, formatura, …).
+
+    É gerido pela equipa MeuConvite na administração: cada tipo define
+    como se chamam os protagonistas, que campos extra faz sentido pedir,
+    que momentos são criados automaticamente e que programa é sugerido.
+    Acrescentar um tipo novo não exige alterações no código.
+    """
+
+    code = models.SlugField(_("código"), max_length=40, unique=True)
+    name = models.CharField(_("nome"), max_length=80)
+    description = models.CharField(_("descrição"), max_length=200, blank=True)
+    icon = models.CharField(
+        _("ícone"),
+        max_length=40,
+        default="bi-calendar-heart",
+        help_text=_("Nome do ícone Bootstrap, por exemplo bi-cake2."),
+    )
+
+    # --- Protagonistas ---
+    uses_two_names = models.BooleanField(
+        _("dois protagonistas"),
+        default=False,
+        help_text=_("Um casamento tem dois nomes; um aniversário tem um."),
+    )
+    primary_label = models.CharField(_("etiqueta do 1.º nome"), max_length=60, default="Nome")
+    secondary_label = models.CharField(
+        _("etiqueta do 2.º nome"), max_length=60, blank=True
+    )
+    names_separator = models.CharField(
+        _("separador dos nomes"),
+        max_length=10,
+        default="&",
+        help_text=_("Usado no título: «Ivone & Dário»."),
+    )
+
+    # --- Campos próprios deste tipo de evento ---
+    field_schema = models.JSONField(
+        _("campos próprios"),
+        default=list,
+        blank=True,
+        help_text=_(
+            "Lista de campos extra. Exemplo: "
+            '[{"key": "idade", "label": "Idade a celebrar", "type": "number"}]. '
+            "Tipos aceites: text, textarea, number, date."
+        ),
+    )
+
+    # --- Sugestões automáticas ao criar o evento ---
+    default_moments = models.JSONField(
+        _("momentos predefinidos"),
+        default=list,
+        blank=True,
+        help_text=_(
+            "Momentos criados automaticamente. Exemplo: "
+            '[{"name": "Recepção", "event_type": "reception", "start_time": "19:30"}]'
+        ),
+    )
+    default_schedule = models.JSONField(
+        _("programa predefinido"),
+        default=list,
+        blank=True,
+        help_text=_('Exemplo: [{"title": "Corte do bolo", "start_time": "18:30", "icon": "bi-cake2"}]'),
+    )
+
+    invitation_greeting = models.CharField(
+        _("frase do convite"),
+        max_length=200,
+        default="tem o prazer de o convidar para",
+        help_text=_("Usada no convite, depois dos nomes dos protagonistas."),
+    )
+
+    is_active = models.BooleanField(_("activo"), default=True, db_index=True)
+    display_order = models.PositiveIntegerField(_("ordem"), default=0)
+
+    objects = EventCategoryQuerySet.as_manager()
+
+    ALLOWED_FIELD_TYPES = tuple(FIELD_TYPES)
+
+    class Meta:
+        verbose_name = _("tipo de evento")
+        verbose_name_plural = _("tipos de evento")
+        ordering = ["display_order", "name"]
+
+    def __str__(self) -> str:
+        return self.name
+
+    def clean(self) -> None:
+        super().clean()
+        if self.uses_two_names and not self.secondary_label:
+            raise ValidationError(
+                {"secondary_label": _("Indique a etiqueta do segundo nome.")}
+            )
+        try:
+            validate_schema(self.field_schema)
+        except ValidationError as exc:
+            raise ValidationError({"field_schema": exc.messages}) from exc
+
+    @property
+    def extra_fields(self) -> list[dict]:
+        """Definições normalizadas dos campos próprios deste tipo de evento."""
+        return normalise_schema(self.field_schema)
 
 
 class EventType(models.TextChoices):
@@ -37,7 +150,7 @@ class WeddingLocation(BaseModel):
     """A place where one or more events happen."""
 
     wedding = models.ForeignKey(
-        Wedding, verbose_name=_("casamento"), on_delete=models.CASCADE, related_name="locations"
+        Wedding, verbose_name=_("evento"), on_delete=models.CASCADE, related_name="locations"
     )
     name = models.CharField(_("nome"), max_length=150)
     address = models.CharField(_("endereço"), max_length=250, blank=True)
@@ -109,7 +222,7 @@ class WeddingEvent(BaseModel):
     """
 
     wedding = models.ForeignKey(
-        Wedding, verbose_name=_("casamento"), on_delete=models.CASCADE, related_name="events"
+        Wedding, verbose_name=_("evento"), on_delete=models.CASCADE, related_name="events"
     )
     event_type = models.CharField(
         _("tipo"), max_length=30, choices=EventType.choices, default=EventType.CUSTOM
@@ -224,7 +337,7 @@ class ScheduleItem(BaseModel):
 
     wedding = models.ForeignKey(
         Wedding,
-        verbose_name=_("casamento"),
+        verbose_name=_("evento"),
         on_delete=models.CASCADE,
         related_name="schedule_items",
     )
@@ -262,6 +375,11 @@ class ScheduleItem(BaseModel):
         help_text=_("Se desactivado, aparece apenas nos convites individuais."),
     )
 
+    # Valores dos campos que o próprio utilizador acrescentou ao programa
+    # deste evento (ver Wedding.schedule_field_schema). Ficam em JSON para
+    # que criar um campo novo não exija uma migração.
+    extra_data = models.JSONField(_("campos adicionais"), default=dict, blank=True)
+
     class Meta:
         verbose_name = _("item do programa")
         verbose_name_plural = _("programa")
@@ -278,3 +396,12 @@ class ScheduleItem(BaseModel):
     @property
     def time_display(self) -> str:
         return f"{self.start_time:%Hh%M}" if self.start_time else ""
+
+    def extra_values(self) -> list[dict]:
+        """Campos adicionais deste programa, com etiqueta e valor preenchido."""
+        values = self.extra_data or {}
+        return [
+            {**definition, "value": values.get(definition["key"], "")}
+            for definition in self.wedding.schedule_fields
+            if values.get(definition["key"])
+        ]

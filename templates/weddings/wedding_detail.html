@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ wedding.couple_names }} · {{ SITE_NAME }}{% endblock %}
+{% block title %}{{ wedding.display_names }} · {{ SITE_NAME }}{% endblock %}
 
 {% block content %}
 {% include "partials/wedding_nav.html" %}
@@ -9,13 +9,13 @@
     <div class="col-6 col-lg-3">
         <div class="stat-tile">
             <div class="stat-tile__value">{{ summary.days_until }}</div>
-            <div class="stat-tile__label">dias para o casamento</div>
+            <div class="stat-tile__label">dias para o evento</div>
         </div>
     </div>
     <div class="col-6 col-lg-3">
         <div class="stat-tile">
             <div class="stat-tile__value">{{ summary.events_total }}</div>
-            <div class="stat-tile__label">eventos activos</div>
+            <div class="stat-tile__label">momentos</div>
         </div>
     </div>
     <div class="col-6 col-lg-3">
@@ -25,18 +25,34 @@
         </div>
     </div>
     <div class="col-6 col-lg-3">
-        <div class="stat-tile">
-            <div class="stat-tile__value">{{ summary.team_total }}</div>
-            <div class="stat-tile__label">pessoas na equipa</div>
-        </div>
+        <a class="stat-tile stat-tile--link d-block text-decoration-none"
+           href="{% url 'subscriptions:detail' wedding.pk %}">
+            <div class="stat-tile__value">{{ guests_used }}<span class="text-body-secondary">/{{ limits.max_guests }}</span></div>
+            <div class="stat-tile__label">
+                convidados · pacote {{ limits.plan_name }}
+            </div>
+        </a>
     </div>
 </div>
+
+{% if usage_percent >= 80 %}
+    <div class="alert alert-warning d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <span>
+            <i class="bi bi-exclamation-triangle me-1"></i>
+            Já usou {{ usage_percent }}% dos convidados do pacote {{ limits.plan_name }}
+            ({{ guests_used }} de {{ limits.max_guests }}).
+        </span>
+        <a href="{% url 'subscriptions:detail' wedding.pk %}" class="btn btn-sm btn-primary">
+            Ver pacotes
+        </a>
+    </div>
+{% endif %}
 
 <div class="row g-4">
     <div class="col-lg-7">
         <div class="card shadow-sm h-100">
             <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
-                <span class="fw-semibold">Eventos da celebração</span>
+                <span class="fw-semibold">Momentos do evento</span>
                 <a href="{% url 'events:list' wedding.pk %}" class="btn btn-sm btn-outline-secondary">Gerir</a>
             </div>
             <div class="card-body">
@@ -64,8 +80,8 @@
                         {% endfor %}
                     </ul>
                 {% else %}
-                    <p class="text-body-secondary mb-3">Ainda não criou nenhum evento.</p>
-                    <a href="{% url 'events:create' wedding.pk %}" class="btn btn-sm btn-primary">Criar primeiro evento</a>
+                    <p class="text-body-secondary mb-3">Ainda não criou nenhum momento.</p>
+                    <a href="{% url 'events:create' wedding.pk %}" class="btn btn-sm btn-primary">Criar primeiro momento</a>
                 {% endif %}
             </div>
         </div>
@@ -99,14 +115,14 @@
                             <div class="text-body-secondary mt-1">Disponível a partir da Fase 4.</div>
                         </div>
                         <form method="post" action="{% url 'weddings:unpublish' wedding.pk %}"
-                              data-confirm="Despublicar este casamento? As páginas públicas deixam de responder.">
+                              data-confirm="Despublicar este evento? As páginas públicas deixam de responder.">
                             {% csrf_token %}
                             <button class="btn btn-outline-secondary btn-sm w-100">Despublicar</button>
                         </form>
                     {% else %}
                         <form method="post" action="{% url 'weddings:publish' wedding.pk %}">
                             {% csrf_token %}
-                            <button class="btn btn-primary w-100">Publicar casamento</button>
+                            <button class="btn btn-primary w-100">Publicar evento</button>
                         </form>
                     {% endif %}
                 {% endif %}

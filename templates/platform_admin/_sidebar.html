@@ -1,0 +1,73 @@
+{% comment %}
+Navegação lateral. Cada ligação troca apenas o conteúdo (HTMX) e
+actualiza o URL, para a mudança de secção ser instantânea.
+{% endcomment %}
+<aside class="admin-sidebar" id="admin-sidebar">
+    <div class="admin-sidebar__brand">
+        <a href="{% url 'core:home' %}" class="admin-sidebar__logo">
+            <i class="bi bi-envelope-heart"></i>
+            <span>{{ SITE_NAME }}</span>
+        </a>
+        <span class="admin-sidebar__tag">Administração</span>
+    </div>
+
+    <nav class="admin-nav" hx-target="#admin-content" hx-swap="innerHTML show:window:top" hx-push-url="true">
+        <span class="admin-nav__group">Plataforma</span>
+
+        <a class="admin-nav__item {% if section == 'dashboard' %}is-active{% endif %}"
+           href="{% url 'platform:dashboard' %}" hx-get="{% url 'platform:dashboard' %}">
+            <i class="bi bi-speedometer2"></i><span>Visão geral</span>
+        </a>
+
+        <a class="admin-nav__item {% if section == 'events' %}is-active{% endif %}"
+           href="{% url 'platform:events' %}" hx-get="{% url 'platform:events' %}">
+            <i class="bi bi-calendar-heart"></i><span>Eventos</span>
+        </a>
+
+        <a class="admin-nav__item {% if section == 'users' %}is-active{% endif %}"
+           href="{% url 'platform:users' %}" hx-get="{% url 'platform:users' %}">
+            <i class="bi bi-people"></i><span>Utilizadores</span>
+        </a>
+
+        <span class="admin-nav__group">Comercial</span>
+
+        <a class="admin-nav__item {% if section == 'payments' %}is-active{% endif %}"
+           href="{% url 'platform:payments' %}" hx-get="{% url 'platform:payments' %}">
+            <i class="bi bi-cash-coin"></i><span>Pagamentos</span>
+            {% if pending_payments_count %}
+                <span class="admin-nav__badge">{{ pending_payments_count }}</span>
+            {% endif %}
+        </a>
+
+        <a class="admin-nav__item {% if section == 'plans' %}is-active{% endif %}"
+           href="{% url 'platform:plans' %}" hx-get="{% url 'platform:plans' %}">
+            <i class="bi bi-gem"></i><span>Pacotes</span>
+        </a>
+
+        <span class="admin-nav__group">Configuração</span>
+
+        <a class="admin-nav__item {% if section == 'categories' %}is-active{% endif %}"
+           href="{% url 'platform:categories' %}" hx-get="{% url 'platform:categories' %}">
+            <i class="bi bi-tags"></i><span>Tipos de evento</span>
+        </a>
+
+        <a class="admin-nav__item {% if section == 'templates' %}is-active{% endif %}"
+           href="{% url 'platform:templates' %}" hx-get="{% url 'platform:templates' %}">
+            <i class="bi bi-palette"></i><span>Templates</span>
+        </a>
+
+        <a class="admin-nav__item {% if section == 'audit' %}is-active{% endif %}"
+           href="{% url 'platform:audit' %}" hx-get="{% url 'platform:audit' %}">
+            <i class="bi bi-clipboard-check"></i><span>Auditoria</span>
+        </a>
+    </nav>
+
+    <div class="admin-sidebar__foot">
+        <a href="{% url 'weddings:list' %}" class="admin-nav__item">
+            <i class="bi bi-box-arrow-left"></i><span>Voltar à aplicação</span>
+        </a>
+        <a href="/{{ ADMIN_URL }}" class="admin-nav__item admin-nav__item--muted">
+            <i class="bi bi-database"></i><span>Django Admin</span>
+        </a>
+    </div>
+</aside>

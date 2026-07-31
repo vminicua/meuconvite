@@ -1,0 +1,33 @@
+<section class="inv-section inv-section--rsvp">
+    <h2 class="inv-section__title">Confirmação de presença</h2>
+    <svg class="inv-divider" viewBox="0 0 200 24" aria-hidden="true"><use href="#inv-divider"/></svg>
+
+    {% if wedding.rsvp_deadline %}
+        <p class="inv-text">
+            Pedimos a gentileza de confirmar até
+            <strong>{{ wedding.rsvp_deadline|date:"d \d\e F \d\e Y" }}</strong>.
+        </p>
+    {% else %}
+        <p class="inv-text">Pedimos a gentileza de confirmar a sua presença.</p>
+    {% endif %}
+
+    {% if is_preview %}
+        <span class="inv-btn inv-btn--disabled" aria-disabled="true">Confirmar presença</span>
+        <p class="inv-note">
+            Na pré-visualização o formulário está desligado. Cada convidado receberá
+            uma ligação própria, com o seu nome e os lugares reservados.
+        </p>
+    {% else %}
+        <a class="inv-btn" href="#">Confirmar presença</a>
+    {% endif %}
+</section>
+
+<footer class="inv-footer">
+    <svg class="inv-hearts" viewBox="0 0 200 24" aria-hidden="true"><use href="#inv-divider"/></svg>
+    <p class="inv-footer__names">{{ wedding.display_names }}</p>
+    <p class="inv-footer__date">{{ wedding.main_date|date:"d/m/Y" }} · {{ wedding.city }}</p>
+    {% if wedding.hashtag %}<p class="inv-footer__hashtag">{{ wedding.hashtag }}</p>{% endif %}
+    {% if show_branding %}
+        <p class="inv-footer__brand">convite criado com <strong>MeuConvite</strong></p>
+    {% endif %}
+</footer>

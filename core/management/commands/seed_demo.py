@@ -58,10 +58,10 @@ class Command(BaseCommand):
 
         with transaction.atomic():
             owner = self._get_or_create_user(
-                DEMO_OWNER_EMAIL, "Natércia", "Matola", password
+                DEMO_OWNER_EMAIL, "Telma", "Sitoe", password
             )
             planner = self._get_or_create_user(
-                DEMO_PLANNER_EMAIL, "Maria", "Bila", password
+                DEMO_PLANNER_EMAIL, "Aida", "Bila", password
             )
 
             if options["reset"]:
@@ -81,7 +81,7 @@ class Command(BaseCommand):
             self._create_schedule(wedding, events, locations)
 
         self.stdout.write(self.style.SUCCESS("Dados de demonstração criados."))
-        self.stdout.write(f"  Casamento : {wedding.couple_names} ({wedding.main_date:%d/%m/%Y})")
+        self.stdout.write(f"  Casamento : {wedding.display_names} ({wedding.main_date:%d/%m/%Y})")
         self.stdout.write(f"  Painel    : /casamentos/{wedding.pk}/")
         self.stdout.write(f"  Noivos    : {DEMO_OWNER_EMAIL}")
         self.stdout.write(f"  Planner   : {DEMO_PLANNER_EMAIL}")
@@ -132,10 +132,10 @@ class Command(BaseCommand):
         main_date = timezone.localdate() + timedelta(days=90)
         wedding = Wedding.objects.create(
             owner=owner,
-            bride_full_name="Natércia Alice Matola",
-            groom_full_name="Hivaldo José Cossa",
-            bride_short_name="Natércia",
-            groom_short_name="Hivaldo",
+            primary_name="Telma Cristina Sitoe",
+            secondary_name="Bruno Alberto Machava",
+            primary_short_name="Telma",
+            secondary_short_name="Bruno",
             main_date=main_date,
             city="Maputo",
             country="Moçambique",
@@ -147,7 +147,7 @@ class Command(BaseCommand):
                 "Conhecemo-nos em Maputo, numa tarde de Novembro, e desde então "
                 "não nos largámos mais."
             ),
-            hashtag="#NaterciaEHivaldo2026",
+            hashtag="#TelmaEBruno2026",
             rsvp_deadline=main_date - timedelta(days=21),
         )
         membership = WeddingMember(
@@ -211,7 +211,7 @@ class Command(BaseCommand):
             start_time=time(8, 0),
             end_time=time(13, 0),
             location=locations["family"],
-            host_family="Família Matola",
+            host_family="Família Sitoe",
             dress_code="Traje tradicional",
             requires_rsvp=True,
             show_to_all_guests=False,
@@ -275,7 +275,7 @@ class Command(BaseCommand):
             date=main_date + timedelta(days=1),
             start_time=time(10, 0),
             location=locations["family"],
-            host_family="Família Cossa",
+            host_family="Família Machava",
             requires_rsvp=True,
             show_to_all_guests=False,
             display_order=60,

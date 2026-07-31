@@ -6,6 +6,7 @@ from django.db import transaction
 from django.db.models import Max
 
 from audit.services import log_create, log_delete, log_update, model_to_dict
+from core.schema import validate_schema
 
 from .models import ScheduleItem, WeddingEvent, WeddingLocation
 
@@ -80,6 +81,7 @@ def create_schedule_item(*, wedding, form, actor, request=None) -> ScheduleItem:
     item: ScheduleItem = form.save(commit=False)
     item.wedding = wedding
     item.display_order = _next_display_order(ScheduleItem, wedding)
+    item.extra_data = form.extra_data()
     if not item.date:
         item.date = item.event.date if item.event_id else wedding.main_date
     item.full_clean()
@@ -92,10 +94,60 @@ def create_schedule_item(*, wedding, form, actor, request=None) -> ScheduleItem:
 def update_schedule_item(*, item: ScheduleItem, form, actor, request=None) -> ScheduleItem:
     old_data = model_to_dict(item)
     item = form.save(commit=False)
+    item.extra_data = form.extra_data()
     item.full_clean()
     item.save()
     log_update(item, old_data=old_data, actor=actor, wedding=item.wedding, request=request)
     return item
+
+
+@transaction.atomic
+def add_schedule_field(*, wedding, definition: dict, actor, request=None) -> list[dict]:
+    """Acrescenta um campo ao programa deste evento."""
+    schema = list(wedding.schedule_field_schema or [])
+    schema.append(definition)
+    validate_schema(schema)
+
+    old = {"schedule_field_schema": len(wedding.schedule_field_schema or [])}
+    wedding.schedule_field_schema = schema
+    wedding.save(update_fields=["schedule_field_schema", "updated_at"])
+
+    log_update(wedding, old_data=old, actor=actor, wedding=wedding, request=request)
+    return schema
+
+
+@transaction.atomic
+def remove_schedule_field(*, wedding, key: str, actor, request=None) -> list[dict]:
+    """
+    Remove um campo do programa.
+
+    Os valores já preenchidos nos itens são apagados também, para não
+    ficarem dados órfãos invisíveis na base.
+    """
+    schema = [
+        definition
+        for definition in (wedding.schedule_field_schema or [])
+        if isinstance(definition, dict) and definition.get("key") != key
+    ]
+    wedding.schedule_field_schema = schema
+    wedding.save(update_fields=["schedule_field_schema", "updated_at"])
+
+    to_update = []
+    for item in ScheduleItem.objects.filter(wedding=wedding):
+        if isinstance(item.extra_data, dict) and key in item.extra_data:
+            item.extra_data.pop(key, None)
+            to_update.append(item)
+    if to_update:
+        ScheduleItem.objects.bulk_update(to_update, ["extra_data"])
+
+    log_update(
+        wedding,
+        old_data={"removed_schedule_field": key, "items_cleaned": len(to_update)},
+        actor=actor,
+        wedding=wedding,
+        request=request,
+    )
+    return schema
 
 
 @transaction.atomic

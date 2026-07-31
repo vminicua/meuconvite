@@ -34,36 +34,95 @@ from .selectors import (
 
 @login_required
 def wedding_list(request: HttpRequest) -> HttpResponse:
-    """All weddings the user owns or helps to manage."""
+    """
+    Eventos do utilizador.
+
+    Os tipos de evento aparecem logo no topo: criar um evento novo passa a
+    ser um clique, sem passar por um ecrã intermédio.
+    """
+    from events.models import EventCategory
+
     return render(
         request,
         "weddings/wedding_list.html",
         {
             "weddings": weddings_for_user(request.user),
             "archived": archived_weddings_for_user(request.user),
+            "categories": EventCategory.objects.active().order_by("display_order", "name"),
         },
     )
 
 
 @login_required
 def wedding_create(request: HttpRequest) -> HttpResponse:
-    """Wizard step 1 — creates the wedding and its owner membership."""
+    """
+    Criação de um evento, em dois ecrãs simples.
+
+    Sem `?tipo=`, mostra os tipos de evento disponíveis. Com o tipo
+    escolhido, mostra um formulário curto, com as etiquetas e os campos
+    próprios desse tipo.
+    """
+    from events.models import EventCategory
+    from templates_manager import registry
+
+    categories = list(EventCategory.objects.active().order_by("display_order", "name"))
+    code = request.GET.get("tipo") or request.POST.get("category")
+    category = next((item for item in categories if item.code == code), None)
+
+    if category is None:
+        return render(
+            request,
+            "weddings/event_type_choice.html",
+            {"categories": categories},
+        )
+
+    # Passo 2: escolher o template do convite antes de preencher os dados.
+    template_code = request.GET.get("template") or request.POST.get("template")
+    template = registry.get_template(template_code) if template_code else None
+    if template is None or template.code != template_code:
+        return render(
+            request,
+            "weddings/template_choice.html",
+            {
+                "category": category,
+                "templates": registry.all_templates(category),
+            },
+        )
+
     if request.method == "POST":
-        form = WeddingCreateForm(request.POST)
+        form = WeddingCreateForm(request.POST, category=category)
         if form.is_valid():
+            data = form.wedding_data()
+            data["selected_template"] = template.code
+            data["primary_color"] = template.primary
+            data["secondary_color"] = template.secondary
             wedding = services.create_wedding(
-                owner=request.user, data=form.cleaned_data, request=request
+                owner=request.user,
+                data=data,
+                category=category,
+                extra_data=form.extra_data(),
+                request=request,
             )
             messages.success(
                 request,
-                "Casamento criado. Vamos agora configurar os eventos da celebração.",
+                f"{category.name} criado. Já criámos os momentos e o programa habituais — "
+                "reveja e ajuste ao seu gosto.",
             )
-            return redirect("events:list", wedding_id=wedding.pk)
+            return redirect("weddings:detail", wedding_id=wedding.pk)
         messages.error(request, "Corrija os erros assinalados no formulário.")
     else:
-        form = WeddingCreateForm()
+        form = WeddingCreateForm(category=category)
 
-    return render(request, "weddings/wedding_form.html", {"form": form, "step": 1})
+    return render(
+        request,
+        "weddings/wedding_form.html",
+        {
+            "form": form,
+            "category": category,
+            "categories": categories,
+            "template": template,
+        },
+    )
 
 
 # ---------------------------------------------------------------------
@@ -73,7 +132,12 @@ def wedding_create(request: HttpRequest) -> HttpResponse:
 
 @require_wedding()
 def wedding_detail(request: HttpRequest, wedding) -> HttpResponse:
-    """Wedding dashboard."""
+    """Painel do evento."""
+    from subscriptions import services as subscription_services
+
+    limits = subscription_services.limits(wedding)
+    guests_used = subscription_services.guest_count(wedding)
+
     return render(
         request,
         "weddings/wedding_detail.html",
@@ -82,6 +146,10 @@ def wedding_detail(request: HttpRequest, wedding) -> HttpResponse:
             "summary": dashboard_summary(wedding),
             "checklist": services.build_checklist(wedding),
             "events": upcoming_events(wedding),
+            "limits": limits,
+            "guests_used": guests_used,
+            "guests_remaining": limits.guests_remaining(guests_used),
+            "usage_percent": limits.usage_percent(guests_used),
             "capabilities": capability_flags(wedding, request.user),
         },
     )
@@ -113,9 +181,17 @@ def wedding_settings(request: HttpRequest, wedding) -> HttpResponse:
     if request.method == "POST":
         form = WeddingSettingsForm(request.POST, instance=wedding)
         if form.is_valid():
+            # Os campos `extra__*` do esquema do tipo de evento não são
+            # colunas: vão todos para `extra_data`.
+            data = {
+                key: value
+                for key, value in form.cleaned_data.items()
+                if not key.startswith("extra__")
+            }
+            data["extra_data"] = form.extra_data()
             services.update_wedding(
                 wedding=wedding,
-                data=form.cleaned_data,
+                data=data,
                 actor=request.user,
                 request=request,
             )
@@ -151,11 +227,44 @@ def wedding_design(request: HttpRequest, wedding) -> HttpResponse:
     else:
         form = WeddingDesignForm(instance=wedding)
 
+    from templates_manager import registry
+
     return render(
         request,
         "weddings/wedding_design.html",
-        {"wedding": wedding, "form": form, "capabilities": capability_flags(wedding, request.user)},
+        {
+            "wedding": wedding,
+            "form": form,
+            "templates": registry.all_templates(wedding.category),
+            "selected_template": registry.get_template(wedding.selected_template),
+            "capabilities": capability_flags(wedding, request.user),
+        },
     )
+
+
+@require_wedding()
+def invitation_preview(request: HttpRequest, wedding, template_code: str = "") -> HttpResponse:
+    """
+    Mostra o convite como o convidado o verá.
+
+    Serve para experimentar templates antes de decidir: se o código vier
+    no URL, é esse que é desenhado; caso contrário usa-se o do evento.
+    """
+    from templates_manager import registry, services as template_services
+
+    template = registry.get_template(template_code or wedding.selected_template)
+    if template is None:
+        raise Http404
+
+    context = template_services.invitation_context(
+        wedding,
+        template,
+        guest_name=template_services.DEMO_GUEST_NAME,
+        seats=2,
+        is_preview=True,
+        use_event_colours=template.code == wedding.selected_template,
+    )
+    return render(request, "invitations/preview.html", context)
 
 
 # ---------------------------------------------------------------------
@@ -178,7 +287,7 @@ def wedding_publish(request: HttpRequest, wedding) -> HttpResponse:
         messages.error(request, str(exc))
         return redirect("weddings:detail", wedding_id=wedding.pk)
 
-    messages.success(request, "Casamento publicado. A página pública já está disponível.")
+    messages.success(request, "Evento publicado. A página pública já está disponível.")
     return redirect("weddings:detail", wedding_id=wedding.pk)
 
 
@@ -188,7 +297,7 @@ def wedding_unpublish(request: HttpRequest, wedding) -> HttpResponse:
     if not user_can(wedding, request.user, "can_manage_events"):
         raise Http404
     services.unpublish_wedding(wedding=wedding, actor=request.user, request=request)
-    messages.info(request, "Casamento despublicado. As páginas públicas deixaram de responder.")
+    messages.info(request, "Evento despublicado. As páginas públicas deixaram de responder.")
     return redirect("weddings:detail", wedding_id=wedding.pk)
 
 
@@ -204,7 +313,7 @@ def wedding_archive(request: HttpRequest, wedding) -> HttpResponse:
     if wedding.owner_id != request.user.pk:
         raise Http404
     services.archive_wedding(wedding=wedding, actor=request.user, request=request)
-    messages.info(request, "Casamento arquivado. Nenhum dado foi eliminado.")
+    messages.info(request, "Evento arquivado. Nenhum dado foi eliminado.")
     return redirect("weddings:list")
 
 

@@ -71,6 +71,9 @@ LOCAL_APPS = [
     "audit.apps.AuditConfig",
     "weddings.apps.WeddingsConfig",
     "events.apps.EventsConfig",
+    "templates_manager.apps.TemplatesManagerConfig",
+    "subscriptions.apps.SubscriptionsConfig",
+    "platform_admin.apps.PlatformAdminConfig",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -102,6 +105,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "django.template.context_processors.i18n",
                 "core.context_processors.site_settings",
+                "core.context_processors.staff_badges",
             ],
         },
     },
@@ -155,15 +159,15 @@ AUTHENTICATION_BACKENDS = [
     "allauth.account.auth_backends.AuthenticationBackend",
 ]
 
-AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-        "OPTIONS": {"min_length": 8},
-    },
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
-]
+# Decisão do produto: o registo tem de ser o mais simples possível, por
+# isso não são impostas regras de complexidade — qualquer palavra-passe é
+# aceite. As palavras-passe continuam guardadas com o hashing padrão do
+# Django (PBKDF2-SHA256) e a recuperação por email continua disponível.
+#
+# Para voltar a exigir palavras-passe fortes, basta repor os validadores:
+#   UserAttributeSimilarityValidator, MinimumLengthValidator (min_length=8),
+#   CommonPasswordValidator e NumericPasswordValidator.
+AUTH_PASSWORD_VALIDATORS: list[dict] = []
 
 LOGIN_URL = "account_login"
 LOGIN_REDIRECT_URL = "weddings:list"
@@ -174,11 +178,17 @@ LOGOUT_REDIRECT_URL = "core:home"
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_USER_MODEL_EMAIL_FIELD = "email"
 ACCOUNT_LOGIN_METHODS = {"email"}
-ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
+# Registo com o mínimo: nome (acrescentado por accounts.forms.SignupForm),
+# email e palavra-passe. Sem confirmação de palavra-passe e sem telefone —
+# o resto preenche-se depois no perfil.
+ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*"]
 # "optional": quem cria conta entra imediatamente na aplicação. O email de
 # confirmação continua a ser enviado, mas nunca bloqueia o acesso.
 # Para deixar de enviar esse email por completo, mudar para "none".
 ACCOUNT_EMAIL_VERIFICATION = "optional"
+# O django-allauth impõe um mínimo próprio (6 caracteres) além dos
+# validadores do Django. Também é retirado, pela mesma decisão de produto.
+ACCOUNT_PASSWORD_MIN_LENGTH = 1
 ACCOUNT_EMAIL_SUBJECT_PREFIX = "[MeuConvite] "
 ACCOUNT_CONFIRM_EMAIL_ON_GET = False
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
@@ -304,6 +314,16 @@ DEFAULT_FROM_EMAIL = env(
 )
 SERVER_EMAIL = env("SERVER_EMAIL", default=DEFAULT_FROM_EMAIL)
 SUPPORT_EMAIL = env("SUPPORT_EMAIL", default="info@meuconvite.co.mz")
+
+# ---------------------------------------------------------------------
+# Pagamentos (subscrições)
+# ---------------------------------------------------------------------
+# Nesta versão os pagamentos são confirmados à mão: o utilizador paga por
+# M-Pesa e envia o comprovativo por WhatsApp. Não há credenciais de API
+# envolvidas — apenas os contactos mostrados na plataforma.
+MPESA_NUMBER = env("MPESA_NUMBER", default="840297715")
+MPESA_ACCOUNT_NAME = env("MPESA_ACCOUNT_NAME", default="MeuConvite")
+WHATSAPP_NUMBER = env("WHATSAPP_NUMBER", default="+258840297715")
 
 # ---------------------------------------------------------------------
 # Application specific

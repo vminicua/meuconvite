@@ -1,0 +1,33 @@
+{% if schedule %}
+    <section class="inv-section inv-section--schedule">
+        <h2 class="inv-section__title">Programa</h2>
+        <svg class="inv-divider" viewBox="0 0 200 24" aria-hidden="true"><use href="#inv-divider"/></svg>
+
+        <ol class="inv-timeline">
+            {% for item in schedule %}
+                <li class="inv-timeline__item">
+                    <span class="inv-timeline__dot" aria-hidden="true">
+                        {% if item.icon %}<i class="bi {{ item.icon }}"></i>{% endif %}
+                    </span>
+                    <span class="inv-timeline__time">{{ item.time_display|default:"—" }}</span>
+                    <span class="inv-timeline__body">
+                        <span class="inv-timeline__label">{{ item.title }}</span>
+                        {% if item.description %}
+                            <span class="inv-timeline__note">{{ item.description }}</span>
+                        {% endif %}
+                        {% if item.location %}
+                            <span class="inv-timeline__note">{{ item.location.name }}</span>
+                        {% endif %}
+                        {% with extras=item.extra_values %}
+                            {% if extras %}
+                                <span class="inv-timeline__note">
+                                    {% for extra in extras %}{{ extra.label }}: {{ extra.value }}{% if not forloop.last %} · {% endif %}{% endfor %}
+                                </span>
+                            {% endif %}
+                        {% endwith %}
+                    </span>
+                </li>
+            {% endfor %}
+        </ol>
+    </section>
+{% endif %}

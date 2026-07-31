@@ -1,50 +1,161 @@
 {% extends "base.html" %}
+{% load static %}
 
-{% block title %}Aspecto do convite · {{ wedding.couple_names }}{% endblock %}
+{% block title %}Aspecto do convite · {{ wedding.display_names }}{% endblock %}
+
+{% block extra_css %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:wght@400;600&family=Playfair+Display:wght@500;600&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <link href="{% static 'css/templates-gallery.css' %}" rel="stylesheet">
+{% endblock %}
 
 {% block content %}
 {% include "partials/wedding_nav.html" %}
 
-<div class="row g-4">
-    <div class="col-lg-7">
-        <div class="card shadow-sm">
-            <div class="card-header bg-transparent fw-semibold">Aspecto do convite</div>
-            <div class="card-body">
-                <form method="post" enctype="multipart/form-data" novalidate>
-                    {% csrf_token %}
-                    {% include "partials/form_fields.html" %}
-                    <div class="mt-4">
-                        <button type="submit" class="btn btn-primary">Guardar</button>
+<form method="post" enctype="multipart/form-data" novalidate id="design-form">
+    {% csrf_token %}
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <div>
+            <h2 class="h5 mb-1">Template do convite</h2>
+            <p class="small text-body-secondary mb-0">
+                {{ templates|length }} templates disponíveis. Ao escolher um, as cores são
+                actualizadas — pode alterá-las a seguir.
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-outline-secondary" target="_blank" rel="noopener"
+               href="{% url 'weddings:invitation_preview' wedding.pk %}">
+                <i class="bi bi-eye me-1"></i>Ver o convite
+            </a>
+            <button type="submit" class="btn btn-primary">Guardar aspecto</button>
+        </div>
+    </div>
+
+    {% if form.selected_template.errors %}
+        <div class="alert alert-danger">{{ form.selected_template.errors }}</div>
+    {% endif %}
+
+    <div class="template-grid mb-4">
+        {% for template in templates %}
+            <label class="template-card {% if template.code == wedding.selected_template %}is-selected{% endif %}"
+                   data-template="{{ template.code }}"
+                   data-primary="{{ template.primary }}"
+                   data-secondary="{{ template.secondary }}">
+                <input type="radio" name="selected_template" value="{{ template.code }}"
+                       {% if template.code == wedding.selected_template %}checked{% endif %}
+                       class="visually-hidden">
+
+                <span class="template-card__preview" style="{{ template.preview_style }}">
+                    <span class="template-card__eyebrow">Vamos celebrar</span>
+                    <span class="template-card__names">{{ wedding.display_names }}</span>
+                    <span class="template-card__rule"></span>
+                    <span class="template-card__date">{{ wedding.main_date|date:"d/m/Y" }}</span>
+                    <span class="template-card__button">Confirmar presença</span>
+                </span>
+
+                <span class="template-card__body">
+                    <span class="template-card__name">
+                        {{ template.name }}
+                        <i class="bi bi-check-circle-fill template-card__check"></i>
+                    </span>
+                    <span class="template-card__layout">{{ template.get_layout_display }}</span>
+                    <span class="template-card__description">{{ template.description }}</span>
+                    <span class="template-card__tags">
+                        {% for tag in template.tag_list %}<span class="template-card__tag">{{ tag }}</span>{% endfor %}
+                    </span>
+                </span>
+            </label>
+            <div class="text-center mb-3">
+                <a class="btn btn-sm btn-outline-secondary"
+                   href="{% url 'weddings:invitation_preview_template' wedding.pk template.code %}"
+                   target="_blank" rel="noopener">
+                    <i class="bi bi-eye me-1"></i>Pré-visualizar
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-transparent fw-semibold">Cores, capa e música</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.primary_color.id_for_label }}">Cor principal</label>
+                            {{ form.primary_color }}
+                            {{ form.primary_color.errors }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.secondary_color.id_for_label }}">Cor secundária</label>
+                            {{ form.secondary_color }}
+                            {{ form.secondary_color.errors }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label" for="{{ form.cover_image.id_for_label }}">Fotografia de capa</label>
+                            {{ form.cover_image }}
+                            <div class="form-text">JPG, PNG ou WEBP até 5 MB.</div>
+                            {{ form.cover_image.errors }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label" for="{{ form.invitation_music.id_for_label }}">Música do convite</label>
+                            {{ form.invitation_music }}
+                            <div class="form-text">MP3, M4A ou OGG até 8 MB.</div>
+                            {{ form.invitation_music.errors }}
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check">
+                                {{ form.show_music }}
+                                <label class="form-check-label" for="{{ form.show_music.id_for_label }}">
+                                    Reproduzir música ao abrir o convite
+                                </label>
+                            </div>
+                        </div>
                     </div>
-                </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-transparent fw-semibold">Template escolhido</div>
+                <div class="card-body">
+                    <p class="mb-1"><strong id="selected-template-name">{{ selected_template.name }}</strong></p>
+                    <p class="small text-body-secondary" id="selected-template-description">
+                        {{ selected_template.description }}
+                    </p>
+                    <div class="colour-preview" style="--preview-primary: {{ wedding.primary_color }}; --preview-secondary: {{ wedding.secondary_color }};">
+                        <div class="colour-preview__cover">
+                            {% if wedding.cover_image %}
+                                <img src="{{ wedding.cover_image.url }}" alt="Fotografia de capa">
+                            {% else %}
+                                <span class="text-body-secondary small">Sem fotografia de capa</span>
+                            {% endif %}
+                        </div>
+                        <div class="colour-preview__body">
+                            <p class="colour-preview__names">{{ wedding.display_names }}</p>
+                            <p class="colour-preview__date">{{ wedding.main_date|date:"d F Y" }}</p>
+                            <span class="colour-preview__button">Confirmar presença</span>
+                        </div>
+                    </div>
+                    <p class="small text-body-secondary mt-3 mb-0">
+                        O template e as cores ficam guardados no evento. A página pública e o
+                        convite individual, que os aplicam, chegam nas fases seguintes.
+                    </p>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="col-lg-5">
-        <div class="card shadow-sm">
-            <div class="card-header bg-transparent fw-semibold">Pré-visualização das cores</div>
-            <div class="card-body">
-                <div class="colour-preview" style="--preview-primary: {{ wedding.primary_color }}; --preview-secondary: {{ wedding.secondary_color }};">
-                    <div class="colour-preview__cover">
-                        {% if wedding.cover_image %}
-                            <img src="{{ wedding.cover_image.url }}" alt="Fotografia de capa">
-                        {% else %}
-                            <span class="text-body-secondary small">Sem fotografia de capa</span>
-                        {% endif %}
-                    </div>
-                    <div class="colour-preview__body">
-                        <p class="colour-preview__names">{{ wedding.couple_names }}</p>
-                        <p class="colour-preview__date">{{ wedding.main_date|date:"d F Y" }}</p>
-                        <span class="colour-preview__button">Confirmar presença</span>
-                    </div>
-                </div>
-                <p class="small text-body-secondary mt-3 mb-0">
-                    Os templates completos (clássico, luxo e capulana) são aplicados na Fase 4.
-                    As cores escolhidas aqui já ficam guardadas.
-                </p>
-            </div>
-        </div>
+    <div class="mt-4">
+        <button type="submit" class="btn btn-primary">Guardar aspecto</button>
+        <a href="{% url 'weddings:detail' wedding.pk %}" class="btn btn-outline-secondary">Voltar ao painel</a>
     </div>
-</div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/template-picker.js' %}"></script>
 {% endblock %}

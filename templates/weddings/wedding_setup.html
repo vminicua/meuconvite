@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Assistente · {{ wedding.couple_names }}{% endblock %}
+{% block title %}Assistente · {{ wedding.display_names }}{% endblock %}
 
 {% block content %}
 {% include "partials/wedding_nav.html" %}
@@ -9,7 +9,7 @@
     <div class="col-lg-8">
         <div class="card shadow-sm">
             <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
-                <span class="fw-semibold">Preparação do casamento</span>
+                <span class="fw-semibold">Preparação do evento</span>
                 <span class="small text-body-secondary">{{ progress }}% concluído</span>
             </div>
             <div class="card-body">
@@ -49,15 +49,15 @@
             <div class="card-body">
                 <h2 class="h6">Publicação</h2>
                 {% if wedding.status == 'published' %}
-                    <p class="small text-body-secondary">Este casamento já está publicado.</p>
+                    <p class="small text-body-secondary">Este evento já está publicado.</p>
                     <a href="{% url 'weddings:detail' wedding.pk %}" class="btn btn-outline-secondary btn-sm w-100">Ir para o painel</a>
                 {% elif can_publish %}
                     <p class="small text-body-secondary">
-                        Está tudo pronto. Ao publicar, a página do casamento e os convites passam a estar acessíveis.
+                        Está tudo pronto. Ao publicar, a página do evento e os convites passam a estar acessíveis.
                     </p>
                     <form method="post" action="{% url 'weddings:publish' wedding.pk %}">
                         {% csrf_token %}
-                        <button class="btn btn-primary w-100">Publicar casamento</button>
+                        <button class="btn btn-primary w-100">Publicar evento</button>
                     </form>
                 {% else %}
                     <p class="small text-body-secondary mb-0">

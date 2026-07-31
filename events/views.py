@@ -3,14 +3,19 @@ from __future__ import annotations
 import json
 
 from django.contrib import messages
-from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
 from weddings.permissions import capability_flags, require_wedding
 
 from . import services
-from .forms import ScheduleItemForm, WeddingEventForm, WeddingLocationForm
+from .forms import (
+    ScheduleFieldForm,
+    ScheduleItemForm,
+    WeddingEventForm,
+    WeddingLocationForm,
+)
 from .models import ScheduleItem, WeddingEvent, WeddingLocation
 
 # ---------------------------------------------------------------------
@@ -174,6 +179,28 @@ def location_delete(request: HttpRequest, wedding, location_id) -> HttpResponse:
 
 @require_wedding()
 def schedule(request: HttpRequest, wedding) -> HttpResponse:
+    """Programa do evento e gestão dos campos que o utilizador acrescenta."""
+    capabilities = capability_flags(wedding, request.user)
+    field_form = ScheduleFieldForm(wedding=wedding)
+
+    if request.method == "POST":
+        if not capabilities["can_manage_events"]:
+            raise Http404
+        field_form = ScheduleFieldForm(request.POST, wedding=wedding)
+        if field_form.is_valid():
+            services.add_schedule_field(
+                wedding=wedding,
+                definition=field_form.definition(),
+                actor=request.user,
+                request=request,
+            )
+            messages.success(
+                request,
+                f"Campo «{field_form.cleaned_data['label']}» acrescentado ao programa.",
+            )
+            return redirect("events:schedule", wedding_id=wedding.pk)
+        messages.error(request, "Não foi possível acrescentar o campo.")
+
     items = (
         ScheduleItem.objects.filter(wedding=wedding)
         .select_related("event", "location")
@@ -185,9 +212,21 @@ def schedule(request: HttpRequest, wedding) -> HttpResponse:
         {
             "wedding": wedding,
             "items": items,
-            "capabilities": capability_flags(wedding, request.user),
+            "schedule_fields": wedding.schedule_fields,
+            "field_form": field_form,
+            "capabilities": capabilities,
         },
     )
+
+
+@require_POST
+@require_wedding("can_manage_events")
+def schedule_field_delete(request: HttpRequest, wedding, key: str) -> HttpResponse:
+    services.remove_schedule_field(
+        wedding=wedding, key=key, actor=request.user, request=request
+    )
+    messages.info(request, "Campo removido do programa.")
+    return redirect("events:schedule", wedding_id=wedding.pk)
 
 
 @require_wedding("can_manage_events")

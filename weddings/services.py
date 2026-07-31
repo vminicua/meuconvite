@@ -36,9 +36,18 @@ class ChecklistItem:
 
 
 @transaction.atomic
-def create_wedding(*, owner, data: dict, request=None) -> Wedding:
-    """Create a wedding and register the owner as a team member."""
-    wedding = Wedding(owner=owner, **data)
+def create_wedding(
+    *, owner, data: dict, category=None, extra_data: dict | None = None, request=None
+) -> Wedding:
+    """
+    Cria um evento e deixa-o pronto a usar.
+
+    Além do registo em si: o proprietário entra na equipa, a subscrição
+    gratuita é criada, e os momentos e o programa sugeridos pelo tipo de
+    evento são gerados. O utilizador chega ao painel com o essencial já
+    feito, em vez de um ecrã vazio.
+    """
+    wedding = Wedding(owner=owner, category=category, extra_data=extra_data or {}, **data)
     wedding.full_clean(exclude=["public_token", "slug"] if not data.get("slug") else ["public_token"])
     wedding.save()
 
@@ -51,8 +60,64 @@ def create_wedding(*, owner, data: dict, request=None) -> Wedding:
     membership.apply_role_defaults()
     membership.save()
 
+    if category is not None:
+        apply_category_defaults(wedding=wedding, category=category)
+
+    # A subscrição gratuita passa a existir desde o início, para que os
+    # limites do plano sejam sempre determinados da mesma maneira.
+    from subscriptions.services import ensure_subscription
+
+    ensure_subscription(wedding)
+
     log_create(wedding, actor=owner, wedding=wedding, request=request)
     return wedding
+
+
+@transaction.atomic
+def apply_category_defaults(*, wedding: Wedding, category) -> tuple[int, int]:
+    """
+    Cria os momentos e o programa sugeridos pelo tipo de evento.
+
+    Nada é sobreposto: se o evento já tiver momentos ou programa, essa
+    parte é ignorada. Devolve (momentos criados, itens de programa criados).
+    """
+    from events.models import ScheduleItem, WeddingEvent
+
+    moments_created = 0
+    if not WeddingEvent.objects.filter(wedding=wedding).exists():
+        for position, definition in enumerate(category.default_moments or [], start=1):
+            if not isinstance(definition, dict) or not definition.get("name"):
+                continue
+            WeddingEvent.objects.create(
+                wedding=wedding,
+                name=str(definition["name"])[:150],
+                event_type=definition.get("event_type", "custom"),
+                date=wedding.main_date,
+                start_time=definition.get("start_time") or None,
+                end_time=definition.get("end_time") or None,
+                requires_rsvp=bool(definition.get("requires_rsvp", True)),
+                requires_qr_code=bool(definition.get("requires_qr_code", False)),
+                show_to_all_guests=bool(definition.get("show_to_all_guests", True)),
+                display_order=position * 10,
+            )
+            moments_created += 1
+
+    schedule_created = 0
+    if not ScheduleItem.objects.filter(wedding=wedding).exists():
+        for position, definition in enumerate(category.default_schedule or [], start=1):
+            if not isinstance(definition, dict) or not definition.get("title"):
+                continue
+            ScheduleItem.objects.create(
+                wedding=wedding,
+                title=str(definition["title"])[:150],
+                start_time=definition.get("start_time") or None,
+                date=wedding.main_date,
+                icon=definition.get("icon", "")[:40],
+                display_order=position * 10,
+            )
+            schedule_created += 1
+
+    return moments_created, schedule_created
 
 
 @transaction.atomic
@@ -83,21 +148,21 @@ def build_checklist(wedding: Wedding) -> list[ChecklistItem]:
     items = [
         ChecklistItem(
             code="couple",
-            label=_("Informações dos noivos preenchidas"),
-            done=bool(wedding.bride_full_name and wedding.groom_full_name),
+            label=_("Informações principais preenchidas"),
+            done=bool(wedding.primary_name and wedding.secondary_name),
             required=True,
             url_name="weddings:settings",
         ),
         ChecklistItem(
             code="date",
-            label=_("Data principal definida"),
+            label=_("Data do evento definida"),
             done=bool(wedding.main_date),
             required=True,
             url_name="weddings:settings",
         ),
         ChecklistItem(
             code="events",
-            label=_("Pelo menos um evento criado"),
+            label=_("Pelo menos um momento criado"),
             done=events.exists(),
             required=True,
             url_name="events:list",
@@ -111,7 +176,7 @@ def build_checklist(wedding: Wedding) -> list[ChecklistItem]:
         ),
         ChecklistItem(
             code="rsvp_event",
-            label=_("Um evento aceita confirmações de presença"),
+            label=_("Um momento aceita confirmações de presença"),
             done=has_rsvp_event,
             required=False,
             url_name="events:list",
@@ -149,7 +214,7 @@ def missing_requirements(wedding: Wedding) -> list[ChecklistItem]:
 def publish_wedding(*, wedding: Wedding, actor, request=None) -> Wedding:
     """Make the wedding public after validating the mandatory checklist."""
     if wedding.status == WeddingStatus.BLOCKED:
-        raise PermissionDenied(_("Este casamento está bloqueado. Contacte o suporte."))
+        raise PermissionDenied(_("Este evento está bloqueado. Contacte o suporte."))
 
     missing = missing_requirements(wedding)
     if missing:

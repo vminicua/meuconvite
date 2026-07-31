@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Equipa · {{ wedding.couple_names }}{% endblock %}
+{% block title %}Equipa · {{ wedding.display_names }}{% endblock %}
 
 {% block content %}
 {% include "partials/wedding_nav.html" %}
@@ -8,7 +8,7 @@
 <div class="row g-4">
     <div class="col-lg-7">
         <div class="card shadow-sm">
-            <div class="card-header bg-transparent fw-semibold">Equipa do casamento</div>
+            <div class="card-header bg-transparent fw-semibold">Equipa do evento</div>
             <div class="table-responsive">
                 <table class="table align-middle mb-0">
                     <thead class="table-light">

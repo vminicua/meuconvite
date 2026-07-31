@@ -3,28 +3,25 @@
 {% block head_title %}Entrar{% endblock %}
 
 {% block content %}
-<div class="text-center mb-4">
-    <h1 class="h4 mb-1">Bem-vindo de volta</h1>
-    <p class="text-body-secondary small mb-0">
-        Entre para continuar a preparar o vosso casamento.
+<div class="auth-panel">
+    <div class="text-center mb-4">
+        <h1 class="h4 mb-1">Bem-vindo de volta</h1>
+        <p class="text-body-secondary small mb-0">
+            Entre para continuar a preparar o vosso evento.
+        </p>
+    </div>
+
+    <form method="post" action="{% url 'account_login' %}" novalidate>
+        {% csrf_token %}
+        {% include "partials/bootstrap_fields.html" with form=form %}
+        {% if redirect_field_value %}
+            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+        {% endif %}
+        <button type="submit" class="btn btn-primary w-100">Entrar</button>
+    </form>
+
+    <p class="text-center small text-body-secondary mt-3 mb-0">
+        Ainda não tem conta? <a href="{% url 'account_signup' %}">Criar conta</a>
     </p>
-</div>
-
-<form method="post" action="{% url 'account_login' %}" novalidate>
-    {% csrf_token %}
-    {% include "partials/bootstrap_fields.html" with form=form %}
-    {% if redirect_field_value %}
-        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
-    {% endif %}
-    <button type="submit" class="btn btn-primary w-100">Entrar</button>
-</form>
-
-<div class="d-flex justify-content-between mt-3 small">
-    <a href="{% url 'account_reset_password' %}" class="link-secondary text-decoration-none">
-        Esqueceu-se da palavra-passe?
-    </a>
-    <a href="{% url 'account_signup' %}" class="link-secondary text-decoration-none">
-        Criar conta
-    </a>
 </div>
 {% endblock %}

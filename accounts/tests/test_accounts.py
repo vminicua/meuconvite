@@ -44,25 +44,48 @@ class UserModelTests(TestCase):
 
 
 class SignupTests(TestCase):
+    """O registo pede o mínimo: nome, email e palavra-passe."""
+
     def _signup(self, **overrides):
         data = {
-            "first_name": "Natércia",
-            "last_name": "Matola",
+            "name": "Telmo Matola",
             "email": "nova@example.com",
-            "phone": "841234567",
-            "password1": "CasamentoSeguro2026",
-            "password2": "CasamentoSeguro2026",
+            "password1": "1234",
         }
         data.update(overrides)
         return self.client.post(reverse("account_signup"), data=data)
 
-    def test_signup_creates_the_account_with_the_extra_fields(self) -> None:
+    def test_signup_only_needs_name_email_and_password(self) -> None:
         response = self._signup()
         self.assertEqual(response.status_code, 302)
+        self.assertTrue(User.objects.filter(email="nova@example.com").exists())
 
+    def test_name_is_split_into_first_and_last_name(self) -> None:
+        self._signup(name="  Telmo   da Silva Matola ")
         user = User.objects.get(email="nova@example.com")
-        self.assertEqual(user.first_name, "Natércia")
-        self.assertEqual(user.phone, "+258841234567")
+        self.assertEqual(user.first_name, "Telmo")
+        self.assertEqual(user.last_name, "da Silva Matola")
+
+    def test_a_single_word_name_is_accepted(self) -> None:
+        self._signup(name="Telmo")
+        user = User.objects.get(email="nova@example.com")
+        self.assertEqual(user.first_name, "Telmo")
+        self.assertEqual(user.last_name, "")
+
+    def test_a_weak_password_is_accepted(self) -> None:
+        """Decisão do produto: sem regras de complexidade."""
+        for weak in ("1234", "abc", "password", "12345678"):
+            with self.subTest(password=weak):
+                User.objects.filter(email="nova@example.com").delete()
+                response = self._signup(password1=weak)
+                self.assertEqual(response.status_code, 302)
+                user = User.objects.get(email="nova@example.com")
+                self.assertTrue(user.check_password(weak))
+
+    def test_phone_is_not_asked_at_signup(self) -> None:
+        response = self.client.get(reverse("account_signup"))
+        self.assertNotContains(response, 'name="phone"')
+        self.assertNotContains(response, 'name="password2"')
 
     def test_signup_signs_the_user_in_immediately(self) -> None:
         """Verificar o email não pode bloquear a entrada na aplicação."""

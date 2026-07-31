@@ -1,0 +1,80 @@
+{% include "invitations/_ornaments.html" %}
+
+{% if template.has_cover %}
+    <section class="inv-cover" id="inv-cover">
+        <div class="inv-cover__paper">
+            <svg class="inv-cover__branch inv-cover__branch--top" viewBox="0 0 160 120" aria-hidden="true">
+                <use href="#inv-branch"/>
+            </svg>
+
+            <p class="inv-cover__eyebrow">{{ wedding.category_name }}</p>
+            <p class="inv-cover__names">
+                {{ wedding.primary_short_name }}{% if wedding.secondary_short_name %}
+                    <span class="inv-cover__amp">{{ wedding.names_separator }}</span>
+                    {{ wedding.secondary_short_name }}{% endif %}
+            </p>
+            <p class="inv-cover__note">{{ wedding.main_date|date:"d \d\e F \d\e Y" }}</p>
+
+            <button type="button" class="inv-btn" data-open-invitation>Abrir o convite</button>
+
+            <svg class="inv-cover__branch inv-cover__branch--bottom" viewBox="0 0 160 120" aria-hidden="true">
+                <use href="#inv-branch"/>
+            </svg>
+        </div>
+    </section>
+{% endif %}
+
+<main class="inv-main" id="inv-main" {% if template.has_cover %}hidden{% endif %}>
+    <header class="inv-hero">
+        <svg class="inv-hero__leaf inv-hero__leaf--left" viewBox="0 0 40 96" aria-hidden="true"><use href="#inv-leaf"/></svg>
+        <svg class="inv-hero__leaf inv-hero__leaf--right" viewBox="0 0 40 96" aria-hidden="true"><use href="#inv-leaf"/></svg>
+
+        {% if wedding.cover_image %}
+            <div class="inv-hero__photo inv-hero__photo--round">
+                <img src="{{ wedding.cover_image.url }}" alt="">
+            </div>
+        {% endif %}
+
+        <p class="inv-hero__eyebrow">{{ invitation_eyebrow }}</p>
+        <h1 class="inv-hero__names">
+            {{ wedding.primary_short_name }}
+            {% if wedding.secondary_short_name %}
+                <span class="inv-hero__amp">{{ wedding.names_separator }}</span>
+                {{ wedding.secondary_short_name }}
+            {% endif %}
+        </h1>
+
+        <svg class="inv-divider" viewBox="0 0 200 24" aria-hidden="true"><use href="#inv-divider"/></svg>
+
+        {% if guest_name %}<p class="inv-hero__greeting">Caro(a) {{ guest_name }},</p>{% endif %}
+        <p class="inv-hero__text">{{ wedding.full_names }} {{ invitation_greeting }}</p>
+
+        <p class="inv-hero__date">{{ wedding.main_date|date:"d \d\e F \d\e Y" }}</p>
+        <p class="inv-hero__time">{{ wedding.city }}, {{ wedding.country }}</p>
+
+        {% include "invitations/_countdown.html" %}
+
+        {% if seats %}
+            <p class="inv-seats"><span>Lugares reservados</span><strong>{{ seats }}</strong></p>
+        {% endif %}
+    </header>
+
+    {% if wedding.welcome_message %}
+        <section class="inv-section">
+            <p class="inv-text inv-text--lead">{{ wedding.welcome_message|linebreaksbr }}</p>
+        </section>
+    {% endif %}
+
+    {% include "invitations/_schedule.html" %}
+
+    {% if wedding.story %}
+        <section class="inv-section inv-section--story">
+            <h2 class="inv-section__title">A nossa história</h2>
+            <svg class="inv-divider" viewBox="0 0 200 24" aria-hidden="true"><use href="#inv-divider"/></svg>
+            <p class="inv-text">{{ wedding.story|linebreaksbr }}</p>
+        </section>
+    {% endif %}
+
+    {% include "invitations/_venues.html" %}
+    {% include "invitations/_rsvp.html" %}
+</main>

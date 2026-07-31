@@ -1,0 +1,123 @@
+<div class="section-head" data-section-title="Tipo de evento">
+    <div>
+        <h1>{% if category %}{{ category.name }}{% else %}Novo tipo de evento{% endif %}</h1>
+        <p>Etiquetas, campos próprios e o que é criado automaticamente ao escolher este tipo.</p>
+    </div>
+    <a class="btn btn-outline-secondary btn-sm" href="{% url 'platform:categories' %}"
+       hx-get="{% url 'platform:categories' %}" hx-target="#admin-content" hx-push-url="true">
+        <i class="bi bi-arrow-left me-1"></i>Tipos de evento
+    </a>
+</div>
+
+<div class="row g-3">
+    <div class="col-xl-7">
+        <div class="admin-card">
+            <div class="admin-card__head">Definição</div>
+            <div class="admin-card__body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% include "partials/form_fields.html" %}
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <a class="btn btn-outline-secondary" href="{% url 'platform:categories' %}"
+                           hx-get="{% url 'platform:categories' %}" hx-target="#admin-content"
+                           hx-push-url="true">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-5">
+        <div class="admin-card">
+            <div class="admin-card__head">Campos próprios</div>
+            <div class="admin-card__body">
+                {% if category %}
+                    <p class="small text-body-secondary">
+                        Pedidos a quem cria um evento deste tipo, além do nome, data e cidade.
+                    </p>
+
+                    {% if fields %}
+                        <div class="mb-3">
+                            {% for field in fields %}
+                                <span class="field-chip">
+                                    {{ field.label }}
+                                    <span class="text-body-secondary">· {{ field.type }}</span>
+                                    {% if field.required %}<span class="text-danger">*</span>{% endif %}
+                                    <form method="post"
+                                          action="{% url 'platform:category_field_remove' category.pk field.key %}"
+                                          class="d-inline"
+                                          data-confirm="Remover o campo «{{ field.label }}»?">
+                                        {% csrf_token %}
+                                        <button type="submit" aria-label="Remover {{ field.label }}">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    </form>
+                                </span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="small text-body-secondary">Ainda não há campos próprios.</p>
+                    {% endif %}
+
+                    <form method="post" action="{% url 'platform:category_field_add' category.pk %}"
+                          class="row g-2 align-items-end" novalidate>
+                        {% csrf_token %}
+                        <div class="col-12">
+                            <label class="form-label small" for="{{ field_form.label.id_for_label }}">
+                                {{ field_form.label.label }}
+                            </label>
+                            {{ field_form.label }}
+                        </div>
+                        <div class="col-7">
+                            <label class="form-label small" for="{{ field_form.type.id_for_label }}">
+                                {{ field_form.type.label }}
+                            </label>
+                            {{ field_form.type }}
+                        </div>
+                        <div class="col-5">
+                            <div class="form-check mt-4">
+                                {{ field_form.required }}
+                                <label class="form-check-label small" for="{{ field_form.required.id_for_label }}">
+                                    {{ field_form.required.label }}
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small" for="{{ field_form.choices.id_for_label }}">
+                                {{ field_form.choices.label }}
+                            </label>
+                            {{ field_form.choices }}
+                            <div class="form-text">{{ field_form.choices.help_text }}</div>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-outline-secondary btn-sm w-100">
+                                Acrescentar campo
+                            </button>
+                        </div>
+                    </form>
+                {% else %}
+                    <p class="small text-body-secondary mb-0">
+                        Guarde o tipo de evento primeiro; os campos próprios acrescentam-se a seguir.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <div class="admin-card__head">Como funciona</div>
+            <div class="admin-card__body small text-body-secondary">
+                <p class="mb-2">
+                    <strong>Momentos predefinidos</strong> e <strong>programa predefinido</strong> são
+                    criados automaticamente quando alguém escolhe este tipo — o evento não nasce vazio.
+                </p>
+                <p class="mb-0">
+                    Formato dos momentos:<br>
+                    <code>[{"name": "Recepção", "event_type": "reception", "start_time": "19:30"}]</code><br>
+                    Formato do programa:<br>
+                    <code>[{"title": "Corte do bolo", "start_time": "18:30", "icon": "bi-cake2"}]</code>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

@@ -34,7 +34,10 @@ def main() -> None:
 
     # Printed to stderr so it never pollutes command output, and so that
     # running a command against the wrong environment is impossible to miss.
-    print(f"[meuconvite] settings: {os.environ['DJANGO_SETTINGS_MODULE']}", file=sys.stderr)
+    # `RUN_MAIN` is set by the autoreloader's child process — without this
+    # guard the line would appear twice on every `runserver`.
+    if os.environ.get("RUN_MAIN") != "true":
+        print(f"[meuconvite] settings: {os.environ['DJANGO_SETTINGS_MODULE']}", file=sys.stderr)
 
     try:
         from django.core.management import execute_from_command_line

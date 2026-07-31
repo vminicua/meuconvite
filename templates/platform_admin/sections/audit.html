@@ -1,0 +1,68 @@
+<div class="section-head" data-section-title="Auditoria">
+    <div>
+        <h1>Auditoria</h1>
+        <p>Registo permanente das acções críticas. Nunca é alterado nem apagado pela aplicação.</p>
+    </div>
+</div>
+
+<div class="admin-card">
+    <div class="admin-card__body">
+        <form method="get" action="{% url 'platform:audit' %}" data-auto-submit
+              hx-get="{% url 'platform:audit' %}" hx-target="#admin-content" hx-push-url="true"
+              class="row g-2 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label small" for="audit-q">Pesquisar</label>
+                <input type="search" id="audit-q" name="q" value="{{ search }}" class="form-control"
+                       placeholder="Autor, objecto ou modelo">
+            </div>
+            <div class="col-md-5">
+                <label class="form-label small" for="audit-accao">Acção</label>
+                <select id="audit-accao" name="accao" class="form-select js-select2" data-allow-clear="true"
+                        data-placeholder="Todas">
+                    <option value=""></option>
+                    {% for value, label in actions %}
+                        <option value="{{ value }}" {% if action == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="admin-card">
+    <div class="admin-card__body admin-card__body--flush">
+        <table class="table table-hover align-middle mb-0" data-table data-page-length="50">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Acção</th>
+                    <th>Autor</th>
+                    <th>Objecto</th>
+                    <th>Evento</th>
+                    <th>IP</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in entries %}
+                    <tr>
+                        <td class="small text-nowrap" data-order="{{ entry.created_at|date:'Y-m-d H:i:s' }}">
+                            {{ entry.created_at|date:"d/m/Y H:i" }}
+                        </td>
+                        <td class="small fw-semibold">{{ entry.get_action_display }}</td>
+                        <td class="small">{{ entry.actor_label|default:"sistema" }}</td>
+                        <td class="small text-body-secondary">
+                            {{ entry.object_label|default:entry.model_name|truncatechars:44 }}
+                        </td>
+                        <td class="small text-body-secondary">
+                            {% if entry.wedding %}{{ entry.wedding.display_names }}{% else %}—{% endif %}
+                        </td>
+                        <td class="small text-body-secondary">{{ entry.ip_address|default:"—" }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

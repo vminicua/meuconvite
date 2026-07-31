@@ -34,13 +34,46 @@ def create_user(email: str = "noiva@example.com", **extra) -> User:
     return user
 
 
+def create_category(code: str = "casamento", **extra):
+    """Tipo de evento, com o mínimo para os testes."""
+    from events.models import EventCategory
+
+    defaults = {
+        "name": "Casamento",
+        "uses_two_names": True,
+        "primary_label": "Nome da noiva",
+        "secondary_label": "Nome do noivo",
+        "names_separator": "&",
+        "field_schema": [],
+        "default_moments": [],
+        "default_schedule": [],
+    }
+    defaults.update(extra)
+    return EventCategory.objects.create(code=code, **defaults)
+
+
+def create_plan(code: str = "gratuito", **extra):
+    """Pacote de subscrição."""
+    from subscriptions.models import Plan
+
+    defaults = {
+        "name": "Gratuito",
+        "max_guests": 20,
+        "price_mzn": 0,
+        "duration_days": 0,
+        "is_default": True,
+    }
+    defaults.update(extra)
+    return Plan.objects.create(code=code, **defaults)
+
+
 def create_wedding(owner=None, **extra) -> Wedding:
     owner = owner or create_user()
     defaults = {
-        "bride_full_name": "Natércia Alice Matola",
-        "groom_full_name": "Hivaldo José Cossa",
-        "bride_short_name": "Natércia",
-        "groom_short_name": "Hivaldo",
+        "primary_name": "Natércia Alice Matola",
+        "secondary_name": "Hivaldo José Cossa",
+        "primary_short_name": "Natércia",
+        "secondary_short_name": "Hivaldo",
         "main_date": timezone.localdate() + timedelta(days=120),
         "city": "Maputo",
         "country": "Moçambique",

@@ -3,23 +3,26 @@
 {% block head_title %}Criar conta{% endblock %}
 
 {% block content %}
-<div class="text-center mb-4">
-    <h1 class="h4 mb-1">Criar conta</h1>
-    <p class="text-body-secondary small mb-0">
-        Leva menos de um minuto. Entra logo a seguir, sem esperar por emails.
+<div class="auth-panel">
+    <div class="text-center mb-4">
+        <h1 class="h4 mb-1">Criar conta</h1>
+        <p class="text-body-secondary small mb-0">
+            Só o nome, o email e uma palavra-passe. Entra logo a seguir, sem esperar
+            por emails — o resto dos dados preenche quando quiser, no perfil.
+        </p>
+    </div>
+
+    <form method="post" action="{% url 'account_signup' %}" novalidate>
+        {% csrf_token %}
+        {% include "partials/bootstrap_fields.html" with form=form %}
+        {% if redirect_field_value %}
+            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+        {% endif %}
+        <button type="submit" class="btn btn-primary w-100">Criar conta e entrar</button>
+    </form>
+
+    <p class="text-center small text-body-secondary mt-3 mb-0">
+        Já tem conta? <a href="{% url 'account_login' %}">Entrar</a>
     </p>
 </div>
-
-<form method="post" action="{% url 'account_signup' %}" novalidate>
-    {% csrf_token %}
-    {% include "partials/bootstrap_fields.html" with form=form %}
-    {% if redirect_field_value %}
-        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
-    {% endif %}
-    <button type="submit" class="btn btn-primary w-100">Criar conta e entrar</button>
-</form>
-
-<p class="text-center small text-body-secondary mt-3 mb-0">
-    Já tem conta? <a href="{% url 'account_login' %}">Entrar</a>
-</p>
 {% endblock %}

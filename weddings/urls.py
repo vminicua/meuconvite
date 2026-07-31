@@ -13,6 +13,16 @@ urlpatterns = [
     path("<uuid:wedding_id>/assistente/", views.wedding_setup, name="setup"),
     path("<uuid:wedding_id>/definicoes/", views.wedding_settings, name="settings"),
     path("<uuid:wedding_id>/aspecto/", views.wedding_design, name="design"),
+    path(
+        "<uuid:wedding_id>/convite/pre-visualizar/",
+        views.invitation_preview,
+        name="invitation_preview",
+    ),
+    path(
+        "<uuid:wedding_id>/convite/pre-visualizar/<slug:template_code>/",
+        views.invitation_preview,
+        name="invitation_preview_template",
+    ),
     path("<uuid:wedding_id>/publicar/", views.wedding_publish, name="publish"),
     path("<uuid:wedding_id>/despublicar/", views.wedding_unpublish, name="unpublish"),
     path("<uuid:wedding_id>/arquivar/", views.wedding_archive, name="archive"),

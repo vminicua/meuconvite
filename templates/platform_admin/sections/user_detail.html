@@ -1,0 +1,116 @@
+<div class="section-head" data-section-title="Utilizador">
+    <div>
+        <h1>{{ person.display_name|default:person.email }}</h1>
+        <p>{{ person.email }} · registado em {{ person.created_at|date:"d/m/Y" }}</p>
+    </div>
+    <a class="btn btn-outline-secondary btn-sm" href="{% url 'platform:users' %}"
+       hx-get="{% url 'platform:users' %}" hx-target="#admin-content" hx-push-url="true">
+        <i class="bi bi-arrow-left me-1"></i>Utilizadores
+    </a>
+</div>
+
+<div class="row g-3">
+    <div class="col-xl-4">
+        <div class="admin-card">
+            <div class="admin-card__head">Conta</div>
+            <div class="admin-card__body">
+                <dl class="detail-list mb-3">
+                    <dt>Telefone</dt><dd>{{ person.phone|default:"—" }}</dd>
+                    <dt>Email verificado</dt><dd>{{ person.is_email_verified|yesno:"Sim,Não" }}</dd>
+                    <dt>Último acesso</dt>
+                    <dd>{{ person.last_login|date:"d/m/Y H:i"|default:"nunca" }}</dd>
+                    <dt>Último IP</dt><dd>{{ person.last_login_ip|default:"—" }}</dd>
+                </dl>
+
+                {% if person.pk != user.pk %}
+                    <form method="post" action="{% url 'platform:user_toggle' person.pk %}" class="mb-2"
+                          data-confirm="{% if person.is_active %}Desactivar{% else %}Activar{% endif %} a conta de {{ person.email }}?">
+                        {% csrf_token %}
+                        <input type="hidden" name="campo" value="is_active">
+                        <button class="btn btn-sm w-100 {% if person.is_active %}btn-outline-danger{% else %}btn-success{% endif %}">
+                            {% if person.is_active %}Desactivar conta{% else %}Activar conta{% endif %}
+                        </button>
+                    </form>
+
+                    <form method="post" action="{% url 'platform:user_toggle' person.pk %}"
+                          data-confirm="{% if person.is_staff %}Retirar{% else %}Conceder{% endif %} acesso de equipa a {{ person.email }}?">
+                        {% csrf_token %}
+                        <input type="hidden" name="campo" value="is_staff">
+                        <button class="btn btn-sm w-100 btn-outline-secondary">
+                            {% if person.is_staff %}Retirar acesso de equipa{% else %}Dar acesso de equipa{% endif %}
+                        </button>
+                    </form>
+                {% else %}
+                    <p class="small text-body-secondary mb-0">
+                        Esta é a sua conta — as permissões próprias não se alteram aqui.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-8">
+        <div class="admin-card">
+            <div class="admin-card__head">Eventos que criou ({{ owned|length }})</div>
+            <div class="admin-card__body admin-card__body--flush">
+                <table class="table align-middle mb-0">
+                    <tbody>
+                        {% for event in owned %}
+                            <tr>
+                                <td>
+                                    <a class="fw-semibold small text-decoration-none"
+                                       href="{% url 'platform:event_detail' event.pk %}"
+                                       hx-get="{% url 'platform:event_detail' event.pk %}"
+                                       hx-target="#admin-content" hx-push-url="true">{{ event.display_names }}</a>
+                                </td>
+                                <td class="small text-body-secondary">{{ event.category_name }}</td>
+                                <td class="small text-nowrap">{{ event.main_date|date:"d/m/Y" }}</td>
+                                <td class="small text-end">{{ event.get_status_display }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr><td class="small text-body-secondary p-3">Nenhum evento criado.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <div class="admin-card__head">Participações em equipas ({{ memberships|length }})</div>
+            <div class="admin-card__body admin-card__body--flush">
+                <table class="table align-middle mb-0">
+                    <tbody>
+                        {% for membership in memberships %}
+                            <tr>
+                                <td class="small">{{ membership.wedding.display_names }}</td>
+                                <td class="small text-body-secondary">{{ membership.get_role_display }}</td>
+                                <td class="small text-end">{{ membership.is_active|yesno:"activo,inactivo" }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr><td class="small text-body-secondary p-3">Não faz parte de nenhuma equipa.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <div class="admin-card__head">Últimas acções</div>
+            <div class="admin-card__body admin-card__body--flush">
+                <table class="table align-middle mb-0">
+                    <tbody>
+                        {% for entry in audit %}
+                            <tr>
+                                <td class="small fw-semibold">{{ entry.get_action_display }}</td>
+                                <td class="small text-body-secondary">{{ entry.object_label|truncatechars:40 }}</td>
+                                <td class="small text-end text-nowrap">{{ entry.created_at|date:"d/m H:i" }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr><td class="small text-body-secondary p-3">Sem registos.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

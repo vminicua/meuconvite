@@ -1,0 +1,49 @@
+{% comment %}
+Ornamentos usados pelos layouts de convite. Desenhos originais em SVG:
+ficam nítidos em qualquer ecrã, pesam poucos KB e aceitam as cores do
+template.
+{% endcomment %}
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+        <symbol id="inv-seal" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="52" fill="currentColor"/>
+            <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.5"/>
+            <circle cx="60" cy="60" r="43" fill="none" stroke="rgba(255,255,255,.45)"
+                    stroke-width="1" stroke-dasharray="3 5"/>
+            <path d="M60 30c-6 12-18 16-18 30a18 18 0 0 0 36 0c0-14-12-18-18-30Z"
+                  fill="rgba(255,255,255,.22)"/>
+        </symbol>
+
+        <symbol id="inv-leaf" viewBox="0 0 40 96">
+            <path d="M20 2C32 24 35 52 20 94 5 52 8 24 20 2Z" fill="currentColor" opacity=".5"/>
+            <path d="M20 8v78" stroke="rgba(255,255,255,.5)" stroke-width="1.1"/>
+        </symbol>
+
+        <symbol id="inv-branch" viewBox="0 0 160 120">
+            <path d="M8 112C50 96 96 68 152 12" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" opacity=".65"/>
+            <g opacity=".75">
+                <ellipse cx="40" cy="92" rx="13" ry="6" fill="currentColor" transform="rotate(-38 40 92)"/>
+                <ellipse cx="66" cy="76" rx="14" ry="6" fill="currentColor" transform="rotate(-38 66 76)"/>
+                <ellipse cx="92" cy="58" rx="13" ry="6" fill="currentColor" transform="rotate(-38 92 58)"/>
+                <ellipse cx="116" cy="40" rx="12" ry="5" fill="currentColor" transform="rotate(-38 116 40)"/>
+                <ellipse cx="54" cy="72" rx="11" ry="5" fill="currentColor" transform="rotate(28 54 72)"/>
+                <ellipse cx="80" cy="54" rx="11" ry="5" fill="currentColor" transform="rotate(28 80 54)"/>
+                <ellipse cx="104" cy="34" rx="10" ry="4.5" fill="currentColor" transform="rotate(28 104 34)"/>
+            </g>
+        </symbol>
+
+        <symbol id="inv-divider" viewBox="0 0 200 24">
+            <path d="M6 12h68M126 12h68" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+            <path d="M100 5c-6-5-15 0-11 6 3 5 11 8 11 8s8-3 11-8c4-6-5-11-11-6Z"
+                  fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+            <circle cx="84" cy="12" r="1.8" fill="currentColor"/>
+            <circle cx="116" cy="12" r="1.8" fill="currentColor"/>
+        </symbol>
+
+        <symbol id="inv-corner" viewBox="0 0 120 120">
+            <path d="M4 116C4 60 60 4 116 4" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".5"/>
+            <path d="M14 116C14 66 66 14 116 14" fill="none" stroke="currentColor" stroke-width=".8" opacity=".35"/>
+        </symbol>
+    </defs>
+</svg>

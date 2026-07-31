@@ -8,6 +8,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
+from django.views.generic import RedirectView
 
 # The Django admin path can be moved via the environment to reduce noise
 # from automated scanners in production.
@@ -19,10 +20,24 @@ admin.site.index_title = "Gestão da plataforma"
 
 urlpatterns = [
     path(ADMIN_URL, admin.site.urls),
+    # A plataforma deixou de ser só para casamentos: o endereço passou a ser
+    # /eventos/. Este redireccionamento evita que ligações já abertas ou
+    # guardadas nos favoritos deixem de funcionar.
+    path(
+        "casamentos/<path:resto>",
+        RedirectView.as_view(url="/eventos/%(resto)s", permanent=False),
+    ),
+    path("casamentos/", RedirectView.as_view(pattern_name="weddings:list", permanent=False)),
     path("accounts/", include("allauth.urls")),
     path("perfil/", include("accounts.urls", namespace="accounts")),
-    path("casamentos/", include("weddings.urls", namespace="weddings")),
-    path("casamentos/<uuid:wedding_id>/", include("events.urls", namespace="events")),
+    # Área da equipa MeuConvite (exige is_staff).
+    path("administracao/", include("platform_admin.urls", namespace="platform")),
+    path("eventos/", include("weddings.urls", namespace="weddings")),
+    path("eventos/<uuid:wedding_id>/", include("events.urls", namespace="events")),
+    path(
+        "eventos/<uuid:wedding_id>/",
+        include("subscriptions.urls", namespace="subscriptions"),
+    ),
     path("", include("core.urls", namespace="core")),
 ]
 

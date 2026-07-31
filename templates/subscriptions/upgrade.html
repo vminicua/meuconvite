@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Subscrever {{ plan.name }} · {{ wedding.display_names }}{% endblock %}
+
+{% block content %}
+{% include "partials/wedding_nav.html" %}
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-header bg-transparent fw-semibold">Subscrever {{ plan.name }}</div>
+            <div class="card-body">
+                <div class="d-flex flex-wrap justify-content-between align-items-baseline gap-2 mb-3">
+                    <div>
+                        <div class="h4 mb-0">{{ plan.price_display }}</div>
+                        <div class="small text-body-secondary">
+                            até {{ plan.max_guests }} convidados
+                            {% if plan.duration_days %} · {{ plan.duration_days }} dias{% endif %}
+                        </div>
+                    </div>
+                    <div class="small text-body-secondary">
+                        Pacote actual: {{ limits.plan_name }} ({{ limits.max_guests }} convidados)
+                    </div>
+                </div>
+
+                <p class="small">{{ plan.description }}</p>
+
+                <div class="alert alert-light border small">
+                    <strong>Como funciona:</strong>
+                    <ol class="mb-0 ps-3">
+                        <li>Confirma o pedido aqui e recebe uma referência.</li>
+                        <li>Paga por M-Pesa para <strong>{{ instructions.mpesa_number }}</strong>.</li>
+                        <li>Envia o comprovativo por WhatsApp (com um botão, no passo seguinte).</li>
+                        <li>Confirmamos e o pacote fica activo.</li>
+                    </ol>
+                </div>
+
+                <form method="post" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+                    {% include "partials/bootstrap_fields.html" with form=form %}
+                    <div class="d-flex gap-2 mt-3">
+                        <button type="submit" class="btn btn-primary">Confirmar pedido</button>
+                        <a href="{% url 'subscriptions:detail' wedding.pk %}" class="btn btn-outline-secondary">
+                            Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <p class="small text-body-secondary mt-3 mb-0">
+            Nada é cobrado automaticamente: o pacote só muda depois de confirmarmos o
+            seu pagamento.
+        </p>
+    </div>
+</div>
+{% endblock %}

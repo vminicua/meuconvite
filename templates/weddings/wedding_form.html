@@ -1,72 +1,30 @@
 {% extends "base.html" %}
 
-{% block title %}Novo casamento · {{ SITE_NAME }}{% endblock %}
+{% block title %}Criar {{ category.name|lower }} · {{ SITE_NAME }}{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-lg-8">
-        <div class="wizard-steps mb-4">
-            <span class="wizard-steps__item active">1. Noivos</span>
-            <span class="wizard-steps__item">2. Eventos</span>
-            <span class="wizard-steps__item">3. Locais</span>
-            <span class="wizard-steps__item">4. Programa</span>
-            <span class="wizard-steps__item">5. Aspecto</span>
-            <span class="wizard-steps__item">6. Convidados</span>
-            <span class="wizard-steps__item">7. Publicar</span>
+    <div class="col-lg-7">
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <a href="{% url 'weddings:create' %}" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <span class="badge rounded-pill text-bg-light border">
+                <i class="bi {{ category.icon }} me-1"></i>{{ category.name }}
+            </span>
         </div>
 
         <div class="card shadow-sm">
             <div class="card-body p-4">
-                <h1 class="h5 mb-1">Informações dos noivos</h1>
+                <h1 class="h5 mb-1">Criar {{ category.name|lower }}</h1>
                 <p class="text-body-secondary small mb-4">
-                    Pode alterar tudo isto mais tarde nas definições do casamento.
+                    Só o essencial. O programa, os locais e os convidados acrescenta depois.
                 </p>
 
                 <form method="post" novalidate>
                     {% csrf_token %}
-                    {% if form.non_field_errors %}
-                        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
-                    {% endif %}
-
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label" for="{{ form.bride_full_name.id_for_label }}">Nome completo da noiva</label>
-                            {{ form.bride_full_name }}
-                            {{ form.bride_full_name.errors }}
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label" for="{{ form.groom_full_name.id_for_label }}">Nome completo do noivo</label>
-                            {{ form.groom_full_name }}
-                            {{ form.groom_full_name.errors }}
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label" for="{{ form.bride_short_name.id_for_label }}">Nome curto da noiva</label>
-                            {{ form.bride_short_name }}
-                            <div class="form-text">{{ form.bride_short_name.help_text }}</div>
-                            {{ form.bride_short_name.errors }}
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label" for="{{ form.groom_short_name.id_for_label }}">Nome curto do noivo</label>
-                            {{ form.groom_short_name }}
-                            <div class="form-text">{{ form.groom_short_name.help_text }}</div>
-                            {{ form.groom_short_name.errors }}
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label" for="{{ form.main_date.id_for_label }}">Data principal</label>
-                            {{ form.main_date }}
-                            {{ form.main_date.errors }}
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label" for="{{ form.city.id_for_label }}">Cidade</label>
-                            {{ form.city }}
-                            {{ form.city.errors }}
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label" for="{{ form.country.id_for_label }}">País</label>
-                            {{ form.country }}
-                            {{ form.country.errors }}
-                        </div>
-                    </div>
+                    <input type="hidden" name="category" value="{{ category.code }}">
+                    {% include "partials/form_fields.html" %}
 
                     <div class="d-flex gap-2 mt-4">
                         <button type="submit" class="btn btn-primary">Criar e continuar</button>
@@ -74,6 +32,13 @@
                     </div>
                 </form>
             </div>
+        </div>
+
+        <div class="alert alert-light border mt-3 small mb-0">
+            <i class="bi bi-magic me-1"></i>
+            Ao criar, a plataforma já acrescenta os momentos e o programa habituais de
+            um {{ category.name|lower }}. Nada fica fechado: pode alterar, remover ou
+            acrescentar o que quiser.
         </div>
     </div>
 </div>

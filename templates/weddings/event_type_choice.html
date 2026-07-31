@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Criar evento · {{ SITE_NAME }}{% endblock %}
+
+{% block extra_css %}
+    <link href="{% static 'css/templates-gallery.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="text-center mb-4">
+    <h1 class="h4 mb-1">Que tipo de evento vai criar?</h1>
+    <p class="text-body-secondary small mb-0">
+        Cada tipo já vem com os momentos e o programa habituais — pode mudar tudo depois.
+    </p>
+</div>
+
+{% if categories %}
+    <div class="template-grid">
+        {% for category in categories %}
+            <a class="category-card" href="{% url 'weddings:create' %}?tipo={{ category.code }}">
+                <span class="category-card__icon"><i class="bi {{ category.icon }}"></i></span>
+                <span class="category-card__name">{{ category.name }}</span>
+                <span class="category-card__description">{{ category.description }}</span>
+                <span class="category-card__meta">
+                    {% if category.uses_two_names %}
+                        <span class="badge text-bg-light border">Dois nomes</span>
+                    {% endif %}
+                    {% with total=category.extra_fields|length %}
+                        {% if total %}
+                            <span class="badge text-bg-light border">
+                                {{ total }} campo{{ total|pluralize }} próprio{{ total|pluralize }}
+                            </span>
+                        {% endif %}
+                    {% endwith %}
+                </span>
+            </a>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="empty-state text-center py-5">
+        <i class="bi bi-calendar-x display-5 text-body-secondary"></i>
+        <h2 class="h6 mt-3">Ainda não há tipos de evento configurados</h2>
+        <p class="text-body-secondary small mb-0">
+            A equipa MeuConvite precisa de correr <code>manage.py seed_event_categories</code>
+            ou criar os tipos na administração.
+        </p>
+    </div>
+{% endif %}
+
+<div class="text-center mt-4">
+    <a href="{% url 'weddings:list' %}" class="btn btn-outline-secondary btn-sm">Voltar</a>
+</div>
+{% endblock %}

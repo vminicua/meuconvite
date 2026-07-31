@@ -1,0 +1,450 @@
+/* =====================================================================
+   MeuConvite — área de administração da plataforma
+   Layout de sidebar fixa, cartões de KPI, tabelas e formulários.
+   ===================================================================== */
+
+.admin-body {
+    background-color: #f4f5f7;
+}
+
+.admin-shell {
+    padding: 0;
+    max-width: none;
+}
+
+.admin-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ---------------------------------------------------------------------
+   Sidebar
+   --------------------------------------------------------------------- */
+.admin-sidebar {
+    width: 15.5rem;
+    flex-shrink: 0;
+    background: #16202b;
+    color: #cbd5e1;
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.admin-sidebar__brand {
+    padding: 1.15rem 1.25rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, .08);
+}
+
+.admin-sidebar__logo {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.admin-sidebar__logo i {
+    color: var(--mc-gold);
+    font-size: 1.15rem;
+}
+
+.admin-sidebar__tag {
+    display: block;
+    margin-top: .2rem;
+    font-size: .7rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: rgba(203, 213, 225, .65);
+}
+
+.admin-nav {
+    padding: .75rem .6rem;
+    flex: 1;
+}
+
+.admin-nav__group {
+    display: block;
+    padding: .9rem .65rem .35rem;
+    font-size: .68rem;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: rgba(203, 213, 225, .45);
+}
+
+.admin-nav__item {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    padding: .5rem .65rem;
+    border-radius: .5rem;
+    color: #cbd5e1;
+    text-decoration: none;
+    font-size: .9rem;
+    transition: background-color .15s ease, color .15s ease;
+}
+
+.admin-nav__item:hover {
+    background-color: rgba(255, 255, 255, .07);
+    color: #fff;
+}
+
+.admin-nav__item.is-active {
+    background-color: var(--mc-gold);
+    color: #16202b;
+    font-weight: 600;
+}
+
+.admin-nav__item i {
+    font-size: 1rem;
+    width: 1.1rem;
+    text-align: center;
+}
+
+.admin-nav__badge {
+    margin-left: auto;
+    background: #dc3545;
+    color: #fff;
+    border-radius: 2rem;
+    font-size: .7rem;
+    padding: .05rem .45rem;
+}
+
+.admin-nav__item--muted {
+    color: rgba(203, 213, 225, .55);
+    font-size: .82rem;
+}
+
+.admin-sidebar__foot {
+    padding: .6rem;
+    border-top: 1px solid rgba(255, 255, 255, .08);
+}
+
+/* ---------------------------------------------------------------------
+   Área principal
+   --------------------------------------------------------------------- */
+.admin-main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: .75rem 1.5rem;
+    background: #fff;
+    border-bottom: 1px solid rgba(0, 0, 0, .07);
+}
+
+.admin-topbar__title {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.15;
+}
+
+.admin-topbar__eyebrow {
+    font-size: .68rem;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--mc-muted);
+}
+
+#admin-section-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+.admin-topbar__actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Indicador de carregamento durante as trocas HTMX. */
+.admin-progress {
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    border: 2px solid rgba(200, 169, 106, .35);
+    border-top-color: var(--mc-gold);
+    opacity: 0;
+    transition: opacity .15s ease;
+}
+
+.admin-progress.is-busy {
+    opacity: 1;
+    animation: admin-spin .7s linear infinite;
+}
+
+@keyframes admin-spin {
+    to { transform: rotate(360deg); }
+}
+
+.admin-messages {
+    padding: 1rem 1.5rem 0;
+}
+
+.admin-messages .messages {
+    margin-bottom: 0;
+}
+
+.admin-content {
+    padding: 1.5rem;
+    flex: 1;
+}
+
+/* ---------------------------------------------------------------------
+   Cabeçalho de secção
+   --------------------------------------------------------------------- */
+.section-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.section-head h1 {
+    font-size: 1.35rem;
+    font-weight: 600;
+    margin-bottom: .15rem;
+}
+
+.section-head p {
+    color: var(--mc-muted);
+    font-size: .88rem;
+    margin: 0;
+}
+
+/* ---------------------------------------------------------------------
+   KPIs
+   --------------------------------------------------------------------- */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.kpi {
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, .06);
+    border-radius: .85rem;
+    padding: 1.1rem 1.25rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.kpi__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: .7rem;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+}
+
+.kpi__icon--gold   { background: rgba(200, 169, 106, .16); color: var(--mc-gold-dark); }
+.kpi__icon--blue   { background: rgba(31, 58, 95, .12);    color: #1f3a5f; }
+.kpi__icon--red    { background: rgba(220, 53, 69, .12);   color: #b02a37; }
+.kpi__icon--green  { background: rgba(25, 135, 84, .12);   color: #198754; }
+
+.kpi__value {
+    font-size: 1.6rem;
+    font-weight: 600;
+    line-height: 1.1;
+}
+
+.kpi__label {
+    font-size: .8rem;
+    color: var(--mc-muted);
+}
+
+.kpi__hint {
+    font-size: .74rem;
+    color: var(--mc-muted);
+    margin-top: .2rem;
+}
+
+/* ---------------------------------------------------------------------
+   Cartões e tabelas
+   --------------------------------------------------------------------- */
+.admin-card {
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, .06);
+    border-radius: .85rem;
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+}
+
+.admin-card__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    padding: .85rem 1.15rem;
+    border-bottom: 1px solid rgba(0, 0, 0, .06);
+    font-weight: 600;
+    font-size: .95rem;
+}
+
+.admin-card__body {
+    padding: 1.15rem;
+}
+
+.admin-card__body--flush {
+    padding: 0;
+}
+
+table.dataTable {
+    font-size: .88rem;
+}
+
+table.dataTable thead th {
+    background: #f8f9fa;
+    font-size: .78rem;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+    color: var(--mc-muted);
+}
+
+.dataTables_wrapper .dataTables_filter input,
+.dataTables_wrapper .dataTables_length select {
+    border: 1px solid rgba(0, 0, 0, .15);
+    border-radius: .4rem;
+    padding: .2rem .5rem;
+}
+
+.dataTables_wrapper {
+    padding: 1rem 1.15rem;
+}
+
+/* Select2 alinhado com o Bootstrap. */
+.select2-container .select2-selection--single {
+    height: calc(1.5em + .75rem + 2px);
+    border: 1px solid #dee2e6;
+    border-radius: .375rem;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: calc(1.5em + .75rem);
+    padding-left: .75rem;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: calc(1.5em + .75rem);
+}
+
+/* ---------------------------------------------------------------------
+   Gráficos
+   --------------------------------------------------------------------- */
+.chart-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+.chart-box {
+    position: relative;
+    height: 16rem;
+}
+
+/* ---------------------------------------------------------------------
+   Detalhes
+   --------------------------------------------------------------------- */
+.detail-list dt {
+    font-size: .78rem;
+    color: var(--mc-muted);
+    font-weight: 400;
+}
+
+.detail-list dd {
+    font-size: .9rem;
+    margin-bottom: .6rem;
+}
+
+.field-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    padding: .25rem .35rem .25rem .75rem;
+    border-radius: 2rem;
+    background: rgba(200, 169, 106, .12);
+    border: 1px solid rgba(200, 169, 106, .32);
+    font-size: .82rem;
+    margin: 0 .35rem .35rem 0;
+}
+
+.field-chip button {
+    border: 0;
+    background: transparent;
+    color: var(--mc-muted);
+    padding: 0 .25rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.field-chip button:hover { color: var(--bs-danger); }
+
+.swatch {
+    display: inline-block;
+    width: 1.1rem;
+    height: 1.1rem;
+    border-radius: .25rem;
+}
+
+.swatch--bordered {
+    border: 1px solid rgba(0, 0, 0, .15);
+}
+
+/* ---------------------------------------------------------------------
+   Ecrãs pequenos
+   --------------------------------------------------------------------- */
+@media (max-width: 991.98px) {
+    .admin-sidebar {
+        position: fixed;
+        z-index: 1040;
+        transform: translateX(-100%);
+        transition: transform .2s ease;
+        box-shadow: 0 0 40px rgba(0, 0, 0, .35);
+    }
+
+    .admin-sidebar.is-open {
+        transform: translateX(0);
+    }
+
+    .chart-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-content {
+        padding: 1rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .admin-nav__item,
+    .admin-sidebar,
+    .admin-progress {
+        transition: none;
+    }
+
+    .admin-progress.is-busy {
+        animation: none;
+    }
+}

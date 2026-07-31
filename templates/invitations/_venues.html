@@ -1,0 +1,29 @@
+{% if locations %}
+    <section class="inv-section inv-section--venues">
+        <h2 class="inv-section__title">Locais</h2>
+        <svg class="inv-divider" viewBox="0 0 200 24" aria-hidden="true"><use href="#inv-divider"/></svg>
+
+        <div class="inv-venues">
+            {% for location in locations %}
+                <article class="inv-venue">
+                    <h3 class="inv-venue__name">{{ location.name }}</h3>
+                    {% if location.address %}
+                        <p class="inv-venue__address">{{ location.address }}</p>
+                    {% endif %}
+                    {% if location.description %}
+                        <p class="inv-venue__note">{{ location.description }}</p>
+                    {% endif %}
+                    {% if location.parking_information %}
+                        <p class="inv-venue__note"><i class="bi bi-p-square me-1"></i>{{ location.parking_information }}</p>
+                    {% endif %}
+                    {% if location.directions_url %}
+                        <a class="inv-btn inv-btn--ghost" href="{{ location.directions_url }}"
+                           target="_blank" rel="noopener noreferrer">
+                            <i class="bi bi-geo-alt me-1"></i>Ver no mapa
+                        </a>
+                    {% endif %}
+                </article>
+            {% endfor %}
+        </div>
+    </section>
+{% endif %}

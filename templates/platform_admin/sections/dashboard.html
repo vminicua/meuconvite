@@ -1,0 +1,168 @@
+{% load humanize %}
+<div class="section-head" data-section-title="Visão geral">
+    <div>
+        <h1>Visão geral</h1>
+        <p>O estado da plataforma num relance.</p>
+    </div>
+</div>
+
+<div class="kpi-grid">
+    <div class="kpi">
+        <span class="kpi__icon kpi__icon--gold"><i class="bi bi-calendar-heart"></i></span>
+        <div>
+            <div class="kpi__value">{{ kpis.events.total }}</div>
+            <div class="kpi__label">eventos</div>
+            <div class="kpi__hint">
+                {{ kpis.events.published }} publicado{{ kpis.events.published|pluralize }} ·
+                {{ kpis.events.new_this_month }} este mês
+            </div>
+        </div>
+    </div>
+
+    <div class="kpi">
+        <span class="kpi__icon kpi__icon--blue"><i class="bi bi-people"></i></span>
+        <div>
+            <div class="kpi__value">{{ kpis.users.total }}</div>
+            <div class="kpi__label">utilizadores</div>
+            <div class="kpi__hint">
+                {{ kpis.users.verified }} verificado{{ kpis.users.verified|pluralize }} ·
+                {{ kpis.users.new_this_month }} este mês
+            </div>
+        </div>
+    </div>
+
+    <div class="kpi">
+        <span class="kpi__icon kpi__icon--red"><i class="bi bi-hourglass-split"></i></span>
+        <div>
+            <div class="kpi__value">{{ kpis.payments.pending }}</div>
+            <div class="kpi__label">pagamentos por verificar</div>
+            <div class="kpi__hint">{{ kpis.payments.confirmed }} já confirmado{{ kpis.payments.confirmed|pluralize }}</div>
+        </div>
+    </div>
+
+    <div class="kpi">
+        <span class="kpi__icon kpi__icon--green"><i class="bi bi-cash-coin"></i></span>
+        <div>
+            <div class="kpi__value">{{ kpis.payments.revenue|floatformat:0|intcomma }}</div>
+            <div class="kpi__label">MZN confirmados</div>
+            <div class="kpi__hint">
+                {{ kpis.payments.revenue_month|floatformat:0|intcomma }} MZN este mês ·
+                {{ kpis.subscriptions.conversion }}% em pacotes pagos
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="chart-grid">
+    <div class="admin-card mb-0">
+        <div class="admin-card__head">Eventos criados por mês</div>
+        <div class="admin-card__body">
+            <div class="chart-box">
+                <canvas data-chart="line" data-label="Eventos" data-payload="{{ chart_events }}"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-card mb-0">
+        <div class="admin-card__head">Por tipo de evento</div>
+        <div class="admin-card__body">
+            <div class="chart-box">
+                <canvas data-chart="doughnut" data-payload="{{ chart_categories }}"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="admin-card">
+    <div class="admin-card__head">Receita confirmada por mês (MZN)</div>
+    <div class="admin-card__body">
+        <div class="chart-box">
+            <canvas data-chart="bar" data-label="MZN" data-payload="{{ chart_revenue }}"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-xl-6">
+        <div class="admin-card">
+            <div class="admin-card__head">
+                <span>Pagamentos em fila</span>
+                <a class="btn btn-sm btn-outline-secondary" href="{% url 'platform:payments' %}"
+                   hx-get="{% url 'platform:payments' %}" hx-target="#admin-content" hx-push-url="true">Ver todos</a>
+            </div>
+            <div class="admin-card__body admin-card__body--flush">
+                <table class="table table-hover align-middle mb-0">
+                    <tbody>
+                        {% for payment in pending_payments %}
+                            <tr>
+                                <td><code>{{ payment.reference }}</code></td>
+                                <td class="small">{{ payment.wedding.display_names }}</td>
+                                <td class="small">{{ payment.plan.name }}</td>
+                                <td class="text-end text-nowrap small">{{ payment.amount_mzn|floatformat:0 }} MZN</td>
+                            </tr>
+                        {% empty %}
+                            <tr><td class="text-body-secondary small p-3">Nenhum pagamento à espera.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-6">
+        <div class="admin-card">
+            <div class="admin-card__head">
+                <span>Eventos recentes</span>
+                <a class="btn btn-sm btn-outline-secondary" href="{% url 'platform:events' %}"
+                   hx-get="{% url 'platform:events' %}" hx-target="#admin-content" hx-push-url="true">Ver todos</a>
+            </div>
+            <div class="admin-card__body admin-card__body--flush">
+                <table class="table table-hover align-middle mb-0">
+                    <tbody>
+                        {% for event in recent_events %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'platform:event_detail' event.pk %}"
+                                       hx-get="{% url 'platform:event_detail' event.pk %}"
+                                       hx-target="#admin-content" hx-push-url="true"
+                                       class="text-decoration-none fw-semibold small">{{ event.display_names }}</a>
+                                    <div class="small text-body-secondary">
+                                        <i class="bi {{ event.category_icon }} me-1"></i>{{ event.category_name }}
+                                    </div>
+                                </td>
+                                <td class="small text-body-secondary">{{ event.owner.email }}</td>
+                                <td class="small text-nowrap">{{ event.main_date|date:"d/m/Y" }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr><td class="text-body-secondary small p-3">Ainda não há eventos.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="admin-card">
+    <div class="admin-card__head">
+        <span>Últimas acções</span>
+        <a class="btn btn-sm btn-outline-secondary" href="{% url 'platform:audit' %}"
+           hx-get="{% url 'platform:audit' %}" hx-target="#admin-content" hx-push-url="true">Auditoria</a>
+    </div>
+    <div class="admin-card__body admin-card__body--flush">
+        <table class="table table-hover align-middle mb-0">
+            <tbody>
+                {% for entry in recent_audit %}
+                    <tr>
+                        <td class="small fw-semibold">{{ entry.get_action_display }}</td>
+                        <td class="small text-body-secondary">{{ entry.actor_label|default:"sistema" }}</td>
+                        <td class="small text-body-secondary">{{ entry.object_label|truncatechars:44 }}</td>
+                        <td class="small text-nowrap text-end">{{ entry.created_at|date:"d/m H:i" }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td class="text-body-secondary small p-3">Sem registos.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

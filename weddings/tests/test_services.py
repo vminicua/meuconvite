@@ -19,10 +19,10 @@ class CreateWeddingTests(TestCase):
         wedding = services.create_wedding(
             owner=owner,
             data={
-                "bride_full_name": "Natércia Alice Matola",
-                "groom_full_name": "Hivaldo José Cossa",
-                "bride_short_name": "Natércia",
-                "groom_short_name": "Hivaldo",
+                "primary_name": "Natércia Alice Matola",
+                "secondary_name": "Hivaldo José Cossa",
+                "primary_short_name": "Natércia",
+                "secondary_short_name": "Hivaldo",
                 "main_date": timezone.localdate() + timedelta(days=90),
                 "city": "Maputo",
                 "country": "Moçambique",
@@ -40,10 +40,10 @@ class CreateWeddingTests(TestCase):
         wedding = services.create_wedding(
             owner=owner,
             data={
-                "bride_full_name": "Natércia Alice Matola",
-                "groom_full_name": "Hivaldo José Cossa",
-                "bride_short_name": "Natércia",
-                "groom_short_name": "Hivaldo",
+                "primary_name": "Natércia Alice Matola",
+                "secondary_name": "Hivaldo José Cossa",
+                "primary_short_name": "Natércia",
+                "secondary_short_name": "Hivaldo",
                 "main_date": timezone.localdate() + timedelta(days=90),
                 "city": "Maputo",
                 "country": "Moçambique",

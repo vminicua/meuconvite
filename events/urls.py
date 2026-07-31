@@ -20,6 +20,11 @@ urlpatterns = [
     path("locais/<uuid:location_id>/eliminar/", views.location_delete, name="location_delete"),
     # Programme
     path("programa/", views.schedule, name="schedule"),
+    path(
+        "programa/campos/<slug:key>/remover/",
+        views.schedule_field_delete,
+        name="schedule_field_delete",
+    ),
     path("programa/novo/", views.schedule_create, name="schedule_create"),
     path("programa/ordenar/", views.schedule_reorder, name="schedule_reorder"),
     path("programa/<uuid:item_id>/", views.schedule_edit, name="schedule_edit"),

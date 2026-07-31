@@ -1,0 +1,10 @@
+# Dependências usadas apenas em desenvolvimento.
+#   pip install -r requirements.txt -r requirements-dev.txt
+-r requirements.txt
+
+# Túnel SSH para trabalhar contra a base de dados de produção
+# (scripts/dev_tunnel.py) e para os scripts de deploy.
+paramiko>=3.4
+
+# Driver MySQL/MariaDB (também necessário em produção).
+mysqlclient>=2.2

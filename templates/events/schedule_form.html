@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{% if item %}Editar item{% else %}Novo item do programa{% endif %} · {{ wedding.couple_names }}{% endblock %}
+{% block title %}{% if item %}Editar item{% else %}Novo item do programa{% endif %} · {{ wedding.display_names }}{% endblock %}
 
 {% block content %}
 {% include "partials/wedding_nav.html" %}

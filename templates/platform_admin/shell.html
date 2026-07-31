@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Administração · {{ SITE_NAME }}{% endblock %}
+{% block body_class %}app-body admin-body{% endblock %}
+{% block main_class %}admin-shell{% endblock %}
+{% block navbar %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="{% static 'css/admin.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+    {% include "platform_admin/_sidebar.html" %}
+
+    <div class="admin-main">
+        {% include "platform_admin/_topbar.html" %}
+
+        <div id="admin-content" class="admin-content">
+            {% include section_template %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+    {# jQuery 3.5.1: o Select2 4.1.0-rc.0 avaria com 3.6+ («GetData(...).destroy
+       is not a function»). O DataTables funciona bem com esta versão. #}
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="{% static 'js/admin.js' %}"></script>
+{% endblock %}

@@ -15,11 +15,11 @@ class WeddingMemberInline(admin.TabularInline):
 
 @admin.register(Wedding)
 class WeddingAdmin(admin.ModelAdmin):
-    list_display = ("couple_names", "main_date", "city", "status", "owner", "created_at")
+    list_display = ("display_names", "main_date", "city", "status", "owner", "created_at")
     list_filter = ("status", "main_date", "country", "created_at")
     search_fields = (
-        "bride_full_name",
-        "groom_full_name",
+        "primary_name",
+        "secondary_name",
         "slug",
         "owner__email",
         "city",
@@ -33,8 +33,8 @@ class WeddingAdmin(admin.ModelAdmin):
         (_("Noivos"), {
             "fields": (
                 "owner",
-                ("bride_full_name", "groom_full_name"),
-                ("bride_short_name", "groom_short_name"),
+                ("primary_name", "secondary_name"),
+                ("primary_short_name", "secondary_short_name"),
             )
         }),
         (_("Celebração"), {"fields": ("main_date", "city", "country", "timezone", "rsvp_deadline")}),
@@ -58,5 +58,5 @@ class WeddingAdmin(admin.ModelAdmin):
 class WeddingMemberAdmin(admin.ModelAdmin):
     list_display = ("user", "wedding", "role", "is_active", "accepted_at")
     list_filter = ("role", "is_active")
-    search_fields = ("user__email", "wedding__bride_full_name", "wedding__groom_full_name")
+    search_fields = ("user__email", "wedding__primary_name", "wedding__secondary_name")
     autocomplete_fields = ["wedding", "user"]

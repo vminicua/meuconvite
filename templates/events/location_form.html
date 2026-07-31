@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{% if location %}Editar local{% else %}Novo local{% endif %} · {{ wedding.couple_names }}{% endblock %}
+{% block title %}{% if location %}Editar local{% else %}Novo local{% endif %} · {{ wedding.display_names }}{% endblock %}
 
 {% block content %}
 {% include "partials/wedding_nav.html" %}

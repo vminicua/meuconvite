@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Administração · {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+{% include "platform/_nav.html" with active="dashboard" %}
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="stat-tile">
+            <div class="stat-tile__value">{{ events.total }}</div>
+            <div class="stat-tile__label">
+                eventos · {{ events.published }} publicado{{ events.published|pluralize }}
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-tile">
+            <div class="stat-tile__value">{{ users.total }}</div>
+            <div class="stat-tile__label">
+                utilizadores · {{ users.verified }} verificado{{ users.verified|pluralize }}
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <a class="stat-tile stat-tile--link d-block text-decoration-none"
+           href="{% url 'platform:payments' %}">
+            <div class="stat-tile__value {% if pending_count %}text-danger{% endif %}">{{ pending_count }}</div>
+            <div class="stat-tile__label">pagamentos por verificar</div>
+        </a>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="stat-tile">
+            <div class="stat-tile__value">{{ revenue_total|floatformat:0|intcomma }}</div>
+            <div class="stat-tile__label">MZN recebidos (confirmados)</div>
+        </div>
+    </div>
+</div>
+
+{% if pending_count %}
+    <div class="alert alert-warning d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <span>
+            <i class="bi bi-hourglass-split me-1"></i>
+            Há {{ pending_count }} pagamento{{ pending_count|pluralize }} à espera de verificação.
+        </span>
+        <a href="{% url 'platform:payments' %}" class="btn btn-sm btn-primary">Verificar agora</a>
+    </div>
+{% endif %}
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">Pagamentos em fila</span>
+                <a href="{% url 'platform:payments' %}" class="btn btn-sm btn-outline-secondary">Ver todos</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Referência</th>
+                            <th>Evento</th>
+                            <th>Pacote</th>
+                            <th class="text-end">Valor</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payment in pending_payments %}
+                            <tr>
+                                <td><code>{{ payment.reference }}</code></td>
+                                <td class="small">{{ payment.wedding.display_names }}</td>
+                                <td class="small">{{ payment.plan.name }}</td>
+                                <td class="text-end text-nowrap">{{ payment.amount_mzn|floatformat:0 }} MZN</td>
+                                <td><span class="badge text-bg-light border">{{ payment.get_status_display }}</span></td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-body-secondary small">
+                                    Nenhum pagamento à espera.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-transparent fw-semibold">Eventos recentes</div>
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Evento</th>
+                            <th>Tipo</th>
+                            <th>Proprietário</th>
+                            <th>Data</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for event in recent_events %}
+                            <tr>
+                                <td class="fw-semibold small">{{ event.display_names }}</td>
+                                <td class="small text-body-secondary">
+                                    <i class="bi {{ event.category_icon }} me-1"></i>{{ event.category_name }}
+                                </td>
+                                <td class="small text-body-secondary">{{ event.owner.email }}</td>
+                                <td class="small text-nowrap">{{ event.main_date|date:"d/m/Y" }}</td>
+                                <td>
+                                    {% if event.status == 'published' %}
+                                        <span class="badge text-bg-success">Publicado</span>
+                                    {% elif event.status == 'blocked' %}
+                                        <span class="badge text-bg-danger">Bloqueado</span>
+                                    {% else %}
+                                        <span class="badge text-bg-secondary">{{ event.get_status_display }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="5" class="text-body-secondary small">Ainda não há eventos criados.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">Tipos de evento</span>
+                <a href="/{{ ADMIN_URL }}events/eventcategory/" class="btn btn-sm btn-outline-secondary">Gerir</a>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for category in categories %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center small">
+                        <span>
+                            <i class="bi {{ category.icon }} me-1"></i>{{ category.name }}
+                            {% if not category.is_active %}
+                                <span class="badge text-bg-secondary ms-1">inactivo</span>
+                            {% endif %}
+                        </span>
+                        <span class="text-body-secondary">{{ category.usage }} evento{{ category.usage|pluralize }}</span>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item small text-body-secondary">
+                        Nenhum tipo configurado. Corra <code>manage.py seed_event_categories</code>.
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">Pacotes</span>
+                <a href="/{{ ADMIN_URL }}subscriptions/plan/" class="btn btn-sm btn-outline-secondary">Gerir</a>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for plan in plans %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center small">
+                        <span>
+                            {{ plan.name }}
+                            <span class="text-body-secondary">· {{ plan.max_guests }} convidados</span>
+                        </span>
+                        <span class="text-nowrap">
+                            {{ plan.price_display }}
+                            <span class="badge text-bg-light border ms-1">{{ plan.subscribers }}</span>
+                        </span>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item small text-body-secondary">
+                        Nenhum pacote. Corra <code>manage.py seed_plans</code>.
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">Últimas acções</span>
+                <a href="/{{ ADMIN_URL }}audit/auditlog/" class="btn btn-sm btn-outline-secondary">Auditoria</a>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for entry in recent_audit %}
+                    <li class="list-group-item small">
+                        <div class="d-flex justify-content-between gap-2">
+                            <span class="fw-semibold">{{ entry.get_action_display }}</span>
+                            <span class="text-body-secondary text-nowrap">{{ entry.created_at|date:"d/m H:i" }}</span>
+                        </div>
+                        <div class="text-body-secondary">
+                            {{ entry.actor_label|default:"sistema" }}
+                            {% if entry.object_label %} · {{ entry.object_label|truncatechars:40 }}{% endif %}
+                        </div>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item small text-body-secondary">Sem registos.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

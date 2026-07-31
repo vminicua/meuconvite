@@ -1,7 +1,7 @@
 /* =====================================================================
    MeuConvite — página inicial
-   Complementa app.css. Tudo o que é decorativo vive aqui para que as
-   páginas da aplicação continuem leves.
+   Complementa app.css: aqui vivem apenas os efeitos e o convite de
+   demonstração, para que as páginas da aplicação continuem leves.
    ===================================================================== */
 
 .home-page {
@@ -35,18 +35,17 @@
 .hero {
     position: relative;
     overflow: hidden;
-    padding: clamp(2.5rem, 6vw, 5.5rem) 0 clamp(4rem, 8vw, 7rem);
     background:
-        radial-gradient(1200px 500px at 85% -10%, rgba(215, 154, 162, .18), transparent 60%),
+        radial-gradient(1100px 480px at 85% -10%, rgba(215, 154, 162, .16), transparent 60%),
         radial-gradient(900px 420px at 5% 10%, rgba(200, 169, 106, .16), transparent 55%),
-        linear-gradient(180deg, #fffdfb 0%, #faf7f3 100%);
+        linear-gradient(180deg, #fffdf8 0%, #f7f6f3 100%);
 }
 
 .hero__glow {
     position: absolute;
     border-radius: 50%;
     filter: blur(70px);
-    opacity: .5;
+    opacity: .45;
     pointer-events: none;
     animation: mc-drift 16s ease-in-out infinite alternate;
 }
@@ -64,7 +63,7 @@
     height: 26rem;
     bottom: -10rem;
     right: -4rem;
-    background: rgba(183, 110, 121, .28);
+    background: rgba(183, 110, 121, .26);
     animation-delay: -6s;
 }
 
@@ -73,73 +72,27 @@
     to   { transform: translate3d(2rem, 1.5rem, 0) scale(1.12); }
 }
 
-.badge-soft {
-    display: inline-flex;
-    align-items: center;
-    gap: .4rem;
-    font-size: .78rem;
-    font-weight: 600;
-    letter-spacing: .04em;
-    text-transform: uppercase;
-    color: var(--mc-gold-dark);
-    background: rgba(200, 169, 106, .14);
-    border: 1px solid rgba(200, 169, 106, .35);
-    border-radius: 2rem;
-    padding: .35rem .9rem;
-    margin-bottom: 1.25rem;
-}
-
-.hero__title {
-    font-size: clamp(2.1rem, 4.6vw, 3.4rem);
-    font-weight: 600;
-    line-height: 1.12;
-    letter-spacing: -.02em;
-    margin-bottom: 1.1rem;
-}
-
-.hero__script {
-    font-family: "Great Vibes", cursive;
-    font-weight: 400;
-    font-size: 1.25em;
-    line-height: 1;
-    color: var(--mc-gold-dark);
+/* Palavra que muda sozinha no título (a plataforma serve vários tipos de evento) */
+.rotator {
     display: inline-block;
-    padding-right: .1em;
-}
-
-.hero__lead {
-    font-size: 1.05rem;
-    color: var(--mc-muted);
-    max-width: 34rem;
-    margin-bottom: 1.75rem;
-}
-
-.hero__points {
-    list-style: none;
-    padding: 0;
-    margin: 1.75rem 0 0;
-    display: grid;
-    gap: .45rem;
-}
-
-.hero__points li {
-    font-size: .92rem;
-    color: var(--mc-muted);
-}
-
-.hero__points i {
+    position: relative;
     color: var(--mc-gold-dark);
-    margin-right: .45rem;
+    white-space: nowrap;
 }
 
-.hero__wave {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -1px;
-    height: 3.5rem;
-    background: #fff;
-    clip-path: ellipse(75% 100% at 50% 100%);
+.rotator__word {
+    display: inline-block;
+    transition: opacity .35s ease, transform .35s ease;
+}
+
+.rotator__word.is-leaving {
+    opacity: 0;
+    transform: translateY(-.35em);
+}
+
+.rotator__word.is-entering {
+    opacity: 0;
+    transform: translateY(.35em);
 }
 
 .btn-shine {
@@ -162,6 +115,30 @@
 @keyframes mc-shine {
     0%, 65% { left: -140%; }
     100%    { left: 140%; }
+}
+
+/* ---------------------------------------------------------------------
+   Cartões de funcionalidades
+   --------------------------------------------------------------------- */
+.feature-card {
+    background-color: var(--mc-surface);
+    border: 1px solid rgba(0, 0, 0, .06);
+    border-radius: .75rem;
+    padding: 1.5rem;
+    transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(200, 169, 106, .45);
+    box-shadow: 0 18px 36px -22px rgba(31, 41, 51, .35);
+}
+
+.feature-card__icon {
+    font-size: 1.5rem;
+    color: var(--mc-gold);
+    display: block;
+    margin-bottom: .75rem;
 }
 
 /* ---------------------------------------------------------------------
@@ -239,16 +216,8 @@
     z-index: 1;
 }
 
-.invite__flora--tr {
-    top: -1.4rem;
-    right: -1.6rem;
-}
-
-.invite__flora--bl {
-    bottom: -1.6rem;
-    left: -1.8rem;
-    transform: rotate(180deg);
-}
+.invite__flora--tr { top: -1.4rem; right: -1.6rem; }
+.invite__flora--bl { bottom: -1.6rem; left: -1.8rem; transform: rotate(180deg); }
 
 .o-rose      { color: var(--inv-rose-soft); }
 .o-rose-2    { color: var(--inv-rose); }
@@ -339,7 +308,7 @@
     border: 1px solid rgba(183, 110, 121, .22);
     border-radius: 2rem;
     padding: .28rem .95rem;
-    margin-bottom: .8rem;
+    margin-bottom: .85rem;
 }
 
 .invite__seats-label {
@@ -354,27 +323,10 @@
     color: var(--inv-rose);
 }
 
-.invite__events {
-    list-style: none;
-    padding: 0;
+.invite__venue {
+    font-size: .85rem;
+    line-height: 1.5;
     margin: 0;
-    display: inline-grid;
-    gap: .18rem;
-    text-align: left;
-    font-size: .88rem;
-}
-
-.invite__events i {
-    color: #6f9c72;
-    margin-right: .35rem;
-}
-
-.invite__events .is-off {
-    color: rgba(109, 75, 82, .45);
-}
-
-.invite__events .is-off i {
-    color: rgba(109, 75, 82, .35);
 }
 
 /* Painéis laterais */
@@ -450,9 +402,7 @@
     border-bottom: 1px dashed rgba(183, 110, 121, .22);
 }
 
-.invite__timeline li:last-child {
-    border-bottom: 0;
-}
+.invite__timeline li:last-child { border-bottom: 0; }
 
 .invite__timeline i {
     color: var(--inv-rose);
@@ -468,221 +418,23 @@
     margin-right: .1rem;
 }
 
-.invite__caption {
-    text-align: center;
-    font-size: .8rem;
-    color: var(--mc-muted);
-    margin-top: 1.5rem;
-}
-
-.invite__caption i {
-    color: var(--mc-gold);
-}
-
 /* ---------------------------------------------------------------------
-   Faixa de números
-   --------------------------------------------------------------------- */
-.strip {
-    background: #fff;
-    padding: 2.5rem 0;
-    border-bottom: 1px solid rgba(0, 0, 0, .05);
-}
-
-.strip__value {
-    font-size: 2rem;
-    font-weight: 600;
-    color: var(--mc-gold-dark);
-    line-height: 1;
-}
-
-.strip__label {
-    font-size: .82rem;
-    color: var(--mc-muted);
-    margin-top: .3rem;
-}
-
-/* ---------------------------------------------------------------------
-   Secções
-   --------------------------------------------------------------------- */
-.section {
-    padding: clamp(3rem, 7vw, 5.5rem) 0;
-    background: #fff;
-}
-
-.section--tinted {
-    background: linear-gradient(180deg, #faf8f5 0%, #fff 100%);
-}
-
-.section__head {
-    max-width: 42rem;
-    margin: 0 auto clamp(2rem, 4vw, 3rem);
-    text-align: center;
-}
-
-.eyebrow {
-    display: inline-block;
-    font-size: .74rem;
-    letter-spacing: .22em;
-    text-transform: uppercase;
-    color: var(--mc-gold-dark);
-    margin-bottom: .6rem;
-}
-
-.section__head h2 {
-    font-size: clamp(1.5rem, 2.8vw, 2.1rem);
-    font-weight: 600;
-    margin-bottom: .6rem;
-}
-
-.section__head p {
-    color: var(--mc-muted);
-    margin: 0;
-}
-
-.feature-card {
-    height: 100%;
-    background: #fff;
-    border: 1px solid rgba(0, 0, 0, .07);
-    border-radius: .9rem;
-    padding: 1.6rem;
-    transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
-}
-
-.feature-card:hover {
-    transform: translateY(-4px);
-    border-color: rgba(200, 169, 106, .45);
-    box-shadow: 0 18px 36px -22px rgba(31, 41, 51, .35);
-}
-
-.feature-card__icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.9rem;
-    height: 2.9rem;
-    border-radius: .8rem;
-    background: linear-gradient(135deg, rgba(200, 169, 106, .18), rgba(183, 110, 121, .18));
-    color: var(--mc-gold-dark);
-    font-size: 1.25rem;
-    margin-bottom: 1rem;
-}
-
-.feature-card h3 {
-    font-size: 1rem;
-    font-weight: 600;
-    margin-bottom: .5rem;
-}
-
-.feature-card p {
-    font-size: .9rem;
-    color: var(--mc-muted);
-    margin: 0;
-}
-
-/* ---------------------------------------------------------------------
-   Passos
-   --------------------------------------------------------------------- */
-.steps {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-    gap: 1.5rem;
-    counter-reset: step;
-}
-
-.step {
-    position: relative;
-    padding: 1.4rem 1.2rem 1.2rem;
-    background: #fff;
-    border: 1px solid rgba(0, 0, 0, .07);
-    border-radius: .9rem;
-}
-
-.step__number {
-    position: absolute;
-    top: -1rem;
-    left: 1.2rem;
-    width: 2rem;
-    height: 2rem;
-    border-radius: 50%;
-    background: var(--mc-gold);
-    color: #fff;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    font-size: .9rem;
-    box-shadow: 0 6px 14px -6px rgba(200, 169, 106, .9);
-}
-
-.step h3 {
-    font-size: .98rem;
-    font-weight: 600;
-    margin: .6rem 0 .4rem;
-}
-
-.step p {
-    font-size: .88rem;
-    color: var(--mc-muted);
-    margin: 0;
-}
-
-/* ---------------------------------------------------------------------
-   Chamada final
-   --------------------------------------------------------------------- */
-.cta {
-    padding: 0 0 clamp(3rem, 7vw, 5rem);
-    background: #fff;
-}
-
-.cta__card {
-    text-align: center;
-    padding: clamp(2.2rem, 5vw, 3.5rem) 1.5rem;
-    border-radius: 1.25rem;
-    background:
-        radial-gradient(700px 240px at 20% 0%, rgba(183, 110, 121, .16), transparent 60%),
-        linear-gradient(135deg, #fffdf9 0%, #f8f3ec 100%);
-    border: 1px solid rgba(200, 169, 106, .3);
-}
-
-.cta__card h2 {
-    font-size: clamp(1.4rem, 2.6vw, 2rem);
-    font-weight: 600;
-    margin-bottom: .5rem;
-}
-
-.cta__card p {
-    color: var(--mc-muted);
-    margin-bottom: 1.4rem;
-}
-
-.cta__contact {
-    margin: 1.2rem 0 0;
-    font-size: .88rem;
-}
-
-/* ---------------------------------------------------------------------
-   Ecrãs pequenos
+   Ecrãs pequenos: apenas o painel principal do convite
    --------------------------------------------------------------------- */
 @media (max-width: 991.98px) {
     .invite {
         grid-template-columns: 1fr;
-        gap: 1rem;
-        max-width: 26rem;
+        max-width: 22rem;
         margin: 0 auto;
         animation: none;
     }
 
-    .invite__panel--main   { order: 1; }
-    .invite__panel--program { order: 2; }
-    .invite__panel--rsvp    { order: 3; }
-
-    .invite__panel--rsvp,
-    .invite__panel--program {
-        transform: none;
+    .invite__panel--side {
+        display: none;
     }
 
-    .hero__points {
-        margin-bottom: 2rem;
+    .invite__panel--main {
+        transform: none;
     }
 }
 
@@ -690,10 +442,6 @@
     .invite__flora {
         width: 6.5rem;
         height: 6.5rem;
-    }
-
-    .strip__value {
-        font-size: 1.6rem;
     }
 }
 
@@ -715,7 +463,8 @@
         animation: none !important;
     }
 
-    .feature-card {
+    .feature-card,
+    .rotator__word {
         transition: none;
     }
 }

@@ -1,0 +1,93 @@
+<div class="section-head" data-section-title="Eventos">
+    <div>
+        <h1>Eventos</h1>
+        <p>Todos os eventos da plataforma. Clique para ver detalhes, subscrição e histórico.</p>
+    </div>
+</div>
+
+<div class="admin-card">
+    <div class="admin-card__body">
+        <form method="get" action="{% url 'platform:events' %}" data-auto-submit
+              hx-get="{% url 'platform:events' %}" hx-target="#admin-content" hx-push-url="true"
+              class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label small" for="filtro-q">Pesquisar</label>
+                <input type="search" id="filtro-q" name="q" value="{{ search }}" class="form-control"
+                       placeholder="Nome, endereço, cidade ou email">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small" for="filtro-estado">Estado</label>
+                <select id="filtro-estado" name="estado" class="form-select js-select2" data-allow-clear="true"
+                        data-placeholder="Todos">
+                    <option value=""></option>
+                    {% for value, label in statuses %}
+                        <option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small" for="filtro-tipo">Tipo</label>
+                <select id="filtro-tipo" name="tipo" class="form-select js-select2" data-allow-clear="true"
+                        data-placeholder="Todos">
+                    <option value=""></option>
+                    {% for item in categories %}
+                        <option value="{{ item.code }}" {% if category == item.code %}selected{% endif %}>{{ item.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="admin-card">
+    <div class="admin-card__body admin-card__body--flush">
+        <table class="table table-hover align-middle mb-0" data-table data-order="[[3, &quot;desc&quot;]]">
+            <thead>
+                <tr>
+                    <th>Evento</th>
+                    <th>Tipo</th>
+                    <th>Proprietário</th>
+                    <th>Data</th>
+                    <th>Momentos</th>
+                    <th>Estado</th>
+                    <th class="no-sort"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for event in events %}
+                    <tr>
+                        <td>
+                            <div class="fw-semibold">{{ event.display_names }}</div>
+                            <div class="small text-body-secondary">{{ event.city }} · /{{ event.slug }}</div>
+                        </td>
+                        <td class="small"><i class="bi {{ event.category_icon }} me-1"></i>{{ event.category_name }}</td>
+                        <td class="small text-body-secondary">{{ event.owner.email }}</td>
+                        <td class="text-nowrap small" data-order="{{ event.main_date|date:'Y-m-d' }}">
+                            {{ event.main_date|date:"d/m/Y" }}
+                        </td>
+                        <td class="small">{{ event.moment_total }}</td>
+                        <td>
+                            {% if event.status == 'published' %}
+                                <span class="badge text-bg-success">Publicado</span>
+                            {% elif event.status == 'blocked' %}
+                                <span class="badge text-bg-danger">Bloqueado</span>
+                            {% elif event.status == 'archived' %}
+                                <span class="badge text-bg-secondary">Arquivado</span>
+                            {% else %}
+                                <span class="badge text-bg-light border">Rascunho</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-secondary" href="{% url 'platform:event_detail' event.pk %}"
+                               hx-get="{% url 'platform:event_detail' event.pk %}"
+                               hx-target="#admin-content" hx-push-url="true">Abrir</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

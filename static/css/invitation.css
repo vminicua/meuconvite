@@ -1,0 +1,559 @@
+/* =====================================================================
+   MeuConvite — página do convite
+   As cores e as letras vêm do template escolhido, em variáveis CSS
+   (--inv-primary, --inv-paper, --inv-display, …). Este ficheiro trata da
+   estrutura; cada layout tem depois o seu bloco no fim.
+   ===================================================================== */
+
+* { box-sizing: border-box; }
+
+body.inv {
+    margin: 0;
+    background: var(--inv-paper, #fffdf8);
+    color: var(--inv-ink, #3a3226);
+    font-family: var(--inv-body, Georgia, serif);
+    font-size: 17px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+img { max-width: 100%; display: block; }
+
+/* --- Barra de pré-visualização -------------------------------------- */
+.inv-preview-bar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .5rem 1rem;
+    background: #16202b;
+    color: #e6e9ee;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    font-size: .82rem;
+}
+
+.inv-preview-bar a {
+    color: #e8c86a;
+    text-decoration: none;
+}
+
+/* --- Capa ------------------------------------------------------------ */
+.inv-cover {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.25rem;
+    text-align: center;
+    /* A capa usa a cor principal como fundo; a secundária fica para os
+       detalhes (selo, filetes), que precisam de contrastar com ela. */
+    background:
+        radial-gradient(70rem 40rem at 50% 0%,
+            color-mix(in srgb, var(--inv-primary) 82%, #000) 0%,
+            var(--inv-primary) 55%,
+            color-mix(in srgb, var(--inv-primary) 78%, #000) 100%);
+    color: var(--inv-paper);
+}
+
+.inv-cover__paper {
+    max-width: 32rem;
+    width: 100%;
+    padding: 3rem 1.75rem;
+    border: 1px solid color-mix(in srgb, var(--inv-secondary) 45%, transparent);
+    border-radius: .75rem;
+    position: relative;
+    animation: inv-fade-up .9s ease both;
+}
+
+.inv-cover__guest { color: var(--inv-secondary); }
+
+.inv-cover__eyebrow {
+    font-size: .7rem;
+    letter-spacing: .34em;
+    text-transform: uppercase;
+    opacity: .75;
+    margin: 0 0 .5rem;
+}
+
+.inv-cover__guest,
+.inv-cover__names {
+    font-family: var(--inv-display);
+    font-size: clamp(2rem, 7vw, 3rem);
+    line-height: 1.15;
+    margin: 0 0 1rem;
+}
+
+.inv-cover__amp {
+    display: block;
+    font-size: .6em;
+    opacity: .8;
+}
+
+.inv-cover__seal {
+    width: 6.5rem;
+    height: 6.5rem;
+    margin: .5rem auto 1rem;
+    color: var(--inv-secondary);
+    filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .35));
+    animation: inv-seal-in 1s .2s ease both;
+}
+
+.inv-cover__monogram {
+    font-family: var(--inv-display);
+    font-size: 2.2rem;
+    letter-spacing: .04em;
+    fill: color-mix(in srgb, var(--inv-primary) 75%, #000);
+}
+
+.inv-cover__note {
+    font-size: .9rem;
+    opacity: .8;
+    margin: 0 0 1.75rem;
+}
+
+.inv-cover__branch {
+    width: 9rem;
+    height: 7rem;
+    color: var(--inv-primary);
+    opacity: .8;
+    margin: 0 auto;
+}
+
+.inv-cover__branch--bottom { transform: rotate(180deg); }
+
+/* --- Botões ---------------------------------------------------------- */
+.inv-btn {
+    display: inline-block;
+    padding: .7rem 1.9rem;
+    border: 0;
+    border-radius: 2rem;
+    background: var(--inv-primary);
+    color: var(--inv-paper);
+    font-family: var(--inv-body);
+    font-size: .95rem;
+    letter-spacing: .04em;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform .2s ease, opacity .2s ease;
+}
+
+.inv-btn:hover { transform: translateY(-2px); }
+
+/* Botão sobre a capa escura: papel com a cor principal por cima, que é
+   onde o contraste é maior (champanhe sobre creme não se lê). */
+.inv-btn--light {
+    background: var(--inv-paper);
+    color: var(--inv-primary);
+    font-weight: 600;
+    letter-spacing: .08em;
+}
+
+.inv-btn--ghost {
+    background: transparent;
+    color: var(--inv-primary);
+    border: 1px solid currentColor;
+    padding: .4rem 1.1rem;
+    font-size: .85rem;
+}
+
+.inv-btn--disabled {
+    opacity: .55;
+    cursor: not-allowed;
+}
+
+.inv-btn--disabled:hover { transform: none; }
+
+/* --- Estrutura do convite -------------------------------------------- */
+.inv-main {
+    max-width: 44rem;
+    margin: 0 auto;
+    padding: 0 1.25rem 4rem;
+    animation: inv-fade-up .8s ease both;
+}
+
+.inv-hero {
+    position: relative;
+    text-align: center;
+    padding: 3.5rem 1rem 2rem;
+}
+
+.inv-hero__corner {
+    position: absolute;
+    width: 5.5rem;
+    height: 5.5rem;
+    color: var(--inv-primary);
+    pointer-events: none;
+}
+
+.inv-hero__corner--tl { top: 1rem; left: 0; }
+.inv-hero__corner--br { bottom: 0; right: 0; transform: rotate(180deg); }
+
+.inv-hero__leaf {
+    position: absolute;
+    width: 2.4rem;
+    height: 5.5rem;
+    color: var(--inv-primary);
+    opacity: .55;
+}
+
+.inv-hero__leaf--left { top: 2rem; left: .25rem; transform: rotate(-18deg); }
+.inv-hero__leaf--right { top: 2rem; right: .25rem; transform: rotate(18deg) scaleX(-1); }
+
+.inv-hero__photo {
+    width: 100%;
+    max-width: 22rem;
+    margin: 0 auto 1.75rem;
+    overflow: hidden;
+    border-radius: .5rem;
+}
+
+.inv-hero__photo img { width: 100%; height: 14rem; object-fit: cover; }
+
+.inv-hero__photo--round {
+    width: 11rem;
+    height: 11rem;
+    border-radius: 50%;
+    border: 6px solid rgba(255, 255, 255, .7);
+    box-shadow: 0 12px 30px -18px rgba(0, 0, 0, .5);
+}
+
+.inv-hero__photo--round img { height: 100%; }
+
+.inv-hero__eyebrow {
+    font-size: .72rem;
+    letter-spacing: .32em;
+    text-transform: uppercase;
+    color: var(--inv-primary);
+    margin: 0 0 .6rem;
+}
+
+.inv-hero__names {
+    font-family: var(--inv-display);
+    font-size: clamp(2.4rem, 9vw, 4rem);
+    line-height: 1.08;
+    color: var(--inv-primary);
+    margin: 0 0 .4rem;
+    font-weight: 500;
+}
+
+.inv-hero__amp {
+    display: block;
+    font-size: .55em;
+    color: var(--inv-secondary);
+}
+
+.inv-hero__greeting {
+    font-style: italic;
+    margin: 0 0 .2rem;
+}
+
+.inv-hero__text {
+    margin: 0 auto 1.4rem;
+    max-width: 28rem;
+}
+
+.inv-hero__date {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--inv-primary);
+    margin: 0 0 .1rem;
+}
+
+.inv-hero__time {
+    font-size: .95rem;
+    margin: 0 0 1.5rem;
+    opacity: .85;
+}
+
+.inv-divider {
+    display: block;
+    width: 10rem;
+    height: 1.4rem;
+    margin: 1rem auto 1.25rem;
+    color: var(--inv-primary);
+    opacity: .8;
+}
+
+/* --- Contagem regressiva --------------------------------------------- */
+.inv-countdown {
+    display: flex;
+    justify-content: center;
+    gap: .75rem;
+    margin: 1.5rem 0;
+}
+
+.inv-countdown__cell {
+    min-width: 4.2rem;
+    padding: .6rem .4rem;
+    border: 1px solid color-mix(in srgb, var(--inv-primary) 35%, transparent);
+    border-radius: .5rem;
+}
+
+.inv-countdown__cell span {
+    display: block;
+    font-size: 1.45rem;
+    font-weight: 600;
+    color: var(--inv-primary);
+    line-height: 1.1;
+}
+
+.inv-countdown__cell small {
+    font-size: .68rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    opacity: .7;
+}
+
+/* --- Lugares reservados ---------------------------------------------- */
+.inv-seats {
+    display: inline-flex;
+    align-items: center;
+    gap: .6rem;
+    padding: .35rem 1.1rem;
+    border-radius: 2rem;
+    background: color-mix(in srgb, var(--inv-primary) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--inv-primary) 28%, transparent);
+    margin: 0;
+}
+
+.inv-seats span {
+    font-size: .74rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.inv-seats strong {
+    font-size: 1.15rem;
+    color: var(--inv-primary);
+}
+
+/* --- Secções --------------------------------------------------------- */
+.inv-section {
+    padding: 2.25rem 0;
+    text-align: center;
+    border-top: 1px solid color-mix(in srgb, var(--inv-ink) 10%, transparent);
+}
+
+.inv-section:first-of-type { border-top: 0; }
+
+.inv-section__title {
+    font-size: .82rem;
+    letter-spacing: .28em;
+    text-transform: uppercase;
+    color: var(--inv-primary);
+    margin: 0;
+    font-weight: 600;
+}
+
+.inv-text {
+    max-width: 30rem;
+    margin: 0 auto;
+}
+
+.inv-text--lead {
+    font-size: 1.08rem;
+    font-style: italic;
+}
+
+.inv-note {
+    font-size: .82rem;
+    opacity: .7;
+    max-width: 26rem;
+    margin: .9rem auto 0;
+}
+
+/* --- Programa -------------------------------------------------------- */
+.inv-timeline {
+    list-style: none;
+    margin: 0 auto;
+    padding: 0;
+    max-width: 26rem;
+    text-align: left;
+}
+
+.inv-timeline__item {
+    display: grid;
+    grid-template-columns: 2.2rem 4rem 1fr;
+    align-items: start;
+    gap: .5rem;
+    padding: .7rem 0;
+    border-bottom: 1px dashed color-mix(in srgb, var(--inv-primary) 30%, transparent);
+}
+
+.inv-timeline__item:last-child { border-bottom: 0; }
+
+.inv-timeline__dot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--inv-primary) 14%, transparent);
+    color: var(--inv-primary);
+    font-size: .95rem;
+}
+
+.inv-timeline__time {
+    font-weight: 600;
+    color: var(--inv-primary);
+    padding-top: .25rem;
+}
+
+.inv-timeline__body { padding-top: .15rem; }
+
+.inv-timeline__label { display: block; font-weight: 600; }
+
+.inv-timeline__note {
+    display: block;
+    font-size: .85rem;
+    opacity: .75;
+}
+
+/* --- Locais ---------------------------------------------------------- */
+.inv-venues {
+    display: grid;
+    gap: 1rem;
+    max-width: 30rem;
+    margin: 0 auto;
+}
+
+.inv-venue {
+    padding: 1.15rem;
+    border: 1px solid color-mix(in srgb, var(--inv-primary) 25%, transparent);
+    border-radius: .6rem;
+}
+
+.inv-venue__name {
+    font-family: var(--inv-display);
+    font-size: 1.5rem;
+    color: var(--inv-primary);
+    margin: 0 0 .3rem;
+    font-weight: 500;
+}
+
+.inv-venue__address,
+.inv-venue__note {
+    font-size: .88rem;
+    margin: 0 0 .5rem;
+    opacity: .85;
+}
+
+/* --- Rodapé ---------------------------------------------------------- */
+.inv-footer {
+    text-align: center;
+    padding: 2.5rem 0 1rem;
+    border-top: 1px solid color-mix(in srgb, var(--inv-ink) 10%, transparent);
+}
+
+.inv-footer__names {
+    font-family: var(--inv-display);
+    font-size: 1.9rem;
+    color: var(--inv-primary);
+    margin: 0;
+}
+
+.inv-footer__date,
+.inv-footer__hashtag {
+    font-size: .85rem;
+    opacity: .75;
+    margin: .2rem 0 0;
+}
+
+.inv-footer__brand {
+    font-size: .72rem;
+    opacity: .5;
+    margin-top: 1.5rem;
+    letter-spacing: .06em;
+}
+
+.inv-hearts {
+    width: 8rem;
+    height: 1.2rem;
+    color: var(--inv-primary);
+    opacity: .6;
+    margin: 0 auto .5rem;
+    display: block;
+}
+
+/* =====================================================================
+   Layouts
+   ===================================================================== */
+
+/* --- Carta Selada ---------------------------------------------------- */
+.inv--carta_selada .inv-hero {
+    background:
+        radial-gradient(60rem 20rem at 50% -8rem,
+            color-mix(in srgb, var(--inv-primary) 12%, transparent), transparent 70%);
+}
+
+.inv--carta_selada .inv-section--rsvp {
+    background: color-mix(in srgb, var(--inv-primary) 7%, transparent);
+    border-radius: .75rem;
+    padding: 2.25rem 1.25rem;
+}
+
+/* --- Envelope Botânico ----------------------------------------------- */
+/* O botânico é o oposto: capa clara, em papel de linho. */
+.inv--envelope_botanico .inv-cover {
+    background:
+        linear-gradient(180deg,
+            color-mix(in srgb, var(--inv-primary) 10%, var(--inv-paper)) 0%,
+            var(--inv-paper) 100%);
+    color: var(--inv-ink);
+}
+
+.inv--envelope_botanico .inv-cover__eyebrow { color: var(--inv-primary); }
+
+.inv--envelope_botanico .inv-cover__paper {
+    border-color: color-mix(in srgb, var(--inv-primary) 35%, transparent);
+    background: var(--inv-paper);
+    box-shadow: 0 30px 60px -40px rgba(0, 0, 0, .45);
+}
+
+.inv--envelope_botanico .inv-cover__names { color: var(--inv-primary); }
+
+.inv--envelope_botanico .inv-timeline__item {
+    border-bottom-style: solid;
+    border-bottom-color: color-mix(in srgb, var(--inv-primary) 18%, transparent);
+}
+
+/* --- Cartão Clássico -------------------------------------------------- */
+.inv--cartao_classico .inv-main {
+    max-width: 38rem;
+    margin: 2.5rem auto;
+    background: var(--inv-paper);
+    border: 1px solid color-mix(in srgb, var(--inv-primary) 30%, transparent);
+    border-radius: .5rem;
+    box-shadow: 0 30px 60px -45px rgba(0, 0, 0, .5);
+}
+
+/* =====================================================================
+   Animações e acessibilidade
+   ===================================================================== */
+@keyframes inv-fade-up {
+    from { opacity: 0; transform: translateY(18px); }
+}
+
+@keyframes inv-seal-in {
+    from { opacity: 0; transform: scale(.6) rotate(-12deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .inv-cover__paper,
+    .inv-cover__seal,
+    .inv-main {
+        animation: none;
+    }
+
+    .inv-btn:hover { transform: none; }
+}
+
+@media (max-width: 480px) {
+    .inv-countdown { gap: .4rem; }
+    .inv-countdown__cell { min-width: 3.6rem; padding: .5rem .25rem; }
+    .inv-timeline__item { grid-template-columns: 1.9rem 3.4rem 1fr; }
+}

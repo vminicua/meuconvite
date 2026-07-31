@@ -1,0 +1,174 @@
+<div class="section-head" data-section-title="Evento">
+    <div>
+        <div class="small text-body-secondary text-uppercase">
+            <i class="bi {{ event.category_icon }} me-1"></i>{{ event.category_name }}
+        </div>
+        <h1>{{ event.display_names }}</h1>
+        <p>{{ event.main_date|date:"d/m/Y" }} · {{ event.city }} · /{{ event.slug }}</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-secondary btn-sm" href="{% url 'platform:events' %}"
+           hx-get="{% url 'platform:events' %}" hx-target="#admin-content" hx-push-url="true">
+            <i class="bi bi-arrow-left me-1"></i>Eventos
+        </a>
+    </div>
+</div>
+
+{% if event.status == 'blocked' %}
+    <div class="alert alert-danger">
+        <strong>Evento bloqueado.</strong>
+        {% if event.blocked_reason %} {{ event.blocked_reason }}{% endif %}
+    </div>
+{% endif %}
+
+<div class="row g-3">
+    <div class="col-xl-4">
+        <div class="admin-card">
+            <div class="admin-card__head">Dados</div>
+            <div class="admin-card__body">
+                <dl class="detail-list mb-0">
+                    <dt>Proprietário</dt>
+                    <dd>
+                        <a href="{% url 'platform:user_detail' event.owner_id %}"
+                           hx-get="{% url 'platform:user_detail' event.owner_id %}"
+                           hx-target="#admin-content" hx-push-url="true">{{ event.owner.email }}</a>
+                    </dd>
+
+                    <dt>Estado</dt>
+                    <dd>{{ event.get_status_display }}</dd>
+
+                    <dt>Criado em</dt>
+                    <dd>{{ event.created_at|date:"d/m/Y H:i" }}</dd>
+
+                    <dt>Pacote</dt>
+                    <dd>{{ limits.plan_name }} — até {{ limits.max_guests }} convidados</dd>
+
+                    {% if event.extra_values %}
+                        {% for extra in event.extra_values %}
+                            {% if extra.value %}
+                                <dt>{{ extra.label }}</dt>
+                                <dd>{{ extra.value }}</dd>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </dl>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <div class="admin-card__head">Acesso</div>
+            <div class="admin-card__body">
+                {% if event.status == 'blocked' %}
+                    <p class="small text-body-secondary">
+                        Desbloquear devolve o evento ao estado de rascunho. Nenhum dado foi perdido.
+                    </p>
+                    <form method="post" action="{% url 'platform:event_block' event.pk %}"
+                          data-confirm="Desbloquear «{{ event.display_names }}»?">
+                        {% csrf_token %}
+                        <button class="btn btn-success btn-sm w-100">
+                            <i class="bi bi-unlock me-1"></i>Desbloquear
+                        </button>
+                    </form>
+                {% else %}
+                    <p class="small text-body-secondary">
+                        Bloquear impede o acesso do cliente e desliga as páginas públicas.
+                        Nada é apagado e o motivo fica registado.
+                    </p>
+                    <form method="post" action="{% url 'platform:event_block' event.pk %}"
+                          data-confirm="Bloquear «{{ event.display_names }}»? O cliente perde o acesso.">
+                        {% csrf_token %}
+                        {% include "partials/bootstrap_fields.html" with form=block_form %}
+                        <button class="btn btn-outline-danger btn-sm w-100">
+                            <i class="bi bi-lock me-1"></i>Bloquear evento
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-8">
+        <div class="admin-card">
+            <div class="admin-card__head">Momentos ({{ moments|length }})</div>
+            <div class="admin-card__body admin-card__body--flush">
+                <table class="table align-middle mb-0">
+                    <tbody>
+                        {% for moment in moments %}
+                            <tr>
+                                <td class="small fw-semibold">{{ moment.name }}</td>
+                                <td class="small text-body-secondary">{{ moment.get_event_type_display }}</td>
+                                <td class="small text-nowrap">{{ moment.date|date:"d/m/Y" }} {{ moment.time_range_display }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr><td class="small text-body-secondary p-3">Sem momentos.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <div class="admin-card__head">Equipa ({{ members|length }})</div>
+            <div class="admin-card__body admin-card__body--flush">
+                <table class="table align-middle mb-0">
+                    <tbody>
+                        {% for member in members %}
+                            <tr>
+                                <td class="small">{{ member.user.email }}</td>
+                                <td class="small text-body-secondary">{{ member.get_role_display }}</td>
+                                <td class="small text-end">
+                                    {% if member.is_active %}
+                                        <span class="badge text-bg-light border">activo</span>
+                                    {% else %}
+                                        <span class="badge text-bg-secondary">inactivo</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr><td class="small text-body-secondary p-3">Sem equipa.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <div class="admin-card__head">Pagamentos</div>
+            <div class="admin-card__body admin-card__body--flush">
+                <table class="table align-middle mb-0">
+                    <tbody>
+                        {% for payment in payments %}
+                            <tr>
+                                <td class="small"><code>{{ payment.reference }}</code></td>
+                                <td class="small">{{ payment.plan.name }}</td>
+                                <td class="small text-nowrap">{{ payment.amount_mzn|floatformat:0 }} MZN</td>
+                                <td class="small text-end">{{ payment.get_status_display }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr><td class="small text-body-secondary p-3">Sem pagamentos.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <div class="admin-card__head">Auditoria deste evento</div>
+            <div class="admin-card__body admin-card__body--flush">
+                <table class="table align-middle mb-0">
+                    <tbody>
+                        {% for entry in audit %}
+                            <tr>
+                                <td class="small fw-semibold">{{ entry.get_action_display }}</td>
+                                <td class="small text-body-secondary">{{ entry.actor_label|default:"sistema" }}</td>
+                                <td class="small text-end text-nowrap">{{ entry.created_at|date:"d/m H:i" }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr><td class="small text-body-secondary p-3">Sem registos.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

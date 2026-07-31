@@ -1,17 +1,44 @@
 {% extends "base.html" %}
+{% load static %}
 
-{% block title %}Os meus casamentos · {{ SITE_NAME }}{% endblock %}
+{% block title %}Os meus eventos · {{ SITE_NAME }}{% endblock %}
+
+{% block extra_css %}
+    <link href="{% static 'css/templates-gallery.css' %}" rel="stylesheet">
+{% endblock %}
 
 {% block content %}
-<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
     <div>
-        <h1 class="h4 mb-1">Os meus casamentos</h1>
-        <p class="text-body-secondary mb-0 small">Casamentos que criou ou onde faz parte da equipa.</p>
+        <h1 class="h4 mb-1">Os meus eventos</h1>
+        <p class="text-body-secondary mb-0 small">Eventos que criou ou onde faz parte da equipa.</p>
     </div>
-    <a href="{% url 'weddings:create' %}" class="btn btn-primary">
-        <i class="bi bi-plus-lg me-1"></i>Novo casamento
-    </a>
 </div>
+
+{% if categories %}
+    <section class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h2 class="h6 mb-1">Criar um evento</h2>
+            <p class="small text-body-secondary mb-3">
+                Escolha o tipo e depois o convite. Os momentos e o programa habituais já vêm feitos.
+            </p>
+            <div class="category-strip">
+                {% for category in categories %}
+                    <a class="category-chip" href="{% url 'weddings:create' %}?tipo={{ category.code }}">
+                        <span class="category-chip__icon"><i class="bi {{ category.icon }}"></i></span>
+                        <span class="category-chip__name">{{ category.name }}</span>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+{% else %}
+    <div class="d-flex justify-content-end mb-3">
+        <a href="{% url 'weddings:create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>Novo evento
+        </a>
+    </div>
+{% endif %}
 
 {% if weddings %}
     <div class="row g-3">
@@ -20,7 +47,12 @@
                 <div class="card h-100 shadow-sm wedding-card">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start">
-                            <h2 class="h6 mb-1">{{ wedding.couple_names }}</h2>
+                            <div>
+                                <div class="text-body-secondary small text-uppercase mb-1">
+                                    <i class="bi {{ wedding.category_icon }} me-1"></i>{{ wedding.category_name }}
+                                </div>
+                                <h2 class="h6 mb-1">{{ wedding.display_names }}</h2>
+                            </div>
                             {% if wedding.status == 'published' %}
                                 <span class="badge text-bg-success">Publicado</span>
                             {% elif wedding.status == 'blocked' %}
@@ -34,7 +66,7 @@
                             <span class="mx-1">·</span>{{ wedding.city }}
                         </p>
                         <div class="d-flex gap-3 small text-body-secondary mb-3">
-                            <span><i class="bi bi-calendar2-week me-1"></i>{{ wedding.event_count }} evento{{ wedding.event_count|pluralize }}</span>
+                            <span><i class="bi bi-calendar2-week me-1"></i>{{ wedding.event_count }} momento{{ wedding.event_count|pluralize }}</span>
                             <span><i class="bi bi-people me-1"></i>{{ wedding.member_count }} na equipa</span>
                         </div>
                         {% if wedding.days_until >= 0 %}
@@ -54,9 +86,9 @@
 {% else %}
     <div class="empty-state text-center py-5">
         <i class="bi bi-envelope-heart display-5 text-body-secondary"></i>
-        <h2 class="h5 mt-3">Ainda não tem nenhum casamento</h2>
+        <h2 class="h5 mt-3">Ainda não tem nenhum evento</h2>
         <p class="text-body-secondary">Crie o primeiro para começar a preparar os convites.</p>
-        <a href="{% url 'weddings:create' %}" class="btn btn-primary">Criar casamento</a>
+        <a href="{% url 'weddings:create' %}" class="btn btn-primary">Criar evento</a>
     </div>
 {% endif %}
 
@@ -65,7 +97,7 @@
     <ul class="list-group">
         {% for wedding in archived %}
             <li class="list-group-item d-flex justify-content-between align-items-center">
-                <span>{{ wedding.couple_names }} <span class="text-body-secondary small">· {{ wedding.main_date|date:"d/m/Y" }}</span></span>
+                <span>{{ wedding.display_names }} <span class="text-body-secondary small">· {{ wedding.main_date|date:"d/m/Y" }}</span></span>
                 <a href="{% url 'weddings:detail' wedding.pk %}" class="btn btn-sm btn-outline-secondary">Ver</a>
             </li>
         {% endfor %}

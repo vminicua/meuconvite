@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Definições · {{ wedding.couple_names }}{% endblock %}
+{% block title %}Definições · {{ wedding.display_names }}{% endblock %}
 
 {% block content %}
 {% include "partials/wedding_nav.html" %}
@@ -24,13 +24,13 @@
         {% if capabilities.is_owner and wedding.status != 'archived' %}
             <div class="card border-warning shadow-sm">
                 <div class="card-body">
-                    <h2 class="h6">Arquivar casamento</h2>
+                    <h2 class="h6">Arquivar evento</h2>
                     <p class="small text-body-secondary mb-3">
-                        O casamento deixa de aparecer na lista e as páginas públicas deixam de responder.
+                        O evento deixa de aparecer na lista e as páginas públicas deixam de responder.
                         <strong>Nenhum dado é eliminado</strong> — convidados, confirmações e histórico continuam guardados.
                     </p>
                     <form method="post" action="{% url 'weddings:archive' wedding.pk %}"
-                          data-confirm="Arquivar este casamento? Poderá continuar a consultar os dados.">
+                          data-confirm="Arquivar este evento? Poderá continuar a consultar os dados.">
                         {% csrf_token %}
                         <button class="btn btn-outline-warning btn-sm">Arquivar</button>
                     </form>

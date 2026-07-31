@@ -1,0 +1,63 @@
+<div class="section-head" data-section-title="Pacotes">
+    <div>
+        <h1>Pacotes</h1>
+        <p>Limites e preços. O pacote inicial é o que cada evento novo recebe automaticamente.</p>
+    </div>
+    <a class="btn btn-primary" href="{% url 'platform:plan_create' %}"
+       hx-get="{% url 'platform:plan_create' %}" hx-target="#admin-content" hx-push-url="true">
+        <i class="bi bi-plus-lg me-1"></i>Novo pacote
+    </a>
+</div>
+
+<div class="admin-card">
+    <div class="admin-card__body admin-card__body--flush">
+        <table class="table table-hover align-middle mb-0" data-table data-page-length="50">
+            <thead>
+                <tr>
+                    <th>Pacote</th>
+                    <th>Convidados</th>
+                    <th>Preço</th>
+                    <th>Duração</th>
+                    <th>Funcionalidades</th>
+                    <th>Subscrições</th>
+                    <th>Estado</th>
+                    <th class="no-sort"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for plan in plans %}
+                    <tr>
+                        <td>
+                            <div class="fw-semibold small">{{ plan.name }}</div>
+                            <div class="small text-body-secondary">{{ plan.description|truncatechars:48 }}</div>
+                        </td>
+                        <td class="small">{{ plan.max_guests }}</td>
+                        <td class="small text-nowrap">{{ plan.price_display }}</td>
+                        <td class="small">{% if plan.duration_days %}{{ plan.duration_days }} dias{% else %}—{% endif %}</td>
+                        <td class="small">
+                            {% if plan.allows_qr_checkin %}<span class="badge text-bg-light border">QR</span>{% endif %}
+                            {% if plan.allows_seating %}<span class="badge text-bg-light border">Mesas</span>{% endif %}
+                            {% if plan.allows_team %}<span class="badge text-bg-light border">Equipa</span>{% endif %}
+                            {% if plan.allows_exports %}<span class="badge text-bg-light border">Exportar</span>{% endif %}
+                            {% if plan.removes_branding %}<span class="badge text-bg-light border">Sem marca</span>{% endif %}
+                        </td>
+                        <td class="small">{{ plan.subscribers }}</td>
+                        <td>
+                            {% if plan.is_default %}<span class="badge text-bg-warning">Inicial</span>{% endif %}
+                            {% if plan.is_active %}
+                                <span class="badge text-bg-success">Activo</span>
+                            {% else %}
+                                <span class="badge text-bg-secondary">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-secondary" href="{% url 'platform:plan_edit' plan.pk %}"
+                               hx-get="{% url 'platform:plan_edit' plan.pk %}"
+                               hx-target="#admin-content" hx-push-url="true">Editar</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

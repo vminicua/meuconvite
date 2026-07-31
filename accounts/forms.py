@@ -10,32 +10,26 @@ from .models import User
 
 
 class SignupForm(AllauthSignupForm):
-    """Registration form: email + name + optional phone."""
+    """
+    Registo com o mínimo indispensável: nome, email e palavra-passe.
 
-    first_name = forms.CharField(
-        label=_("Nome próprio"),
-        max_length=80,
-        widget=forms.TextInput(attrs={"placeholder": _("Natércia"), "autocomplete": "given-name"}),
-    )
-    last_name = forms.CharField(
-        label=_("Apelido"),
-        max_length=80,
-        widget=forms.TextInput(attrs={"placeholder": _("Matola"), "autocomplete": "family-name"}),
-    )
-    phone = forms.CharField(
-        label=_("Telefone"),
-        max_length=20,
-        required=False,
+    Apelido, telefone e fotografia ficam para o perfil — pedir tudo à
+    entrada só afasta quem está a experimentar a plataforma. O nome é um
+    campo único; o adaptador divide-o em nome próprio e apelido.
+    """
+
+    name = forms.CharField(
+        label=_("Nome"),
+        max_length=160,
         widget=forms.TextInput(
-            attrs={"placeholder": "+258 84 123 4567", "autocomplete": "tel", "inputmode": "tel"}
+            attrs={"placeholder": _("O seu nome"), "autocomplete": "name", "autofocus": True}
         ),
-        help_text=_("Opcional. Usado apenas para contacto sobre a sua conta."),
     )
 
-    field_order = ["first_name", "last_name", "email", "phone", "password1", "password2"]
+    field_order = ["name", "email", "password1"]
 
-    def clean_phone(self) -> str:
-        return normalise_phone(self.cleaned_data.get("phone"))
+    def clean_name(self) -> str:
+        return " ".join(self.cleaned_data["name"].split())
 
 
 class ProfileForm(forms.ModelForm):

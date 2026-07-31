@@ -4,10 +4,12 @@ Exemplo de convite mostrado na página inicial.
 
 É HTML e SVG, não uma imagem: fica nítido em qualquer ecrã, pesa poucos
 KB e mostra exactamente o que a plataforma gera — incluindo um QR Code
-verdadeiro.
+verdadeiro. Os nomes são fictícios.
+
+Em ecrãs pequenos só o painel central é apresentado (ver home.css).
 {% endcomment %}
 <div class="invite" role="img"
-     aria-label="Exemplo de convite digital de Natércia e Hivaldo, com programa do dia e confirmação de presença por QR Code">
+     aria-label="Exemplo de convite digital, com programa do dia e confirmação de presença por QR Code">
 
     <!-- Painel: confirmação de presença -->
     <article class="invite__panel invite__panel--side invite__panel--rsvp">
@@ -20,11 +22,10 @@ verdadeiro.
             <li>Nome completo</li>
             <li>Número de pessoas</li>
             <li>Telefone e email</li>
-            <li>Eventos em que estarão</li>
             <li>Restrições alimentares</li>
-            <li>Mensagem aos noivos</li>
+            <li>Mensagem aos anfitriões</li>
         </ul>
-        <p class="invite__side-foot">Natércia &amp; Hivaldo — 14 de Novembro de 2026</p>
+        <p class="invite__side-foot">Ivone &amp; Dário — 14 de Novembro de 2026</p>
     </article>
 
     <!-- Painel central -->
@@ -37,14 +38,14 @@ verdadeiro.
             <p class="invite__eyebrow">Vamos casar</p>
 
             <p class="invite__names">
-                Natércia
+                Ivone
                 <span class="invite__amp">&amp;</span>
-                Hivaldo
+                Dário
             </p>
 
             <svg class="invite__divider" viewBox="0 0 160 20" aria-hidden="true"><use href="#mc-divider"/></svg>
 
-            <p class="invite__greeting">Caro Carlos Matola,</p>
+            <p class="invite__greeting">Caro Élio Nhaca,</p>
             <p class="invite__text">
                 com alegria convidamo-lo para celebrar<br>o nosso casamento
             </p>
@@ -57,12 +58,10 @@ verdadeiro.
                 <span class="invite__seats-value">2</span>
             </div>
 
-            <ul class="invite__events">
-                <li><i class="bi bi-check-circle-fill"></i> Cerimónia Religiosa</li>
-                <li><i class="bi bi-check-circle-fill"></i> Cerimónia Civil</li>
-                <li><i class="bi bi-check-circle-fill"></i> Copo de Água</li>
-                <li class="is-off"><i class="bi bi-x-circle"></i> Xiguiane</li>
-            </ul>
+            <p class="invite__venue">
+                Paróquia de Santo António<br>
+                Salão A Flor da Lily
+            </p>
         </div>
     </article>
 
@@ -88,8 +87,3 @@ verdadeiro.
         </p>
     </article>
 </div>
-
-<p class="invite__caption">
-    <i class="bi bi-stars"></i>
-    Exemplo gerado pela plataforma — o QR Code acima é real
-</p>

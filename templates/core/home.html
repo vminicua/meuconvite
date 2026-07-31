@@ -17,190 +17,117 @@
 {% block content %}
 {% include "core/_ornaments.html" %}
 
-<!-- ================= HERO ================= -->
-<section class="hero">
+<section class="hero py-5">
     <span class="hero__glow hero__glow--one" aria-hidden="true"></span>
     <span class="hero__glow hero__glow--two" aria-hidden="true"></span>
 
-    <div class="container position-relative">
+    <div class="container py-lg-4 position-relative">
         <div class="row align-items-center g-5">
-            <div class="col-lg-5">
-                <span class="badge-soft reveal" style="--delay: 0ms">
-                    <i class="bi bi-geo-alt-fill"></i> Feito para Moçambique
-                </span>
+            <div class="col-lg-6">
+                <span class="badge rounded-pill text-bg-light border mb-3 reveal">Feito para Moçambique</span>
 
-                <h1 class="hero__title reveal" style="--delay: 80ms">
-                    Convites digitais<br>
-                    para o <span class="hero__script">vosso casamento</span>
+                <h1 class="display-5 fw-semibold mb-3 reveal" style="--delay: 80ms">
+                    Convites digitais para o vosso
+                    <span class="rotator"
+                          data-words="casamento|aniversário|batismo|lobolo|chá de bebé|jantar de gala|evento">
+                        <span class="rotator__word">casamento</span>
+                    </span>
                 </h1>
 
-                <p class="hero__lead reveal" style="--delay: 160ms">
+                <p class="lead text-body-secondary mb-4 reveal" style="--delay: 160ms">
                     Cerimónia religiosa, cerimónia civil, copo de água, recepção, lobolo,
-                    xiguiane ou qualquer outro momento — cada evento com a sua lista de
+                    xiguiane ou qualquer outro momento: cada evento com a sua lista de
                     convidados, confirmações, mesas e QR Code próprio.
                 </p>
 
                 <div class="d-flex flex-wrap gap-2 reveal" style="--delay: 240ms">
-                    <a href="{% url 'account_signup' %}" class="btn btn-primary btn-lg px-4 btn-shine">
-                        Começar agora <i class="bi bi-arrow-right ms-1"></i>
-                    </a>
-                    <a href="{% url 'account_login' %}" class="btn btn-outline-secondary btn-lg px-4">
-                        Já tenho conta
-                    </a>
+                    <a href="{% url 'account_signup' %}" class="btn btn-primary btn-lg px-4 btn-shine">Começar agora</a>
+                    <a href="{% url 'account_login' %}" class="btn btn-outline-secondary btn-lg px-4">Já tenho conta</a>
                 </div>
 
-                <ul class="hero__points reveal" style="--delay: 320ms">
-                    <li><i class="bi bi-check2-circle"></i> Sem instalação — abre no telemóvel</li>
-                    <li><i class="bi bi-check2-circle"></i> Confirmações organizadas automaticamente</li>
-                    <li><i class="bi bi-check2-circle"></i> Entrada com QR Code, sem filas</li>
-                </ul>
+                <p class="small text-body-secondary mt-3 mb-0 reveal" style="--delay: 320ms">
+                    Sem instalação. Os convidados abrem o convite no telemóvel.
+                </p>
             </div>
 
-            <div class="col-lg-7">
+            <div class="col-lg-6">
                 {% include "core/_invitation_demo.html" %}
             </div>
         </div>
     </div>
-
-    <div class="hero__wave" aria-hidden="true"></div>
 </section>
 
-<!-- ================= NÚMEROS ================= -->
-<section class="strip">
+<section class="py-5 bg-body-tertiary">
     <div class="container">
-        <div class="row g-4 text-center">
-            <div class="col-6 col-lg-3 reveal">
-                <div class="strip__value" data-count-to="7">7</div>
-                <div class="strip__label">tipos de evento prontos a usar</div>
-            </div>
-            <div class="col-6 col-lg-3 reveal" style="--delay: 80ms">
-                <div class="strip__value" data-count-to="3">3</div>
-                <div class="strip__label">templates de convite</div>
-            </div>
-            <div class="col-6 col-lg-3 reveal" style="--delay: 160ms">
-                <div class="strip__value"><span data-count-to="100">100</span>%</div>
-                <div class="strip__label">em português</div>
-            </div>
-            <div class="col-6 col-lg-3 reveal" style="--delay: 240ms">
-                <div class="strip__value">QR</div>
-                <div class="strip__label">check-in no dia do evento</div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- ================= FUNCIONALIDADES ================= -->
-<section class="section section--tinted" id="funcionalidades">
-    <div class="container">
-        <div class="section__head reveal">
-            <span class="eyebrow">Funcionalidades</span>
-            <h2>Tudo o que a organização do casamento precisa</h2>
-            <p>Do primeiro convite até ao último convidado que entra na sala.</p>
-        </div>
-
+        <h2 class="h4 text-center mb-5 reveal">Tudo o que a organização do casamento precisa</h2>
         <div class="row g-4">
             <div class="col-md-6 col-lg-4 reveal">
-                <article class="feature-card">
-                    <span class="feature-card__icon"><i class="bi bi-calendar2-heart"></i></span>
-                    <h3>Vários eventos</h3>
-                    <p>Cada evento com data, local, traje, programa e lista de convidados própria.
-                        Lobolo e xiguiane são eventos independentes, com as instruções que a
-                        vossa família escrever.</p>
-                </article>
+                <div class="feature-card h-100">
+                    <i class="bi bi-calendar2-week feature-card__icon"></i>
+                    <h3 class="h6">Vários eventos</h3>
+                    <p class="small text-body-secondary mb-0">
+                        Cada evento com data, local, traje, programa e lista de convidados própria.
+                    </p>
+                </div>
             </div>
             <div class="col-md-6 col-lg-4 reveal" style="--delay: 80ms">
-                <article class="feature-card">
-                    <span class="feature-card__icon"><i class="bi bi-people"></i></span>
-                    <h3>Convidados e famílias</h3>
-                    <p>Importe a lista de Excel, organize por famílias, defina acompanhantes e
-                        decida quem é convidado para que evento.</p>
-                </article>
+                <div class="feature-card h-100">
+                    <i class="bi bi-people feature-card__icon"></i>
+                    <h3 class="h6">Convidados e famílias</h3>
+                    <p class="small text-body-secondary mb-0">
+                        Importe a lista de Excel, organize por famílias e defina acompanhantes.
+                    </p>
+                </div>
             </div>
             <div class="col-md-6 col-lg-4 reveal" style="--delay: 160ms">
-                <article class="feature-card">
-                    <span class="feature-card__icon"><i class="bi bi-envelope-paper-heart"></i></span>
-                    <h3>Convites individuais</h3>
-                    <p>Uma ligação segura por convidado, com o nome dele e os lugares
-                        reservados, pronta a partilhar por WhatsApp.</p>
-                </article>
+                <div class="feature-card h-100">
+                    <i class="bi bi-envelope-paper-heart feature-card__icon"></i>
+                    <h3 class="h6">Convites individuais</h3>
+                    <p class="small text-body-secondary mb-0">
+                        Uma ligação segura por convidado, pronta a partilhar por WhatsApp.
+                    </p>
+                </div>
             </div>
             <div class="col-md-6 col-lg-4 reveal">
-                <article class="feature-card">
-                    <span class="feature-card__icon"><i class="bi bi-check2-square"></i></span>
-                    <h3>Confirmações de presença</h3>
-                    <p>Saiba quem vem, com quantas pessoas, a que eventos, com que restrições
-                        alimentares e quem precisa de transporte.</p>
-                </article>
+                <div class="feature-card h-100">
+                    <i class="bi bi-check2-square feature-card__icon"></i>
+                    <h3 class="h6">Confirmações de presença</h3>
+                    <p class="small text-body-secondary mb-0">
+                        Saiba quem vem, com quantas pessoas e a que eventos.
+                    </p>
+                </div>
             </div>
             <div class="col-md-6 col-lg-4 reveal" style="--delay: 80ms">
-                <article class="feature-card">
-                    <span class="feature-card__icon"><i class="bi bi-grid-3x3-gap"></i></span>
-                    <h3>Mesas e lugares</h3>
-                    <p>Distribua os convidados por mesas e zonas, com controlo de capacidade
-                        e lista pronta a imprimir para a recepção.</p>
-                </article>
+                <div class="feature-card h-100">
+                    <i class="bi bi-grid-3x3-gap feature-card__icon"></i>
+                    <h3 class="h6">Mesas e lugares</h3>
+                    <p class="small text-body-secondary mb-0">
+                        Distribua os convidados por mesas e zonas, com controlo de capacidade.
+                    </p>
+                </div>
             </div>
             <div class="col-md-6 col-lg-4 reveal" style="--delay: 160ms">
-                <article class="feature-card">
-                    <span class="feature-card__icon"><i class="bi bi-qr-code-scan"></i></span>
-                    <h3>Check-in com QR Code</h3>
-                    <p>Entrada rápida e sem filas. O sistema avisa quando um convite já foi
-                        usado e regista quem autorizou cada entrada.</p>
-                </article>
+                <div class="feature-card h-100">
+                    <i class="bi bi-qr-code-scan feature-card__icon"></i>
+                    <h3 class="h6">Check-in com QR Code</h3>
+                    <p class="small text-body-secondary mb-0">
+                        Entrada rápida e sem filas, com registo de quem já chegou.
+                    </p>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- ================= COMO FUNCIONA ================= -->
-<section class="section" id="como-funciona">
-    <div class="container">
-        <div class="section__head reveal">
-            <span class="eyebrow">Como funciona</span>
-            <h2>Quatro passos até ao convite estar nas mãos dos convidados</h2>
-        </div>
-
-        <div class="steps">
-            <div class="step reveal">
-                <span class="step__number">1</span>
-                <h3>Criem o casamento</h3>
-                <p>Nomes, data e cidade. Leva menos de um minuto.</p>
-            </div>
-            <div class="step reveal" style="--delay: 80ms">
-                <span class="step__number">2</span>
-                <h3>Acrescentem os eventos</h3>
-                <p>Cerimónias, copo de água, recepção, lobolo, xiguiane e o programa do dia.</p>
-            </div>
-            <div class="step reveal" style="--delay: 160ms">
-                <span class="step__number">3</span>
-                <h3>Escolham o convite</h3>
-                <p>Template, cores, fotografia de capa e a vossa mensagem de boas-vindas.</p>
-            </div>
-            <div class="step reveal" style="--delay: 240ms">
-                <span class="step__number">4</span>
-                <h3>Partilhem e acompanhem</h3>
-                <p>Cada convidado recebe a sua ligação. As confirmações aparecem no painel.</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- ================= CTA ================= -->
-<section class="cta">
-    <div class="container">
-        <div class="cta__card reveal">
-            <h2>Comecem hoje a preparar o vosso dia</h2>
-            <p>Crie a conta, configure o casamento e veja o convite ganhar forma.</p>
-            <a href="{% url 'account_signup' %}" class="btn btn-primary btn-lg px-4 btn-shine">
-                Criar a minha conta
-            </a>
-            {% if SUPPORT_EMAIL %}
-                <p class="cta__contact">
-                    Dúvidas? Escreva para
-                    <a href="mailto:{{ SUPPORT_EMAIL }}">{{ SUPPORT_EMAIL }}</a>
-                </p>
-            {% endif %}
-        </div>
+<section class="py-5">
+    <div class="container text-center">
+        <h2 class="h4 mb-3 reveal">Comece pelo essencial</h2>
+        <p class="text-body-secondary mb-4 reveal" style="--delay: 80ms">
+            Crie a sua conta, configure o casamento e adicione os eventos. Leva poucos minutos.
+        </p>
+        <a href="{% url 'account_signup' %}" class="btn btn-primary btn-lg px-4 btn-shine reveal" style="--delay: 160ms">
+            Criar a minha conta
+        </a>
     </div>
 </section>
 {% endblock %}

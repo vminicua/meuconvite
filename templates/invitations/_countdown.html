@@ -1,0 +1,8 @@
+{% if wedding.show_countdown and wedding.main_date %}
+    <div class="inv-countdown" data-countdown="{{ countdown_target|date:'c' }}" role="timer">
+        <div class="inv-countdown__cell"><span data-unit="days">—</span><small>dias</small></div>
+        <div class="inv-countdown__cell"><span data-unit="hours">—</span><small>horas</small></div>
+        <div class="inv-countdown__cell"><span data-unit="minutes">—</span><small>min</small></div>
+        <div class="inv-countdown__cell"><span data-unit="seconds">—</span><small>seg</small></div>
+    </div>
+{% endif %}

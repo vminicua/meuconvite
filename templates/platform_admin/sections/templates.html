@@ -1,0 +1,74 @@
+<div class="section-head" data-section-title="Templates">
+    <div>
+        <h1>Templates de convite</h1>
+        <p>
+            Cada template junta um <strong>layout</strong> (a estrutura da página do
+            convite), uma paleta e a tipografia. Os destacados aparecem primeiro na
+            escolha do cliente.
+        </p>
+    </div>
+    <a class="btn btn-primary" href="{% url 'platform:template_create' %}"
+       hx-get="{% url 'platform:template_create' %}" hx-target="#admin-content" hx-push-url="true">
+        <i class="bi bi-plus-lg me-1"></i>Novo template
+    </a>
+</div>
+
+<div class="admin-card">
+    <div class="admin-card__body admin-card__body--flush">
+        <table class="table table-hover align-middle mb-0" data-table data-page-length="50">
+            <thead>
+                <tr>
+                    <th>Template</th>
+                    <th>Layout</th>
+                    <th>Paleta</th>
+                    <th>Tipos de evento</th>
+                    <th>Estado</th>
+                    <th class="no-sort"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for template in templates %}
+                    <tr>
+                        <td>
+                            <div class="fw-semibold small">
+                                {{ template.name }}
+                                {% if template.is_featured %}
+                                    <span class="badge text-bg-warning ms-1">destaque</span>
+                                {% endif %}
+                            </div>
+                            <div class="small text-body-secondary">{{ template.description|truncatechars:60 }}</div>
+                        </td>
+                        <td class="small">{{ template.get_layout_display }}</td>
+                        <td>
+                            <span class="d-inline-flex gap-1 align-items-center">
+                                <span class="swatch" style="background: {{ template.primary }}"></span>
+                                <span class="swatch" style="background: {{ template.secondary }}"></span>
+                                <span class="swatch swatch--bordered" style="background: {{ template.paper }}"></span>
+                            </span>
+                        </td>
+                        <td class="small text-body-secondary">
+                            {% for category in template.categories.all %}
+                                {{ category.name }}{% if not forloop.last %}, {% endif %}
+                            {% empty %}
+                                todos
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% if template.is_active %}
+                                <span class="badge text-bg-success">Activo</span>
+                            {% else %}
+                                <span class="badge text-bg-secondary">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-secondary"
+                               href="{% url 'platform:template_edit' template.pk %}"
+                               hx-get="{% url 'platform:template_edit' template.pk %}"
+                               hx-target="#admin-content" hx-push-url="true">Editar</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

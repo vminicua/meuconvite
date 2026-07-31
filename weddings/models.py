@@ -85,11 +85,34 @@ class Wedding(BaseModel):
         related_name="owned_weddings",
     )
 
-    # --- Couple ---
-    bride_full_name = models.CharField(_("nome completo da noiva"), max_length=150)
-    groom_full_name = models.CharField(_("nome completo do noivo"), max_length=150)
-    bride_short_name = models.CharField(_("nome curto da noiva"), max_length=60)
-    groom_short_name = models.CharField(_("nome curto do noivo"), max_length=60)
+    # --- Tipo de evento ---
+    # O tipo determina como se chamam os protagonistas, que campos extra
+    # são pedidos e que momentos/programa são sugeridos ao criar o evento.
+    category = models.ForeignKey(
+        "events.EventCategory",
+        verbose_name=_("tipo de evento"),
+        on_delete=models.PROTECT,
+        related_name="weddings",
+        null=True,
+        blank=True,
+    )
+
+    # --- Protagonistas ---
+    # Num casamento são os noivos; num aniversário é o aniversariante; num
+    # lobolo são as duas famílias. As etiquetas vêm da categoria.
+    primary_name = models.CharField(_("nome completo (1)"), max_length=150)
+    secondary_name = models.CharField(_("nome completo (2)"), max_length=150, blank=True)
+    primary_short_name = models.CharField(_("nome curto (1)"), max_length=60)
+    secondary_short_name = models.CharField(_("nome curto (2)"), max_length=60, blank=True)
+
+    # Valores dos campos próprios do tipo de evento (EventCategory.field_schema).
+    extra_data = models.JSONField(_("dados específicos"), default=dict, blank=True)
+
+    # Campos que o próprio utilizador acrescentou ao programa deste evento,
+    # além dos que a plataforma já traz (hora, título, local, ícone).
+    schedule_field_schema = models.JSONField(
+        _("campos adicionais do programa"), default=list, blank=True
+    )
 
     # --- Public identifiers ---
     slug = models.SlugField(
@@ -136,8 +159,10 @@ class Wedding(BaseModel):
     selected_template = models.CharField(
         _("template"),
         max_length=50,
-        default="classic",
-        help_text=_("Identificador do template visual escolhido."),
+        default="carta-selada",
+        help_text=_(
+            "Código do template escolhido (templates_manager.InvitationTemplate)."
+        ),
     )
     invitation_music = models.FileField(
         _("música do convite"),
@@ -171,8 +196,8 @@ class Wedding(BaseModel):
     objects = WeddingQuerySet.as_manager()
 
     class Meta:
-        verbose_name = _("casamento")
-        verbose_name_plural = _("casamentos")
+        verbose_name = _("evento")
+        verbose_name_plural = _("eventos")
         ordering = ["-main_date", "-created_at"]
         indexes = [
             models.Index(fields=["owner", "status"], name="wedding_owner_status_idx"),
@@ -180,34 +205,63 @@ class Wedding(BaseModel):
         ]
         constraints = [
             models.CheckConstraint(
-                condition=~models.Q(bride_full_name=""),
-                name="wedding_bride_name_not_empty",
-            ),
-            models.CheckConstraint(
-                condition=~models.Q(groom_full_name=""),
-                name="wedding_groom_name_not_empty",
+                condition=~models.Q(primary_name=""),
+                name="event_primary_name_not_empty",
             ),
         ]
 
     def __str__(self) -> str:
-        return f"{self.bride_short_name} & {self.groom_short_name}"
+        return self.display_names
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            base = f"{self.bride_short_name}-e-{self.groom_short_name}"
-            self.slug = unique_slugify(self, base)
+            self.slug = unique_slugify(self, self.display_names.replace("&", "e"))
         if not self.public_token:
             self.public_token = generate_secure_token()
         return super().save(*args, **kwargs)
 
     # --- Derived information -----------------------------------------
     @property
-    def couple_names(self) -> str:
-        return f"{self.bride_short_name} & {self.groom_short_name}"
+    def names_separator(self) -> str:
+        return self.category.names_separator if self.category_id else "&"
 
     @property
-    def couple_full_names(self) -> str:
-        return f"{self.bride_full_name} e {self.groom_full_name}"
+    def display_names(self) -> str:
+        """Título curto do evento: «Ivone & Dário» ou «Dona Amélia»."""
+        if self.secondary_short_name:
+            return f"{self.primary_short_name} {self.names_separator} {self.secondary_short_name}"
+        return self.primary_short_name
+
+    @property
+    def full_names(self) -> str:
+        if self.secondary_name:
+            return f"{self.primary_name} e {self.secondary_name}"
+        return self.primary_name
+
+    @property
+    def category_name(self) -> str:
+        return self.category.name if self.category_id else _("Evento")
+
+    @property
+    def category_icon(self) -> str:
+        return self.category.icon if self.category_id else "bi-calendar-heart"
+
+    def extra_values(self) -> list[dict]:
+        """Campos próprios do tipo de evento, com etiqueta e valor preenchido."""
+        if not self.category_id:
+            return []
+        values = self.extra_data or {}
+        return [
+            {**definition, "value": values.get(definition["key"], "")}
+            for definition in self.category.extra_fields
+        ]
+
+    @property
+    def schedule_fields(self) -> list[dict]:
+        """Definições dos campos que o utilizador acrescentou ao programa."""
+        from core.schema import normalise_schema
+
+        return normalise_schema(self.schedule_field_schema)
 
     @property
     def is_published(self) -> bool:
@@ -309,7 +363,7 @@ class WeddingMember(BaseModel):
     }
 
     wedding = models.ForeignKey(
-        Wedding, verbose_name=_("casamento"), on_delete=models.CASCADE, related_name="members"
+        Wedding, verbose_name=_("evento"), on_delete=models.CASCADE, related_name="members"
     )
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,

@@ -1,0 +1,75 @@
+<div class="section-head" data-section-title="Utilizadores">
+    <div>
+        <h1>Utilizadores</h1>
+        <p>Contas registadas na plataforma.</p>
+    </div>
+</div>
+
+<div class="admin-card">
+    <div class="admin-card__body">
+        <form method="get" action="{% url 'platform:users' %}" data-auto-submit
+              hx-get="{% url 'platform:users' %}" hx-target="#admin-content" hx-push-url="true"
+              class="row g-2 align-items-end">
+            <div class="col-md-6">
+                <label class="form-label small" for="users-q">Pesquisar</label>
+                <input type="search" id="users-q" name="q" value="{{ search }}" class="form-control"
+                       placeholder="Email, nome ou telefone">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small" for="users-filtro">Filtro</label>
+                <select id="users-filtro" name="filtro" class="form-select js-select2" data-allow-clear="true"
+                        data-placeholder="Todos">
+                    <option value=""></option>
+                    <option value="staff" {% if role == 'staff' %}selected{% endif %}>Equipa MeuConvite</option>
+                    <option value="unverified" {% if role == 'unverified' %}selected{% endif %}>Email por verificar</option>
+                    <option value="inactive" {% if role == 'inactive' %}selected{% endif %}>Contas desactivadas</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="admin-card">
+    <div class="admin-card__body admin-card__body--flush">
+        <table class="table table-hover align-middle mb-0" data-table>
+            <thead>
+                <tr>
+                    <th>Utilizador</th>
+                    <th>Telefone</th>
+                    <th>Eventos</th>
+                    <th>Registo</th>
+                    <th>Estado</th>
+                    <th class="no-sort"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for person in users %}
+                    <tr>
+                        <td>
+                            <div class="fw-semibold small">{{ person.display_name|default:person.email }}</div>
+                            <div class="small text-body-secondary">{{ person.email }}</div>
+                        </td>
+                        <td class="small">{{ person.phone|default:"—" }}</td>
+                        <td class="small">{{ person.events }}</td>
+                        <td class="small text-nowrap" data-order="{{ person.created_at|date:'Y-m-d' }}">
+                            {{ person.created_at|date:"d/m/Y" }}
+                        </td>
+                        <td>
+                            {% if person.is_staff %}<span class="badge text-bg-warning">Equipa</span>{% endif %}
+                            {% if not person.is_active %}<span class="badge text-bg-secondary">Desactivada</span>{% endif %}
+                            {% if not person.is_email_verified %}<span class="badge text-bg-light border">Por verificar</span>{% endif %}
+                        </td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-secondary" href="{% url 'platform:user_detail' person.pk %}"
+                               hx-get="{% url 'platform:user_detail' person.pk %}"
+                               hx-target="#admin-content" hx-push-url="true">Abrir</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

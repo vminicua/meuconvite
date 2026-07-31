@@ -14,9 +14,19 @@
                 {% if user.is_authenticated %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'weddings:list' %}">
-                            <i class="bi bi-calendar-heart me-1"></i>Os meus casamentos
+                            <i class="bi bi-calendar-heart me-1"></i>Os meus eventos
                         </a>
                     </li>
+                    {% if user.is_staff %}
+                        <li class="nav-item">
+                            <a class="nav-link nav-link--staff" href="{% url 'platform:dashboard' %}">
+                                <i class="bi bi-shield-lock me-1"></i>Administração
+                                {% if pending_payments_count %}
+                                    <span class="badge rounded-pill text-bg-danger ms-1">{{ pending_payments_count }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                    {% endif %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button"
                            data-bs-toggle="dropdown" aria-expanded="false">

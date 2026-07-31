@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{% if event %}Editar evento{% else %}Novo evento{% endif %} · {{ wedding.couple_names }}{% endblock %}
+{% block title %}{% if event %}Editar momento{% else %}Novo momento{% endif %} · {{ wedding.display_names }}{% endblock %}
 
 {% block content %}
 {% include "partials/wedding_nav.html" %}
@@ -9,7 +9,7 @@
     <div class="col-lg-9">
         <div class="card shadow-sm">
             <div class="card-header bg-transparent fw-semibold">
-                {% if event %}Editar “{{ event.name }}”{% else %}Novo evento{% endif %}
+                {% if event %}Editar “{{ event.name }}”{% else %}Novo momento{% endif %}
             </div>
             <div class="card-body">
                 <form method="post" novalidate>
@@ -17,7 +17,7 @@
                     {% include "partials/form_fields.html" %}
                     <div class="mt-4 d-flex gap-2">
                         <button type="submit" class="btn btn-primary">
-                            {% if event %}Guardar alterações{% else %}Criar evento{% endif %}
+                            {% if event %}Guardar alterações{% else %}Criar momento{% endif %}
                         </button>
                         <a href="{% url 'events:list' wedding.pk %}" class="btn btn-outline-secondary">Cancelar</a>
                     </div>

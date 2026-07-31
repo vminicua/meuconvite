@@ -1,0 +1,53 @@
+{% comment %}Cabeçalho da área da equipa MeuConvite.{% endcomment %}
+<div class="wedding-header mb-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+        <div>
+            <div class="text-body-secondary small text-uppercase">
+                <i class="bi bi-shield-lock me-1"></i>Equipa {{ SITE_NAME }}
+            </div>
+            <h1 class="h4 mb-1">Administração da plataforma</h1>
+            <div class="text-body-secondary small">
+                Visão geral, verificação de pagamentos e configuração dos tipos de evento.
+            </div>
+        </div>
+        <a href="/{{ ADMIN_URL }}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-database me-1"></i>Django Admin
+        </a>
+    </div>
+
+    <ul class="nav nav-pills wedding-nav mt-3 flex-nowrap overflow-auto pb-1">
+        <li class="nav-item">
+            <a class="nav-link {% if active == 'dashboard' %}active{% endif %}"
+               href="{% url 'platform:dashboard' %}"><i class="bi bi-speedometer2 me-1"></i>Visão geral</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if active == 'payments' %}active{% endif %}"
+               href="{% url 'platform:payments' %}">
+                <i class="bi bi-cash-coin me-1"></i>Pagamentos
+                {% if pending_payments_count %}
+                    <span class="badge rounded-pill text-bg-danger ms-1">{{ pending_payments_count }}</span>
+                {% endif %}
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/{{ ADMIN_URL }}events/eventcategory/">
+                <i class="bi bi-tags me-1"></i>Tipos de evento
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/{{ ADMIN_URL }}subscriptions/plan/">
+                <i class="bi bi-gem me-1"></i>Pacotes
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/{{ ADMIN_URL }}accounts/user/">
+                <i class="bi bi-people me-1"></i>Utilizadores
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/{{ ADMIN_URL }}audit/auditlog/">
+                <i class="bi bi-clipboard-check me-1"></i>Auditoria
+            </a>
+        </li>
+    </ul>
+</div>

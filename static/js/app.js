@@ -35,6 +35,19 @@
 
         event.preventDefault();
 
+        // `form.submit()` não envia o botão que foi carregado. Em
+        // formulários com mais do que um botão (confirmar/recusar, por
+        // exemplo) esse valor é essencial, por isso é reposto num campo
+        // escondido antes de submeter.
+        const submitter = event.submitter;
+        if (submitter && submitter.name) {
+            const carried = document.createElement("input");
+            carried.type = "hidden";
+            carried.name = submitter.name;
+            carried.value = submitter.value;
+            form.appendChild(carried);
+        }
+
         if (typeof window.Swal === "undefined") {
             if (window.confirm(message)) {
                 form.dataset.confirmed = "true";

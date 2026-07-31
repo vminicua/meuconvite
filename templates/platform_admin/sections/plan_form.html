@@ -1,0 +1,37 @@
+<div class="section-head" data-section-title="Pacote">
+    <div>
+        <h1>{% if plan %}{{ plan.name }}{% else %}Novo pacote{% endif %}</h1>
+        <p>Os limites entram em vigor nas subscrições activadas a partir de agora.</p>
+    </div>
+    <a class="btn btn-outline-secondary btn-sm" href="{% url 'platform:plans' %}"
+       hx-get="{% url 'platform:plans' %}" hx-target="#admin-content" hx-push-url="true">
+        <i class="bi bi-arrow-left me-1"></i>Pacotes
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-xl-9">
+        <div class="admin-card">
+            <div class="admin-card__body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% include "partials/form_fields.html" %}
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary">Guardar pacote</button>
+                        <a class="btn btn-outline-secondary" href="{% url 'platform:plans' %}"
+                           hx-get="{% url 'platform:plans' %}" hx-target="#admin-content" hx-push-url="true">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% if plan and plan.subscriptions.count %}
+            <div class="alert alert-light border small">
+                <i class="bi bi-info-circle me-1"></i>
+                Este pacote tem {{ plan.subscriptions.count }} subscrição(ões) activa(s). Alterar o
+                limite de convidados <strong>não</strong> muda o que já foi comprado — cada subscrição
+                guarda o limite do momento da activação.
+            </div>
+        {% endif %}
+    </div>
+</div>

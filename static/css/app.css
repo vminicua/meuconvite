@@ -161,6 +161,16 @@ main {
     color: var(--mc-muted);
 }
 
+.stat-tile--link {
+    color: inherit;
+    transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.stat-tile--link:hover {
+    border-color: rgba(200, 169, 106, .55);
+    box-shadow: 0 12px 24px -18px rgba(31, 41, 51, .45);
+}
+
 /* --- Timeline / checklist / wizard --------------------------------- */
 .timeline__item {
     display: flex;
@@ -301,6 +311,82 @@ main {
     background-color: var(--preview-primary, var(--mc-gold));
     color: #fff;
     font-size: .85rem;
+}
+
+/* --- Pagamentos ---------------------------------------------------- */
+.payment-step {
+    display: flex;
+    gap: .9rem;
+    padding: .9rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, .06);
+}
+
+.payment-step:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+}
+
+.payment-step__number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 1.9rem;
+    height: 1.9rem;
+    border-radius: 50%;
+    background-color: var(--mc-gold);
+    color: #fff;
+    font-size: .85rem;
+    font-weight: 600;
+}
+
+.payment-number,
+.payment-reference {
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: 1.35rem;
+    font-weight: 600;
+    letter-spacing: .04em;
+    color: var(--mc-gold-dark);
+}
+
+.payment-reference {
+    font-size: 1.15rem;
+    color: var(--mc-ink);
+}
+
+/* --- Campos adicionais do programa --------------------------------- */
+.schedule-fields {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4rem;
+}
+
+.schedule-field-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .2rem .3rem .2rem .7rem;
+    border-radius: 2rem;
+    background-color: rgba(200, 169, 106, .12);
+    border: 1px solid rgba(200, 169, 106, .35);
+    font-size: .8rem;
+}
+
+.schedule-field-chip form {
+    display: inline;
+}
+
+.schedule-field-chip button {
+    border: 0;
+    background: transparent;
+    color: var(--mc-muted);
+    line-height: 1;
+    padding: 0 .2rem;
+    cursor: pointer;
+}
+
+.schedule-field-chip button:hover {
+    color: var(--bs-danger);
 }
 
 /* --- Misc ---------------------------------------------------------- */

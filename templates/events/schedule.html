@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Programa · {{ wedding.couple_names }}{% endblock %}
+{% block title %}Programa · {{ wedding.display_names }}{% endblock %}
 
 {% block content %}
 {% include "partials/wedding_nav.html" %}
@@ -23,6 +23,76 @@
         </a>
     {% endif %}
 </div>
+
+{% if capabilities.can_manage_events %}
+    <div class="card shadow-sm mb-3">
+        <div class="card-body">
+            <h3 class="h6 mb-1">Campos do programa</h3>
+            <p class="small text-body-secondary">
+                Cada item do programa tem hora, título, local e ícone. Se precisar de mais
+                — responsável, duração, observações — acrescente aqui e o campo passa a
+                aparecer em todos os itens.
+            </p>
+
+            {% if schedule_fields %}
+                <div class="schedule-fields mb-3">
+                    {% for field in schedule_fields %}
+                        <span class="schedule-field-chip">
+                            {{ field.label }}
+                            <span class="text-body-secondary">· {{ field.type }}</span>
+                            <form method="post"
+                                  action="{% url 'events:schedule_field_delete' wedding.pk field.key %}"
+                                  data-confirm="Remover o campo «{{ field.label }}»? Os valores já preenchidos são apagados.">
+                                {% csrf_token %}
+                                <button type="submit" aria-label="Remover {{ field.label }}">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </form>
+                        </span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form method="post" novalidate class="row g-2 align-items-end">
+                {% csrf_token %}
+                <div class="col-md-4">
+                    <label class="form-label small" for="{{ field_form.label.id_for_label }}">
+                        {{ field_form.label.label }}
+                    </label>
+                    {{ field_form.label }}
+                    {{ field_form.label.errors }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small" for="{{ field_form.type.id_for_label }}">
+                        {{ field_form.type.label }}
+                    </label>
+                    {{ field_form.type }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small" for="{{ field_form.choices.id_for_label }}">
+                        {{ field_form.choices.label }}
+                    </label>
+                    {{ field_form.choices }}
+                    {{ field_form.choices.errors }}
+                </div>
+                <div class="col-md-2 d-flex flex-column gap-1">
+                    <div class="form-check">
+                        {{ field_form.required }}
+                        <label class="form-check-label small" for="{{ field_form.required.id_for_label }}">
+                            {{ field_form.required.label }}
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-outline-secondary btn-sm">Acrescentar</button>
+                </div>
+                {% if field_form.non_field_errors %}
+                    <div class="col-12">
+                        <div class="alert alert-danger small mb-0">{{ field_form.non_field_errors }}</div>
+                    </div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+{% endif %}
 
 {% if items %}
     <div class="card shadow-sm">
@@ -47,6 +117,17 @@
                             {% if item.event %} · {{ item.event.name }}{% endif %}
                             {% if not item.is_public %} · <span class="badge text-bg-light border">Só no convite</span>{% endif %}
                         </div>
+                        {% with extras=item.extra_values %}
+                            {% if extras %}
+                                <div class="small text-body-secondary mt-1">
+                                    {% for extra in extras %}
+                                        <span class="me-2">
+                                            <strong>{{ extra.label }}:</strong> {{ extra.value }}
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        {% endwith %}
                     </div>
                     {% if capabilities.can_manage_events %}
                         <div class="text-nowrap">

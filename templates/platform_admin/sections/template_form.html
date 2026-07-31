@@ -1,0 +1,76 @@
+<div class="section-head" data-section-title="Template">
+    <div>
+        <h1>{% if template %}{{ template.name }}{% else %}Novo template{% endif %}</h1>
+        <p>
+            O layout define a estrutura do convite; a paleta e as letras definem o
+            aspecto. Os clientes podem depois afinar as cores no ecrã «Aspecto».
+        </p>
+    </div>
+    <a class="btn btn-outline-secondary btn-sm" href="{% url 'platform:templates' %}"
+       hx-get="{% url 'platform:templates' %}" hx-target="#admin-content" hx-push-url="true">
+        <i class="bi bi-arrow-left me-1"></i>Templates
+    </a>
+</div>
+
+<div class="row g-3">
+    <div class="col-xl-8">
+        <div class="admin-card">
+            <div class="admin-card__body">
+                <form method="post" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+                    {% include "partials/form_fields.html" %}
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary">Guardar template</button>
+                        <a class="btn btn-outline-secondary" href="{% url 'platform:templates' %}"
+                           hx-get="{% url 'platform:templates' %}" hx-target="#admin-content"
+                           hx-push-url="true">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4">
+        <div class="admin-card">
+            <div class="admin-card__head">Layouts disponíveis</div>
+            <div class="admin-card__body small text-body-secondary">
+                <p class="mb-2">
+                    <strong>Carta selada</strong> — capa com selo de lacre e abertura
+                    animada, seguida do convite por secções.
+                </p>
+                <p class="mb-2">
+                    <strong>Envelope botânico</strong> — papel claro, folhagem desenhada
+                    e programa em linha do tempo.
+                </p>
+                <p class="mb-3">
+                    <strong>Cartão clássico</strong> — um cartão único, sem capa. É o
+                    layout usado pelas paletas simples.
+                </p>
+                <p class="mb-0">
+                    Cada layout é um ficheiro em
+                    <code>templates/invitations/layouts/</code>. Para acrescentar um novo,
+                    é preciso criar esse ficheiro e a entrada correspondente no código.
+                </p>
+            </div>
+        </div>
+
+        {% if template %}
+            <div class="admin-card">
+                <div class="admin-card__head">Pré-visualização</div>
+                <div class="admin-card__body">
+                    <div class="template-card__preview" style="{{ template.preview_style }}">
+                        <span class="template-card__eyebrow">Convite</span>
+                        <span class="template-card__names">Ivone &amp; Dário</span>
+                        <span class="template-card__rule"></span>
+                        <span class="template-card__date">14/11/2026</span>
+                        <span class="template-card__button">Confirmar presença</span>
+                    </div>
+                    <p class="small text-body-secondary mt-3 mb-0">
+                        A pré-visualização completa abre a partir de um evento, em
+                        <em>Aspecto → Pré-visualizar</em>, com os dados reais.
+                    </p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>

@@ -13,7 +13,7 @@ from .factories import add_member, create_user, create_wedding
 
 
 class WeddingModelTests(TestCase):
-    def test_slug_is_generated_from_the_couple_names(self) -> None:
+    def test_slug_is_generated_from_the_display_names(self) -> None:
         wedding = create_wedding()
         self.assertEqual(wedding.slug, "natercia-e-hivaldo")
 

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Escolher o convite · {{ category.name }}{% endblock %}
+
+{% block extra_css %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:wght@400;600&family=Playfair+Display:wght@500;600&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="{% static 'css/templates-gallery.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-2 mb-3">
+    <a href="{% url 'weddings:create' %}" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <span class="badge rounded-pill text-bg-light border">
+        <i class="bi {{ category.icon }} me-1"></i>{{ category.name }}
+    </span>
+</div>
+
+<div class="text-center mb-4">
+    <h1 class="h4 mb-1">Escolha o convite</h1>
+    <p class="text-body-secondary small mb-0">
+        Pode trocar de template mais tarde, sem perder nada do que já tiver preenchido.
+    </p>
+</div>
+
+{% if templates %}
+    <div class="template-grid">
+        {% for template in templates %}
+            <a class="template-card template-card--link"
+               href="{% url 'weddings:create' %}?tipo={{ category.code }}&template={{ template.code }}">
+                <span class="template-card__preview" style="{{ template.preview_style }}">
+                    {% if template.is_featured %}
+                        <span class="template-card__ribbon">Destaque</span>
+                    {% endif %}
+                    <span class="template-card__eyebrow">{{ category.name }}</span>
+                    <span class="template-card__names">Ivone &amp; Dário</span>
+                    <span class="template-card__rule"></span>
+                    <span class="template-card__date">14 de Novembro de 2026</span>
+                    <span class="template-card__button">Confirmar presença</span>
+                </span>
+
+                <span class="template-card__body">
+                    <span class="template-card__name">
+                        {{ template.name }}
+                        <span class="template-card__layout">{{ template.get_layout_display }}</span>
+                    </span>
+                    <span class="template-card__description">{{ template.description }}</span>
+                    <span class="template-card__tags">
+                        {% for tag in template.tag_list %}
+                            <span class="template-card__tag">{{ tag }}</span>
+                        {% endfor %}
+                    </span>
+                </span>
+            </a>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="empty-state text-center py-5">
+        <i class="bi bi-palette display-5 text-body-secondary"></i>
+        <h2 class="h6 mt-3">Ainda não há templates configurados</h2>
+        <p class="text-body-secondary small mb-0">
+            A equipa MeuConvite pode criá-los em Administração → Templates.
+        </p>
+    </div>
+{% endif %}
+{% endblock %}
