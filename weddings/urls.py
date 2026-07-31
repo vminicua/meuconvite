@@ -10,6 +10,7 @@ urlpatterns = [
     path("", views.wedding_list, name="list"),
     path("novo/", views.wedding_create, name="create"),
     path("<uuid:wedding_id>/", views.wedding_detail, name="detail"),
+    path("<uuid:wedding_id>/convite/", views.wedding_preview, name="preview"),
     path("<uuid:wedding_id>/assistente/", views.wedding_setup, name="setup"),
     path("<uuid:wedding_id>/definicoes/", views.wedding_settings, name="settings"),
     path("<uuid:wedding_id>/aspecto/", views.wedding_design, name="design"),

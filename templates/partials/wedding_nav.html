@@ -1,8 +1,5 @@
-{% comment %}
-Contextual navigation for one wedding. Items are hidden when the member
-does not have the corresponding capability.
-{% endcomment %}
-<div class="wedding-header mb-4">
+{% comment %}Workspace navigation for one event. Tabs are swapped client-side by workspace-tabs.js.{% endcomment %}
+<div class="wedding-header mb-4" data-wedding-workspace>
     <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
         <div>
             <div class="text-body-secondary small text-uppercase">
@@ -11,63 +8,57 @@ does not have the corresponding capability.
             <h1 class="h4 mb-1">{{ wedding.display_names }}</h1>
             <div class="text-body-secondary small">
                 <i class="bi bi-calendar-event me-1"></i>{{ wedding.main_date|date:"d/m/Y" }}
-                <span class="mx-1">·</span>
-                <i class="bi bi-geo-alt me-1"></i>{{ wedding.city }}
-                {% if wedding.days_until >= 0 %}
-                    <span class="mx-1">·</span>faltam {{ wedding.days_until }} dia{{ wedding.days_until|pluralize }}
-                {% endif %}
+                {% if wedding.city %}<span class="mx-1">·</span><i class="bi bi-geo-alt me-1"></i>{{ wedding.city }}{% endif %}
+                {% if wedding.days_until >= 0 %}<span class="mx-1">·</span>faltam {{ wedding.days_until }} dia{{ wedding.days_until|pluralize }}{% endif %}
             </div>
         </div>
         <div class="text-end">
-            {% if wedding.status == 'published' %}
-                <span class="badge text-bg-success">Publicado</span>
-            {% elif wedding.status == 'draft' %}
-                <span class="badge text-bg-secondary">Rascunho</span>
-            {% elif wedding.status == 'archived' %}
-                <span class="badge text-bg-secondary">Arquivado</span>
-            {% else %}
-                <span class="badge text-bg-danger">Bloqueado</span>
-            {% endif %}
+            {% if wedding.status == 'published' %}<span class="badge text-bg-success">Publicado</span>
+            {% elif wedding.status == 'draft' %}<span class="badge text-bg-secondary">Rascunho</span>
+            {% elif wedding.status == 'archived' %}<span class="badge text-bg-secondary">Arquivado</span>
+            {% else %}<span class="badge text-bg-danger">Bloqueado</span>{% endif %}
         </div>
     </div>
 
-    <ul class="nav nav-pills wedding-nav mt-3 flex-nowrap overflow-auto pb-1">
+    <ul class="nav nav-pills wedding-nav mt-3 flex-nowrap overflow-auto pb-1" aria-label="Área do evento">
+        <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'preview' %}active{% endif %}"
+               data-workspace-nav href="{% url 'weddings:preview' wedding.pk %}"><i class="bi bi-eye me-1"></i>Convite</a>
+        </li>
         <li class="nav-item">
             <a class="nav-link {% if request.resolver_match.url_name == 'detail' %}active{% endif %}"
-               href="{% url 'weddings:detail' wedding.pk %}"><i class="bi bi-speedometer2 me-1"></i>Painel</a>
+               data-workspace-nav href="{% url 'weddings:detail' wedding.pk %}"><i class="bi bi-speedometer2 me-1"></i>Visão geral</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link {% if request.resolver_match.namespace == 'events' and 'location' not in request.resolver_match.url_name and 'schedule' not in request.resolver_match.url_name %}active{% endif %}"
-               href="{% url 'events:list' wedding.pk %}"><i class="bi bi-calendar2-week me-1"></i>Momentos</a>
+            <a class="nav-link {% if request.resolver_match.namespace == 'events' %}active{% endif %}"
+               data-workspace-nav href="{% url 'events:organisation' wedding.pk %}"><i class="bi bi-calendar3 me-1"></i>Organização</a>
         </li>
-        <li class="nav-item">
-            <a class="nav-link {% if 'location' in request.resolver_match.url_name %}active{% endif %}"
-               href="{% url 'events:location_list' wedding.pk %}"><i class="bi bi-geo-alt me-1"></i>Locais</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link {% if 'schedule' in request.resolver_match.url_name %}active{% endif %}"
-               href="{% url 'events:schedule' wedding.pk %}"><i class="bi bi-list-ol me-1"></i>Programa</a>
-        </li>
+        {% if capabilities.can_manage_guests %}
+            <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.namespace == 'guests' %}active{% endif %}"
+                   data-workspace-nav href="{% url 'guests:list' wedding.pk %}"><i class="bi bi-people me-1"></i>Convidados</a>
+            </li>
+        {% endif %}
         {% if capabilities.can_manage_design %}
             <li class="nav-item">
                 <a class="nav-link {% if request.resolver_match.url_name == 'design' %}active{% endif %}"
-                   href="{% url 'weddings:design' wedding.pk %}"><i class="bi bi-palette me-1"></i>Aspecto</a>
+                   data-workspace-nav href="{% url 'weddings:design' wedding.pk %}"><i class="bi bi-palette me-1"></i>Aspecto</a>
             </li>
         {% endif %}
         {% if capabilities.is_owner or capabilities.manage_members %}
             <li class="nav-item">
                 <a class="nav-link {% if 'team' in request.resolver_match.url_name %}active{% endif %}"
-                   href="{% url 'weddings:team' wedding.pk %}"><i class="bi bi-people me-1"></i>Equipa</a>
+                   data-workspace-nav href="{% url 'weddings:team' wedding.pk %}"><i class="bi bi-person-gear me-1"></i>Equipa</a>
             </li>
         {% endif %}
         <li class="nav-item">
             <a class="nav-link {% if request.resolver_match.namespace == 'subscriptions' %}active{% endif %}"
-               href="{% url 'subscriptions:detail' wedding.pk %}"><i class="bi bi-gem me-1"></i>Subscrição</a>
+               data-workspace-nav href="{% url 'subscriptions:detail' wedding.pk %}"><i class="bi bi-gem me-1"></i>Subscrição</a>
         </li>
         {% if capabilities.can_manage_events %}
             <li class="nav-item">
                 <a class="nav-link {% if request.resolver_match.url_name == 'settings' %}active{% endif %}"
-                   href="{% url 'weddings:settings' wedding.pk %}"><i class="bi bi-gear me-1"></i>Definições</a>
+                   data-workspace-nav href="{% url 'weddings:settings' wedding.pk %}"><i class="bi bi-gear me-1"></i>Definições</a>
             </li>
         {% endif %}
     </ul>

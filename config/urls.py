@@ -33,6 +33,7 @@ urlpatterns = [
     # Área da equipa MeuConvite (exige is_staff).
     path("administracao/", include("platform_admin.urls", namespace="platform")),
     path("eventos/", include("weddings.urls", namespace="weddings")),
+    path("eventos/<uuid:wedding_id>/", include("guests.urls", namespace="guests")),
     path("eventos/<uuid:wedding_id>/", include("events.urls", namespace="events")),
     path(
         "eventos/<uuid:wedding_id>/",

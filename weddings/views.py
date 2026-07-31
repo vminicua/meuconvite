@@ -6,6 +6,7 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
+from django.views.decorators.clickjacking import xframe_options_sameorigin
 
 from audit.services import model_to_dict
 
@@ -21,6 +22,7 @@ from .models import WeddingMember
 from .permissions import capability_flags, require_wedding, user_can
 from .selectors import (
     archived_weddings_for_user,
+    categories_with_templates,
     dashboard_summary,
     team_members,
     upcoming_events,
@@ -40,7 +42,7 @@ def wedding_list(request: HttpRequest) -> HttpResponse:
     Os tipos de evento aparecem logo no topo: criar um evento novo passa a
     ser um clique, sem passar por um ecrã intermédio.
     """
-    from events.models import EventCategory
+    categories = categories_with_templates()
 
     return render(
         request,
@@ -48,7 +50,7 @@ def wedding_list(request: HttpRequest) -> HttpResponse:
         {
             "weddings": weddings_for_user(request.user),
             "archived": archived_weddings_for_user(request.user),
-            "categories": EventCategory.objects.active().order_by("display_order", "name"),
+            "categories": categories,
         },
     )
 
@@ -100,7 +102,7 @@ def wedding_create(request: HttpRequest) -> HttpResponse:
                 owner=request.user,
                 data=data,
                 category=category,
-                extra_data=form.extra_data(),
+                extra_data={},
                 request=request,
             )
             messages.success(
@@ -108,7 +110,7 @@ def wedding_create(request: HttpRequest) -> HttpResponse:
                 f"{category.name} criado. Já criámos os momentos e o programa habituais — "
                 "reveja e ajuste ao seu gosto.",
             )
-            return redirect("weddings:detail", wedding_id=wedding.pk)
+            return redirect("weddings:preview", wedding_id=wedding.pk)
         messages.error(request, "Corrija os erros assinalados no formulário.")
     else:
         form = WeddingCreateForm(category=category)
@@ -128,6 +130,16 @@ def wedding_create(request: HttpRequest) -> HttpResponse:
 # ---------------------------------------------------------------------
 # Dashboard & settings
 # ---------------------------------------------------------------------
+
+
+@require_wedding()
+def wedding_preview(request: HttpRequest, wedding) -> HttpResponse:
+    """Workspace preview: the first tab shows the invitation with current event data."""
+    return render(
+        request,
+        "weddings/wedding_preview.html",
+        {"wedding": wedding, "capabilities": capability_flags(wedding, request.user)},
+    )
 
 
 @require_wedding()
@@ -242,6 +254,7 @@ def wedding_design(request: HttpRequest, wedding) -> HttpResponse:
     )
 
 
+@xframe_options_sameorigin
 @require_wedding()
 def invitation_preview(request: HttpRequest, wedding, template_code: str = "") -> HttpResponse:
     """
@@ -264,6 +277,7 @@ def invitation_preview(request: HttpRequest, wedding, template_code: str = "") -
         is_preview=True,
         use_event_colours=template.code == wedding.selected_template,
     )
+    context["embedded"] = request.GET.get("embedded") == "1"
     return render(request, "invitations/preview.html", context)
 
 

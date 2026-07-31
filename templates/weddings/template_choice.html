@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:wght@400;600&family=Playfair+Display:wght@500;600&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
-    <link href="{% static 'css/templates-gallery.css' %}" rel="stylesheet">
+    <link href="{% static 'css/templates-gallery.css' %}?v=20260731.2" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -32,15 +32,16 @@
         {% for template in templates %}
             <a class="template-card template-card--link"
                href="{% url 'weddings:create' %}?tipo={{ category.code }}&template={{ template.code }}">
-                <span class="template-card__preview" style="{{ template.preview_style }}">
+                <span class="template-card__preview template-card__preview--cover">
                     {% if template.is_featured %}
                         <span class="template-card__ribbon">Destaque</span>
                     {% endif %}
-                    <span class="template-card__eyebrow">{{ category.name }}</span>
-                    <span class="template-card__names">Ivone &amp; Dário</span>
-                    <span class="template-card__rule"></span>
-                    <span class="template-card__date">14 de Novembro de 2026</span>
-                    <span class="template-card__button">Confirmar presença</span>
+                    {% if template.cover_image %}
+                        <img src="{{ template.cover_image.url }}" alt="Cover do template {{ template.name }}">
+                    {% else %}
+                        <img src="{% static 'img/template-cover-default.webp' %}"
+                             alt="Cover provisório do template {{ template.name }}">
+                    {% endif %}
                 </span>
 
                 <span class="template-card__body">

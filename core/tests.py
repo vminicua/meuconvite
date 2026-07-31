@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from urllib.parse import parse_qs, urlparse
+
 from django.test import TestCase
 from django.urls import reverse
 
@@ -13,6 +15,7 @@ from weddings.tests.factories import (
     create_schedule_item,
     create_user,
     create_wedding,
+    create_category,
 )
 
 
@@ -21,6 +24,34 @@ class PublicPageTests(TestCase):
         response = self.client.get(reverse("core:home"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Convites digitais")
+        self.assertContains(response, "O seu momento começa aqui")
+        self.assertContains(response, 'class="hero__banner-image"')
+        self.assertNotContains(response, ">Começar agora<")
+        self.assertNotContains(response, ">Já tenho conta<")
+        self.assertNotContains(response, "<svg")
+
+    def test_home_shows_templates_and_selection_requests_login(self) -> None:
+        from templates_manager.models import InvitationTemplate
+
+        category = create_category(code="evento-publico", name="Evento público")
+        template = InvitationTemplate.objects.active().order_by(
+            "-is_featured", "display_order", "name"
+        ).first()
+        self.assertIsNotNone(template)
+
+        selection_url = (
+            f"{reverse('weddings:create')}?tipo={category.code}&template={template.code}"
+        )
+        response = self.client.get(reverse("core:home"))
+        self.assertContains(response, "Escolha um design para o seu evento")
+        self.assertContains(response, template.name)
+        self.assertContains(response, selection_url.replace("&", "&amp;"))
+
+        redirect_response = self.client.get(selection_url)
+        self.assertEqual(redirect_response.status_code, 302)
+        location = urlparse(redirect_response["Location"])
+        self.assertEqual(location.path, reverse("account_login"))
+        self.assertEqual(parse_qs(location.query)["next"], [selection_url])
 
     def test_home_redirects_authenticated_users(self) -> None:
         create_user()

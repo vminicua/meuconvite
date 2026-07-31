@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from core.forms import BootstrapForm, BootstrapModelForm
 from core.schema import (
+    DRESS_CODE_CHOICES,
     FIELD_TYPES,
     MAX_FIELDS,
     add_schema_fields,
@@ -62,6 +63,18 @@ class WeddingEventForm(BootstrapModelForm):
             queryset = WeddingLocation.objects.filter(wedding=wedding)
         self.fields["location"].queryset = queryset
         self.fields["location"].empty_label = _("— Sem local definido —")
+        dress_choices = [("", _("— Não especificar —"))] + [
+            (choice, choice) for choice in DRESS_CODE_CHOICES
+        ]
+        current_dress = getattr(self.instance, "dress_code", "")
+        if current_dress and current_dress not in DRESS_CODE_CHOICES:
+            dress_choices.append((current_dress, current_dress))
+        self.fields["dress_code"] = forms.ChoiceField(
+            label=_("Traje"),
+            choices=dress_choices,
+            required=False,
+            widget=forms.Select(attrs={"class": "form-select"}),
+        )
 
     def clean(self):
         cleaned = super().clean()

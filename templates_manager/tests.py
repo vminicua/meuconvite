@@ -2,8 +2,13 @@
 
 from __future__ import annotations
 
+from io import BytesIO
+import tempfile
+
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
+from PIL import Image
 
 from templates_manager import registry, services
 from templates_manager.models import InvitationLayout, InvitationTemplate
@@ -169,6 +174,11 @@ class InvitationPreviewTests(TestCase):
 
 class TemplateAdminTests(TestCase):
     def setUp(self) -> None:
+        self.media = tempfile.TemporaryDirectory()
+        self.addCleanup(self.media.cleanup)
+        self.media_settings = self.settings(MEDIA_ROOT=self.media.name)
+        self.media_settings.enable()
+        self.addCleanup(self.media_settings.disable)
         self.staff = create_user("suporte@example.com", is_staff=True)
         self.client.login(email=self.staff.email, password=DEFAULT_PASSWORD)
 
@@ -223,3 +233,31 @@ class TemplateAdminTests(TestCase):
         client_user = create_user("cliente@example.com")
         self.client.login(email=client_user.email, password=DEFAULT_PASSWORD)
         self.assertEqual(self.client.get(reverse("platform:templates")).status_code, 302)
+
+    def test_staff_can_define_an_image_cover(self) -> None:
+        image_bytes = BytesIO()
+        Image.new("RGB", (8, 10), "#C8A96A").save(image_bytes, format="PNG")
+        cover = SimpleUploadedFile(
+            "cover.png", image_bytes.getvalue(), content_type="image/png"
+        )
+        response = self.client.post(
+            reverse("platform:template_create"),
+            data={
+                "name": "Com Cover",
+                "code": "com-cover",
+                "description": "Template com imagem de catálogo",
+                "layout": InvitationLayout.CLASSIC_CARD,
+                "primary": "#C8A96A",
+                "secondary": "#1F2933",
+                "paper": "#FFFDF8",
+                "ink": "#3A3226",
+                "display_font": "serif",
+                "body_font": "serif",
+                "cover_image": cover,
+                "display_order": 210,
+                "is_active": "on",
+            },
+        )
+        self.assertRedirects(response, reverse("platform:templates"))
+        template = InvitationTemplate.objects.get(code="com-cover")
+        self.assertTrue(template.cover_image.name.startswith("templates/covers/"))

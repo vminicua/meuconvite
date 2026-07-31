@@ -4,7 +4,7 @@
 {% block title %}Os meus eventos · {{ SITE_NAME }}{% endblock %}
 
 {% block extra_css %}
-    <link href="{% static 'css/templates-gallery.css' %}" rel="stylesheet">
+    <link href="{% static 'css/templates-gallery.css' %}?v=20260731.2" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -16,22 +16,7 @@
 </div>
 
 {% if categories %}
-    <section class="card shadow-sm mb-4">
-        <div class="card-body">
-            <h2 class="h6 mb-1">Criar um evento</h2>
-            <p class="small text-body-secondary mb-3">
-                Escolha o tipo e depois o convite. Os momentos e o programa habituais já vêm feitos.
-            </p>
-            <div class="category-strip">
-                {% for category in categories %}
-                    <a class="category-chip" href="{% url 'weddings:create' %}?tipo={{ category.code }}">
-                        <span class="category-chip__icon"><i class="bi {{ category.icon }}"></i></span>
-                        <span class="category-chip__name">{{ category.name }}</span>
-                    </a>
-                {% endfor %}
-            </div>
-        </div>
-    </section>
+    {% include "weddings/_template_picker.html" %}
 {% else %}
     <div class="d-flex justify-content-end mb-3">
         <a href="{% url 'weddings:create' %}" class="btn btn-primary">
@@ -41,7 +26,7 @@
 {% endif %}
 
 {% if weddings %}
-    <div class="row g-3">
+    <div class="row g-3 mt-1">
         {% for wedding in weddings %}
             <div class="col-md-6 col-xl-4">
                 <div class="card h-100 shadow-sm wedding-card">
@@ -63,7 +48,7 @@
                         </div>
                         <p class="text-body-secondary small mb-3">
                             <i class="bi bi-calendar-event me-1"></i>{{ wedding.main_date|date:"d/m/Y" }}
-                            <span class="mx-1">·</span>{{ wedding.city }}
+                            {% if wedding.city %}<span class="mx-1">·</span>{{ wedding.city }}{% endif %}
                         </p>
                         <div class="d-flex gap-3 small text-body-secondary mb-3">
                             <span><i class="bi bi-calendar2-week me-1"></i>{{ wedding.event_count }} momento{{ wedding.event_count|pluralize }}</span>
@@ -76,7 +61,7 @@
                         {% endif %}
                     </div>
                     <div class="card-footer bg-transparent d-flex gap-2">
-                        <a href="{% url 'weddings:detail' wedding.pk %}" class="btn btn-sm btn-primary flex-grow-1">Abrir</a>
+                        <a href="{% url 'weddings:preview' wedding.pk %}" class="btn btn-sm btn-primary flex-grow-1">Abrir</a>
                         <a href="{% url 'weddings:setup' wedding.pk %}" class="btn btn-sm btn-outline-secondary">Assistente</a>
                     </div>
                 </div>
@@ -98,9 +83,13 @@
         {% for wedding in archived %}
             <li class="list-group-item d-flex justify-content-between align-items-center">
                 <span>{{ wedding.display_names }} <span class="text-body-secondary small">· {{ wedding.main_date|date:"d/m/Y" }}</span></span>
-                <a href="{% url 'weddings:detail' wedding.pk %}" class="btn btn-sm btn-outline-secondary">Ver</a>
+                <a href="{% url 'weddings:preview' wedding.pk %}" class="btn btn-sm btn-outline-secondary">Ver</a>
             </li>
         {% endfor %}
     </ul>
 {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/template-carousel.js' %}?v=20260731.2"></script>
 {% endblock %}

@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:wght@400;600&family=Playfair+Display:wght@500;600&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
-    <link href="{% static 'css/templates-gallery.css' %}" rel="stylesheet">
+    <link href="{% static 'css/templates-gallery.css' %}?v=20260731.4" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -39,35 +39,35 @@
 
     <div class="template-grid mb-4">
         {% for template in templates %}
-            <label class="template-card {% if template.code == wedding.selected_template %}is-selected{% endif %}"
-                   data-template="{{ template.code }}"
-                   data-primary="{{ template.primary }}"
-                   data-secondary="{{ template.secondary }}">
-                <input type="radio" name="selected_template" value="{{ template.code }}"
-                       {% if template.code == wedding.selected_template %}checked{% endif %}
-                       class="visually-hidden">
-
-                <span class="template-card__preview" style="{{ template.preview_style }}">
-                    <span class="template-card__eyebrow">Vamos celebrar</span>
-                    <span class="template-card__names">{{ wedding.display_names }}</span>
-                    <span class="template-card__rule"></span>
-                    <span class="template-card__date">{{ wedding.main_date|date:"d/m/Y" }}</span>
-                    <span class="template-card__button">Confirmar presença</span>
-                </span>
-
-                <span class="template-card__body">
-                    <span class="template-card__name">
-                        {{ template.name }}
-                        <i class="bi bi-check-circle-fill template-card__check"></i>
+            <div class="template-choice {% if template.code == wedding.selected_template %}is-selected{% endif %}">
+                <label class="template-card {% if template.code == wedding.selected_template %}is-selected{% endif %}"
+                       data-template="{{ template.code }}"
+                       data-name="{{ template.name }}"
+                       data-description="{{ template.description }}"
+                       data-primary="{{ template.primary }}"
+                       data-secondary="{{ template.secondary }}">
+                    <input type="radio" name="selected_template" value="{{ template.code }}"
+                           {% if template.code == wedding.selected_template %}checked{% endif %}
+                           class="visually-hidden">
+                    <span class="template-card__selected-label"><i class="bi bi-check-circle-fill"></i> Selecionado</span>
+                    <span class="template-card__preview template-card__preview--cover">
+                        {% if template.cover_image %}
+                            <img src="{{ template.cover_image.url }}" alt="Cover do template {{ template.name }}">
+                        {% else %}
+                            <img src="{% static 'img/template-cover-default.webp' %}"
+                                 alt="Cover provisório do template {{ template.name }}">
+                        {% endif %}
                     </span>
-                    <span class="template-card__layout">{{ template.get_layout_display }}</span>
-                    <span class="template-card__description">{{ template.description }}</span>
-                    <span class="template-card__tags">
-                        {% for tag in template.tag_list %}<span class="template-card__tag">{{ tag }}</span>{% endfor %}
+
+                    <span class="template-card__body">
+                        <span class="template-card__name">{{ template.name }}<i class="bi bi-check-circle-fill template-card__check"></i></span>
+                        <span class="template-card__layout">{{ template.get_layout_display }}</span>
+                        <span class="template-card__description">{{ template.description }}</span>
+                        <span class="template-card__tags">
+                            {% for tag in template.tag_list %}<span class="template-card__tag">{{ tag }}</span>{% endfor %}
+                        </span>
                     </span>
-                </span>
-            </label>
-            <div class="text-center mb-3">
+                </label>
                 <a class="btn btn-sm btn-outline-secondary"
                    href="{% url 'weddings:invitation_preview_template' wedding.pk template.code %}"
                    target="_blank" rel="noopener">
@@ -154,8 +154,4 @@
         <a href="{% url 'weddings:detail' wedding.pk %}" class="btn btn-outline-secondary">Voltar ao painel</a>
     </div>
 </form>
-{% endblock %}
-
-{% block extra_js %}
-    <script src="{% static 'js/template-picker.js' %}"></script>
 {% endblock %}

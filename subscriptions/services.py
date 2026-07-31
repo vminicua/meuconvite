@@ -162,7 +162,7 @@ def guest_count(wedding) -> int:
     related = getattr(wedding, "guests", None)
     if related is None:
         return 0
-    return related.count()
+    return related.filter(is_active=True).count()
 
 
 def check_can_add_guests(wedding, quantity: int = 1) -> None:

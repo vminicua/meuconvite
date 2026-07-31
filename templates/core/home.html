@@ -11,20 +11,21 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-    <link href="{% static 'css/home.css' %}" rel="stylesheet">
+    <link href="{% static 'css/home.css' %}?v=20260731.7" rel="stylesheet">
+    <link href="{% static 'css/templates-gallery.css' %}?v=20260731.3" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
-{% include "core/_ornaments.html" %}
-
 <section class="hero py-5">
+    <img class="hero__banner-image" src="{% static 'img/hero-meuconvite-v2.webp' %}" alt="">
+    <span class="hero__banner-veil" aria-hidden="true"></span>
     <span class="hero__glow hero__glow--one" aria-hidden="true"></span>
     <span class="hero__glow hero__glow--two" aria-hidden="true"></span>
 
-    <div class="container py-lg-4 position-relative">
-        <div class="row align-items-center g-5">
-            <div class="col-lg-6">
-                <span class="badge rounded-pill text-bg-light border mb-3 reveal">Feito para Moçambique</span>
+    <div class="container hero__content py-lg-5 position-relative">
+        <div class="row">
+            <div class="col-lg-8 col-xl-7">
+                <span class="badge rounded-pill text-bg-light border mb-3 reveal">O seu momento começa aqui</span>
 
                 <h1 class="display-5 fw-semibold mb-3 reveal" style="--delay: 80ms">
                     Convites digitais para o vosso
@@ -40,22 +41,21 @@
                     convidados, confirmações, mesas e QR Code próprio.
                 </p>
 
-                <div class="d-flex flex-wrap gap-2 reveal" style="--delay: 240ms">
-                    <a href="{% url 'account_signup' %}" class="btn btn-primary btn-lg px-4 btn-shine">Começar agora</a>
-                    <a href="{% url 'account_login' %}" class="btn btn-outline-secondary btn-lg px-4">Já tenho conta</a>
-                </div>
-
-                <p class="small text-body-secondary mt-3 mb-0 reveal" style="--delay: 320ms">
+                <p class="small text-body-secondary mt-4 mb-0 reveal" style="--delay: 240ms">
                     Sem instalação. Os convidados abrem o convite no telemóvel.
                 </p>
-            </div>
-
-            <div class="col-lg-6">
-                {% include "core/_invitation_demo.html" %}
             </div>
         </div>
     </div>
 </section>
+
+{% if categories %}
+<section class="home-templates py-5">
+    <div class="container">
+        {% include "weddings/_template_picker.html" with picker_public=True picker_id="public" %}
+    </div>
+</section>
+{% endif %}
 
 <section class="py-5 bg-body-tertiary">
     <div class="container">
@@ -134,4 +134,5 @@
 
 {% block extra_js %}
     <script src="{% static 'js/home.js' %}"></script>
+    <script src="{% static 'js/template-carousel.js' %}?v=20260731.3"></script>
 {% endblock %}

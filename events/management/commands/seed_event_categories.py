@@ -17,6 +17,7 @@ from __future__ import annotations
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
+from core.schema import DRESS_CODE_CHOICES
 from events.models import EventCategory
 
 CATEGORIES: list[dict] = [
@@ -31,9 +32,19 @@ CATEGORIES: list[dict] = [
         "names_separator": "&",
         "invitation_greeting": "têm o prazer de o convidar para celebrar o seu casamento",
         "field_schema": [
-            {"key": "traje", "label": "Traje", "type": "text",
-             "help_text": "Por exemplo: traje formal."},
-            {"key": "lista_presentes", "label": "Lista de presentes", "type": "url"},
+            {
+                "key": "traje",
+                "label": "Traje",
+                "type": "choice",
+                "choices": list(DRESS_CODE_CHOICES),
+            },
+            {
+                "key": "lista_presentes",
+                "label": "Lista de presentes",
+                "type": "list",
+                "placeholder": "Ex.: Liquidificador ou ligação para a loja",
+                "help_text": "Adicione um presente ou ligação por linha.",
+            },
         ],
         "default_moments": [
             {"name": "Cerimónia Religiosa", "event_type": "religious", "start_time": "09:00",
@@ -159,7 +170,13 @@ CATEGORIES: list[dict] = [
         "invitation_greeting": "convida-o para o chá de bebé de",
         "field_schema": [
             {"key": "nome_bebe", "label": "Nome do bebé", "type": "text"},
-            {"key": "lista_presentes", "label": "Lista de presentes", "type": "url"},
+            {
+                "key": "lista_presentes",
+                "label": "Lista de presentes",
+                "type": "list",
+                "placeholder": "Ex.: Fraldas tamanho 2 ou ligação para a loja",
+                "help_text": "Adicione um presente ou ligação por linha.",
+            },
         ],
         "default_moments": [
             {"name": "Chá de bebé", "event_type": "custom", "start_time": "15:00",
@@ -183,7 +200,12 @@ CATEGORIES: list[dict] = [
         "field_schema": [
             {"key": "organizacao", "label": "Organização", "type": "text"},
             {"key": "orador", "label": "Orador principal", "type": "text"},
-            {"key": "codigo_vestuario", "label": "Código de vestuário", "type": "text"},
+            {
+                "key": "codigo_vestuario",
+                "label": "Código de vestuário",
+                "type": "choice",
+                "choices": list(DRESS_CODE_CHOICES),
+            },
         ],
         "default_moments": [
             {"name": "Sessão de abertura", "event_type": "custom", "start_time": "09:00",

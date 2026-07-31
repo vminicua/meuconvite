@@ -1,9 +1,10 @@
+{% load static %}
 <div class="section-head" data-section-title="Template">
     <div>
         <h1>{% if template %}{{ template.name }}{% else %}Novo template{% endif %}</h1>
         <p>
-            O layout define a estrutura do convite; a paleta e as letras definem o
-            aspecto. Os clientes podem depois afinar as cores no ecrã «Aspecto».
+            O cover é a fotografia apresentada no catálogo. O layout define a estrutura
+            do convite; a paleta e as letras definem o aspecto quando é aberto.
         </p>
     </div>
     <a class="btn btn-outline-secondary btn-sm" href="{% url 'platform:templates' %}"
@@ -58,12 +59,13 @@
             <div class="admin-card">
                 <div class="admin-card__head">Pré-visualização</div>
                 <div class="admin-card__body">
-                    <div class="template-card__preview" style="{{ template.preview_style }}">
-                        <span class="template-card__eyebrow">Convite</span>
-                        <span class="template-card__names">Ivone &amp; Dário</span>
-                        <span class="template-card__rule"></span>
-                        <span class="template-card__date">14/11/2026</span>
-                        <span class="template-card__button">Confirmar presença</span>
+                    <div class="template-card__preview template-card__preview--cover">
+                        {% if template.cover_image %}
+                            <img src="{{ template.cover_image.url }}" alt="Cover de {{ template.name }}">
+                        {% else %}
+                            <img src="{% static 'img/template-cover-default.webp' %}"
+                                 alt="Cover provisório de {{ template.name }}">
+                        {% endif %}
                     </div>
                     <p class="small text-body-secondary mt-3 mb-0">
                         A pré-visualização completa abre a partir de um evento, em

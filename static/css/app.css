@@ -389,7 +389,100 @@ main {
     color: var(--bs-danger);
 }
 
+/* --- Listas editáveis de atributos -------------------------------- */
+.repeated-field__items {
+    display: grid;
+    gap: .55rem;
+}
+
+.repeated-field__row {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+}
+
+.repeated-field__row .form-control {
+    min-width: 0;
+}
+
+.repeated-field__row [data-repeated-remove] {
+    flex: 0 0 auto;
+}
+
 /* --- Misc ---------------------------------------------------------- */
+.workspace-is-loading {
+    opacity: .48;
+    pointer-events: none;
+    transition: opacity .15s ease;
+}
+
+.workspace-section-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.workspace-eyebrow {
+    color: var(--mc-gold-dark);
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.invitation-preview-shell {
+    overflow: hidden;
+    padding: .65rem;
+    background: #ebe8e2;
+    border: 1px solid rgba(0, 0, 0, .08);
+    border-radius: 1rem;
+    box-shadow: 0 18px 44px -34px rgba(31, 41, 51, .62);
+}
+
+.invitation-preview-frame {
+    display: block;
+    width: 100%;
+    min-height: 76vh;
+    background: #fff;
+    border: 0;
+    border-radius: .7rem;
+}
+
+.organisation-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.organisation-card__number {
+    margin-right: .55rem;
+    color: var(--mc-gold-dark);
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+}
+
+.organisation-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    padding: .7rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, .06);
+}
+
+.organisation-row:first-child { padding-top: 0; }
+.organisation-row:last-child { padding-bottom: 0; border-bottom: 0; }
+.organisation-row span { min-width: 0; }
+.organisation-row strong,
+.organisation-row small { display: block; }
+.organisation-row small { overflow: hidden; color: var(--mc-muted); text-overflow: ellipsis; white-space: nowrap; }
+.organisation-row > i { color: var(--mc-gold-dark); }
+
+.workspace-sticky-card { position: sticky; top: 5.5rem; }
+
 .empty-state {
     background-color: var(--mc-surface);
     border: 1px dashed rgba(0, 0, 0, .12);
@@ -408,4 +501,9 @@ main {
     .stat-tile__value {
         font-size: 1.4rem;
     }
+}
+
+@media (max-width: 991.98px) {
+    .organisation-grid { grid-template-columns: 1fr; }
+    .workspace-sticky-card { position: static; }
 }

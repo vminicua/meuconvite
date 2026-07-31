@@ -4,7 +4,7 @@
             <i class="bi {{ event.category_icon }} me-1"></i>{{ event.category_name }}
         </div>
         <h1>{{ event.display_names }}</h1>
-        <p>{{ event.main_date|date:"d/m/Y" }} · {{ event.city }} · /{{ event.slug }}</p>
+        <p>{{ event.main_date|date:"d/m/Y" }}{% if event.city %} · {{ event.city }}{% endif %} · /{{ event.slug }}</p>
     </div>
     <div class="d-flex gap-2">
         <a class="btn btn-outline-secondary btn-sm" href="{% url 'platform:events' %}"

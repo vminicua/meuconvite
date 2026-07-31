@@ -55,6 +55,17 @@ class EventCategoryTests(TestCase):
         self.assertEqual(fields[0]["type"], "text")
         self.assertFalse(fields[0]["required"])
 
+    def test_list_field_is_supported(self) -> None:
+        category = EventCategory(
+            code="presentes",
+            name="Presentes",
+            field_schema=[
+                {"key": "lista_presentes", "label": "Lista de presentes", "type": "list"}
+            ],
+        )
+        category.full_clean()
+        self.assertEqual(category.extra_fields[0]["type"], "list")
+
     def test_one_name_types_display_a_single_name(self) -> None:
         category = create_category(
             code="aniversario", name="Aniversário", uses_two_names=False, secondary_label=""

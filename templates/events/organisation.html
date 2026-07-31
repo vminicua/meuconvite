@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Organização · {{ wedding.display_names }}{% endblock %}
+
+{% block content %}
+{% include "partials/wedding_nav.html" %}
+<div class="workspace-section-heading mb-4">
+    <div>
+        <p class="workspace-eyebrow mb-1">Tudo no mesmo sítio</p>
+        <h2 class="h5 mb-1">Organização do evento</h2>
+        <p class="small text-body-secondary mb-0">Momentos, programa e locais fazem parte da mesma sequência da celebração.</p>
+    </div>
+</div>
+
+<div class="organisation-grid">
+    <section class="card shadow-sm organisation-card">
+        <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+            <div><span class="organisation-card__number">01</span><strong>Momentos</strong></div>
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'events:list' wedding.pk %}">Gerir</a>
+        </div>
+        <div class="card-body">
+            {% for event in events|slice:":4" %}
+                <div class="organisation-row"><span><strong>{{ event.name }}</strong><small>{{ event.date|date:"d/m" }} · {{ event.start_time|time:"H:i"|default:"hora por definir" }}</small></span><i class="bi bi-calendar-event"></i></div>
+            {% empty %}<p class="small text-body-secondary mb-0">Ainda não há momentos.</p>{% endfor %}
+        </div>
+    </section>
+    <section class="card shadow-sm organisation-card">
+        <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+            <div><span class="organisation-card__number">02</span><strong>Programa</strong></div>
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'events:schedule' wedding.pk %}">Gerir</a>
+        </div>
+        <div class="card-body">
+            {% for item in schedule_items|slice:":4" %}
+                <div class="organisation-row"><span><strong>{{ item.title }}</strong><small>{{ item.time_display|default:"hora por definir" }}</small></span><i class="bi bi-list-check"></i></div>
+            {% empty %}<p class="small text-body-secondary mb-0">O programa ainda está vazio.</p>{% endfor %}
+        </div>
+    </section>
+    <section class="card shadow-sm organisation-card">
+        <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+            <div><span class="organisation-card__number">03</span><strong>Locais</strong></div>
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'events:location_list' wedding.pk %}">Gerir</a>
+        </div>
+        <div class="card-body">
+            {% for location in locations|slice:":4" %}
+                <div class="organisation-row"><span><strong>{{ location.name }}</strong><small>{{ location.address|default:"endereço por definir" }}</small></span><i class="bi bi-geo-alt"></i></div>
+            {% empty %}<p class="small text-body-secondary mb-0">Ainda não há locais.</p>{% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}

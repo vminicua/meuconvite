@@ -24,6 +24,35 @@ from .models import ScheduleItem, WeddingEvent, WeddingLocation
 
 
 @require_wedding()
+def organisation(request: HttpRequest, wedding) -> HttpResponse:
+    """One workspace for moments, their programme and their locations."""
+    events = list(
+        WeddingEvent.objects.filter(wedding=wedding)
+        .select_related("location")
+        .order_by("date", "start_time", "display_order")
+    )
+    locations = list(
+        WeddingLocation.objects.filter(wedding=wedding).order_by("display_order", "name")
+    )
+    schedule_items = list(
+        ScheduleItem.objects.filter(wedding=wedding)
+        .select_related("event", "location")
+        .order_by("display_order", "start_time")
+    )
+    return render(
+        request,
+        "events/organisation.html",
+        {
+            "wedding": wedding,
+            "events": events,
+            "locations": locations,
+            "schedule_items": schedule_items,
+            "capabilities": capability_flags(wedding, request.user),
+        },
+    )
+
+
+@require_wedding()
 def event_list(request: HttpRequest, wedding) -> HttpResponse:
     events = (
         WeddingEvent.objects.filter(wedding=wedding)

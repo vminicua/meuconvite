@@ -19,9 +19,8 @@ class WeddingCreateForm(BootstrapModelForm):
     """
     Criação de um evento — deliberadamente curta.
 
-    Só o essencial: quem/o quê, quando e onde. O tipo de evento (recebido
-    já escolhido) decide as etiquetas dos nomes, se são um ou dois, e quais
-    os campos próprios a pedir. Programa, locais e convidados vêm depois.
+    Só o essencial: quem/o quê e quando. Endereço, atributos próprios,
+    programa, locais e convidados vêm depois.
     """
 
     class Meta:
@@ -30,7 +29,6 @@ class WeddingCreateForm(BootstrapModelForm):
             "primary_name",
             "secondary_name",
             "main_date",
-            "city",
         ]
         widgets = {
             "main_date": forms.DateInput(attrs={"class": "form-control"}),
@@ -41,7 +39,6 @@ class WeddingCreateForm(BootstrapModelForm):
         super().__init__(*args, **kwargs)
 
         self.fields["main_date"].label = _("Data do evento")
-        self.fields["city"].label = _("Cidade")
 
         if category is None:
             self.fields["secondary_name"].required = False
@@ -54,9 +51,6 @@ class WeddingCreateForm(BootstrapModelForm):
         else:
             # Um único protagonista: o segundo nome não é pedido.
             del self.fields["secondary_name"]
-
-        # Campos próprios do tipo de evento, definidos pela equipa MeuConvite.
-        add_schema_fields(self, category.extra_fields)
 
     def clean_main_date(self):
         main_date = self.cleaned_data["main_date"]
@@ -74,15 +68,9 @@ class WeddingCreateForm(BootstrapModelForm):
             cleaned["secondary_short_name"] = cleaned["secondary_name"].split()[0][:60]
         return cleaned
 
-    def extra_data(self) -> dict:
-        """Valores dos campos próprios, prontos a guardar em `Wedding.extra_data`."""
-        if self.category is None:
-            return {}
-        return collect_schema_values(self, self.category.extra_fields)
-
     def wedding_data(self) -> dict:
         """Apenas os campos do modelo, sem os `extra__*` do esquema."""
-        model_fields = {"primary_name", "secondary_name", "main_date", "city"}
+        model_fields = {"primary_name", "secondary_name", "main_date"}
         data = {
             key: value
             for key, value in self.cleaned_data.items()
@@ -98,6 +86,10 @@ class WeddingSettingsForm(BootstrapModelForm):
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+        self.fields["city"].label = _("Endereço")
+        self.fields["city"].help_text = _(
+            "Opcional. Pode indicar a cidade, bairro ou endereço principal do evento."
+        )
         category = getattr(self.instance, "category", None)
         if category is None:
             return

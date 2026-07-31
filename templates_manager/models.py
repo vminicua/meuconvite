@@ -17,6 +17,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from core.models import BaseModel
+from core.storage import template_cover_upload_to
 from core.validators import validate_hex_color, validate_image_upload
 
 
@@ -119,13 +120,16 @@ class InvitationTemplate(BaseModel):
     has_countdown = models.BooleanField(_("contagem regressiva"), default=True)
     supports_music = models.BooleanField(_("suporta música"), default=True)
 
-    preview_image = models.ImageField(
-        _("imagem de pré-visualização"),
-        upload_to="templates/previews/",
+    cover_image = models.ImageField(
+        _("cover do template"),
+        upload_to=template_cover_upload_to,
         blank=True,
         null=True,
         validators=[validate_image_upload],
-        help_text=_("Opcional: a pré-visualização é gerada a partir do próprio layout."),
+        help_text=_(
+            "Imagem vertical usada no catálogo. Recomendado: proporção 4:5, "
+            "mínimo 1200 × 1500 px, JPG, PNG ou WEBP até 5 MB."
+        ),
     )
 
     tags = models.CharField(

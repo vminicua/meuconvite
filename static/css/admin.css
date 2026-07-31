@@ -412,6 +412,37 @@ table.dataTable thead th {
     border: 1px solid rgba(0, 0, 0, .15);
 }
 
+.admin-template-cover {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.25rem;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    overflow: hidden;
+    color: var(--mc-muted);
+    background: rgba(0, 0, 0, .05);
+    border: 1px solid rgba(0, 0, 0, .08);
+    border-radius: .4rem;
+}
+
+.admin-template-cover--empty {
+    border-style: dashed;
+}
+
+.template-card__preview--cover {
+    overflow: hidden;
+    aspect-ratio: 4 / 5;
+    background: rgba(0, 0, 0, .04);
+    border-radius: .65rem;
+}
+
+.template-card__preview--cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 /* ---------------------------------------------------------------------
    Ecrãs pequenos
    --------------------------------------------------------------------- */

@@ -187,12 +187,14 @@ a aplicação `guests` (fase 2) passará a chamar.
 
 ### Templates de convite
 
-O catálogo está em `templates_manager/registry.py` — 13 templates, cada um com
-paleta e tipos de letra próprios (clássico dourado, luxo preto, capulana
-moçambicana, floral rosa, minimalista, verde oliva, azul marinho, terracota,
-bordeaux, tropical, lavanda, areia dourada e noite estrelada). São escolhidos
-na galeria do ecrã **Aspecto** e o código escolhido é validado no servidor.
-Acrescentar um template novo é acrescentar uma entrada nessa lista.
+O catálogo está na base de dados (`templates_manager.InvitationTemplate`) e é
+gerido em **Administração → Templates**. Cada template define layout, paleta,
+tipografia, tipos de evento aplicáveis e um cover vertical em imagem. Na página
+**Os meus eventos**, escolher um tipo troca imediatamente o carrossel de
+templates; escolher um cartão abre o formulário de criação com o tipo e o
+template já seleccionados. O ecrã **Aspecto** permite trocar o template depois,
+sem perder os dados do evento. `templates_manager/registry.py` continua a ser o
+ponto único de consulta e validação do catálogo.
 
 ### Padrões de código
 
@@ -240,7 +242,7 @@ Acrescentar um template novo é acrescentar uma entrada nessa lista.
 
 ## Fluxo do assistente
 
-1. **Noivos** — nomes, data, cidade e país (`/casamentos/novo/`)
+1. **Noivos** — nomes e data (`/casamentos/novo/`); endereço e restantes detalhes são acrescentados depois
 2. **Eventos** — cerimónias, recepção, lobolo, xiguiane, eventos personalizados
 3. **Locais** — endereço, mapa e instruções
 4. **Programa** — itens com hora, reorganizáveis por drag-and-drop

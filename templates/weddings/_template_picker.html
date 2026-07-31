@@ -1,0 +1,106 @@
+{% load static %}
+<section class="event-template-picker{% if picker_public %} event-template-picker--public{% endif %}" data-template-carousel>
+    <div class="event-template-picker__header">
+        <div>
+            {% if picker_public %}
+                <p class="template-carousel__eyebrow mb-1">Templates de convite</p>
+                <h2 class="h3 mb-2">Escolha um design para o seu evento</h2>
+                <p class="text-body-secondary mb-0">
+                    Explore os templates por tipo de evento. Ao escolher, pedimos-lhe para entrar ou criar uma conta.
+                </p>
+            {% else %}
+                <h2 class="h5 mb-1">Que evento vamos celebrar?</h2>
+                <p class="small text-body-secondary mb-0">
+                    Escolha o tipo e descubra um convite. Depois só precisa de preencher os dados.
+                </p>
+            {% endif %}
+        </div>
+        <div class="event-template-picker__counter" aria-live="polite">
+            <span data-carousel-count></span>
+        </div>
+    </div>
+
+    <div class="category-strip" role="tablist" aria-label="Tipos de evento">
+        {% for category in categories %}
+            <button class="category-chip{% if forloop.first %} is-active{% endif %}"
+                    type="button" role="tab"
+                    id="{% if picker_id %}{{ picker_id }}-{% endif %}category-tab-{{ category.code }}"
+                    aria-controls="{% if picker_id %}{{ picker_id }}-{% endif %}templates-{{ category.code }}"
+                    aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+                    tabindex="{% if forloop.first %}0{% else %}-1{% endif %}"
+                    data-category-tab="{{ category.code }}">
+                <span class="category-chip__icon"><i class="bi {{ category.icon }}"></i></span>
+                <span class="category-chip__name">{{ category.name }}</span>
+            </button>
+        {% endfor %}
+    </div>
+
+    <div class="event-template-picker__catalogue">
+        {% for category in categories %}
+            <section class="template-carousel-panel{% if forloop.first %} is-active{% endif %}"
+                     id="{% if picker_id %}{{ picker_id }}-{% endif %}templates-{{ category.code }}"
+                     role="tabpanel"
+                     aria-labelledby="{% if picker_id %}{{ picker_id }}-{% endif %}category-tab-{{ category.code }}"
+                     {% if not forloop.first %}hidden{% endif %}
+                     data-category-panel="{{ category.code }}"
+                     data-template-count="{{ category.template_options|length }}">
+                {% if category.template_options %}
+                    <div class="template-carousel__controls">
+                        <div>
+                            <p class="template-carousel__eyebrow mb-1">Templates para {{ category.name }}</p>
+                            <h3 class="h6 mb-0">Escolha o seu ponto de partida</h3>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="template-carousel__arrow" type="button"
+                                    data-carousel-prev aria-label="Ver templates anteriores">
+                                <i class="bi bi-arrow-left"></i>
+                            </button>
+                            <button class="template-carousel__arrow" type="button"
+                                    data-carousel-next aria-label="Ver mais templates">
+                                <i class="bi bi-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="template-carousel" data-carousel-track tabindex="0"
+                         aria-label="Templates para {{ category.name }}">
+                        {% for template in category.template_options %}
+                            <a class="market-template-card"
+                               href="{% url 'weddings:create' %}?tipo={{ category.code }}&amp;template={{ template.code }}">
+                                <span class="market-template-card__media">
+                                    {% if template.cover_image %}
+                                        <img src="{{ template.cover_image.url }}"
+                                             alt="Cover do template {{ template.name }}" loading="lazy">
+                                    {% else %}
+                                        <img src="{% static 'img/template-cover-default.webp' %}"
+                                             alt="Cover provisório do template {{ template.name }}" loading="lazy">
+                                    {% endif %}
+                                    {% if template.is_featured %}
+                                        <span class="market-template-card__badge">Destaque</span>
+                                    {% endif %}
+                                    <span class="market-template-card__cta">
+                                        {% if picker_public %}Escolher este template{% else %}Usar este template{% endif %}
+                                    </span>
+                                </span>
+                                <span class="market-template-card__body">
+                                    <span class="market-template-card__name">{{ template.name }}</span>
+                                    <span class="market-template-card__description">{{ template.description }}</span>
+                                    <span class="market-template-card__meta">
+                                        <span>{{ template.get_layout_display }}</span>
+                                        <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                                    </span>
+                                </span>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="template-carousel__empty text-center">
+                        <i class="bi bi-images"></i>
+                        <p class="mb-1 fw-semibold">Ainda não há templates para {{ category.name }}</p>
+                        <p class="small text-body-secondary mb-0">A equipa MeuConvite está a preparar novas opções.</p>
+                    </div>
+                {% endif %}
+            </section>
+        {% endfor %}
+    </div>
+</section>

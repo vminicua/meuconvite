@@ -29,6 +29,19 @@ class EventCreationViewTests(TestCase):
         self.client.login(email=self.user.email, password=DEFAULT_PASSWORD)
         self.plan = create_plan()
         self.category = create_category(
+            field_schema=[
+                {
+                    "key": "traje",
+                    "label": "Traje",
+                    "type": "choice",
+                    "choices": ["Traje formal", "Traje casual"],
+                },
+                {
+                    "key": "lista_presentes",
+                    "label": "Lista de presentes",
+                    "type": "list",
+                },
+            ],
             default_moments=[{"name": "Recepção", "event_type": "reception", "start_time": "19:30"}],
             default_schedule=[{"title": "Corte do bolo", "start_time": "18:30", "icon": "bi-cake2"}],
         )
@@ -50,7 +63,6 @@ class EventCreationViewTests(TestCase):
             "primary_name": "Ivone Alice Sitoe",
             "secondary_name": "Dário José Machava",
             "main_date": (timezone.localdate() + timedelta(days=100)).isoformat(),
-            "city": "Maputo",
         }
         data.update(overrides)
         return data
@@ -79,15 +91,19 @@ class EventCreationViewTests(TestCase):
     def test_the_form_uses_the_labels_of_the_chosen_type(self) -> None:
         response = self.client.get(self._form_url(category="aniversario"))
         self.assertContains(response, "Nome do aniversariante")
-        self.assertContains(response, "Idade a celebrar")
+        self.assertNotContains(response, "Idade a celebrar")
+        self.assertNotContains(response, "Cidade")
+        self.assertNotContains(response, "Endereço")
         # Um só protagonista: o segundo nome não é pedido.
         self.assertNotContains(response, 'name="secondary_name"')
 
-    def test_creates_the_event_and_goes_to_the_dashboard(self) -> None:
+    def test_creates_the_event_and_opens_the_invitation_preview(self) -> None:
         response = self.client.post(self._form_url(), data=self._payload())
         wedding = Wedding.objects.get(owner=self.user)
-        self.assertRedirects(response, reverse("weddings:detail", args=[wedding.pk]))
+        self.assertRedirects(response, reverse("weddings:preview", args=[wedding.pk]))
         self.assertEqual(wedding.category, self.category)
+        self.assertEqual(wedding.city, "")
+        self.assertEqual(wedding.extra_data, {})
 
     def test_short_names_are_derived_from_the_full_names(self) -> None:
         self.client.post(self._form_url(), data=self._payload())
@@ -111,7 +127,7 @@ class EventCreationViewTests(TestCase):
         self.assertEqual(wedding.subscription.plan, self.plan)
         self.assertEqual(wedding.subscription.guest_allowance, 20)
 
-    def test_extra_fields_of_the_type_are_saved(self) -> None:
+    def test_extra_fields_are_only_added_after_creation(self) -> None:
         self.client.post(
             self._form_url(category="aniversario"),
             data={
@@ -119,13 +135,73 @@ class EventCreationViewTests(TestCase):
                 "template": self.template.code,
                 "primary_name": "Amélia Nhaca",
                 "main_date": (timezone.localdate() + timedelta(days=30)).isoformat(),
-                "city": "Beira",
                 "extra__idade": "40",
             },
         )
         wedding = Wedding.objects.get(owner=self.user)
-        self.assertEqual(wedding.extra_data.get("idade"), "40")
+        self.assertEqual(wedding.extra_data, {})
         self.assertEqual(wedding.display_names, "Amélia")
+
+        settings_url = reverse("weddings:settings", args=[wedding.pk])
+        response = self.client.get(settings_url)
+        self.assertContains(response, "Idade a celebrar")
+
+        response = self.client.post(
+            settings_url,
+            data={
+                "primary_name": wedding.primary_name,
+                "primary_short_name": wedding.primary_short_name,
+                "main_date": wedding.main_date.isoformat(),
+                "city": "Av. Julius Nyerere, Maputo",
+                "country": wedding.country,
+                "slug": wedding.slug,
+                "show_seat_before_event": wedding.show_seat_before_event,
+                "extra__idade": "40",
+            },
+        )
+        self.assertRedirects(response, settings_url)
+        wedding.refresh_from_db()
+        self.assertEqual(wedding.city, "Av. Julius Nyerere, Maputo")
+        self.assertEqual(wedding.extra_data.get("idade"), "40")
+
+    def test_dress_code_and_gift_list_are_edited_after_creation(self) -> None:
+        create_response = self.client.post(self._form_url(), data=self._payload())
+        self.assertEqual(create_response.status_code, 302)
+        wedding = Wedding.objects.get(owner=self.user)
+        settings_url = reverse("weddings:settings", args=[wedding.pk])
+
+        response = self.client.get(settings_url)
+        self.assertContains(response, '<select name="extra__traje"', html=False)
+        self.assertContains(response, "— Não especificar —")
+        self.assertContains(response, "data-repeated-field")
+        self.assertContains(response, "Adicionar linha")
+
+        response = self.client.post(
+            settings_url,
+            data={
+                "primary_name": wedding.primary_name,
+                "secondary_name": wedding.secondary_name,
+                "primary_short_name": wedding.primary_short_name,
+                "secondary_short_name": wedding.secondary_short_name,
+                "main_date": wedding.main_date.isoformat(),
+                "city": "Matola",
+                "country": wedding.country,
+                "slug": wedding.slug,
+                "show_seat_before_event": wedding.show_seat_before_event,
+                "extra__traje": "Traje formal",
+                "extra__lista_presentes": [
+                    "Liquidificador",
+                    "https://loja.example/presentes",
+                ],
+            },
+        )
+        self.assertRedirects(response, settings_url)
+        wedding.refresh_from_db()
+        self.assertEqual(wedding.extra_data["traje"], "Traje formal")
+        self.assertEqual(
+            wedding.extra_data["lista_presentes"],
+            ["Liquidificador", "https://loja.example/presentes"],
+        )
 
     def test_rejects_a_date_in_the_past(self) -> None:
         response = self.client.post(
@@ -153,6 +229,18 @@ class DashboardViewTests(TestCase):
         self.assertContains(response, "O que falta")
         self.assertEqual(len(response.context["checklist"]), 8)
 
+    def test_invitation_is_the_first_workspace_tab(self) -> None:
+        response = self.client.get(reverse("weddings:preview", args=[self.wedding.pk]))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Pré-visualização do convite")
+        self.assertContains(response, "?embedded=1")
+        self.assertContains(response, ">Convite</a>", html=False)
+        self.assertContains(response, ">Organização</a>", html=False)
+        self.assertContains(response, ">Convidados</a>", html=False)
+        self.assertNotContains(response, ">Momentos</a>", html=False)
+        self.assertNotContains(response, ">Programa</a>", html=False)
+        self.assertNotContains(response, ">Locais</a>", html=False)
+
     def test_setup_progress_grows_with_completed_items(self) -> None:
         before = self.client.get(reverse("weddings:setup", args=[self.wedding.pk]))
         create_event(self.wedding, location=create_location(self.wedding))
@@ -176,6 +264,16 @@ class DashboardViewTests(TestCase):
         self.assertIn(self.wedding, weddings)
         self.assertNotIn(other, weddings)
 
+    def test_wedding_list_embeds_the_template_carousel(self) -> None:
+        category = create_category()
+        response = self.client.get(reverse("weddings:list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "data-template-carousel")
+        self.assertContains(response, f'id="templates-{category.code}"')
+        self.assertContains(response, "templates-gallery.css?v=20260731.2")
+        self.assertContains(response, "template-carousel.js?v=20260731.2")
+        self.assertGreater(len(response.context["categories"][0].template_options), 0)
+
 
 class DesignViewTests(TestCase):
     """Galeria de templates de convite."""
@@ -195,6 +293,15 @@ class DesignViewTests(TestCase):
         self.assertGreaterEqual(len(registry.all_templates()), 10)
         for template in registry.all_templates():
             self.assertContains(response, template.name)
+
+    def test_selected_template_has_a_visible_selected_state(self) -> None:
+        response = self.client.get(self.url)
+        self.assertContains(response, 'template-choice is-selected')
+        self.assertContains(response, 'template-card__selected-label')
+        self.assertEqual(
+            response.content.count(b'class="template-choice '),
+            len(response.context["templates"]),
+        )
 
     def _payload(self, **overrides) -> dict:
         data = {

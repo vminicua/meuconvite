@@ -71,6 +71,7 @@ LOCAL_APPS = [
     "audit.apps.AuditConfig",
     "weddings.apps.WeddingsConfig",
     "events.apps.EventsConfig",
+    "guests.apps.GuestsConfig",
     "templates_manager.apps.TemplatesManagerConfig",
     "subscriptions.apps.SubscriptionsConfig",
     "platform_admin.apps.PlatformAdminConfig",

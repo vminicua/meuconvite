@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Editar convidado · {{ wedding.display_names }}{% endblock %}
+
+{% block content %}
+{% include "partials/wedding_nav.html" %}
+<div class="card shadow-sm mx-auto" style="max-width: 46rem">
+    <div class="card-body p-4">
+        <h2 class="h5 mb-3">Editar {{ guest.full_name }}</h2>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="mb-3"><label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{{ field.errors }}</div>
+            {% endfor %}
+            <button class="btn btn-primary">Guardar alterações</button>
+            <a class="btn btn-outline-secondary" href="{% url 'guests:list' wedding.pk %}">Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

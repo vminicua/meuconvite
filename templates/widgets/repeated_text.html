@@ -1,0 +1,31 @@
+<div class="repeated-field" data-repeated-field>
+    <div class="repeated-field__items" data-repeated-items>
+        {% for item in widget.value %}
+            <div class="repeated-field__row" data-repeated-row>
+                <input type="text" name="{{ widget.name }}" value="{{ item }}"
+                       class="{{ widget.attrs.class }}"
+                       {% if widget.attrs.placeholder %}placeholder="{{ widget.attrs.placeholder }}"{% endif %}
+                       {% if forloop.first and widget.attrs.id %}id="{{ widget.attrs.id }}"{% endif %}
+                       maxlength="500">
+                <button type="button" class="btn btn-outline-danger" data-repeated-remove
+                        aria-label="Remover linha">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        {% endfor %}
+    </div>
+    <button type="button" class="btn btn-sm btn-outline-secondary mt-2" data-repeated-add>
+        <i class="bi bi-plus-lg me-1"></i>Adicionar linha
+    </button>
+    <template data-repeated-template>
+        <div class="repeated-field__row" data-repeated-row>
+            <input type="text" name="{{ widget.name }}" class="{{ widget.attrs.class }}"
+                   {% if widget.attrs.placeholder %}placeholder="{{ widget.attrs.placeholder }}"{% endif %}
+                   maxlength="500">
+            <button type="button" class="btn btn-outline-danger" data-repeated-remove
+                    aria-label="Remover linha">
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>
+    </template>
+</div>

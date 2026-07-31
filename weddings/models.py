@@ -135,7 +135,7 @@ class Wedding(BaseModel):
     main_date = models.DateField(_("data principal"), db_index=True)
     timezone = models.CharField(_("fuso horário"), max_length=50, default="Africa/Maputo")
     country = models.CharField(_("país"), max_length=80, default="Moçambique")
-    city = models.CharField(_("cidade"), max_length=100)
+    city = models.CharField(_("endereço"), max_length=250, blank=True, default="")
 
     # --- Content ---
     cover_image = models.ImageField(

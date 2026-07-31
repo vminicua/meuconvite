@@ -25,7 +25,9 @@
 <footer class="inv-footer">
     <svg class="inv-hearts" viewBox="0 0 200 24" aria-hidden="true"><use href="#inv-divider"/></svg>
     <p class="inv-footer__names">{{ wedding.display_names }}</p>
-    <p class="inv-footer__date">{{ wedding.main_date|date:"d/m/Y" }} · {{ wedding.city }}</p>
+    <p class="inv-footer__date">
+        {{ wedding.main_date|date:"d/m/Y" }}{% if wedding.city %} · {{ wedding.city }}{% endif %}
+    </p>
     {% if wedding.hashtag %}<p class="inv-footer__hashtag">{{ wedding.hashtag }}</p>{% endif %}
     {% if show_branding %}
         <p class="inv-footer__brand">convite criado com <strong>MeuConvite</strong></p>

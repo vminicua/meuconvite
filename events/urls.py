@@ -7,6 +7,7 @@ from . import views
 app_name = "events"
 
 urlpatterns = [
+    path("organizacao/", views.organisation, name="organisation"),
     # Events
     path("eventos/", views.event_list, name="list"),
     path("eventos/novo/", views.event_create, name="create"),

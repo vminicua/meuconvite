@@ -9,7 +9,14 @@ def home(request: HttpRequest) -> HttpResponse:
     """Public landing page. Authenticated users go straight to their weddings."""
     if request.user.is_authenticated:
         return redirect("weddings:list")
-    return render(request, "core/home.html")
+
+    from weddings.selectors import categories_with_templates
+
+    return render(
+        request,
+        "core/home.html",
+        {"categories": categories_with_templates()},
+    )
 
 
 @require_GET

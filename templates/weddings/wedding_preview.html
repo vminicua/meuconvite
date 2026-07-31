@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Pré-visualização · {{ wedding.display_names }}{% endblock %}
+
+{% block content %}
+{% include "partials/wedding_nav.html" %}
+<div class="workspace-section-heading">
+    <div>
+        <p class="workspace-eyebrow mb-1">Como os convidados vão ver</p>
+        <h2 class="h5 mb-1">Pré-visualização do convite</h2>
+        <p class="small text-body-secondary mb-0">Este preview usa o template e todos os detalhes atualmente guardados.</p>
+    </div>
+    {% if capabilities.can_manage_design %}
+        <a class="btn btn-outline-secondary" href="{% url 'weddings:design' wedding.pk %}" data-workspace-nav>
+            <i class="bi bi-palette me-1"></i>Personalizar aspecto
+        </a>
+    {% endif %}
+</div>
+<div class="invitation-preview-shell">
+    <iframe title="Pré-visualização do convite de {{ wedding.display_names }}"
+            src="{% url 'weddings:invitation_preview' wedding.pk %}?embedded=1"
+            class="invitation-preview-frame"></iframe>
+</div>
+{% endblock %}

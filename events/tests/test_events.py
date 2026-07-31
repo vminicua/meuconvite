@@ -101,6 +101,19 @@ class EventViewTests(TestCase):
         self.assertRedirects(response, reverse("events:list", args=[self.wedding.pk]))
         self.assertTrue(WeddingEvent.objects.filter(wedding=self.wedding).exists())
 
+    def test_dress_code_is_an_optional_dropdown(self) -> None:
+        response = self.client.get(reverse("events:create", args=[self.wedding.pk]))
+        self.assertContains(response, '<select name="dress_code"', html=False)
+        self.assertContains(response, "— Não especificar —")
+        self.assertContains(response, "Traje formal")
+
+        self.client.post(
+            reverse("events:create", args=[self.wedding.pk]),
+            data=self._payload(dress_code="Traje tradicional"),
+        )
+        event = WeddingEvent.objects.get(wedding=self.wedding)
+        self.assertEqual(event.dress_code, "Traje tradicional")
+
     def test_end_time_before_start_time_is_rejected(self) -> None:
         response = self.client.post(
             reverse("events:create", args=[self.wedding.pk]),

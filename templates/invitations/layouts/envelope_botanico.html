@@ -50,7 +50,11 @@
         <p class="inv-hero__text">{{ wedding.full_names }} {{ invitation_greeting }}</p>
 
         <p class="inv-hero__date">{{ wedding.main_date|date:"d \d\e F \d\e Y" }}</p>
-        <p class="inv-hero__time">{{ wedding.city }}, {{ wedding.country }}</p>
+        {% if wedding.city or wedding.country %}
+            <p class="inv-hero__time">
+                {{ wedding.city }}{% if wedding.city and wedding.country %}, {% endif %}{{ wedding.country }}
+            </p>
+        {% endif %}
 
         {% include "invitations/_countdown.html" %}
 

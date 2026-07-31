@@ -14,7 +14,7 @@ validação e a construção dos formulários sejam iguais nos dois casos.
 
 Formato de cada campo:
 
-    {"key": "trajo", "label": "Traje", "type": "text",
+    {"key": "traje", "label": "Traje", "type": "choice",
      "required": false, "help_text": "", "choices": ["A", "B"]}
 """
 
@@ -24,7 +24,9 @@ import re
 
 from django import forms
 from django.core.exceptions import ValidationError
+from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
+from django.utils.safestring import mark_safe
 
 KEY_RE = re.compile(r"^[a-z][a-z0-9_]{0,39}$")
 
@@ -36,10 +38,51 @@ FIELD_TYPES: dict[str, str] = {
     "time": _("Hora"),
     "url": _("Ligação"),
     "choice": _("Lista de opções"),
+    "list": _("Lista de linhas"),
     "boolean": _("Sim / Não"),
 }
 
 MAX_FIELDS = 20
+
+DRESS_CODE_CHOICES = (
+    "Traje de gala",
+    "Traje formal",
+    "Traje semi-formal",
+    "Traje tradicional",
+    "Traje casual",
+    "Traje temático",
+)
+
+
+class RepeatedTextWidget(forms.Widget):
+    """Uma lista editável de linhas, enviada como vários valores com o mesmo nome."""
+
+    template_name = "widgets/repeated_text.html"
+
+    def render(self, name, value, attrs=None, renderer=None):
+        context = self.get_context(name, value, attrs)
+        return mark_safe(render_to_string(self.template_name, context))
+
+    def format_value(self, value):
+        if not value:
+            return [""]
+        if isinstance(value, (list, tuple)):
+            return [str(item) for item in value] or [""]
+        return [str(value)]
+
+    def value_from_datadict(self, data, files, name):
+        return [value.strip() for value in data.getlist(name) if value.strip()]
+
+
+class RepeatedTextField(forms.Field):
+    widget = RepeatedTextWidget
+
+    def to_python(self, value):
+        if not value:
+            return []
+        if not isinstance(value, (list, tuple)):
+            value = [value]
+        return [str(item).strip()[:500] for item in value if str(item).strip()]
 
 
 def slugify_key(label: str) -> str:
@@ -121,6 +164,7 @@ def normalise_schema(raw) -> list[dict]:
                 "type": field_type,
                 "required": bool(definition.get("required", False)),
                 "help_text": str(definition.get("help_text", "")),
+                "placeholder": str(definition.get("placeholder", "")),
                 "choices": [str(choice) for choice in definition.get("choices", [])],
             }
         )
@@ -138,25 +182,41 @@ def build_form_field(definition: dict) -> forms.Field:
 
     if field_type == "textarea":
         return forms.CharField(
-            widget=forms.Textarea(attrs={"rows": 3}), max_length=2000, **common
+            widget=forms.Textarea(attrs={"rows": 3, "class": "form-control"}),
+            max_length=2000,
+            **common,
         )
     if field_type == "number":
-        return forms.DecimalField(**common)
+        return forms.DecimalField(widget=forms.NumberInput(attrs={"class": "form-control"}), **common)
     if field_type == "date":
-        return forms.DateField(widget=forms.DateInput(), **common)
+        return forms.DateField(widget=forms.DateInput(attrs={"class": "form-control"}), **common)
     if field_type == "time":
-        return forms.TimeField(widget=forms.TimeInput(), **common)
+        return forms.TimeField(widget=forms.TimeInput(attrs={"class": "form-control"}), **common)
     if field_type == "url":
-        return forms.URLField(max_length=500, **common)
+        return forms.URLField(widget=forms.URLInput(attrs={"class": "form-control"}), max_length=500, **common)
     if field_type == "boolean":
         common["required"] = False  # um checkbox obrigatório é sempre um erro de UX
         return forms.BooleanField(**common)
     if field_type == "choice":
-        choices = [("", "———")] + [
+        choices = [("", _("— Não especificar —"))] + [
             (choice, choice) for choice in definition.get("choices", [])
         ]
-        return forms.ChoiceField(choices=choices, **common)
-    return forms.CharField(max_length=250, **common)
+        return forms.ChoiceField(
+            choices=choices, widget=forms.Select(attrs={"class": "form-select"}), **common
+        )
+    if field_type == "list":
+        return RepeatedTextField(
+            widget=RepeatedTextWidget(
+                attrs={
+                    "class": "form-control",
+                    "placeholder": definition.get("placeholder", ""),
+                }
+            ),
+            **common,
+        )
+    return forms.CharField(
+        widget=forms.TextInput(attrs={"class": "form-control"}), max_length=250, **common
+    )
 
 
 def add_schema_fields(form: forms.Form, schema: list[dict], values: dict | None = None) -> None:
@@ -171,7 +231,12 @@ def add_schema_fields(form: forms.Form, schema: list[dict], values: dict | None 
         name = f"extra__{definition['key']}"
         form.fields[name] = build_form_field(definition)
         if definition["key"] in values:
-            form.initial.setdefault(name, values[definition["key"]])
+            current = values[definition["key"]]
+            if definition["type"] == "choice" and current:
+                valid_values = {choice[0] for choice in form.fields[name].choices}
+                if str(current) not in valid_values:
+                    form.fields[name].choices.append((str(current), str(current)))
+            form.initial.setdefault(name, current)
 
 
 def collect_schema_values(form: forms.Form, schema: list[dict]) -> dict:
@@ -179,7 +244,12 @@ def collect_schema_values(form: forms.Form, schema: list[dict]) -> dict:
     collected: dict = {}
     for definition in schema:
         value = form.cleaned_data.get(f"extra__{definition['key']}")
-        if value in (None, ""):
+        if value in (None, "", [], ()):
             continue
-        collected[definition["key"]] = value if isinstance(value, (bool, int, float)) else str(value)
+        if isinstance(value, (list, tuple)):
+            collected[definition["key"]] = [str(item) for item in value if str(item).strip()]
+        else:
+            collected[definition["key"]] = (
+                value if isinstance(value, (bool, int, float)) else str(value)
+            )
     return collected

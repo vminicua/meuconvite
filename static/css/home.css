@@ -1,22 +1,6 @@
-/* =====================================================================
-   MeuConvite — página inicial
-   Complementa app.css: aqui vivem apenas os efeitos e o convite de
-   demonstração, para que as páginas da aplicação continuem leves.
-   ===================================================================== */
+/* MeuConvite — página inicial pública. */
 
-.home-page {
-    --inv-paper: #fdfaf7;
-    --inv-ink: #6d4b52;
-    --inv-rose: #b76e79;
-    --inv-rose-soft: #d79aa2;
-    --inv-blush: #f2d9d9;
-    --inv-gold: #c8a96a;
-    --inv-green: #a9bb9d;
-}
-
-/* ---------------------------------------------------------------------
-   Revelação ao deslizar a página
-   --------------------------------------------------------------------- */
+/* Revelação ao deslizar a página */
 .reveal {
     opacity: 0;
     transform: translateY(26px);
@@ -29,16 +13,38 @@
     transform: none;
 }
 
-/* ---------------------------------------------------------------------
-   Hero
-   --------------------------------------------------------------------- */
+/* Hero */
 .hero {
     position: relative;
     overflow: hidden;
+    min-height: 34rem;
+    background: #f8f6f1;
+}
+
+.hero__banner-image,
+.hero__banner-veil {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.hero__banner-image {
+    object-fit: cover;
+    object-position: center;
+    opacity: .92;
+    filter: saturate(.94);
+    transform: scale(1.01);
+}
+
+.hero__banner-veil {
     background:
-        radial-gradient(1100px 480px at 85% -10%, rgba(215, 154, 162, .16), transparent 60%),
-        radial-gradient(900px 420px at 5% 10%, rgba(200, 169, 106, .16), transparent 55%),
-        linear-gradient(180deg, #fffdf8 0%, #f7f6f3 100%);
+        linear-gradient(90deg, rgba(255, 253, 248, .93) 0%, rgba(255, 253, 248, .76) 42%, rgba(255, 253, 248, .04) 72%, rgba(255, 253, 248, 0) 100%),
+        linear-gradient(180deg, rgba(255, 253, 248, .04), rgba(247, 246, 243, .16));
+}
+
+.hero__content {
+    z-index: 2;
 }
 
 .hero__glow {
@@ -61,18 +67,17 @@
 .hero__glow--two {
     width: 26rem;
     height: 26rem;
-    bottom: -10rem;
     right: -4rem;
+    bottom: -10rem;
     background: rgba(183, 110, 121, .26);
     animation-delay: -6s;
 }
 
 @keyframes mc-drift {
     from { transform: translate3d(0, 0, 0) scale(1); }
-    to   { transform: translate3d(2rem, 1.5rem, 0) scale(1.12); }
+    to { transform: translate3d(2rem, 1.5rem, 0) scale(1.12); }
 }
 
-/* Palavra que muda sozinha no título (a plataforma serve vários tipos de evento) */
 .rotator {
     display: inline-block;
     position: relative;
@@ -114,17 +119,16 @@
 
 @keyframes mc-shine {
     0%, 65% { left: -140%; }
-    100%    { left: 140%; }
+    100% { left: 140%; }
 }
 
-/* ---------------------------------------------------------------------
-   Cartões de funcionalidades
-   --------------------------------------------------------------------- */
+/* Cartões de funcionalidades */
 .feature-card {
+    height: 100%;
+    padding: 1.5rem;
     background-color: var(--mc-surface);
     border: 1px solid rgba(0, 0, 0, .06);
     border-radius: .75rem;
-    padding: 1.5rem;
     transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
 }
 
@@ -135,319 +139,34 @@
 }
 
 .feature-card__icon {
-    font-size: 1.5rem;
-    color: var(--mc-gold);
     display: block;
     margin-bottom: .75rem;
+    color: var(--mc-gold);
+    font-size: 1.5rem;
 }
 
-/* ---------------------------------------------------------------------
-   Convite de demonstração
-   --------------------------------------------------------------------- */
-.invite {
-    display: grid;
-    grid-template-columns: 0.82fr 1.12fr 0.82fr;
-    align-items: stretch;
-    gap: .6rem;
-    perspective: 1400px;
-    animation: mc-float 7s ease-in-out infinite;
-}
-
-@keyframes mc-float {
-    0%, 100% { transform: translateY(0); }
-    50%      { transform: translateY(-10px); }
-}
-
-.invite__panel {
-    background: var(--inv-paper);
-    border: 1px solid rgba(183, 110, 121, .18);
-    border-radius: .5rem;
-    padding: 1.25rem 1rem;
-    color: var(--inv-ink);
-    font-family: "Cormorant Garamond", Georgia, serif;
-    box-shadow: 0 18px 40px -24px rgba(109, 75, 82, .55);
-    animation: mc-panel-in .9s cubic-bezier(.2, .8, .3, 1) both;
-}
-
-.invite__panel--side {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    font-size: .82rem;
-}
-
-.invite__panel--rsvp {
-    transform: rotateY(9deg) translateZ(-14px);
-    transform-origin: right center;
-    animation-delay: .1s;
-}
-
-.invite__panel--program {
-    transform: rotateY(-9deg) translateZ(-14px);
-    transform-origin: left center;
-    animation-delay: .25s;
-}
-
-.invite__panel--main {
-    position: relative;
-    overflow: hidden;
-    padding: 1.5rem 1.25rem 1.75rem;
-    text-align: center;
-    box-shadow: 0 26px 60px -28px rgba(109, 75, 82, .7);
-    z-index: 2;
-}
-
-@keyframes mc-panel-in {
-    from { opacity: 0; transform: translateY(28px) rotateY(0); }
-}
-
-.invite__main-inner {
-    position: relative;
-    z-index: 2;
-}
-
-/* Ornamentos florais */
-.invite__flora {
-    position: absolute;
-    width: 8.5rem;
-    height: 8.5rem;
-    pointer-events: none;
-    z-index: 1;
-}
-
-.invite__flora--tr { top: -1.4rem; right: -1.6rem; }
-.invite__flora--bl { bottom: -1.6rem; left: -1.8rem; transform: rotate(180deg); }
-
-.o-rose      { color: var(--inv-rose-soft); }
-.o-rose-2    { color: var(--inv-rose); }
-.o-blush     { color: var(--inv-blush); }
-.o-gold      { color: var(--inv-gold); }
-.o-green     { color: var(--inv-green); }
-.o-green-2   { color: #bccdb2; }
-.o-gold-fill { fill: var(--inv-gold); opacity: .7; }
-
-.ornament__sway {
-    transform-origin: 110px 190px;
-    animation: mc-sway 9s ease-in-out infinite;
-}
-
-@keyframes mc-sway {
-    0%, 100% { transform: rotate(-1.6deg); }
-    50%      { transform: rotate(1.6deg); }
-}
-
-/* Tipografia do convite */
-.invite__hearts {
-    width: 3rem;
-    height: 2.25rem;
-    color: var(--inv-gold);
-    margin-bottom: .35rem;
-}
-
-.invite__eyebrow {
-    font-size: .72rem;
-    letter-spacing: .34em;
-    text-transform: uppercase;
-    color: var(--inv-rose);
-    margin-bottom: .35rem;
-}
-
-.invite__names {
-    font-family: "Great Vibes", cursive;
-    font-size: clamp(2.1rem, 3.4vw, 3rem);
-    line-height: 1.05;
-    color: var(--inv-rose);
-    margin-bottom: .35rem;
-}
-
-.invite__amp {
-    display: block;
-    font-size: .62em;
-    color: var(--inv-gold);
-    line-height: .9;
-}
-
-.invite__divider {
-    width: 7.5rem;
-    height: 1.1rem;
-    color: var(--inv-gold);
-    margin: .5rem auto .7rem;
-    display: block;
-}
-
-.invite__greeting {
-    font-style: italic;
-    font-size: .95rem;
-    margin-bottom: .15rem;
-}
-
-.invite__text {
-    font-size: .92rem;
-    line-height: 1.5;
-    margin-bottom: .8rem;
-}
-
-.invite__date {
-    font-size: 1.15rem;
-    font-weight: 600;
-    color: var(--inv-rose);
-    margin-bottom: .1rem;
-}
-
-.invite__time {
-    font-size: .85rem;
-    margin-bottom: .9rem;
-}
-
-.invite__seats {
-    display: inline-flex;
-    align-items: center;
-    gap: .5rem;
-    background: rgba(183, 110, 121, .09);
-    border: 1px solid rgba(183, 110, 121, .22);
-    border-radius: 2rem;
-    padding: .28rem .95rem;
-    margin-bottom: .85rem;
-}
-
-.invite__seats-label {
-    font-size: .78rem;
-    letter-spacing: .06em;
-    text-transform: uppercase;
-}
-
-.invite__seats-value {
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: var(--inv-rose);
-}
-
-.invite__venue {
-    font-size: .85rem;
-    line-height: 1.5;
-    margin: 0;
-}
-
-/* Painéis laterais */
-.invite__side-title {
-    font-size: .82rem;
-    letter-spacing: .22em;
-    text-transform: uppercase;
-    color: var(--inv-rose);
-    margin-bottom: .2rem;
-    line-height: 1.4;
-}
-
-.invite__side-title--sm {
-    margin-top: 1rem;
-    font-size: .74rem;
-}
-
-.invite__qr-hint {
-    font-size: .78rem;
-    font-style: italic;
-    margin-bottom: .4rem;
-}
-
-.invite__qr {
-    width: 7rem;
-    height: 7rem;
-    margin-bottom: .7rem;
-}
-
-.invite__side-text {
-    font-size: .82rem;
-    line-height: 1.45;
-    margin-bottom: .35rem;
-}
-
-.invite__side-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    text-align: left;
-    font-size: .8rem;
-    line-height: 1.6;
-}
-
-.invite__side-list li::before {
-    content: "•";
-    color: var(--inv-rose);
-    margin-right: .4rem;
-}
-
-.invite__side-foot {
-    margin-top: auto;
-    padding-top: .8rem;
-    font-size: .66rem;
-    color: var(--inv-rose);
-    font-style: italic;
-}
-
-.invite__timeline {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 .25rem;
-    text-align: left;
-    font-size: .8rem;
-    width: 100%;
-}
-
-.invite__timeline li {
-    display: flex;
-    align-items: center;
-    gap: .4rem;
-    padding: .22rem 0;
-    border-bottom: 1px dashed rgba(183, 110, 121, .22);
-}
-
-.invite__timeline li:last-child { border-bottom: 0; }
-
-.invite__timeline i {
-    color: var(--inv-rose);
-    font-size: .9rem;
-    width: 1.1rem;
-    text-align: center;
-    flex-shrink: 0;
-}
-
-.invite__hour {
-    font-weight: 600;
-    color: var(--inv-rose);
-    margin-right: .1rem;
-}
-
-/* ---------------------------------------------------------------------
-   Ecrãs pequenos: apenas o painel principal do convite
-   --------------------------------------------------------------------- */
 @media (max-width: 991.98px) {
-    .invite {
-        grid-template-columns: 1fr;
-        max-width: 22rem;
-        margin: 0 auto;
-        animation: none;
+    .hero {
+        min-height: 30rem;
     }
 
-    .invite__panel--side {
-        display: none;
-    }
-
-    .invite__panel--main {
-        transform: none;
+    .hero__banner-image {
+        opacity: .82;
+        object-position: 62% center;
     }
 }
 
 @media (max-width: 575.98px) {
-    .invite__flora {
-        width: 6.5rem;
-        height: 6.5rem;
+    .hero {
+        min-height: auto;
+    }
+
+    .hero__banner-image {
+        opacity: .72;
+        object-position: 67% center;
     }
 }
 
-/* ---------------------------------------------------------------------
-   Acessibilidade: respeitar quem prefere menos movimento
-   --------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
     .reveal {
         opacity: 1;
@@ -455,9 +174,6 @@
         transition: none;
     }
 
-    .invite,
-    .invite__panel,
-    .ornament__sway,
     .hero__glow,
     .btn-shine::after {
         animation: none !important;

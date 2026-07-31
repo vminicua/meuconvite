@@ -201,7 +201,7 @@ class InvitationTemplateForm(BootstrapModelForm):
             "has_cover",
             "has_countdown",
             "supports_music",
-            "preview_image",
+            "cover_image",
             "is_featured",
             "is_active",
             "display_order",

@@ -61,7 +61,7 @@
                     <tr>
                         <td>
                             <div class="fw-semibold">{{ event.display_names }}</div>
-                            <div class="small text-body-secondary">{{ event.city }} · /{{ event.slug }}</div>
+                            <div class="small text-body-secondary">{% if event.city %}{{ event.city }} · {% endif %}/{{ event.slug }}</div>
                         </td>
                         <td class="small"><i class="bi {{ event.category_icon }} me-1"></i>{{ event.category_name }}</td>
                         <td class="small text-body-secondary">{{ event.owner.email }}</td>

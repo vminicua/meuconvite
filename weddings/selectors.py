@@ -12,6 +12,33 @@ from django.db.models import Count, Q, QuerySet
 from .models import Wedding, WeddingMember, WeddingStatus
 
 
+def categories_with_templates():
+    """Tipos de evento activos, cada um com os templates que lhe são aplicáveis."""
+    from events.models import EventCategory
+    from templates_manager.models import InvitationTemplate
+
+    categories = list(
+        EventCategory.objects.active().order_by("display_order", "name")
+    )
+    catalogue = list(
+        InvitationTemplate.objects.active()
+        .prefetch_related("categories")
+        .order_by("-is_featured", "display_order", "name")
+    )
+    category_ids_by_template = {
+        template.pk: {item.pk for item in template.categories.all()}
+        for template in catalogue
+    }
+    for category in categories:
+        category.template_options = [
+            template
+            for template in catalogue
+            if not category_ids_by_template[template.pk]
+            or category.pk in category_ids_by_template[template.pk]
+        ]
+    return categories
+
+
 def weddings_for_user(user) -> QuerySet[Wedding]:
     """Weddings listed on the user's home page, with cheap counters."""
     return (

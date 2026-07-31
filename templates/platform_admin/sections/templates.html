@@ -18,6 +18,7 @@
         <table class="table table-hover align-middle mb-0" data-table data-page-length="50">
             <thead>
                 <tr>
+                    <th>Cover</th>
                     <th>Template</th>
                     <th>Layout</th>
                     <th>Paleta</th>
@@ -29,6 +30,16 @@
             <tbody>
                 {% for template in templates %}
                     <tr>
+                        <td>
+                            {% if template.cover_image %}
+                                <img class="admin-template-cover" src="{{ template.cover_image.url }}"
+                                     alt="Cover de {{ template.name }}">
+                            {% else %}
+                                <span class="admin-template-cover admin-template-cover--empty">
+                                    <i class="bi bi-image"></i>
+                                </span>
+                            {% endif %}
+                        </td>
                         <td>
                             <div class="fw-semibold small">
                                 {{ template.name }}
