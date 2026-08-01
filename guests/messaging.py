@@ -3,13 +3,13 @@
 from __future__ import annotations
 
 import re
-import unicodedata
 from urllib.parse import urlencode
 
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
 from .models import DeliveryStatus, InvitationChannel, InvitationDelivery
+from weddings.models import DEFAULT_SMS_INVITATION_MESSAGE
 
 
 def normalize_phone(value: str) -> str:
@@ -37,22 +37,22 @@ def normalize_phone(value: str) -> str:
 def invitation_message(guest, invitation_url: str, channel: str) -> str:
     if channel == InvitationChannel.SMS:
         first_name = (guest.full_name or "Convidado").split()[0]
-        template = guest.wedding.sms_invitation_message or (
-            "Olá {nome}! {evento} convidam-no(a). Veja e confirme: {link}"
-        )
+        template = guest.wedding.sms_invitation_message or DEFAULT_SMS_INVITATION_MESSAGE
         try:
-            body = template.format(
+            return template.format(
                 nome=first_name[:40],
                 evento=guest.wedding.display_names,
                 link=invitation_url,
             )
-            return unicodedata.normalize("NFKD", body).encode("ascii", "ignore").decode()
         except (KeyError, ValueError):
             return f"Convite para {first_name[:20]}: {invitation_url}"
     return (
-        f"Olá {guest.full_name}! {guest.wedding.display_names} convidam-no(a) "
-        f"para celebrar este momento especial. Abra o convite e confirme a sua presença: "
-        f"{invitation_url}"
+        f"Olá {guest.full_name}! 💌\n\n"
+        f"Temos o prazer de partilhar contigo um convite muito especial de "
+        f"{guest.wedding.display_names}.\n\n"
+        f"✨ Abre o teu convite personalizado e confirma a tua presença:\n"
+        f"{invitation_url}\n\n"
+        f"Será uma alegria contar contigo!"
     )
 
 

@@ -13,9 +13,11 @@
         <link href="{{ template.fonts_url }}" rel="stylesheet">
     {% endif %}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="{% static 'css/invitation.css' %}?v=20260731.15" rel="stylesheet">
+    <link href="{% static 'css/invitation.css' %}?v=20260801.16" rel="stylesheet">
 </head>
 <body class="inv inv--{{ template.layout }} inv--template-{{ template.code }}{% if embedded %} inv--embedded{% endif %}" style="{{ css_variables }}">
+
+{% for message in messages %}<div hidden data-inv-flash data-kind="{{ message.tags|default:'info' }}" data-message="{{ message|escape }}"></div>{% endfor %}
 
 {% if is_preview and not embedded %}
     <div class="inv-preview-bar">
@@ -28,6 +30,15 @@
 
 {% include template.layout_template %}
 
-<script src="{% static 'js/invitation.js' %}"></script>
+{% if wedding.invitation_music and wedding.show_music and template.supports_music %}
+<div class="inv-music" data-music-player>
+    <audio loop preload="metadata" data-music-audio src="{{ wedding.invitation_music.url }}"></audio>
+    <button type="button" data-music-toggle aria-label="Reproduzir música"><i class="bi bi-music-note-beamed"></i><span>Ouvir</span></button>
+</div>
+{% endif %}
+
+<script src="https://unpkg.com/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+<script src="{% static 'js/dialog-fallback.js' %}?v=20260801.1"></script>
+<script src="{% static 'js/invitation.js' %}?v=20260801.3"></script>
 </body>
 </html>

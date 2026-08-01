@@ -38,13 +38,6 @@ CATEGORIES: list[dict] = [
                 "type": "choice",
                 "choices": list(DRESS_CODE_CHOICES),
             },
-            {
-                "key": "lista_presentes",
-                "label": "Lista de presentes",
-                "type": "list",
-                "placeholder": "Ex.: Liquidificador ou ligação para a loja",
-                "help_text": "Adicione um presente ou ligação por linha.",
-            },
         ],
         "default_moments": [
             {"name": "Cerimónia Religiosa", "event_type": "religious", "start_time": "09:00",
@@ -170,13 +163,6 @@ CATEGORIES: list[dict] = [
         "invitation_greeting": "convida-o para o chá de bebé de",
         "field_schema": [
             {"key": "nome_bebe", "label": "Nome do bebé", "type": "text"},
-            {
-                "key": "lista_presentes",
-                "label": "Lista de presentes",
-                "type": "list",
-                "placeholder": "Ex.: Fraldas tamanho 2 ou ligação para a loja",
-                "help_text": "Adicione um presente ou ligação por linha.",
-            },
         ],
         "default_moments": [
             {"name": "Chá de bebé", "event_type": "custom", "start_time": "15:00",

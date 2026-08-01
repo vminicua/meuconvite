@@ -123,42 +123,31 @@ TEMPLATES = [
 # ---------------------------------------------------------------------
 # Database
 # ---------------------------------------------------------------------
-# The engine is driven entirely by the environment so the same code base
-# runs on SQLite (local), MySQL/MariaDB (typical cPanel) or PostgreSQL.
-DB_ENGINE = env("DB_ENGINE", default="django.db.backends.sqlite3")
-
-if DB_ENGINE.endswith("sqlite3"):
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": env("DB_NAME", default=str(BASE_DIR / "db.sqlite3")),
-            "OPTIONS": {"transaction_mode": "IMMEDIATE"},
-        }
+# A aplicação usa exclusivamente a base MariaDB remota configurada no `.env`.
+# Não existe fallback SQLite: credenciais em falta devem falhar cedo e de forma visível.
+DB_ENGINE = env("DB_ENGINE", default="django.db.backends.mysql")
+_options: dict = {}
+if "mysql" in DB_ENGINE:
+    _options = {
+        "charset": "utf8mb4",
+        "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
     }
-else:
-    _options: dict = {}
-    if "mysql" in DB_ENGINE:
-        # utf8mb4 is required for names with accents and emoji.
-        _options = {
-            "charset": "utf8mb4",
-            "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
-        }
-        _ssl_ca = env("DB_SSL_CA", default="")
-        if _ssl_ca:
-            _options["ssl"] = {"ca": _ssl_ca}
+    _ssl_ca = env("DB_SSL_CA", default="")
+    if _ssl_ca:
+        _options["ssl"] = {"ca": _ssl_ca}
 
-    DATABASES = {
-        "default": {
-            "ENGINE": DB_ENGINE,
-            "NAME": env("DB_NAME"),
-            "USER": env("DB_USER"),
-            "PASSWORD": env("DB_PASSWORD"),
-            "HOST": env("DB_HOST", default="localhost"),
-            "PORT": env("DB_PORT", default=""),
-            "CONN_MAX_AGE": env.int("DB_CONN_MAX_AGE", default=60),
-            "OPTIONS": _options,
-        }
+DATABASES = {
+    "default": {
+        "ENGINE": DB_ENGINE,
+        "NAME": env("DB_NAME"),
+        "USER": env("DB_USER"),
+        "PASSWORD": env("DB_PASSWORD"),
+        "HOST": env("DB_HOST", default="localhost"),
+        "PORT": env("DB_PORT", default=""),
+        "CONN_MAX_AGE": env.int("DB_CONN_MAX_AGE", default=60),
+        "OPTIONS": _options,
     }
+}
 
 # ---------------------------------------------------------------------
 # Authentication

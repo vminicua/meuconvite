@@ -2,7 +2,7 @@ from django import forms
 
 from core.forms import BootstrapModelForm
 
-from .models import Guest, InvitationChannel
+from .models import Gift, Guest, InvitationChannel
 
 
 class SendInvitationForm(forms.Form):
@@ -19,7 +19,9 @@ class GuestForm(BootstrapModelForm):
         fields = ["full_name", "phone", "email", "party_size", "allowed_events", "notes"]
         widgets = {
             "party_size": forms.NumberInput(attrs={"min": 1, "max": 20}),
-            "allowed_events": forms.CheckboxSelectMultiple(),
+            "allowed_events": forms.CheckboxSelectMultiple(
+                attrs={"class": "guest-programme-list"}
+            ),
         }
 
     def __init__(self, *args, wedding=None, **kwargs):
@@ -34,3 +36,13 @@ class GuestForm(BootstrapModelForm):
             "Deixe todas desmarcadas para permitir todo o programa. "
             "Seleccione apenas quando este convite for limitado."
         )
+
+
+class GiftForm(BootstrapModelForm):
+    class Meta:
+        model = Gift
+        fields = ["name", "description", "allow_multiple", "display_order"]
+        widgets = {
+            "description": forms.Textarea(attrs={"rows": 2}),
+            "display_order": forms.NumberInput(attrs={"min": 0}),
+        }

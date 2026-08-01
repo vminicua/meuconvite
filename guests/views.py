@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.db.models import Q
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -15,8 +16,8 @@ from audit.services import log_action, log_create, log_delete, log_update, model
 from subscriptions.services import enabled_guest_ids, limits, sms_count
 from weddings.permissions import capability_flags, require_wedding
 
-from .forms import GuestForm, SendInvitationForm
-from .models import Guest, RSVPStatus
+from .forms import GiftForm, GuestForm, SendInvitationForm
+from .models import Gift, GiftSelection, Guest, InvitationChannel, RSVPStatus
 from . import messaging
 
 
@@ -61,6 +62,9 @@ def guest_list(request: HttpRequest, wedding) -> HttpResponse:
             "is_enabled": is_enabled,
             "invitation_url": invitation_url,
             "qr_data_uri": _qr_data_uri(invitation_url) if is_enabled else "",
+            "share_message": messaging.invitation_message(
+                guest, invitation_url, InvitationChannel.WHATSAPP
+            ) if is_enabled else "",
             "allowed_events": list(guest.allowed_events.all()),
             "latest_delivery": deliveries[0] if deliveries else None,
             "edit_form": GuestForm(
@@ -238,6 +242,63 @@ def guest_remove(request: HttpRequest, wedding, guest_id) -> HttpResponse:
     return redirect("guests:list", wedding_id=wedding.pk)
 
 
+@require_wedding("can_manage_guests")
+def gift_list(request: HttpRequest, wedding) -> HttpResponse:
+    if request.method == "POST":
+        form = GiftForm(request.POST)
+        if form.is_valid():
+            gift = form.save(commit=False)
+            gift.wedding = wedding
+            gift.save()
+            log_create(gift, actor=request.user, wedding=wedding, request=request)
+            messages.success(request, "Presente adicionado à lista.")
+            return redirect("guests:gifts", wedding_id=wedding.pk)
+        messages.error(request, "Corrija os campos assinalados.")
+    else:
+        form = GiftForm()
+
+    gifts = Gift.objects.filter(wedding=wedding, is_active=True).prefetch_related(
+        "selections__guest"
+    )
+    return render(request, "guests/gift_list.html", {
+        "wedding": wedding,
+        "form": form,
+        "gifts": gifts,
+        "capabilities": capability_flags(wedding, request.user),
+    })
+
+
+@require_wedding("can_manage_guests")
+def gift_edit(request: HttpRequest, wedding, gift_id) -> HttpResponse:
+    gift = get_object_or_404(Gift, pk=gift_id, wedding=wedding, is_active=True)
+    if request.method == "POST":
+        form = GiftForm(request.POST, instance=gift)
+        if form.is_valid():
+            old_data = model_to_dict(gift)
+            form.save()
+            log_update(gift, old_data=old_data, actor=request.user, wedding=wedding, request=request)
+            messages.success(request, "Presente actualizado.")
+            return redirect("guests:gifts", wedding_id=wedding.pk)
+        messages.error(request, "Corrija os campos assinalados.")
+    else:
+        form = GiftForm(instance=gift)
+    return render(request, "guests/gift_form.html", {
+        "wedding": wedding, "gift": gift, "form": form,
+        "capabilities": capability_flags(wedding, request.user),
+    })
+
+
+@require_POST
+@require_wedding("can_manage_guests")
+def gift_remove(request: HttpRequest, wedding, gift_id) -> HttpResponse:
+    gift = get_object_or_404(Gift, pk=gift_id, wedding=wedding, is_active=True)
+    log_delete(gift, actor=request.user, wedding=wedding, request=request)
+    gift.is_active = False
+    gift.save(update_fields=["is_active", "updated_at"])
+    messages.info(request, "Presente removido da lista.")
+    return redirect("guests:gifts", wedding_id=wedding.pk)
+
+
 def guest_invitation(request: HttpRequest, token: str) -> HttpResponse:
     """Individual invitation and RSVP surface addressed by an opaque token."""
     from templates_manager import registry
@@ -267,10 +328,42 @@ def guest_invitation(request: HttpRequest, token: str) -> HttpResponse:
     if template is None:
         raise Http404
     context = invitation_context(wedding, template, guest=guest, is_preview=False)
+    gifts = list(Gift.objects.filter(wedding=wedding, is_active=True).prefetch_related(
+        "selections__guest"
+    ))
+    for gift in gifts:
+        selections = list(gift.selections.all())
+        gift.selected_by_guest = any(item.guest_id == guest.pk for item in selections)
+        gift.unavailable = bool(selections) and not gift.allow_multiple and not gift.selected_by_guest
+    context["gifts"] = gifts
     context["css_variables"] = template.css_variables(
         wedding.primary_color, wedding.secondary_color
     )
     return render(request, "invitations/preview.html", context)
+
+
+@require_POST
+def guest_gift_select(request: HttpRequest, token: str, gift_id) -> HttpResponse:
+    guest = get_object_or_404(Guest, invitation_token=token, is_active=True)
+    wedding = guest.wedding
+    if wedding.status in {"archived", "blocked"} or guest.pk not in enabled_guest_ids(wedding):
+        raise Http404
+
+    with transaction.atomic():
+        gift = get_object_or_404(
+            Gift.objects.select_for_update(), pk=gift_id, wedding=wedding, is_active=True
+        )
+        own_selection = GiftSelection.objects.filter(gift=gift, guest=guest).first()
+        if own_selection:
+            own_selection.delete()
+            messages.info(request, f"Deixou de levar “{gift.name}”.")
+        elif not gift.allow_multiple and GiftSelection.objects.filter(gift=gift).exists():
+            messages.error(request, "Este presente já foi escolhido por outro convidado.")
+        else:
+            GiftSelection.objects.create(gift=gift, guest=guest)
+            messages.success(request, f"Obrigado! Ficou registado que vai levar “{gift.name}”.")
+
+    return redirect("guest_invitation", token=guest.invitation_token)
 
 
 @csrf_exempt

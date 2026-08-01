@@ -1,53 +1,73 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Detalhes · {{ wedding.display_names }}{% endblock %}
 
 {% block content %}
 {% include "partials/wedding_nav.html" %}
 
-<div class="workspace-section-heading mb-3">
-    <span class="workspace-eyebrow">INFORMAÇÃO PRINCIPAL</span>
-    <h2 class="h4 mb-1">Detalhes do evento</h2>
-    <p class="text-body-secondary mb-0">Tudo o que identifica o evento e aparece no convite.</p>
+<div class="details-hero">
+    <div><span class="workspace-eyebrow">DETALHES DO EVENTO</span><h2>O coração do seu convite</h2><p>Edite a informação, a fotografia e as mensagens enquanto vê o resultado.</p></div>
+    <div class="details-save-state"><i class="bi bi-cloud-check"></i><span>As alterações ficam activas depois de guardar</span></div>
 </div>
 
-<div class="row g-4">
+<form method="post" enctype="multipart/form-data" novalidate data-event-details data-event-name="{{ wedding.display_names }}" data-event-link="{{ SITE_BASE_URL }}/convite/exemplo/">
+{% csrf_token %}
+{% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+<div class="row g-4 align-items-start">
     <div class="col-xl-8">
-        <div class="card shadow-sm border-0 details-card">
-            <div class="card-body p-4 p-lg-5">
-                <form method="post" novalidate>
-                    {% csrf_token %}
-                    {% include "partials/form_fields.html" %}
-                    {% if capabilities.can_manage_events %}
-                    <div class="mt-4"><button class="btn btn-primary px-4" type="submit">Guardar detalhes</button></div>
-                    {% endif %}
-                </form>
+        <section class="details-panel details-cover-panel">
+            <div class="details-panel__heading"><span class="details-panel__number">01</span><div><h3>Capa do convite</h3><p>A primeira imagem que os convidados vão ver.</p></div></div>
+            <div class="cover-studio">
+                <div class="cover-studio__preview" data-cover-preview {% if wedding.cover_image %}style="background-image:url('{{ wedding.cover_image.url }}')"{% endif %}>
+                    <div class="cover-studio__empty" data-cover-empty {% if wedding.cover_image %}hidden{% endif %}><i class="bi bi-image"></i><span>A sua fotografia aparece aqui</span></div>
+                    <div class="cover-studio__shade"></div><div class="cover-studio__names"><small>{{ wedding.category_name }}</small><strong>{{ wedding.display_names }}</strong><span>{{ wedding.main_date|date:"d · m · Y" }}</span></div>
+                </div>
+                <div class="cover-studio__controls">
+                    <label class="cover-upload" for="{{ form.cover_image.id_for_label }}"><i class="bi bi-cloud-arrow-up"></i><strong>Escolher fotografia</strong><span>JPG, PNG ou WEBP · até 5 MB</span></label>
+                    <div class="visually-hidden">{{ form.cover_image }}</div>
+                    {% for error in form.cover_image.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                    <p><i class="bi bi-lightbulb"></i> Uma fotografia vertical e luminosa funciona melhor em todos os templates.</p>
+                </div>
             </div>
-        </div>
+        </section>
+
+        <section class="details-panel">
+            <div class="details-panel__heading"><span class="details-panel__number">02</span><div><h3>Informação principal</h3><p>Nomes, data e endereço público do evento.</p></div></div>
+            <div class="row g-3">{% for field in form.details_identity_fields %}{% include "weddings/_detail_field.html" %}{% endfor %}</div>
+        </section>
+
+        <section class="details-panel">
+            <div class="details-panel__heading"><span class="details-panel__number">03</span><div><h3>Palavras que dão personalidade</h3><p>Textos apresentados na capa e dentro do convite.</p></div></div>
+            <div class="row g-3">{% for field in form.details_content_fields %}{% include "weddings/_detail_field.html" %}{% endfor %}{% for field in form.details_extra_fields %}{% include "weddings/_detail_field.html" %}{% endfor %}</div>
+        </section>
+
+        <section class="details-panel">
+            <div class="details-panel__heading"><span class="details-panel__number">04</span><div><h3>Confirmações e visibilidade</h3><p>Defina o prazo e o que os convidados podem consultar.</p></div></div>
+            <div class="row g-3">{% for field in form.details_planning_fields %}{% include "weddings/_detail_field.html" %}{% endfor %}</div>
+        </section>
     </div>
-    <div class="col-xl-4">
-        <div class="card shadow-sm border-0 details-card mb-3">
-            <div class="card-body p-4">
-                <h3 class="h6 mb-3">Estado da preparação</h3>
-                <ul class="checklist list-unstyled mb-3">
-                    {% for item in checklist %}
-                    <li class="checklist__item {% if item.done %}checklist__item--done{% endif %}">
-                        <i class="bi {% if item.done %}bi-check-circle-fill text-success{% else %}bi-circle text-body-secondary{% endif %} me-2"></i>{{ item.label }}
-                    </li>
-                    {% endfor %}
-                </ul>
-                {% if capabilities.can_manage_events %}
-                    {% if wedding.status == 'published' %}
-                    <form method="post" action="{% url 'weddings:unpublish' wedding.pk %}">{% csrf_token %}<button class="btn btn-outline-secondary w-100">Despublicar evento</button></form>
-                    {% else %}
-                    <form method="post" action="{% url 'weddings:publish' wedding.pk %}">{% csrf_token %}<button class="btn btn-primary w-100">Publicar evento</button></form>
-                    {% endif %}
-                {% endif %}
+
+    <div class="col-xl-4 details-sticky-column">
+        <section class="details-panel sms-studio">
+            <div class="details-panel__heading"><span class="details-panel__number">SMS</span><div><h3>Mensagem em tempo real</h3><p>Edite em baixo e veja como chega ao telemóvel.</p></div></div>
+            <div class="iphone-preview">
+                <div class="iphone-preview__speaker"></div><div class="iphone-preview__status"><span>9:41</span><i class="bi bi-reception-4"></i><i class="bi bi-wifi"></i><i class="bi bi-battery-full"></i></div>
+                <div class="iphone-preview__header"><span class="iphone-preview__avatar"><i class="bi bi-envelope-heart"></i></span><strong>MeuConvite</strong><small>Mensagem</small></div>
+                <div class="iphone-preview__thread"><div class="iphone-preview__bubble" data-sms-preview></div><small>Entregue</small></div>
+                <div class="iphone-preview__home"></div>
             </div>
-        </div>
-        <div class="card border-warning shadow-sm">
-            <div class="card-body p-4"><h3 class="h6">Arquivar evento</h3><p class="small text-body-secondary">Retira o evento da lista sem eliminar os dados.</p><form method="post" action="{% url 'weddings:archive' wedding.pk %}" data-confirm="Arquivar este evento?">{% csrf_token %}<button class="btn btn-sm btn-outline-warning">Arquivar</button></form></div>
-        </div>
+            <label class="form-label mt-4" for="{{ form.sms_invitation_message.id_for_label }}">{{ form.sms_invitation_message.label }}</label>{{ form.sms_invitation_message }}
+            <div class="d-flex justify-content-between gap-2"><div class="form-text">Use {nome}, {evento} e {link}.</div><div class="form-text"><span data-sms-count>0</span>/500</div></div>
+            {% for error in form.sms_invitation_message.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+        </section>
+
+        <section class="details-panel preparation-card"><h3>Preparação do evento</h3><ul>{% for item in checklist %}<li class="{% if item.done %}is-done{% endif %}"><i class="bi {% if item.done %}bi-check-circle-fill{% else %}bi-circle{% endif %}"></i><span>{{ item.label }}</span></li>{% endfor %}</ul></section>
+        {% if capabilities.can_manage_events %}<button class="btn btn-primary btn-lg w-100 details-submit" type="submit"><i class="bi bi-check2 me-1"></i>Guardar alterações</button>{% endif %}
+        {% if capabilities.is_owner %}<form method="post" action="{% url 'weddings:archive' wedding.pk %}" data-confirm="Arquivar este evento? Poderá continuar a consultar os dados.">{% csrf_token %}<button class="btn btn-link text-danger w-100 mt-2" type="submit">Arquivar evento</button></form>{% endif %}
     </div>
 </div>
+</form>
 {% endblock %}
+
+{% block extra_js %}<script src="{% static 'js/event-details.js' %}?v=20260801.1"></script>{% endblock %}

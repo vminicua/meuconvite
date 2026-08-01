@@ -1,0 +1,9 @@
+---
+deployment:
+  tasks:
+    - /home/salacsth/virtualenv/meuconvite/3.12/bin/pip install -r /home/salacsth/meuconvite/requirements.txt
+    - /home/salacsth/virtualenv/meuconvite/3.12/bin/python /home/salacsth/meuconvite/manage.py migrate --noinput
+    - /home/salacsth/virtualenv/meuconvite/3.12/bin/python /home/salacsth/meuconvite/manage.py seed_plans --update-prices
+    - /home/salacsth/virtualenv/meuconvite/3.12/bin/python /home/salacsth/meuconvite/manage.py collectstatic --noinput
+    - /bin/mkdir -p /home/salacsth/meuconvite/tmp
+    - /bin/touch /home/salacsth/meuconvite/tmp/restart.txt

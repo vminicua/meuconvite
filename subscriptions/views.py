@@ -26,8 +26,40 @@ def account_subscription(request: HttpRequest) -> HttpResponse:
 @require_wedding()
 def subscription_detail(request: HttpRequest, wedding) -> HttpResponse:
     """Pacote actual, opções de upgrade e pagamentos em curso."""
+    capabilities = capability_flags(wedding, request.user)
+    selected_plan_code = ""
+    upgrade_form = UpgradeRequestForm()
+
+    if request.method == "POST":
+        if not capabilities["can_manage_billing"]:
+            raise Http404
+        selected_plan_code = request.POST.get("plan_code", "")
+        plan = get_object_or_404(Plan.objects.active(), code=selected_plan_code)
+        upgrade_form = UpgradeRequestForm(request.POST, request.FILES)
+        if upgrade_form.is_valid():
+            try:
+                payment = services.request_upgrade(
+                    wedding=wedding,
+                    plan=plan,
+                    actor=request.user,
+                    request=request,
+                    **upgrade_form.cleaned_data,
+                )
+            except ValidationError as exc:
+                for message in exc.messages:
+                    messages.error(request, message)
+            else:
+                messages.success(
+                    request,
+                    f"Pedido do pacote {plan.name} registado. Referência: {payment.reference}.",
+                )
+                return redirect("subscriptions:detail", wedding_id=wedding.pk)
+        else:
+            messages.error(request, "Corrija os dados de pagamento assinalados.")
+
     current = services.limits(wedding)
     used = services.guest_count(wedding)
+    sms_used = services.sms_count(wedding)
 
     return render(
         request,
@@ -36,7 +68,8 @@ def subscription_detail(request: HttpRequest, wedding) -> HttpResponse:
             "wedding": wedding,
             "limits": current,
             "guests_used": used,
-            "sms_used": services.sms_count(wedding),
+            "sms_used": sms_used,
+            "sms_usage_percent": current.sms_usage_percent(sms_used),
             "guests_remaining": current.guests_remaining(used),
             "usage_percent": current.usage_percent(used),
             "plans": Plan.objects.active().order_by("display_order", "max_guests"),
@@ -49,7 +82,9 @@ def subscription_detail(request: HttpRequest, wedding) -> HttpResponse:
             .exclude(status__in=[PaymentStatus.AWAITING_PROOF, PaymentStatus.UNDER_REVIEW])
             .select_related("plan")[:10],
             "instructions": services.payment_instructions(),
-            "capabilities": capability_flags(wedding, request.user),
+            "capabilities": capabilities,
+            "upgrade_form": upgrade_form,
+            "selected_plan_code": selected_plan_code,
         },
     )
 

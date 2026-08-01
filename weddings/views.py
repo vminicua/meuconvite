@@ -169,7 +169,7 @@ def wedding_detail(request: HttpRequest, wedding) -> HttpResponse:
     if request.method == "POST":
         if not capabilities["can_manage_events"]:
             raise Http404
-        form = WeddingSettingsForm(request.POST, instance=wedding)
+        form = WeddingSettingsForm(request.POST, request.FILES, instance=wedding)
         if form.is_valid():
             data = {
                 key: value for key, value in form.cleaned_data.items()
@@ -228,7 +228,7 @@ def wedding_settings(request: HttpRequest, wedding) -> HttpResponse:
     if not user_can(wedding, request.user, "can_manage_events"):
         raise Http404
     if request.method == "POST":
-        form = WeddingSettingsForm(request.POST, instance=wedding)
+        form = WeddingSettingsForm(request.POST, request.FILES, instance=wedding)
         if form.is_valid():
             data = {key: value for key, value in form.cleaned_data.items() if not key.startswith("extra__")}
             data["extra_data"] = form.extra_data()

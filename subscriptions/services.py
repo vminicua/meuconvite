@@ -60,6 +60,11 @@ class Limits:
             return 0
         return min(int(current / self.max_guests * 100), 100)
 
+    def sms_usage_percent(self, current: int) -> int:
+        if self.max_sms <= 0:
+            return 100 if current else 0
+        return min(int(current / self.max_sms * 100), 100)
+
 
 def default_plan() -> Plan | None:
     return (

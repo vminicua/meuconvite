@@ -43,18 +43,7 @@ if _dev_db_host:
 if _dev_db_port:
     DATABASES["default"]["PORT"] = _dev_db_port  # noqa: F405
 
-# Os testes NUNCA tocam na base de dados real: correm sempre em SQLite,
-# em memória. Sem isto, `manage.py test` tentaria criar (e apagar) uma
-# base `test_...` no servidor de produção.
-RUNNING_TESTS = "test" in sys.argv
-if RUNNING_TESTS:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": ":memory:",
-        }
-    }
-elif DATABASES["default"]["ENGINE"].endswith("mysql"):  # noqa: F405
+if DATABASES["default"]["ENGINE"].endswith("mysql"):  # noqa: F405
     # A ligação passa por um túnel SSH que pode ser restabelecido: não
     # reutilizar conexões evita ficar preso a um socket já morto.
     DATABASES["default"]["CONN_MAX_AGE"] = 0  # noqa: F405

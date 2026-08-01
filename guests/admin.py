@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Guest, InvitationDelivery
+from .models import Gift, GiftSelection, Guest, InvitationDelivery
 
 
 @admin.register(Guest)
@@ -20,3 +20,16 @@ class InvitationDeliveryAdmin(admin.ModelAdmin):
         "provider", "provider_sid", "error_code", "error_message", "sent_by",
         "sent_at", "created_at", "updated_at",
     )
+
+
+@admin.register(Gift)
+class GiftAdmin(admin.ModelAdmin):
+    list_display = ("name", "wedding", "allow_multiple", "is_active", "display_order")
+    list_filter = ("allow_multiple", "is_active")
+    search_fields = ("name", "wedding__primary_name", "wedding__secondary_name")
+
+
+@admin.register(GiftSelection)
+class GiftSelectionAdmin(admin.ModelAdmin):
+    list_display = ("gift", "guest", "created_at")
+    search_fields = ("gift__name", "guest__full_name")

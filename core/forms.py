@@ -27,7 +27,9 @@ class BootstrapFormMixin:
             if isinstance(widget, (forms.CheckboxInput,)):
                 widget.attrs["class"] = "form-check-input"
             elif isinstance(widget, (forms.RadioSelect, forms.CheckboxSelectMultiple)):
-                widget.attrs["class"] = "form-check-input"
+                # Os attrs pertencem ao contentor, não a cada input. A classe
+                # `form-check-input` aqui encolhia a lista inteira para 1em.
+                widget.attrs["class"] = "choice-list"
             elif isinstance(widget, (forms.Select, forms.SelectMultiple)):
                 widget.attrs["class"] = "form-select"
             elif isinstance(widget, (forms.FileInput, forms.ClearableFileInput)):

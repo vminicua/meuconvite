@@ -35,8 +35,12 @@
         </li>
         {% if capabilities.can_manage_guests %}
             <li class="nav-item">
-                <a class="nav-link {% if request.resolver_match.namespace == 'guests' %}active{% endif %}"
+                <a class="nav-link {% if request.resolver_match.url_name == 'list' or request.resolver_match.url_name == 'edit' %}active{% endif %}"
                    data-workspace-nav href="{% url 'guests:list' wedding.pk %}"><i class="bi bi-people me-1"></i>Convidados</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if 'gift' in request.resolver_match.url_name %}active{% endif %}"
+                   data-workspace-nav href="{% url 'guests:gifts' wedding.pk %}"><i class="bi bi-gift me-1"></i>Presentes</a>
             </li>
         {% endif %}
         {% if capabilities.can_manage_design %}

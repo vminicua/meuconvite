@@ -125,7 +125,8 @@
         button.addEventListener("click", function () {
             const url = button.dataset.shareLink;
             const name = button.dataset.shareName;
-            const text = "Convite individual de " + name + ": " + url;
+            const text = button.dataset.shareMessage || ("Olá " + name + "! Temos um convite muito especial para ti: " + url);
+            const eventName = button.dataset.shareEvent || "MeuConvite";
             const modalElement = document.getElementById("shareInvitationModal");
             if (!modalElement || !window.bootstrap) {
                 copyLink(url, button, "A ligação foi copiada e está pronta para partilhar.");
@@ -138,15 +139,15 @@
                 qrImage.alt = "QR Code individual de " + name;
             }
             modalElement.querySelector("[data-share-whatsapp]").href = "https://wa.me/?text=" + encodeURIComponent(text);
-            modalElement.querySelector("[data-share-email]").href = "mailto:?subject=" + encodeURIComponent("Convite MeuConvite") + "&body=" + encodeURIComponent(text);
+            modalElement.querySelector("[data-share-email]").href = "mailto:?subject=" + encodeURIComponent("Um convite especial de " + eventName) + "&body=" + encodeURIComponent(text);
             const copyButton = modalElement.querySelector("[data-share-copy]");
-            copyButton.dataset.copyLink = url;
+            copyButton.dataset.copyLink = text;
             window.bootstrap.Modal.getOrCreateInstance(modalElement).show();
         });
     });
     const shareCopyButton = root.querySelector("[data-share-copy]");
     if (shareCopyButton) shareCopyButton.addEventListener("click", function () {
-        copyLink(shareCopyButton.dataset.copyLink, shareCopyButton);
+        copyLink(shareCopyButton.dataset.copyLink, shareCopyButton, "Mensagem do convite copiada.");
     });
 
     const exportButton = root.querySelector("[data-export-excel]");

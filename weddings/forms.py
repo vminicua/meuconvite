@@ -12,7 +12,7 @@ from core.schema import add_schema_fields, collect_schema_values
 from core.utils import unique_slugify
 from templates_manager import registry
 
-from .models import Wedding, WeddingMember, WeddingRole
+from .models import DEFAULT_SMS_INVITATION_MESSAGE, Wedding, WeddingMember, WeddingRole
 
 User = get_user_model()
 
@@ -118,6 +118,24 @@ class WeddingSettingsForm(BootstrapModelForm):
 
         add_schema_fields(self, category.extra_fields, self.instance.extra_data or {})
 
+        def bound(names):
+            return [self[name] for name in names if name in self.fields]
+
+        self.details_identity_fields = bound([
+            "primary_name", "secondary_name", "primary_short_name", "secondary_short_name",
+            "main_date", "city", "country", "slug", "hashtag",
+        ])
+        self.details_content_fields = bound([
+            "cover_message", "invitation_message", "welcome_message", "story",
+        ])
+        self.details_planning_fields = bound([
+            "rsvp_deadline", "show_countdown", "show_seat_before_event",
+        ])
+        self.details_extra_fields = [
+            self[name] for name in self.fields
+            if name.startswith("extra__") and name != "extra__lista_presentes"
+        ]
+
     def extra_data(self) -> dict:
         category = getattr(self.instance, "category", None)
         if category is None:
@@ -136,6 +154,7 @@ class WeddingSettingsForm(BootstrapModelForm):
             "country",
             "slug",
             "hashtag",
+            "cover_image",
             "cover_message",
             "invitation_message",
             "sms_invitation_message",
@@ -152,6 +171,10 @@ class WeddingSettingsForm(BootstrapModelForm):
             "sms_invitation_message": forms.Textarea(attrs={"rows": 3}),
             "welcome_message": forms.Textarea(attrs={"rows": 3}),
             "story": forms.Textarea(attrs={"rows": 6}),
+            "cover_image": forms.ClearableFileInput(attrs={
+                "accept": "image/jpeg,image/png,image/webp",
+                "data-cover-input": "",
+            }),
         }
         help_texts = {
             "slug": _("Endereço público: meuconvite.co.mz/<endereço>/"),
@@ -168,9 +191,7 @@ class WeddingSettingsForm(BootstrapModelForm):
         return slug
 
     def clean_sms_invitation_message(self) -> str:
-        value = (self.cleaned_data.get("sms_invitation_message") or "").strip() or (
-            "Olá {nome}! {evento} convidam-no(a). Veja e confirme: {link}"
-        )
+        value = (self.cleaned_data.get("sms_invitation_message") or "").strip() or DEFAULT_SMS_INVITATION_MESSAGE
         allowed = {"nome", "evento", "link"}
         try:
             fields = {

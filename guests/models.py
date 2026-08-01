@@ -60,6 +60,51 @@ class Guest(BaseModel, SoftDeleteModel):
         return self.allowed_events.exists()
 
 
+class Gift(BaseModel, SoftDeleteModel):
+    """Presente sugerido pelos anfitriões para um evento."""
+
+    wedding = models.ForeignKey(
+        "weddings.Wedding", on_delete=models.CASCADE, related_name="gifts"
+    )
+    name = models.CharField(_("presente"), max_length=160)
+    description = models.CharField(_("descrição"), max_length=500, blank=True)
+    allow_multiple = models.BooleanField(
+        _("permitir vários convidados"),
+        default=False,
+        help_text=_("Por omissão, o presente fica reservado ao primeiro convidado."),
+    )
+    display_order = models.PositiveIntegerField(_("ordem"), default=0)
+
+    class Meta:
+        verbose_name = _("presente")
+        verbose_name_plural = _("presentes")
+        ordering = ["display_order", "created_at", "name"]
+        indexes = [
+            models.Index(fields=["wedding", "is_active"], name="gift_wedding_active_idx")
+        ]
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class GiftSelection(BaseModel):
+    """Associa um convidado ao presente que decidiu levar."""
+
+    gift = models.ForeignKey(Gift, on_delete=models.CASCADE, related_name="selections")
+    guest = models.ForeignKey(Guest, on_delete=models.CASCADE, related_name="gift_selections")
+
+    class Meta:
+        verbose_name = _("selecção de presente")
+        verbose_name_plural = _("selecções de presentes")
+        ordering = ["created_at"]
+        constraints = [
+            models.UniqueConstraint(fields=["gift", "guest"], name="unique_gift_guest")
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.guest} — {self.gift}"
+
+
 class InvitationChannel(models.TextChoices):
     SMS = "sms", _("SMS")
     WHATSAPP = "whatsapp", _("WhatsApp")

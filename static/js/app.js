@@ -91,13 +91,14 @@
         }
 
         window.Swal.fire({
-            title: "Confirmar",
+            title: form.dataset.confirmTitle || "Confirmar",
             text: message,
             icon: "question",
             showCancelButton: true,
             confirmButtonText: "Sim, continuar",
             cancelButtonText: "Cancelar",
             confirmButtonColor: "#c8a96a",
+            customClass: { container: "meuconvite-swal" },
             reverseButtons: true
         }).then(function (result) {
             if (result.isConfirmed) {

@@ -3,7 +3,6 @@
 # =====================================================================
 .env
 .env.*
-!.env.example
 *.pem
 *.key
 *.p12
@@ -34,6 +33,7 @@ db.sqlite3-journal
 /staticfiles/
 /media/
 /logs/
+/tmp/
 *.log
 local_settings.py
 

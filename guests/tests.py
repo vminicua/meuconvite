@@ -177,7 +177,7 @@ class GuestViewTests(TestCase):
         client_factory.assert_not_called()
         self.assertFalse(InvitationDelivery.objects.exists())
 
-    def test_sms_invitation_is_ascii_and_short_enough_for_trial(self):
+    def test_sms_invitation_uses_the_beautiful_editable_message(self):
         from guests.messaging import invitation_message
 
         guest = Guest.objects.create(
@@ -189,9 +189,10 @@ class GuestViewTests(TestCase):
             "sms",
         )
 
-        self.assertLessEqual(len(body), 120)
-        self.assertTrue(body.isascii())
-        self.assertIn("Ercilia", body)
+        self.assertIn("Ercília", body)
+        self.assertIn("muita alegria", body)
+        self.assertIn("💌", body)
+        self.assertIn("https://meuconvite.co.mz/convite/abc123/", body)
 
     @override_settings(SITE_BASE_URL="https://meuconvite.example", TWILIO_AUTH_TOKEN="secret")
     def test_twilio_status_callback_is_signed_and_updates_delivery(self):

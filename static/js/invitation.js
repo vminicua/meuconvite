@@ -9,6 +9,48 @@
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+    document.querySelectorAll("[data-inv-flash]").forEach(function (flash) {
+        const rawKind = (flash.dataset.kind || "info").split(" ")[0];
+        const kind = rawKind === "danger" ? "error" : rawKind;
+        if (window.Swal) window.Swal.fire({
+            toast: true, position: "top-end", icon: kind,
+            title: flash.dataset.message, showConfirmButton: false, timer: 4200
+        });
+    });
+
+    document.querySelectorAll("[data-dialog-open]").forEach(function (button) {
+        button.addEventListener("click", function () {
+            const dialog = document.getElementById(button.dataset.dialogOpen);
+            if (dialog && typeof dialog.showModal === "function") dialog.showModal();
+        });
+    });
+    document.querySelectorAll("[data-dialog-close]").forEach(function (button) {
+        button.addEventListener("click", function () { button.closest("dialog").close(); });
+    });
+    document.querySelectorAll(".inv-dialog").forEach(function (dialog) {
+        dialog.addEventListener("click", function (event) {
+            if (event.target === dialog) dialog.close();
+        });
+    });
+
+    const musicPlayer = document.querySelector("[data-music-player]");
+    if (musicPlayer) {
+        const audio = musicPlayer.querySelector("[data-music-audio]");
+        const toggle = musicPlayer.querySelector("[data-music-toggle]");
+        toggle.addEventListener("click", function () {
+            if (audio.paused) {
+                audio.play().then(function () {
+                    musicPlayer.classList.add("is-playing");
+                    toggle.querySelector("span").textContent = "Pausar";
+                }).catch(function () {});
+            } else {
+                audio.pause();
+                musicPlayer.classList.remove("is-playing");
+                toggle.querySelector("span").textContent = "Ouvir";
+            }
+        });
+    }
+
     /* --- Abertura da capa -------------------------------------------- */
     const cover = document.getElementById("inv-cover");
     const main = document.getElementById("inv-main");
@@ -39,9 +81,7 @@
 
     /* --- Contagem regressiva ------------------------------------------ */
     const countdown = document.querySelector("[data-countdown]");
-    if (!countdown) {
-        return;
-    }
+    if (!countdown) return;
 
     const target = new Date(countdown.dataset.countdown).getTime();
     if (Number.isNaN(target)) {

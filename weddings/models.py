@@ -21,6 +21,11 @@ from core.validators import (
     validate_wedding_slug,
 )
 
+DEFAULT_SMS_INVITATION_MESSAGE = (
+    "Olá {nome}! 💌 É com muita alegria que partilhamos contigo o convite de {evento}. "
+    "Abre o teu convite e confirma a tua presença: {link}"
+)
+
 
 class WeddingStatus(models.TextChoices):
     DRAFT = "draft", _("Rascunho")
@@ -160,7 +165,7 @@ class Wedding(BaseModel):
     sms_invitation_message = models.CharField(
         _("mensagem do convite por SMS"),
         max_length=500,
-        default="Olá {nome}! {evento} convidam-no(a). Veja e confirme: {link}",
+        default=DEFAULT_SMS_INVITATION_MESSAGE,
         help_text=_("Pode usar {nome}, {evento} e {link}."),
     )
     welcome_message = models.TextField(_("mensagem de boas-vindas"), blank=True, max_length=1000)

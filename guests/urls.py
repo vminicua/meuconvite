@@ -10,4 +10,7 @@ urlpatterns = [
     path("convidados/<uuid:guest_id>/", views.guest_edit, name="edit"),
     path("convidados/<uuid:guest_id>/enviar/", views.guest_send_invitation, name="send_invitation"),
     path("convidados/<uuid:guest_id>/remover/", views.guest_remove, name="remove"),
+    path("presentes/", views.gift_list, name="gifts"),
+    path("presentes/<uuid:gift_id>/editar/", views.gift_edit, name="gift_edit"),
+    path("presentes/<uuid:gift_id>/remover/", views.gift_remove, name="gift_remove"),
 ]
