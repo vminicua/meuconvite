@@ -130,12 +130,12 @@ CATEGORIES: list[dict] = [
     },
     {
         "code": "formatura",
-        "name": "Formatura",
+        "name": "Graduação",
         "description": "Cerimónia de graduação e jantar de curso.",
         "icon": "bi-mortarboard",
         "uses_two_names": False,
         "primary_label": "Nome do graduado",
-        "invitation_greeting": "convida-o para a celebração da sua formatura",
+        "invitation_greeting": "convida-o para a celebração da sua graduação",
         "field_schema": [
             {"key": "curso", "label": "Curso", "type": "text"},
             {"key": "instituicao", "label": "Instituição", "type": "text"},

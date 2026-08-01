@@ -2,7 +2,7 @@
 
 Plataforma SaaS de convites digitais para **qualquer tipo de evento** em
 Moçambique (`meuconvite.co.mz`): casamentos, lobolo, aniversários, batismos,
-formaturas, chá de bebé, eventos corporativos — cada tipo com os seus campos,
+graduações, chá de bebé, eventos corporativos — cada tipo com os seus campos,
 momentos e programa.
 
 - **Interface**: português
@@ -141,7 +141,7 @@ python manage.py seed_event_categories
 ```
 
 Cria os oito tipos iniciais: casamento, lobolo, aniversário, batismo,
-formatura, chá de bebé, evento corporativo e "outro evento".
+graduação, chá de bebé, evento corporativo e "outro evento".
 
 ### Campos definidos por dados
 

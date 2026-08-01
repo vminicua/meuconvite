@@ -22,7 +22,7 @@ class EventCategoryQuerySet(models.QuerySet):
 class EventCategory(BaseModel):
     """
     Tipo de evento suportado pela plataforma (casamento, aniversário,
-    lobolo, batismo, formatura, …).
+    lobolo, batismo, graduação, …).
 
     É gerido pela equipa MeuConvite na administração: cada tipo define
     como se chamam os protagonistas, que campos extra faz sentido pedir,
