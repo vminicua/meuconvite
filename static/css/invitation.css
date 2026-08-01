@@ -681,35 +681,32 @@ body.inv--embedded::-webkit-scrollbar {
 }
 
 .inv-map {
-    width: fit-content;
+    width: 100%;
     max-width: 100%;
-    margin: .4rem 0 0 auto;
-    overflow: hidden;
-    border: 1px solid color-mix(in srgb, var(--inv-primary) 25%, transparent);
-    border-radius: .7rem;
-    background: color-mix(in srgb, var(--inv-paper) 92%, #fff);
+    margin: 0;
 }
-
-.inv-map[open] { width: 100%; }
 
 .inv-map summary {
     display: flex;
     align-items: center;
-    gap: .32rem;
-    padding: .34rem .58rem;
+    justify-content: space-between;
+    gap: .5rem;
+    padding: 0;
     color: var(--inv-primary-text);
-    font-size: .78rem;
-    font-weight: 700;
     cursor: pointer;
     list-style: none;
 }
 
 .inv-map summary::-webkit-details-marker { display: none; }
-.inv-map summary::after { content: "+"; margin-left: .22rem; font-size: .85rem; }
-.inv-map[open] summary::after { content: "−"; margin-left: auto; }
+.inv-map__toggle,
+.inv-venue-map summary { display: inline-flex; align-items: center; gap: .3rem; padding: .3rem .5rem; border: 1px solid color-mix(in srgb, var(--inv-primary) 28%, transparent); border-radius: 999px; background: color-mix(in srgb, var(--inv-paper) 92%, #fff); color: var(--inv-primary-text); font-size: .68rem; font-weight: 700; line-height: 1; }
+.inv-map__toggle .bi-chevron-down,
+.inv-venue-map summary .bi-chevron-down { font-size: .55rem; transition: transform .2s ease; }
+.inv-map[open] .inv-map__toggle .bi-chevron-down,
+.inv-venue-map[open] summary .bi-chevron-down { transform: rotate(180deg); }
 .inv-map__frame,
 .inv-venue__map { position: relative; overflow: hidden; background: #e8e5de; }
-.inv-map__frame { aspect-ratio: 16 / 10; }
+.inv-map__frame { aspect-ratio: 16 / 10; margin-top: .55rem; border-radius: .55rem; }
 .inv-map__frame iframe,
 .inv-venue__map iframe { width: 100%; height: 100%; border: 0; }
 .inv-map__external { display: block; padding: .55rem .7rem; color: var(--inv-primary-text); font-size: .72rem; font-weight: 700; text-align: center; }
@@ -728,7 +725,10 @@ body.inv--embedded::-webkit-scrollbar {
     border-radius: .6rem;
 }
 
-.inv-venue__map { aspect-ratio: 16 / 9; margin: .85rem -.35rem; border-radius: .55rem; }
+.inv-venue-map { margin-top: .7rem; }
+.inv-venue-map summary { margin-left: auto; cursor: pointer; list-style: none; }
+.inv-venue-map summary::-webkit-details-marker { display: none; }
+.inv-venue__map { aspect-ratio: 16 / 9; margin-top: .65rem; border-radius: .55rem; }
 
 .inv-venue__name {
     font-family: var(--inv-display);

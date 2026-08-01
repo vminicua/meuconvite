@@ -248,8 +248,10 @@ class InvitationPreviewTests(TestCase):
             reverse("weddings:invitation_preview", args=[self.wedding.pk])
         )
         self.assertContains(response, "Onde será")
-        self.assertContains(response, "> Mapa</summary>", html=False)
+        self.assertContains(response, "inv-map__toggle")
         self.assertContains(response, "output=embed")
+        self.assertContains(response, '<details class="inv-venue-map">', html=False)
+        self.assertNotContains(response, '<details class="inv-venue-map" open', html=False)
         self.assertContains(response, "inv-venue__map")
 
     def test_rsvp_is_disabled_in_the_preview(self) -> None:
