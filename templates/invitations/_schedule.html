@@ -18,7 +18,13 @@
                         {% endif %}
                         {% if item.location %}
                             <span class="inv-timeline__note"><i class="bi bi-geo-alt"></i> {{ item.location.name }}{% if item.location.address %} · {{ item.location.address }}{% endif %}</span>
-                            {% if item.location.directions_url %}<a class="inv-btn inv-btn--ghost" href="{{ item.location.directions_url }}" target="_blank" rel="noopener">Ver mapa</a>{% endif %}
+                            {% if item.location.embed_url %}
+                            <details class="inv-map">
+                                <summary><i class="bi bi-map"></i> Ver localização</summary>
+                                <div class="inv-map__frame"><iframe src="{{ item.location.embed_url }}" title="Mapa de {{ item.location.name }}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
+                                {% if item.location.directions_url %}<a class="inv-map__external" href="{{ item.location.directions_url }}" target="_blank" rel="noopener noreferrer"><i class="bi bi-box-arrow-up-right"></i> Abrir no Google Maps</a>{% endif %}
+                            </details>
+                            {% endif %}
                         {% endif %}
                     </span>
                 </li>

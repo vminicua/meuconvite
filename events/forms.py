@@ -29,7 +29,14 @@ class ProgramItemForm(BootstrapModelForm):
         label=_("Endereço"),
         max_length=250,
         required=False,
-        widget=forms.TextInput(attrs={"placeholder": _("Rua, bairro ou ligação do mapa")}),
+        widget=forms.TextInput(attrs={"placeholder": _("Rua, bairro ou cidade")}),
+    )
+    map_url = forms.URLField(
+        label=_("Ligação do Google Maps"),
+        max_length=500,
+        required=False,
+        widget=forms.URLInput(attrs={"placeholder": _("https://maps.app.goo.gl/...")}),
+        help_text=_("Opcional. Cole a ligação partilhada pelo Google Maps."),
     )
 
     class Meta:
@@ -49,6 +56,7 @@ class ProgramItemForm(BootstrapModelForm):
         if self.instance and self.instance.pk and self.instance.location:
             self.fields["location_name"].initial = self.instance.location.name
             self.fields["address"].initial = self.instance.location.address
+            self.fields["map_url"].initial = self.instance.location.map_url
 
     def clean(self):
         cleaned = super().clean()

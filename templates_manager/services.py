@@ -100,7 +100,7 @@ def invitation_context(
 
     programme = list(
         programme_qs
-        .select_related("location")
+        .select_related("location", "location__wedding")
         .order_by("date", "start_time", "display_order")
     )
     # Compatibilidade durante a migração: itens antigos que ainda não foram
@@ -108,7 +108,7 @@ def invitation_context(
     programme_names = {item.name.casefold() for item in programme}
     for legacy in (
         ScheduleItem.objects.filter(wedding=wedding, is_public=True)
-        .select_related("location")
+        .select_related("location", "location__wedding")
         .order_by("date", "start_time", "display_order")
     ):
         if legacy.title.casefold() not in programme_names:
@@ -135,7 +135,9 @@ def invitation_context(
         "countdown_target": _countdown_target(wedding, first_moment),
         "schedule": programme,
         "locations": list(
-            WeddingLocation.objects.filter(wedding=wedding).order_by("display_order", "name")
+            WeddingLocation.objects.filter(wedding=wedding)
+            .select_related("wedding")
+            .order_by("display_order", "name")
         ),
         "qr_events": qr_events,
         "qr_data_uri": qr_data_uri,

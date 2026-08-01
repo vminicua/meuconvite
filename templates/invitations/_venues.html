@@ -1,6 +1,6 @@
 {% if locations %}
     <section class="inv-section inv-section--venues">
-        <h2 class="inv-section__title">Locais</h2>
+        <h2 class="inv-section__title">Onde será</h2>
         <svg class="inv-divider" viewBox="0 0 200 24" aria-hidden="true"><use href="#inv-divider"/></svg>
 
         <div class="inv-venues">
@@ -16,10 +16,13 @@
                     {% if location.parking_information %}
                         <p class="inv-venue__note"><i class="bi bi-p-square me-1"></i>{{ location.parking_information }}</p>
                     {% endif %}
+                    {% if location.embed_url %}
+                        <div class="inv-venue__map"><iframe src="{{ location.embed_url }}" title="Mapa de {{ location.name }}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
+                    {% endif %}
                     {% if location.directions_url %}
                         <a class="inv-btn inv-btn--ghost" href="{{ location.directions_url }}"
                            target="_blank" rel="noopener noreferrer">
-                            <i class="bi bi-geo-alt me-1"></i>Ver no mapa
+                            <i class="bi bi-geo-alt me-1"></i>Abrir no Google Maps
                         </a>
                     {% endif %}
                 </article>

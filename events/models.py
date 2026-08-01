@@ -200,6 +200,18 @@ class WeddingLocation(BaseModel):
             return f"https://www.google.com/maps/search/?api=1&query={quote(self.address)}"
         return ""
 
+    @property
+    def embed_url(self) -> str:
+        """Google Maps embed generated without an API key."""
+        from urllib.parse import quote
+
+        if self.has_coordinates:
+            query = f"{self.latitude},{self.longitude}"
+        else:
+            parts = [self.address or self.name, self.wedding.city, self.wedding.country]
+            query = ", ".join(str(part).strip() for part in parts if str(part).strip())
+        return f"https://www.google.com/maps?q={quote(query)}&output=embed" if query else ""
+
 
 class WeddingEventQuerySet(models.QuerySet):
     def active(self) -> "WeddingEventQuerySet":

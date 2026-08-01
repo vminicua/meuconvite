@@ -63,6 +63,13 @@ class EventModelTests(TestCase):
         event = create_event(self.wedding, location=location)
         self.assertEqual(event.effective_map_url, "https://maps.example.com/igreja")
 
+    def test_location_builds_an_embedded_map_without_an_api_key(self) -> None:
+        location = create_location(
+            self.wedding, address="Av. da Marginal, Maputo"
+        )
+        self.assertIn("google.com/maps?q=", location.embed_url)
+        self.assertIn("output=embed", location.embed_url)
+
     def test_time_range_display(self) -> None:
         event = create_event(self.wedding, start_time=time(9, 0), end_time=time(11, 30))
         self.assertEqual(event.time_range_display, "09:00 — 11:30")
@@ -145,6 +152,7 @@ class EventViewTests(TestCase):
                 "end_time": "17:00",
                 "location_name": "Salão Acácias",
                 "address": "Av. da Marginal, Maputo",
+                "map_url": "https://maps.example.com/salao",
             },
         )
         self.assertRedirects(response, reverse("events:organisation", args=[self.wedding.pk]))
@@ -152,11 +160,13 @@ class EventViewTests(TestCase):
         self.assertEqual(event.name, "Copo de água")
         self.assertEqual(event.location.name, "Salão Acácias")
         self.assertEqual(event.location.address, "Av. da Marginal, Maputo")
+        self.assertEqual(event.location.map_url, "https://maps.example.com/salao")
 
     def test_program_page_has_one_sequence_and_inline_form(self) -> None:
         response = self.client.get(reverse("events:organisation", args=[self.wedding.pk]))
         self.assertContains(response, "Adicionar ao programa")
         self.assertContains(response, 'name="location_name"', html=False)
+        self.assertContains(response, 'name="map_url"', html=False)
         self.assertNotContains(response, ">Momentos<", html=False)
         self.assertNotContains(response, ">Locais<", html=False)
 

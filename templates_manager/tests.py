@@ -237,6 +237,21 @@ class InvitationPreviewTests(TestCase):
         self.assertContains(response, "Corte do bolo")
         self.assertContains(response, services.DEMO_GUEST_NAME)
 
+    def test_preview_shows_the_venue_and_a_collapsed_program_map(self) -> None:
+        location = create_location(
+            self.wedding,
+            name="Salão Acácias",
+            address="Av. da Marginal, Maputo",
+        )
+        create_event(self.wedding, name="Recepção", location=location)
+        response = self.client.get(
+            reverse("weddings:invitation_preview", args=[self.wedding.pk])
+        )
+        self.assertContains(response, "Onde será")
+        self.assertContains(response, "Ver localização")
+        self.assertContains(response, "output=embed")
+        self.assertContains(response, "inv-venue__map")
+
     def test_rsvp_is_disabled_in_the_preview(self) -> None:
         response = self.client.get(
             reverse("weddings:invitation_preview", args=[self.wedding.pk])

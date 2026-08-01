@@ -44,11 +44,16 @@
                 <label class="form-label" for="{{ form.location_name.id_for_label }}">{{ form.location_name.label }}</label>
                 {{ form.location_name }}{{ form.location_name.errors }}
             </div>
-            <div class="col-lg-5">
+            <div class="col-lg-4">
                 <label class="form-label" for="{{ form.address.id_for_label }}">{{ form.address.label }}</label>
                 {{ form.address }}{{ form.address.errors }}
             </div>
-            <div class="col-lg-3">
+            <div class="col-lg-4">
+                <label class="form-label" for="{{ form.map_url.id_for_label }}">{{ form.map_url.label }}</label>
+                {{ form.map_url }}{{ form.map_url.errors }}
+                {% if form.map_url.help_text %}<div class="form-text">{{ form.map_url.help_text }}</div>{% endif %}
+            </div>
+            <div class="col-lg-4 ms-auto">
                 <button class="btn btn-primary w-100" type="submit"><i class="bi bi-plus-lg me-1"></i>Adicionar</button>
             </div>
             {% if form.non_field_errors %}<div class="col-12 text-danger small">{{ form.non_field_errors }}</div>{% endif %}
@@ -70,6 +75,13 @@
             <h3>{{ event.name }}</h3>
             {% if event.location %}
                 <p><i class="bi bi-geo-alt"></i> {{ event.location.name }}{% if event.location.address %}<span> · {{ event.location.address }}</span>{% endif %}</p>
+                {% if event.location.embed_url %}
+                <details class="program-map mt-3">
+                    <summary><i class="bi bi-map me-1"></i>Ver localização</summary>
+                    <div class="program-map__frame"><iframe src="{{ event.location.embed_url }}" title="Mapa de {{ event.location.name }}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
+                    {% if event.effective_map_url %}<a href="{{ event.effective_map_url }}" target="_blank" rel="noopener noreferrer"><i class="bi bi-box-arrow-up-right me-1"></i>Abrir no Google Maps</a>{% endif %}
+                </details>
+                {% endif %}
             {% else %}<p class="text-body-secondary"><i class="bi bi-geo-alt"></i> Local por definir</p>{% endif %}
             <div class="d-flex flex-wrap gap-1 mt-2">
                 {% if event.requires_rsvp %}<span class="program-badge">RSVP</span>{% endif %}

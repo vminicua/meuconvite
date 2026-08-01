@@ -33,6 +33,7 @@ def create_program_item(*, wedding, form, actor, request=None) -> WeddingEvent:
     location = None
     location_name = (form.cleaned_data.get("location_name") or "").strip()
     address = (form.cleaned_data.get("address") or "").strip()
+    map_url = (form.cleaned_data.get("map_url") or "").strip()
     if location_name:
         location = WeddingLocation.objects.filter(
             wedding=wedding, name__iexact=location_name
@@ -42,12 +43,20 @@ def create_program_item(*, wedding, form, actor, request=None) -> WeddingEvent:
                 wedding=wedding,
                 name=location_name,
                 address=address,
+                map_url=map_url,
                 display_order=_next_display_order(WeddingLocation, wedding),
             )
             log_create(location, actor=actor, wedding=wedding, request=request)
-        elif address and not location.address:
-            location.address = address
-            location.save(update_fields=["address", "updated_at"])
+        else:
+            changed = []
+            if address and not location.address:
+                location.address = address
+                changed.append("address")
+            if map_url and not location.map_url:
+                location.map_url = map_url
+                changed.append("map_url")
+            if changed:
+                location.save(update_fields=[*changed, "updated_at"])
 
     event: WeddingEvent = form.save(commit=False)
     event.wedding = wedding

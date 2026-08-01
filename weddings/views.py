@@ -188,6 +188,7 @@ def wedding_detail(request: HttpRequest, wedding) -> HttpResponse:
 
     from templates_manager import registry
     selected_template = registry.get_template(wedding.selected_template)
+    locations = wedding.locations.select_related("wedding").order_by("display_order", "name")
     return render(
         request,
         "weddings/wedding_detail.html",
@@ -203,6 +204,7 @@ def wedding_detail(request: HttpRequest, wedding) -> HttpResponse:
             "form": form,
             "capabilities": capabilities,
             "selected_template": selected_template,
+            "locations": locations,
         },
     )
 
@@ -245,6 +247,7 @@ def wedding_settings(request: HttpRequest, wedding) -> HttpResponse:
     limits = subscription_services.limits(wedding)
     guests_used = subscription_services.guest_count(wedding)
     from templates_manager import registry
+    locations = wedding.locations.select_related("wedding").order_by("display_order", "name")
     return render(request, "weddings/wedding_detail.html", {
         "wedding": wedding,
         "summary": dashboard_summary(wedding),
@@ -257,6 +260,7 @@ def wedding_settings(request: HttpRequest, wedding) -> HttpResponse:
         "form": form,
         "capabilities": capability_flags(wedding, request.user),
         "selected_template": registry.get_template(wedding.selected_template),
+        "locations": locations,
     })
 
 
