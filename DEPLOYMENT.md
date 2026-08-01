@@ -207,8 +207,8 @@ Gerar a `DJANGO_SECRET_KEY`:
 python -c "from django.core.management.utils import get_random_secret_key as k; print(k())"
 ```
 
-A estrutura completa e comentada está em `.env.example`; os valores reais estão
-no `.env` local do projeto. `config/settings/production.py` **recusa arrancar**
+A configuração e os valores reais estão no `.env` local do projeto ou nas
+variáveis de ambiente do alojamento. `config/settings/production.py` **recusa arrancar**
 sem `DJANGO_SECRET_KEY` forte e sem `DJANGO_ALLOWED_HOSTS` — é intencional.
 
 Nota sobre desenvolvimento: o mesmo `.env` fica no projeto local sem risco,

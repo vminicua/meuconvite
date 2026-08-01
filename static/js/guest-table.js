@@ -29,6 +29,8 @@
                 (!wantedStatus || row.dataset.status === wantedStatus) &&
                 (!wantedProgramme || normalized(row.dataset.programme).includes(wantedProgramme));
         }).sort(function (a, b) {
+            const enabledOrder = Number(b.dataset.enabled) - Number(a.dataset.enabled);
+            if (enabledOrder !== 0) return enabledOrder;
             const av = sortKey === "seats" ? Number(a.dataset[sortKey]) : normalized(a.dataset[sortKey]);
             const bv = sortKey === "seats" ? Number(b.dataset[sortKey]) : normalized(b.dataset[sortKey]);
             return (av > bv ? 1 : av < bv ? -1 : 0) * sortDirection;
@@ -37,7 +39,8 @@
 
     function render() {
         const found = filteredRows();
-        const perPage = Number(size ? size.value : 10);
+        const showAll = size && size.value === "all";
+        const perPage = showAll ? Math.max(found.length, 1) : Number(size ? size.value : 10);
         const pages = Math.max(1, Math.ceil(found.length / perPage));
         page = Math.min(page, pages);
         rows.forEach(function (row) { row.hidden = true; });
@@ -46,6 +49,7 @@
         if (empty) empty.hidden = found.length !== 0;
         if (pager) {
             pager.innerHTML = "";
+            if (showAll || found.length === 0) return;
             const makeButton = function (label, target, disabled, active) {
                 const button = document.createElement("button");
                 button.type = "button"; button.className = "btn btn-sm " + (active ? "btn-primary" : "btn-outline-secondary");
@@ -140,14 +144,14 @@
         copyLink(shareCopyButton.dataset.copyLink, shareCopyButton);
     });
 
-    const exportButton = root.querySelector("[data-export-csv]");
+    const exportButton = root.querySelector("[data-export-excel]");
     if (exportButton) exportButton.addEventListener("click", function () {
-        const lines = [["Convidado", "Telefone/Email", "Lugares", "Programa", "Confirmação"]];
-        filteredRows().forEach(function (row) { lines.push([row.dataset.name, row.dataset.contact, row.dataset.seats, row.dataset.programme, row.dataset.status]); });
-        const csv = "\ufeff" + lines.map(function (line) { return line.map(function (cell) { return '"' + String(cell).replace(/"/g, '""') + '"'; }).join(";"); }).join("\r\n");
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(new Blob([csv], {type: "text/csv;charset=utf-8"}));
-        link.download = "convidados.csv"; link.click(); URL.revokeObjectURL(link.href);
+        const url = new URL(exportButton.href, window.location.origin);
+        url.search = "";
+        if (search && search.value) url.searchParams.set("q", search.value);
+        if (status && status.value) url.searchParams.set("status", status.value);
+        if (programme && programme.value) url.searchParams.set("programme", programme.value);
+        exportButton.href = url.toString();
     });
     render();
 })();

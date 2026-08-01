@@ -51,5 +51,11 @@
                    data-workspace-nav href="{% url 'weddings:team' wedding.pk %}"><i class="bi bi-person-gear me-1"></i>Equipa</a>
             </li>
         {% endif %}
+        {% if capabilities.can_manage_billing %}
+            <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.namespace == 'subscriptions' %}active{% endif %}"
+                   data-workspace-nav href="{% url 'subscriptions:detail' wedding.pk %}"><i class="bi bi-gem me-1"></i>Subscrição</a>
+            </li>
+        {% endif %}
     </ul>
 </div>

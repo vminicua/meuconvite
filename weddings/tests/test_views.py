@@ -274,7 +274,11 @@ class DashboardViewTests(TestCase):
         self.assertNotContains(response, ">Momentos</a>", html=False)
         self.assertContains(response, ">Programa</a>", html=False)
         self.assertNotContains(response, ">Locais</a>", html=False)
-        self.assertContains(response, 'href="/subscricao/"', html=False)
+        self.assertContains(
+            response,
+            f'href="{reverse("subscriptions:detail", args=[self.wedding.pk])}"',
+            html=False,
+        )
 
     def test_setup_progress_grows_with_completed_items(self) -> None:
         before = self.client.get(reverse("weddings:setup", args=[self.wedding.pk]))

@@ -165,6 +165,19 @@ def guest_count(wedding) -> int:
     return related.filter(is_active=True).count()
 
 
+def enabled_guest_ids(wedding, allowance: int | None = None) -> set:
+    """Convidados cobertos pelo plano, pela ordem em que foram adicionados."""
+    related = getattr(wedding, "guests", None)
+    if related is None:
+        return set()
+    maximum = limits(wedding).max_guests if allowance is None else allowance
+    return set(
+        related.filter(is_active=True)
+        .order_by("created_at", "pk")
+        .values_list("pk", flat=True)[:maximum]
+    )
+
+
 def check_can_add_guests(wedding, quantity: int = 1) -> None:
     """
     Levanta `ValidationError` se o plano não comportar mais convidados.

@@ -11,7 +11,7 @@ para as fases seguintes e como reportar um problema.
 
 - Nenhuma password, chave ou token existe no código ou nesta documentação.
 - Tudo vem do ambiente através de `django-environ` (`.env` ou variáveis do cPanel).
-- `.env` está no `.gitignore`; apenas `.env.example`, sem valores reais, é versionado.
+- `.env` está no `.gitignore` e nunca é versionado; deve ser transferido apenas por um canal seguro.
 - `config/settings/production.py` **recusa arrancar** sem `DJANGO_SECRET_KEY`
   forte e sem `DJANGO_ALLOWED_HOSTS`.
 - Passwords nunca são escritas nos logs nem no registo de auditoria: o serviço

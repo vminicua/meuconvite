@@ -685,7 +685,7 @@ main {
 .guest-programme-options li label { display:flex; align-items:center; gap:.45rem; padding:.55rem .75rem; border:1px solid var(--bs-border-color); border-radius:999px; cursor:pointer; }
 .guest-programme-options li:has(input:checked) label { background:#f6efe1; border-color:#c8a96a; color:#705722; }
 .guest-table-card { overflow:hidden; border:0; }
-.guest-table-toolbar { display:grid; grid-template-columns:minmax(15rem,1fr) 12rem 14rem auto; gap:.75rem; padding:1rem; border-bottom:1px solid var(--bs-border-color); background:#fff; }
+.guest-table-toolbar { display:grid; grid-template-columns:minmax(15rem,1fr) 12rem 14rem 9rem auto; gap:.75rem; padding:1rem; border-bottom:1px solid var(--bs-border-color); background:#fff; }
 .guest-table-search { position:relative; }
 .guest-table-search i { position:absolute; left:.9rem; top:50%; transform:translateY(-50%); color:#7c848b; z-index:1; }
 .guest-table-search input { padding-left:2.35rem; }
@@ -693,6 +693,15 @@ main {
 .guest-table thead button { appearance:none; border:0; background:transparent; padding:0; color:inherit; font:inherit; text-transform:inherit; letter-spacing:inherit; }
 .guest-table tbody tr { transition:background-color .15s ease; }
 .guest-table tbody tr:hover { background:#fcfaf5; }
+.guest-table tbody tr.guest-row--disabled > td { background:#e4e6e7; color:#73787c; }
+.guest-table tbody tr.guest-row--disabled:hover > td { background:#dfe1e2; }
+.guest-table tbody tr.guest-row--disabled .guest-programme-pill,
+.guest-table tbody tr.guest-row--disabled .guest-status { filter:grayscale(1); opacity:.72; }
+.guest-order { width:4.5rem; color:#73787c; font-variant-numeric:tabular-nums; }
+.guest-subscribe-action { width:2.25rem; }
+.invitation-channel-options { display:grid; grid-template-columns:1fr 1fr; gap:.75rem; }
+.invitation-channel-options label { display:flex; align-items:center; gap:.55rem; padding:1rem; border:1px solid var(--bs-border-color); border-radius:.65rem; cursor:pointer; }
+.invitation-channel-options label:has(input:checked) { border-color:var(--mc-gold); background:#fcf7ea; }
 .guest-note { max-width:14rem; }
 .guest-seats { display:inline-grid; place-items:center; min-width:2rem; height:2rem; border-radius:50%; background:#f3eee4; font-weight:700; }
 .guest-programme-pill { display:inline-block; margin:.1rem; padding:.25rem .5rem; border-radius:999px; background:#eef2f4; font-size:.72rem; }

@@ -42,14 +42,8 @@ pip install -r requirements.txt
 pip install -r requirements-dev.txt
 ```
 
-Se ainda não existir um `.env` (não vem no repositório):
-
-```bash
-copy .env.example .env
-```
-
-> Se já tiver um `.env` com credenciais reais, **não execute o comando acima** —
-> substituiria o ficheiro.
+O `.env` contém toda a configuração local e as credenciais reais. Como não é
+versionado, obtenha uma cópia segura do administrador antes de arrancar o projeto.
 
 O desenvolvimento corre contra a **mesma base de dados de produção**, através de
 um túnel SSH. Numa janela:
@@ -293,7 +287,6 @@ liga-se por um túnel SSH (`scripts/dev_tunnel.py`), que abre
 | Ficheiro | Conteúdo | Versionado |
 | -------- | -------- | ---------- |
 | `.env` | valores reais (credenciais) | **Não** — no `.gitignore` |
-| `.env.example` | estrutura documentada, sem valores | Sim |
 
 ---
 

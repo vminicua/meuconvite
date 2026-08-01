@@ -20,6 +20,9 @@ whitenoise>=6.12
 # --- QR Codes (pure python, no system dependencies) ---
 segno>=1.6
 
+# --- SMS / WhatsApp --------------------------------------------------
+twilio>=9.0,<10.0
+
 # --- Exports ---
 openpyxl>=3.1          # Excel import/export
 reportlab>=4.0         # PDF generation (no system libraries required)

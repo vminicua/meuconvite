@@ -2,7 +2,15 @@ from django import forms
 
 from core.forms import BootstrapModelForm
 
-from .models import Guest
+from .models import Guest, InvitationChannel
+
+
+class SendInvitationForm(forms.Form):
+    channel = forms.ChoiceField(
+        label="Enviar por",
+        choices=InvitationChannel.choices,
+        widget=forms.RadioSelect,
+    )
 
 
 class GuestForm(BootstrapModelForm):

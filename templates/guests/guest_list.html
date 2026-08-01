@@ -10,7 +10,7 @@
     <div class="alert alert-success guest-action-feedback" role="status" aria-live="polite" data-action-feedback hidden></div>
     <header class="guest-workspace__header">
         <div>
-            <p class="workspace-eyebrow mb-1">{{ guest_count }} de {{ limits.max_guests }} convidados</p>
+            <p class="workspace-eyebrow mb-1">{{ guest_count }} convidados · {{ limits.max_guests }} activos no plano</p>
             <h2 class="h4 mb-1">Lista de convidados</h2>
             <p class="text-body-secondary mb-0">Convites individuais, confirmações e acesso ao programa num só lugar.</p>
         </div>
@@ -57,11 +57,15 @@
                 <option value="">Todo o programa</option>
                 {% for event in wedding.events.all %}{% if event.is_active %}<option value="{{ event.name|lower }}">{{ event.name }}</option>{% endif %}{% endfor %}
             </select>
-            <button class="btn btn-outline-secondary" type="button" data-export-csv><i class="bi bi-download me-1"></i> Exportar CSV</button>
+            <select class="form-select" data-page-size aria-label="Quantidade de registos por página">
+                <option value="10">10 registos</option><option value="25">25 registos</option><option value="50">50 registos</option><option value="all">Todos</option>
+            </select>
+            <a class="btn btn-outline-secondary text-nowrap" href="{% url 'guests:export_excel' wedding.pk %}" data-export-excel><i class="bi bi-file-earmark-excel me-1"></i> Exportar Excel</a>
         </div>
         <div class="table-responsive">
             <table class="table guest-table align-middle mb-0">
                 <thead><tr>
+                    <th>Ord.</th>
                     <th><button type="button" data-sort="name">Convidado <i class="bi bi-arrow-down-up"></i></button></th>
                     <th><button type="button" data-sort="contact">Contacto <i class="bi bi-arrow-down-up"></i></button></th>
                     <th><button type="button" data-sort="seats">Lugares <i class="bi bi-arrow-down-up"></i></button></th>
@@ -71,7 +75,8 @@
                 </tr></thead>
                 <tbody>
                 {% for row in guest_rows %}{% with guest=row.guest %}
-                    <tr data-guest-row data-name="{{ guest.full_name|lower }}" data-contact="{{ guest.phone|lower }} {{ guest.email|lower }}" data-seats="{{ guest.party_size }}" data-status="{{ guest.rsvp_status }}" data-programme="{% for event in row.allowed_events %}{{ event.name|lower }} {% empty %}todos{% endfor %}">
+                    <tr class="{% if not row.is_enabled %}guest-row--disabled{% endif %}" data-guest-row data-enabled="{% if row.is_enabled %}1{% else %}0{% endif %}" data-name="{{ guest.full_name|lower }}" data-contact="{{ guest.phone|lower }} {{ guest.email|lower }}" data-seats="{{ guest.party_size }}" data-status="{{ guest.rsvp_status }}" data-programme="{% for event in row.allowed_events %}{{ event.name|lower }} {% empty %}todos{% endfor %}">
+                        <td class="guest-order">{{ row.ord }}</td>
                         <td><strong>{{ guest.full_name }}</strong>{% if guest.notes %}<div class="small text-body-secondary text-truncate guest-note">{{ guest.notes }}</div>{% endif %}</td>
                         <td class="small">{{ guest.phone|default:"—" }}{% if guest.email %}<div class="text-body-secondary">{{ guest.email }}</div>{% endif %}</td>
                         <td><span class="guest-seats">{{ guest.party_size }}</span></td>
@@ -83,16 +88,22 @@
                             {% elif guest.rsvp_status == 'declined' %}<span class="guest-status guest-status--declined"><i class="bi bi-x-circle-fill"></i> Não comparece</span>
                             {% else %}<span class="guest-status guest-status--pending"><i class="bi bi-clock"></i> Por responder</span>{% endif %}
                             {% if guest.responded_at %}<div class="small text-body-secondary mt-1">{{ guest.responded_at|date:"d/m/Y H:i" }}</div>{% endif %}
+                            {% if row.latest_delivery %}<div class="small text-body-secondary mt-1"><i class="bi bi-send-check me-1"></i>{{ row.latest_delivery.get_channel_display }}: {{ row.latest_delivery.get_status_display }}</div>{% endif %}
                         </td>
                         <td class="text-end text-nowrap">
+                            {% if row.is_enabled %}
                             <div class="btn-group btn-group-sm guest-actions" role="group" aria-label="Acções de {{ guest.full_name }}">
                                 <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#qr-{{ guest.pk }}" title="Ver QR Code"><i class="bi bi-qr-code"></i></button>
                                 <button class="btn btn-outline-secondary" type="button" data-copy-link="{{ row.invitation_url }}" title="Copiar ligação"><i class="bi bi-link-45deg"></i></button>
                                 <button class="btn btn-outline-secondary" type="button" data-share-link="{{ row.invitation_url }}" data-share-name="{{ guest.full_name }}" title="Partilhar convite"><i class="bi bi-share"></i></button>
+                                <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#send-{{ guest.pk }}" title="Enviar convite por SMS ou WhatsApp"><i class="bi bi-send"></i></button>
                                 <a class="btn btn-outline-secondary" href="{{ row.invitation_url }}" target="_blank" title="Visualizar convite"><i class="bi bi-eye"></i></a>
                                 <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#edit-{{ guest.pk }}" title="Editar convidado"><i class="bi bi-pencil"></i></button>
                             </div>
                             <form method="post" action="{% url 'guests:remove' wedding.pk guest.pk %}" class="d-inline" data-confirm="Remover {{ guest.full_name }} da lista?">{% csrf_token %}<button class="btn btn-sm btn-link text-danger" title="Remover"><i class="bi bi-trash"></i></button></form>
+                            {% else %}
+                            <a class="btn btn-sm btn-primary guest-subscribe-action" href="{% url 'subscriptions:detail' wedding.pk %}" title="Subscrever para activar este convidado" aria-label="Subscrever para activar {{ guest.full_name }}"><i class="bi bi-gem"></i></a>
+                            {% endif %}
                         </td>
                     </tr>
                 {% endwith %}{% endfor %}
@@ -101,7 +112,7 @@
         </div>
         <footer class="guest-table-footer">
             <span class="small text-body-secondary" data-table-summary></span>
-            <div class="d-flex align-items-center gap-2"><label class="small text-body-secondary">Por página <select class="form-select form-select-sm d-inline-block w-auto" data-page-size><option>10</option><option>25</option><option>50</option></select></label><nav class="guest-pagination" data-table-pagination></nav></div>
+            <nav class="guest-pagination" data-table-pagination></nav>
         </footer>
         <div class="guest-table-empty" data-table-empty hidden><i class="bi bi-search"></i><strong>Nenhum convidado encontrado</strong><span>Altere os filtros ou a pesquisa.</span></div>
     </div>
@@ -123,8 +134,28 @@
     </div>
 
     {% for row in guest_rows %}{% with guest=row.guest %}
+    {% if row.is_enabled %}
     <div class="modal fade" id="qr-{{ guest.pk }}" tabindex="-1" aria-labelledby="qr-title-{{ guest.pk }}" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content guest-qr-modal"><div class="modal-header"><h2 class="modal-title h5" id="qr-title-{{ guest.pk }}">QR de {{ guest.full_name }}</h2><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body text-center"><img src="{{ row.qr_data_uri }}" alt="QR Code individual de {{ guest.full_name }}"><p class="fw-semibold mb-1">{{ guest.party_size }} lugar{{ guest.party_size|pluralize:"es" }}</p><p class="small text-body-secondary">Este código abre o convite individual e identifica o convidado.</p><button class="btn btn-outline-secondary btn-sm" type="button" data-copy-link="{{ row.invitation_url }}"><i class="bi bi-link-45deg"></i> Copiar ligação</button></div></div></div>
+    </div>
+    <div class="modal fade" id="send-{{ guest.pk }}" tabindex="-1" aria-labelledby="send-title-{{ guest.pk }}" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+            <form method="post" action="{% url 'guests:send_invitation' wedding.pk guest.pk %}">
+                <div class="modal-header"><div><p class="workspace-eyebrow mb-1">Convite individual</p><h2 class="modal-title h5" id="send-title-{{ guest.pk }}">Enviar convite a {{ guest.full_name }}</h2></div><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button></div>
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <p class="text-body-secondary">O convite individual será enviado para <strong>{{ guest.phone|default:"sem telefone" }}</strong>.</p>
+                    <fieldset><legend class="form-label fw-semibold">Escolha o canal</legend>
+                        <div class="invitation-channel-options">
+                            <label><input class="form-check-input" type="radio" name="channel" value="sms" required> <i class="bi bi-chat-dots"></i> SMS</label>
+                            <label><input class="form-check-input" type="radio" name="channel" value="whatsapp" required> <i class="bi bi-whatsapp"></i> WhatsApp</label>
+                        </div>
+                    </fieldset>
+                    <div class="alert alert-light border small mt-3 mb-0"><i class="bi bi-info-circle me-1"></i>O SMS é enviado automaticamente pela Twilio. No WhatsApp, abriremos a conversa com a mensagem pronta para confirmar manualmente.</div>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary" type="submit"><i class="bi bi-send me-1"></i>Enviar convite</button></div>
+            </form>
+        </div></div>
     </div>
     <div class="modal fade" id="edit-{{ guest.pk }}" tabindex="-1" aria-labelledby="edit-title-{{ guest.pk }}" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -154,6 +185,7 @@
             </div>
         </div>
     </div>
+    {% endif %}
     {% endwith %}{% endfor %}
     {% else %}
     <div class="empty-state text-center py-5"><i class="bi bi-people display-5 text-body-secondary"></i><h3 class="h6 mt-3">A lista ainda está vazia</h3><p class="small text-body-secondary">Clique em “Adicionar convidado” para criar o primeiro convite individual.</p></div>
@@ -161,4 +193,4 @@
 </section>
 {% endblock %}
 
-{% block extra_js %}<script src="{% static 'js/guest-table.js' %}?v=20260801.1"></script>{% endblock %}
+{% block extra_js %}<script src="{% static 'js/guest-table.js' %}?v=20260801.3"></script>{% endblock %}

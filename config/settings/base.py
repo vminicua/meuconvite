@@ -2,7 +2,7 @@
 Base settings shared by every environment.
 
 Nothing secret lives here: every credential is read from the environment
-(see `.env.example`). Environment specific overrides live in
+(`.env` locally or platform environment variables). Environment specific overrides live in
 `development.py` and `production.py`.
 """
 
@@ -37,6 +37,14 @@ SITE_ID = 1
 SITE_NAME = env("SITE_NAME", default="MeuConvite")
 SITE_DOMAIN = env("SITE_DOMAIN", default="meuconvite.co.mz")
 SITE_BASE_URL = env("SITE_BASE_URL", default="https://meuconvite.co.mz").rstrip("/")
+
+# Twilio Programmable Messaging. Credenciais nunca são guardadas no código.
+TWILIO_ACCOUNT_SID = env("TWILIO_ACCOUNT_SID", default="")
+TWILIO_API_KEY_SID = env("TWILIO_API_KEY_SID", default="")
+TWILIO_API_KEY_SECRET = env("TWILIO_API_KEY_SECRET", default="")
+TWILIO_AUTH_TOKEN = env("TWILIO_AUTH_TOKEN", default="")
+TWILIO_SMS_FROM = env("TWILIO_SMS_FROM", default="")
+TWILIO_STATUS_CALLBACK_URL = env("TWILIO_STATUS_CALLBACK_URL", default="")
 
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
