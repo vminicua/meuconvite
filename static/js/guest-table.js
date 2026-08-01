@@ -156,7 +156,7 @@
     if (shareCopyButton) shareCopyButton.addEventListener("click", function () {
         copyLink(shareCopyButton.dataset.copyLink, shareCopyButton, "Mensagem do convite copiada.");
     });
-    async function shareCoverMessage(coverUrl, text, title) {
+    async function shareCoverMessage(coverUrl, text, title, fallback) {
         try {
             const response = await fetch(coverUrl);
             if (!response.ok) throw new Error("cover");
@@ -172,7 +172,11 @@
             download.href = coverUrl; download.download = "capa-do-convite"; download.hidden = true;
             document.body.appendChild(download); download.click(); download.remove();
             showFeedback("A capa foi descarregada. Anexe-a no WhatsApp juntamente com a mensagem.", "warning");
-            window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank", "noopener");
+            if (typeof fallback === "function") {
+                fallback();
+            } else {
+                window.location.assign("https://wa.me/?text=" + encodeURIComponent(text));
+            }
         }
     }
     const shareWithCover = root.querySelector("[data-share-with-cover]");
@@ -185,7 +189,12 @@
             if (!selected || selected.value !== "whatsapp") return;
             event.preventDefault();
             event.stopImmediatePropagation();
-            await shareCoverMessage(form.dataset.shareCover, form.dataset.shareMessage, form.dataset.shareTitle);
+            await shareCoverMessage(
+                form.dataset.shareCover,
+                form.dataset.shareMessage,
+                form.dataset.shareTitle,
+                function () { form.submit(); }
+            );
         });
     });
 
