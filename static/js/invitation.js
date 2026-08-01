@@ -54,6 +54,14 @@
                 toggle.querySelector("span").textContent = "Ouvir";
             }
         });
+
+        // Tenta iniciar assim que a página abre. Safari, Chrome e Firefox
+        // podem bloquear áudio com som até existir a primeira interação;
+        // nesse caso retomamos no primeiro toque/tecla, sem exigir o ícone.
+        startMusic();
+        ["pointerdown", "keydown", "touchstart"].forEach(function (eventName) {
+            document.addEventListener(eventName, startMusic, { once: true, passive: true });
+        });
     }
 
     /* --- Abertura da capa -------------------------------------------- */
