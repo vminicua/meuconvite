@@ -23,7 +23,7 @@
 {% block navbar %}{% include "partials/navbar.html" %}{% endblock %}
 
 <main class="{% block main_class %}container py-4{% endblock %}">
-    {% include "partials/messages.html" %}
+    {% block flash_messages %}{% include "partials/messages.html" %}{% endblock %}
     {% block content %}{% endblock %}
 </main>
 

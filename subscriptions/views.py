@@ -36,6 +36,7 @@ def subscription_detail(request: HttpRequest, wedding) -> HttpResponse:
             "wedding": wedding,
             "limits": current,
             "guests_used": used,
+            "sms_used": services.sms_count(wedding),
             "guests_remaining": current.guests_remaining(used),
             "usage_percent": current.usage_percent(used),
             "plans": Plan.objects.active().order_by("display_order", "max_guests"),

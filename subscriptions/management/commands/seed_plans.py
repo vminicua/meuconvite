@@ -18,18 +18,19 @@ from django.db import transaction
 
 from subscriptions.models import Plan
 
-# Os limites de convidados são os pedidos: 20 grátis, depois 50, 100, 200 e 500.
+# O plano gratuito é deliberadamente limitado: 5 convidados e 2 SMS.
 # Os preços são um ponto de partida e devem ser confirmados na administração.
 PLANS: list[dict] = [
     {
         "code": "gratuito",
         "name": "Gratuito",
         "description": "Para experimentar a plataforma e eventos pequenos.",
-        "max_guests": 20,
+        "max_guests": 5,
         "max_events": 1,
+        "max_sms": 2,
         "price_mzn": Decimal("0"),
         "duration_days": 0,
-        "templates_limit": 3,
+        "templates_limit": 1,
         "is_default": True,
         "display_order": 10,
     },
@@ -39,6 +40,7 @@ PLANS: list[dict] = [
         "description": "Até 50 convidados, com convites individuais e QR Code.",
         "max_guests": 50,
         "max_events": 2,
+        "max_sms": 50,
         "price_mzn": Decimal("750"),
         "duration_days": 365,
         "allows_qr_checkin": True,
@@ -52,6 +54,7 @@ PLANS: list[dict] = [
         "description": "Até 100 convidados, com mesas e exportações.",
         "max_guests": 100,
         "max_events": 4,
+        "max_sms": 150,
         "price_mzn": Decimal("1500"),
         "duration_days": 365,
         "allows_qr_checkin": True,
@@ -67,6 +70,7 @@ PLANS: list[dict] = [
         "description": "Até 200 convidados, equipa e relatórios completos.",
         "max_guests": 200,
         "max_events": 8,
+        "max_sms": 400,
         "price_mzn": Decimal("2500"),
         "duration_days": 365,
         "allows_qr_checkin": True,
@@ -83,6 +87,7 @@ PLANS: list[dict] = [
         "description": "Até 500 convidados, sem marca da plataforma.",
         "max_guests": 500,
         "max_events": 20,
+        "max_sms": 1000,
         "price_mzn": Decimal("4500"),
         "duration_days": 365,
         "allows_qr_checkin": True,

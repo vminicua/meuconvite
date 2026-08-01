@@ -10,7 +10,7 @@
     <div class="alert alert-success guest-action-feedback" role="status" aria-live="polite" data-action-feedback hidden></div>
     <header class="guest-workspace__header">
         <div>
-            <p class="workspace-eyebrow mb-1">{{ guest_count }} convidados · {{ limits.max_guests }} activos no plano</p>
+            <p class="workspace-eyebrow mb-1">{{ guest_count }}/{{ limits.max_guests }} convidados · {{ sms_used }}/{{ limits.max_sms }} SMS usados</p>
             <h2 class="h4 mb-1">Lista de convidados</h2>
             <p class="text-body-secondary mb-0">Convites individuais, confirmações e acesso ao programa num só lugar.</p>
         </div>
@@ -93,9 +93,7 @@
                         <td class="text-end text-nowrap">
                             {% if row.is_enabled %}
                             <div class="btn-group btn-group-sm guest-actions" role="group" aria-label="Acções de {{ guest.full_name }}">
-                                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#qr-{{ guest.pk }}" title="Ver QR Code"><i class="bi bi-qr-code"></i></button>
-                                <button class="btn btn-outline-secondary" type="button" data-copy-link="{{ row.invitation_url }}" title="Copiar ligação"><i class="bi bi-link-45deg"></i></button>
-                                <button class="btn btn-outline-secondary" type="button" data-share-link="{{ row.invitation_url }}" data-share-name="{{ guest.full_name }}" title="Partilhar convite"><i class="bi bi-share"></i></button>
+                                <button class="btn btn-outline-secondary" type="button" data-copy-link="{{ row.invitation_url }}" data-share-link="{{ row.invitation_url }}" data-share-name="{{ guest.full_name }}" data-share-qr="{{ row.qr_data_uri }}" title="QR Code, copiar e partilhar"><i class="bi bi-share"></i></button>
                                 <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#send-{{ guest.pk }}" title="Enviar convite por SMS ou WhatsApp"><i class="bi bi-send"></i></button>
                                 <a class="btn btn-outline-secondary" href="{{ row.invitation_url }}" target="_blank" title="Visualizar convite"><i class="bi bi-eye"></i></a>
                                 <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#edit-{{ guest.pk }}" title="Editar convidado"><i class="bi bi-pencil"></i></button>
@@ -118,11 +116,15 @@
     </div>
 
     <div class="modal fade" id="shareInvitationModal" tabindex="-1" aria-labelledby="shareInvitationTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header"><h2 class="modal-title h5" id="shareInvitationTitle">Partilhar convite</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button></div>
                 <div class="modal-body">
                     <p class="small text-body-secondary" data-share-description>Escolha como pretende enviar este convite individual.</p>
+                    <div class="text-center border rounded-3 p-3 mb-3">
+                        <img data-share-qr-image alt="QR Code individual" style="width:180px;max-width:100%;height:auto">
+                        <div class="small text-body-secondary mt-2">O mesmo acesso pode ser copiado, mostrado em QR ou partilhado.</div>
+                    </div>
                     <div class="d-grid gap-2">
                         <a class="btn btn-success" href="#" target="_blank" rel="noopener" data-share-whatsapp><i class="bi bi-whatsapp me-2"></i>Partilhar no WhatsApp</a>
                         <a class="btn btn-outline-secondary" href="#" data-share-email><i class="bi bi-envelope me-2"></i>Enviar por email</a>
@@ -135,9 +137,6 @@
 
     {% for row in guest_rows %}{% with guest=row.guest %}
     {% if row.is_enabled %}
-    <div class="modal fade" id="qr-{{ guest.pk }}" tabindex="-1" aria-labelledby="qr-title-{{ guest.pk }}" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content guest-qr-modal"><div class="modal-header"><h2 class="modal-title h5" id="qr-title-{{ guest.pk }}">QR de {{ guest.full_name }}</h2><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body text-center"><img src="{{ row.qr_data_uri }}" alt="QR Code individual de {{ guest.full_name }}"><p class="fw-semibold mb-1">{{ guest.party_size }} lugar{{ guest.party_size|pluralize:"es" }}</p><p class="small text-body-secondary">Este código abre o convite individual e identifica o convidado.</p><button class="btn btn-outline-secondary btn-sm" type="button" data-copy-link="{{ row.invitation_url }}"><i class="bi bi-link-45deg"></i> Copiar ligação</button></div></div></div>
-    </div>
     <div class="modal fade" id="send-{{ guest.pk }}" tabindex="-1" aria-labelledby="send-title-{{ guest.pk }}" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
             <form method="post" action="{% url 'guests:send_invitation' wedding.pk guest.pk %}">
@@ -147,7 +146,7 @@
                     <p class="text-body-secondary">O convite individual será enviado para <strong>{{ guest.phone|default:"sem telefone" }}</strong>.</p>
                     <fieldset><legend class="form-label fw-semibold">Escolha o canal</legend>
                         <div class="invitation-channel-options">
-                            <label><input class="form-check-input" type="radio" name="channel" value="sms" required> <i class="bi bi-chat-dots"></i> SMS</label>
+                            <label class="{% if sms_used >= limits.max_sms %}text-body-secondary{% endif %}"><input class="form-check-input" type="radio" name="channel" value="sms" required {% if sms_used >= limits.max_sms %}disabled{% endif %}> <i class="bi bi-chat-dots"></i> SMS{% if sms_used >= limits.max_sms %} · limite atingido{% endif %}</label>
                             <label><input class="form-check-input" type="radio" name="channel" value="whatsapp" required> <i class="bi bi-whatsapp"></i> WhatsApp</label>
                         </div>
                     </fieldset>

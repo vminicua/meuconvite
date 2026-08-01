@@ -120,7 +120,7 @@
         window.prompt("Copie a ligação do convite:", url);
         return false;
     }
-    root.querySelectorAll("[data-copy-link]").forEach(function (button) { button.addEventListener("click", function () { copyLink(button.dataset.copyLink, button); }); });
+    root.querySelectorAll("[data-copy-link]:not([data-share-link])").forEach(function (button) { button.addEventListener("click", function () { copyLink(button.dataset.copyLink, button); }); });
     root.querySelectorAll("[data-share-link]").forEach(function (button) {
         button.addEventListener("click", function () {
             const url = button.dataset.shareLink;
@@ -132,6 +132,11 @@
                 return;
             }
             modalElement.querySelector("[data-share-description]").textContent = "Enviar o convite individual de " + name + ".";
+            const qrImage = modalElement.querySelector("[data-share-qr-image]");
+            if (qrImage) {
+                qrImage.src = button.dataset.shareQr || "";
+                qrImage.alt = "QR Code individual de " + name;
+            }
             modalElement.querySelector("[data-share-whatsapp]").href = "https://wa.me/?text=" + encodeURIComponent(text);
             modalElement.querySelector("[data-share-email]").href = "mailto:?subject=" + encodeURIComponent("Convite MeuConvite") + "&body=" + encodeURIComponent(text);
             const copyButton = modalElement.querySelector("[data-share-copy]");

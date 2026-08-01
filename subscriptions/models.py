@@ -55,6 +55,11 @@ class Plan(BaseModel):
         default=1,
         help_text=_("Quantos eventos o utilizador pode ter em simultâneo."),
     )
+    max_sms = models.PositiveIntegerField(
+        _("SMS incluídos"),
+        default=0,
+        help_text=_("Número máximo de convites por SMS em cada evento."),
+    )
     price_mzn = models.DecimalField(
         _("preço (MZN)"), max_digits=10, decimal_places=2, default=0
     )
@@ -143,6 +148,11 @@ class Subscription(BaseModel):
     # Guardado no momento da activação: se o plano for alterado mais tarde,
     # quem já pagou mantém o que comprou.
     guest_allowance = models.PositiveIntegerField(_("convidados permitidos"))
+    sms_allowance = models.PositiveIntegerField(
+        _("SMS permitidos"),
+        default=0,
+        help_text=_("Limite guardado no momento em que a subscrição é activada."),
+    )
     notes = models.CharField(_("notas"), max_length=200, blank=True)
 
     class Meta:

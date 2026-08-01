@@ -30,7 +30,14 @@ from subscriptions.models import Payment, PaymentStatus, Plan
 from weddings.models import Wedding, WeddingStatus
 
 from . import selectors
-from .forms import BlockEventForm, CategoryFieldForm, EventCategoryForm, PlanForm
+from .forms import (
+    BlockEventForm,
+    CategoryFieldForm,
+    EventCategoryForm,
+    PlanForm,
+    PlatformConfigurationForm,
+)
+from .models import PlatformConfiguration, configured_value
 
 
 def _render(request: HttpRequest, section: str, template: str, context: dict) -> HttpResponse:
@@ -286,6 +293,33 @@ def plans(request: HttpRequest) -> HttpResponse:
         "plans",
         "platform_admin/sections/plans.html",
         {"plans": selectors.plans_list()},
+    )
+
+
+@staff_member_required
+def settings_view(request: HttpRequest) -> HttpResponse:
+    configuration = PlatformConfiguration.load()
+    if request.method == "POST":
+        form = PlatformConfigurationForm(request.POST, instance=configuration)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Configurações da plataforma guardadas com segurança.")
+            return redirect("platform:settings")
+        messages.error(request, "Corrija os erros assinalados nas configurações.")
+    else:
+        form = PlatformConfigurationForm(instance=configuration)
+
+    twilio_names = PlatformConfigurationForm.SECRET_NAMES
+    twilio_status = {
+        name: bool(configuration.get_secret(name) or configured_value(name))
+        for name in twilio_names
+    }
+    twilio_status["twilio_sms_from"] = bool(configured_value("twilio_sms_from"))
+    return _render(
+        request,
+        "settings",
+        "platform_admin/sections/settings.html",
+        {"form": form, "configuration": configuration, "twilio_status": twilio_status},
     )
 
 

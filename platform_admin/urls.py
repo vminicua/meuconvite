@@ -23,6 +23,7 @@ urlpatterns = [
     path("pacotes/", views.plans, name="plans"),
     path("pacotes/novo/", views.plan_form, name="plan_create"),
     path("pacotes/<uuid:plan_id>/", views.plan_form, name="plan_edit"),
+    path("configuracoes/", views.settings_view, name="settings"),
     # Tipos de evento
     path("tipos/", views.categories, name="categories"),
     path("tipos/novo/", views.category_form, name="category_create"),

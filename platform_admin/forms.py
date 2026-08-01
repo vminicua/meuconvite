@@ -11,10 +11,74 @@ from core.schema import FIELD_TYPES, MAX_FIELDS, slugify_key, validate_schema
 from events.models import EventCategory
 from subscriptions.models import Plan
 from templates_manager.models import InvitationTemplate
+from .models import PlatformConfiguration
+
+
+class PlatformConfigurationForm(BootstrapModelForm):
+    """Integrações da plataforma; segredos vazios mantêm o valor actual."""
+
+    twilio_account_sid = forms.CharField(label="Account SID", required=False)
+    twilio_api_key_sid = forms.CharField(label="API Key SID", required=False)
+    twilio_api_key_secret = forms.CharField(
+        label="API Key Secret", required=False, widget=forms.PasswordInput(render_value=True)
+    )
+    twilio_auth_token = forms.CharField(
+        label="Auth Token (webhooks)", required=False, widget=forms.PasswordInput(render_value=True)
+    )
+
+    SECRET_NAMES = (
+        "twilio_account_sid",
+        "twilio_api_key_sid",
+        "twilio_api_key_secret",
+        "twilio_auth_token",
+    )
+
+    class Meta:
+        model = PlatformConfiguration
+        fields = [
+            "twilio_sms_from",
+            "twilio_status_callback_url",
+            "mpesa_number",
+            "mpesa_account_name",
+            "whatsapp_number",
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for name in self.SECRET_NAMES:
+            if self.instance and self.instance.has_secret(name):
+                self.fields[name].widget.attrs["placeholder"] = "Configurado — deixe vazio para manter"
+        self.fields["twilio_status_callback_url"].help_text = _(
+            "Use HTTPS. Normalmente: https://seu-dominio/convites/twilio/estado/."
+        )
+        self.fields["twilio_sms_from"].help_text = _(
+            "Número Twilio em E.164 (por exemplo +123456789) ou Messaging Service compatível."
+        )
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        for name in self.SECRET_NAMES:
+            value = self.cleaned_data.get(name, "")
+            if value:
+                instance.set_secret(name, value)
+        if commit:
+            instance.save()
+        return instance
 
 
 class PlanForm(BootstrapModelForm):
     """Criação e edição de um pacote comercial."""
+
+    max_sms = forms.IntegerField(
+        label=_("SMS incluídos"),
+        min_value=0,
+        required=False,
+        initial=0,
+        help_text=_("0 desactiva o envio por SMS neste pacote."),
+    )
+
+    def clean_max_sms(self) -> int:
+        return self.cleaned_data.get("max_sms") or 0
 
     class Meta:
         model = Plan
@@ -24,6 +88,7 @@ class PlanForm(BootstrapModelForm):
             "description",
             "max_guests",
             "max_events",
+            "max_sms",
             "templates_limit",
             "price_mzn",
             "duration_days",

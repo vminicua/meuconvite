@@ -6,7 +6,6 @@ import re
 import unicodedata
 from urllib.parse import urlencode
 
-from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
@@ -37,11 +36,19 @@ def normalize_phone(value: str) -> str:
 
 def invitation_message(guest, invitation_url: str, channel: str) -> str:
     if channel == InvitationChannel.SMS:
-        # Contas Trial acrescentam um prefixo próprio. Mantemos o SMS em GSM-7
-        # e curto para não ultrapassar o limite de um segmento do Twilio Trial.
         first_name = (guest.full_name or "Convidado").split()[0]
-        first_name = unicodedata.normalize("NFKD", first_name).encode("ascii", "ignore").decode()
-        return f"Convite para {first_name[:20]}: {invitation_url}"
+        template = guest.wedding.sms_invitation_message or (
+            "Olá {nome}! {evento} convidam-no(a). Veja e confirme: {link}"
+        )
+        try:
+            body = template.format(
+                nome=first_name[:40],
+                evento=guest.wedding.display_names,
+                link=invitation_url,
+            )
+            return unicodedata.normalize("NFKD", body).encode("ascii", "ignore").decode()
+        except (KeyError, ValueError):
+            return f"Convite para {first_name[:20]}: {invitation_url}"
     return (
         f"Olá {guest.full_name}! {guest.wedding.display_names} convidam-no(a) "
         f"para celebrar este momento especial. Abra o convite e confirme a sua presença: "
@@ -58,17 +65,20 @@ def whatsapp_invitation_url(*, guest, invitation_url: str) -> str:
 
 def _client():
     from twilio.rest import Client
+    from platform_admin.models import configured_value
 
-    account_sid = settings.TWILIO_ACCOUNT_SID
-    api_key_sid = settings.TWILIO_API_KEY_SID
-    api_key_secret = settings.TWILIO_API_KEY_SECRET
+    account_sid = configured_value("twilio_account_sid")
+    api_key_sid = configured_value("twilio_api_key_sid")
+    api_key_secret = configured_value("twilio_api_key_secret")
     if not all((account_sid, api_key_sid, api_key_secret)):
         raise ValidationError("O serviço Twilio ainda não está configurado.")
     return Client(api_key_sid, api_key_secret, account_sid)
 
 
 def status_callback_url() -> str:
-    callback = settings.TWILIO_STATUS_CALLBACK_URL.strip()
+    from platform_admin.models import configured_value
+
+    callback = configured_value("twilio_status_callback_url").strip()
     return callback if callback.startswith("https://") else ""
 
 
@@ -79,9 +89,14 @@ def send_invitation(*, guest, channel: str, invitation_url: str, actor) -> Invit
         raise ValidationError(
             "O WhatsApp é aberto directamente no seu dispositivo e não é enviado pela Twilio."
         )
+    from subscriptions.services import check_can_send_sms
+
+    check_can_send_sms(guest.wedding)
     phone = normalize_phone(guest.phone)
     destination = phone
-    sender = settings.TWILIO_SMS_FROM
+    from platform_admin.models import configured_value
+
+    sender = configured_value("twilio_sms_from")
     if not sender:
         raise ValidationError(f"O remetente de {channel.upper()} ainda não está configurado.")
 

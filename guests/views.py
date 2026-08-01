@@ -12,7 +12,7 @@ import segno
 
 from audit.models import AuditAction
 from audit.services import log_action, log_create, log_delete, log_update, model_to_dict
-from subscriptions.services import enabled_guest_ids, limits
+from subscriptions.services import enabled_guest_ids, limits, sms_count
 from weddings.permissions import capability_flags, require_wedding
 
 from .forms import GuestForm, SendInvitationForm
@@ -82,6 +82,7 @@ def guest_list(request: HttpRequest, wedding) -> HttpResponse:
             "form": form,
             "limits": current_limits,
             "guest_count": len(guests),
+            "sms_used": sms_count(wedding),
             "capabilities": capability_flags(wedding, request.user),
         },
     )
@@ -276,7 +277,9 @@ def guest_invitation(request: HttpRequest, token: str) -> HttpResponse:
 @require_POST
 def twilio_message_status(request: HttpRequest) -> HttpResponse:
     """Webhook assinado do Twilio para estados de entrega e leitura."""
-    auth_token = settings.TWILIO_AUTH_TOKEN
+    from platform_admin.models import configured_value
+
+    auth_token = configured_value("twilio_auth_token")
     signature = request.headers.get("X-Twilio-Signature", "")
     if not auth_token or not signature:
         return HttpResponse(status=403)

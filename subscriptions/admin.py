@@ -14,6 +14,7 @@ class PlanAdmin(admin.ModelAdmin):
         "name",
         "code",
         "max_guests",
+        "max_sms",
         "price_display",
         "duration_days",
         "is_default",
@@ -27,7 +28,7 @@ class PlanAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (None, {"fields": ("code", "name", "description", "display_order")}),
-        (_("Limites"), {"fields": ("max_guests", "max_events", "templates_limit")}),
+        (_("Limites"), {"fields": ("max_guests", "max_events", "max_sms", "templates_limit")}),
         (_("Preço"), {"fields": ("price_mzn", "duration_days")}),
         (
             _("Funcionalidades"),
@@ -47,7 +48,7 @@ class PlanAdmin(admin.ModelAdmin):
 
 @admin.register(Subscription)
 class SubscriptionAdmin(admin.ModelAdmin):
-    list_display = ("wedding", "plan", "status", "guest_allowance", "starts_on", "ends_on")
+    list_display = ("wedding", "plan", "status", "guest_allowance", "sms_allowance", "starts_on", "ends_on")
     list_filter = ("status", "plan")
     search_fields = ("wedding__primary_name", "wedding__secondary_name", "wedding__slug")
     autocomplete_fields = ["wedding", "plan"]

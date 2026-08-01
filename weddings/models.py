@@ -157,6 +157,12 @@ class Wedding(BaseModel):
         blank=True,
         help_text=_("Mensagem apresentada ao convidado depois de abrir o convite."),
     )
+    sms_invitation_message = models.CharField(
+        _("mensagem do convite por SMS"),
+        max_length=500,
+        default="Olá {nome}! {evento} convidam-no(a). Veja e confirme: {link}",
+        help_text=_("Pode usar {nome}, {evento} e {link}."),
+    )
     welcome_message = models.TextField(_("mensagem de boas-vindas"), blank=True, max_length=1000)
     story = models.TextField(_("a nossa história"), blank=True, max_length=5000)
     hashtag = models.CharField(_("hashtag"), max_length=60, blank=True)

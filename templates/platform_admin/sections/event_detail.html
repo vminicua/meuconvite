@@ -41,7 +41,7 @@
                     <dd>{{ event.created_at|date:"d/m/Y H:i" }}</dd>
 
                     <dt>Pacote</dt>
-                    <dd>{{ limits.plan_name }} — até {{ limits.max_guests }} convidados</dd>
+                    <dd>{{ limits.plan_name }} — até {{ limits.max_guests }} convidados e {{ limits.max_sms }} SMS</dd>
 
                     {% if event.extra_values %}
                         {% for extra in event.extra_values %}

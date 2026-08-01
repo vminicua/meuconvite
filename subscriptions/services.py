@@ -12,7 +12,6 @@ from dataclasses import dataclass
 from datetime import timedelta
 from decimal import Decimal
 
-from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
@@ -31,7 +30,8 @@ from .models import (
 
 # Usado quando ainda não existe nenhum plano na base de dados (instalação
 # nova, antes de correr `seed_plans`): a plataforma continua utilizável.
-FALLBACK_GUEST_LIMIT = 20
+FALLBACK_GUEST_LIMIT = 5
+FALLBACK_SMS_LIMIT = 2
 
 
 @dataclass(frozen=True)
@@ -41,6 +41,7 @@ class Limits:
     plan_name: str
     max_guests: int
     max_events: int
+    max_sms: int
     allows_qr_checkin: bool
     allows_seating: bool
     allows_team: bool
@@ -93,6 +94,7 @@ def ensure_subscription(wedding) -> Subscription | None:
         plan=plan,
         status=SubscriptionStatus.ACTIVE,
         guest_allowance=plan.max_guests,
+        sms_allowance=plan.max_sms,
     )
 
 
@@ -107,6 +109,7 @@ def limits(wedding) -> Limits:
                 plan_name=str(_("Gratuito")),
                 max_guests=FALLBACK_GUEST_LIMIT,
                 max_events=1,
+                max_sms=FALLBACK_SMS_LIMIT,
                 allows_qr_checkin=False,
                 allows_seating=False,
                 allows_team=False,
@@ -123,6 +126,7 @@ def limits(wedding) -> Limits:
             plan_name=fallback.name,
             max_guests=fallback.max_guests,
             max_events=fallback.max_events,
+            max_sms=fallback.max_sms,
             allows_qr_checkin=fallback.allows_qr_checkin,
             allows_seating=fallback.allows_seating,
             allows_team=fallback.allows_team,
@@ -140,6 +144,7 @@ def limits(wedding) -> Limits:
         # O que foi comprado manda, mesmo que o plano mude depois.
         max_guests=subscription.guest_allowance or plan.max_guests,
         max_events=plan.max_events,
+        max_sms=subscription.sms_allowance,
         allows_qr_checkin=plan.allows_qr_checkin,
         allows_seating=plan.allows_seating,
         allows_team=plan.allows_team,
@@ -197,6 +202,27 @@ def check_can_add_guests(wedding, quantity: int = 1) -> None:
         )
 
 
+def sms_count(wedding) -> int:
+    """Número de tentativas de envio por SMS consumidas pelo evento."""
+    related = getattr(wedding, "invitation_deliveries", None)
+    if related is None:
+        return 0
+    return related.filter(channel="sms").count()
+
+
+def check_can_send_sms(wedding) -> None:
+    """Impede envios quando a quota de SMS do pacote foi atingida."""
+    allowed = limits(wedding)
+    if sms_count(wedding) >= allowed.max_sms:
+        raise ValidationError(
+            _(
+                "O pacote %(plan)s inclui %(max)s envio(s) por SMS e o limite já foi atingido. "
+                "Actualize a subscrição para continuar a enviar por SMS."
+            )
+            % {"plan": allowed.plan_name, "max": allowed.max_sms}
+        )
+
+
 def upgrade_options(wedding) -> list[Plan]:
     """Planos que representam de facto um upgrade face ao actual."""
     current = limits(wedding)
@@ -214,10 +240,12 @@ def upgrade_options(wedding) -> list[Plan]:
 
 def payment_instructions() -> dict:
     """Dados de pagamento mostrados ao utilizador (vêm das settings)."""
+    from platform_admin.models import configured_value
+
     return {
-        "mpesa_number": getattr(settings, "MPESA_NUMBER", ""),
-        "mpesa_name": getattr(settings, "MPESA_ACCOUNT_NAME", ""),
-        "whatsapp_number": getattr(settings, "WHATSAPP_NUMBER", ""),
+        "mpesa_number": configured_value("mpesa_number"),
+        "mpesa_name": configured_value("mpesa_account_name"),
+        "whatsapp_number": configured_value("whatsapp_number"),
     }
 
 
@@ -225,7 +253,9 @@ def whatsapp_url(payment: Payment) -> str:
     """Ligação que abre o WhatsApp com a mensagem do comprovativo pronta."""
     from urllib.parse import quote
 
-    number = getattr(settings, "WHATSAPP_NUMBER", "").lstrip("+")
+    from platform_admin.models import configured_value
+
+    number = configured_value("whatsapp_number").lstrip("+")
     if not number:
         return ""
     return f"https://wa.me/{number}?text={quote(payment.whatsapp_message)}"
@@ -257,7 +287,7 @@ def request_upgrade(*, wedding, plan: Plan, actor, request=None, **details) -> P
         plan=plan,
         requested_by=actor,
         amount_mzn=plan.price_mzn,
-        paid_to=getattr(settings, "MPESA_NUMBER", ""),
+        paid_to=payment_instructions()["mpesa_number"],
         payer_phone=(details.get("payer_phone") or "").strip(),
         transaction_id=(details.get("transaction_id") or "").strip(),
         proof=details.get("proof") or None,
@@ -328,6 +358,7 @@ def confirm_payment(*, payment: Payment, actor, request=None, notes: str = "") -
             "starts_on": today,
             "ends_on": ends_on,
             "guest_allowance": plan.max_guests,
+            "sms_allowance": plan.max_sms,
             "notes": f"Activada pelo pagamento {payment.reference}",
         },
     )

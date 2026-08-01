@@ -1,0 +1,63 @@
+<div class="section-head" data-section-title="Configurações">
+    <div>
+        <h1>Configurações</h1>
+        <p>Integrações, mensagens e contactos operacionais da plataforma.</p>
+    </div>
+</div>
+
+<form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div class="row g-4">
+        <div class="col-xl-8">
+            <div class="admin-card mb-4">
+                <div class="admin-card__header d-flex align-items-center justify-content-between">
+                    <div><h2 class="h6 mb-1">Twilio · SMS</h2><p class="small text-body-secondary mb-0">Credenciais cifradas e estado da integração.</p></div>
+                    {% if twilio_status.twilio_account_sid and twilio_status.twilio_api_key_sid and twilio_status.twilio_api_key_secret and twilio_status.twilio_sms_from %}
+                        <span class="badge text-bg-success">Configurado</span>
+                    {% else %}<span class="badge text-bg-warning">Incompleto</span>{% endif %}
+                </div>
+                <div class="admin-card__body">
+                    <div class="alert alert-light border small">
+                        <i class="bi bi-shield-lock me-1"></i>Os segredos são cifrados antes de serem guardados. Campos secretos vazios mantêm o valor existente ou a variável de ambiente.
+                    </div>
+                    <div class="row g-3">
+                        {% for field in form %}{% if field.name|slice:':7' == 'twilio_' %}
+                        <div class="{% if field.name == 'twilio_status_callback_url' %}col-12{% else %}col-md-6{% endif %}">
+                            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}
+                            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}{{ field.errors }}
+                        </div>
+                        {% endif %}{% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-card">
+                <div class="admin-card__header"><h2 class="h6 mb-1">Pagamentos e suporte</h2><p class="small text-body-secondary mb-0">Dados apresentados nas instruções de pagamento.</p></div>
+                <div class="admin-card__body">
+                    <div class="row g-3">
+                        {% for field in form %}{% if field.name|slice:':7' != 'twilio_' %}
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}
+                            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}{{ field.errors }}
+                        </div>
+                        {% endif %}{% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4"><button class="btn btn-primary" type="submit"><i class="bi bi-check2 me-1"></i>Guardar configurações</button></div>
+        </div>
+        <div class="col-xl-4">
+            <div class="admin-card">
+                <div class="admin-card__header"><h2 class="h6 mb-0">Checklist Twilio</h2></div>
+                <div class="admin-card__body">
+                    <ul class="list-unstyled small mb-0 d-grid gap-2">
+                        {% for name, ready in twilio_status.items %}
+                        <li><i class="bi {% if ready %}bi-check-circle-fill text-success{% else %}bi-x-circle text-danger{% endif %} me-2"></i>{{ name|cut:'twilio_'|cut:'_'|title }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

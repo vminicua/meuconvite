@@ -17,6 +17,7 @@ from weddings.tests.factories import (
     create_user,
     create_wedding,
 )
+from .models import PlatformConfiguration
 
 HTMX = {"HTTP_HX_REQUEST": "true"}
 
@@ -34,13 +35,13 @@ class AccessTests(TestCase):
 
     def test_ordinary_client_cannot_enter_any_section(self) -> None:
         self.client.login(email=self.client_user.email, password=DEFAULT_PASSWORD)
-        for name in ("dashboard", "events", "users", "payments", "plans", "categories", "audit"):
+        for name in ("dashboard", "events", "users", "payments", "plans", "categories", "audit", "settings"):
             with self.subTest(section=name):
                 self.assertEqual(self.client.get(reverse(f"platform:{name}")).status_code, 302)
 
     def test_staff_sees_every_section(self) -> None:
         self.client.login(email=self.staff.email, password=DEFAULT_PASSWORD)
-        for name in ("dashboard", "events", "users", "payments", "plans", "categories", "audit"):
+        for name in ("dashboard", "events", "users", "payments", "plans", "categories", "audit", "settings"):
             with self.subTest(section=name):
                 self.assertEqual(self.client.get(reverse(f"platform:{name}")).status_code, 200)
 
@@ -70,6 +71,33 @@ class LayoutTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, "admin-sidebar")
         self.assertContains(response, 'data-section-title="Eventos"')
+
+
+class ConfigurationTests(TestCase):
+    def setUp(self) -> None:
+        self.staff = create_user("config@example.com", is_staff=True)
+        self.client.login(email=self.staff.email, password=DEFAULT_PASSWORD)
+
+    def test_twilio_configuration_is_encrypted_and_reopens_masked(self) -> None:
+        response = self.client.post(
+            reverse("platform:settings"),
+            {
+                "twilio_account_sid": "AC123456",
+                "twilio_api_key_sid": "SK123456",
+                "twilio_api_key_secret": "api-secret-value",
+                "twilio_auth_token": "auth-token-value",
+                "twilio_sms_from": "+12025550123",
+                "twilio_status_callback_url": "https://example.com/twilio/status/",
+                "mpesa_number": "840000000",
+                "mpesa_account_name": "MeuConvite",
+                "whatsapp_number": "+258840000000",
+            },
+        )
+        self.assertRedirects(response, reverse("platform:settings"))
+        configuration = PlatformConfiguration.load()
+        self.assertEqual(configuration.get_secret("twilio_api_key_secret"), "api-secret-value")
+        self.assertNotIn("api-secret-value", configuration.twilio_api_key_secret_secret)
+        self.assertContains(self.client.get(reverse("platform:settings")), "Configurado")
 
 
 class DashboardTests(TestCase):

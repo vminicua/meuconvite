@@ -4,6 +4,7 @@
 # --- Core ---
 Django>=5.2,<6.0
 django-environ>=0.14,<1.0
+cryptography>=44,<50
 
 # --- Authentication ---
 django-allauth>=65.18,<66.0

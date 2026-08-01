@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import string
+
 from django import forms
 from django.contrib.auth import get_user_model
 from django.utils import timezone
@@ -84,6 +86,13 @@ class WeddingCreateForm(BootstrapModelForm):
 class WeddingSettingsForm(BootstrapModelForm):
     """Definições gerais de um evento já criado."""
 
+    sms_invitation_message = forms.CharField(
+        label=_("Mensagem do convite por SMS"),
+        required=False,
+        widget=forms.Textarea(attrs={"rows": 3}),
+        help_text=_("Pode usar {nome}, {evento} e {link}."),
+    )
+
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.fields["city"].label = _("Endereço")
@@ -129,6 +138,7 @@ class WeddingSettingsForm(BootstrapModelForm):
             "hashtag",
             "cover_message",
             "invitation_message",
+            "sms_invitation_message",
             "welcome_message",
             "story",
             "rsvp_deadline",
@@ -139,6 +149,7 @@ class WeddingSettingsForm(BootstrapModelForm):
             "main_date": forms.DateInput(),
             "rsvp_deadline": forms.DateInput(),
             "invitation_message": forms.Textarea(attrs={"rows": 3}),
+            "sms_invitation_message": forms.Textarea(attrs={"rows": 3}),
             "welcome_message": forms.Textarea(attrs={"rows": 3}),
             "story": forms.Textarea(attrs={"rows": 6}),
         }
@@ -155,6 +166,29 @@ class WeddingSettingsForm(BootstrapModelForm):
                 f"{self.instance.primary_short_name}-e-{self.instance.secondary_short_name}",
             )
         return slug
+
+    def clean_sms_invitation_message(self) -> str:
+        value = (self.cleaned_data.get("sms_invitation_message") or "").strip() or (
+            "Olá {nome}! {evento} convidam-no(a). Veja e confirme: {link}"
+        )
+        allowed = {"nome", "evento", "link"}
+        try:
+            fields = {
+                field_name
+                for _literal, field_name, _spec, _conversion in string.Formatter().parse(value)
+                if field_name
+            }
+        except ValueError as exc:
+            raise forms.ValidationError(_("A mensagem contém chavetas inválidas.")) from exc
+        unknown = fields - allowed
+        if unknown:
+            raise forms.ValidationError(
+                _("Placeholder desconhecido: %(fields)s. Use apenas {nome}, {evento} e {link}.")
+                % {"fields": ", ".join(sorted(unknown))}
+            )
+        if "link" not in fields:
+            raise forms.ValidationError(_("Inclua {link} para enviar a ligação individual."))
+        return value
 
     def clean(self):
         cleaned = super().clean()

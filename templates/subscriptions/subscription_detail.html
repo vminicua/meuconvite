@@ -48,6 +48,10 @@
                 <p class="small text-body-secondary">
                     Ainda pode acrescentar <strong>{{ guests_remaining }}</strong> convidado{{ guests_remaining|pluralize }}.
                 </p>
+                <div class="mb-3 d-flex justify-content-between small border-top pt-3">
+                    <span>Convites por SMS</span>
+                    <span class="fw-semibold">{{ sms_used }} / {{ limits.max_sms }}</span>
+                </div>
 
                 <ul class="list-unstyled small mb-0">
                     <li>
@@ -106,6 +110,7 @@
                         <tr>
                             <th>Pacote</th>
                             <th class="text-end">Convidados</th>
+                            <th class="text-end">SMS</th>
                             <th class="text-end">Preço</th>
                             <th class="text-end">Acção</th>
                         </tr>
@@ -118,6 +123,7 @@
                                     <div class="small text-body-secondary">{{ plan.description }}</div>
                                 </td>
                                 <td class="text-end">{{ plan.max_guests }}</td>
+                                <td class="text-end">{{ plan.max_sms }}</td>
                                 <td class="text-end text-nowrap">{{ plan.price_display }}</td>
                                 <td class="text-end">
                                     {% if plan.max_guests == limits.max_guests %}
@@ -134,7 +140,7 @@
                             </tr>
                         {% empty %}
                             <tr>
-                                <td colspan="4" class="text-body-secondary small">
+                                <td colspan="5" class="text-body-secondary small">
                                     Ainda não há pacotes configurados.
                                 </td>
                             </tr>

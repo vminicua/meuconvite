@@ -16,6 +16,7 @@
                 <tr>
                     <th>Pacote</th>
                     <th>Convidados</th>
+                    <th>SMS</th>
                     <th>Preço</th>
                     <th>Duração</th>
                     <th>Funcionalidades</th>
@@ -32,6 +33,7 @@
                             <div class="small text-body-secondary">{{ plan.description|truncatechars:48 }}</div>
                         </td>
                         <td class="small">{{ plan.max_guests }}</td>
+                        <td class="small">{{ plan.max_sms }}</td>
                         <td class="small text-nowrap">{{ plan.price_display }}</td>
                         <td class="small">{% if plan.duration_days %}{{ plan.duration_days }} dias{% else %}—{% endif %}</td>
                         <td class="small">
