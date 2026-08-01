@@ -14,6 +14,9 @@ from .models import DeliveryStatus, InvitationChannel, InvitationDelivery
 from weddings.models import DEFAULT_SMS_INVITATION_MESSAGE, SMS_MAX_LENGTH
 
 
+WHATSAPP_PREVIEW_REVISION = "2"
+
+
 def _sms_ascii(value: str, limit: int) -> str:
     """Transliterate dynamic content and retain printable ASCII only."""
     value = strip_accents(value or "")
@@ -44,7 +47,10 @@ def normalize_phone(value: str) -> str:
 
 def whatsapp_cover_version(wedding) -> str:
     """Versão curta que renova a pré-visualização quando a capa muda."""
-    cover_identity = f"{wedding.selected_template}:{getattr(wedding.cover_image, 'name', '')}"
+    cover_identity = (
+        f"{wedding.selected_template}:{getattr(wedding.cover_image, 'name', '')}:"
+        f"{WHATSAPP_PREVIEW_REVISION}"
+    )
     return hashlib.sha256(cover_identity.encode("utf-8")).hexdigest()[:6]
 
 
