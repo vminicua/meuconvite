@@ -58,6 +58,36 @@ def _qr_data_uri(url: str) -> str:
     return segno.make(url, error="h").svg_data_uri(scale=5, border=2)
 
 
+def invitation_default_music(request: HttpRequest) -> HttpResponse:
+    """Serve the bundled WAV with MIME and byte-range support for mobile browsers."""
+    audio_path = settings.BASE_DIR / "static" / "audio" / "meuconvite-theme.wav"
+    if not audio_path.exists():
+        raise Http404
+    content = audio_path.read_bytes()
+    total = len(content)
+    start, end = 0, total - 1
+    status = 200
+    range_header = request.headers.get("Range", "")
+    if range_header.startswith("bytes="):
+        requested = range_header.removeprefix("bytes=").split(",", 1)[0]
+        first, _, last = requested.partition("-")
+        try:
+            start = int(first) if first else 0
+            end = int(last) if last else total - 1
+        except ValueError:
+            start, end = 0, total - 1
+        start = max(0, min(start, total - 1))
+        end = max(start, min(end, total - 1))
+        status = 206
+    response = HttpResponse(content[start : end + 1], content_type="audio/wav", status=status)
+    response["Accept-Ranges"] = "bytes"
+    response["Content-Length"] = str(end - start + 1)
+    response["Cache-Control"] = "public, max-age=604800"
+    if status == 206:
+        response["Content-Range"] = f"bytes {start}-{end}/{total}"
+    return response
+
+
 @require_wedding("can_manage_guests")
 def guest_list(request: HttpRequest, wedding) -> HttpResponse:
     if request.method == "POST":
