@@ -212,13 +212,21 @@ class GuestViewTests(TestCase):
         invitation = self.client.get(reverse("guest_invitation", args=[guest.invitation_token]))
         image_url = reverse("guest_invitation_share_image", args=[guest.invitation_token])
         self.assertContains(invitation, image_url)
-        self.assertContains(invitation, "audio/meuconvite-theme.wav")
+        self.assertContains(invitation, reverse("invitation_default_music"))
 
         image_response = self.client.get(image_url)
         self.assertEqual(image_response.status_code, 200)
         self.assertEqual(image_response["Content-Type"], "image/jpeg")
         with Image.open(BytesIO(image_response.content)) as image:
             self.assertEqual(image.size, (1200, 630))
+
+        audio_response = self.client.get(
+            reverse("invitation_default_music"), HTTP_RANGE="bytes=0-1023"
+        )
+        self.assertEqual(audio_response.status_code, 206)
+        self.assertEqual(audio_response["Content-Type"], "audio/wav")
+        self.assertEqual(audio_response["Content-Length"], "1024")
+        self.assertTrue(audio_response["Content-Range"].startswith("bytes 0-1023/"))
 
     def test_sms_settings_reject_unicode(self):
         from weddings.forms import WeddingSettingsForm
