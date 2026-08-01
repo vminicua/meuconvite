@@ -248,7 +248,7 @@ class InvitationPreviewTests(TestCase):
             reverse("weddings:invitation_preview", args=[self.wedding.pk])
         )
         self.assertContains(response, "Onde será")
-        self.assertContains(response, "Ver localização")
+        self.assertContains(response, "> Mapa</summary>", html=False)
         self.assertContains(response, "output=embed")
         self.assertContains(response, "inv-venue__map")
 

@@ -681,15 +681,22 @@ body.inv--embedded::-webkit-scrollbar {
 }
 
 .inv-map {
-    margin-top: .65rem;
+    width: fit-content;
+    max-width: 100%;
+    margin: .4rem 0 0 auto;
     overflow: hidden;
     border: 1px solid color-mix(in srgb, var(--inv-primary) 25%, transparent);
     border-radius: .7rem;
     background: color-mix(in srgb, var(--inv-paper) 92%, #fff);
 }
 
+.inv-map[open] { width: 100%; }
+
 .inv-map summary {
-    padding: .62rem .75rem;
+    display: flex;
+    align-items: center;
+    gap: .32rem;
+    padding: .34rem .58rem;
     color: var(--inv-primary-text);
     font-size: .78rem;
     font-weight: 700;
@@ -698,8 +705,8 @@ body.inv--embedded::-webkit-scrollbar {
 }
 
 .inv-map summary::-webkit-details-marker { display: none; }
-.inv-map summary::after { content: "+"; float: right; font-size: 1rem; }
-.inv-map[open] summary::after { content: "−"; }
+.inv-map summary::after { content: "+"; margin-left: .22rem; font-size: .85rem; }
+.inv-map[open] summary::after { content: "−"; margin-left: auto; }
 .inv-map__frame,
 .inv-venue__map { position: relative; overflow: hidden; background: #e8e5de; }
 .inv-map__frame { aspect-ratio: 16 / 10; }
