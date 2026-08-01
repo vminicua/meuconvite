@@ -288,6 +288,10 @@ class WeddingEvent(BaseModel):
     def __str__(self) -> str:
         return self.name
 
+    @property
+    def programme_title(self) -> str:
+        return self.name
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = unique_slugify(self, self.name)
@@ -391,6 +395,10 @@ class ScheduleItem(BaseModel):
     def __str__(self) -> str:
         if self.start_time:
             return f"{self.start_time:%Hh%M} — {self.title}"
+        return self.title
+
+    @property
+    def programme_title(self) -> str:
         return self.title
 
     @property

@@ -39,8 +39,7 @@
                     {% if template.cover_image %}
                         <img src="{{ template.cover_image.url }}" alt="Cover do template {{ template.name }}">
                     {% else %}
-                        <img src="{% static 'img/template-cover-default.webp' %}"
-                             alt="Cover provisório do template {{ template.name }}">
+                        {% include "partials/template_cover_art.html" %}
                     {% endif %}
                 </span>
 

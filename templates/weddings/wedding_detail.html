@@ -1,132 +1,52 @@
 {% extends "base.html" %}
 
-{% block title %}{{ wedding.display_names }} · {{ SITE_NAME }}{% endblock %}
+{% block title %}Detalhes · {{ wedding.display_names }}{% endblock %}
 
 {% block content %}
 {% include "partials/wedding_nav.html" %}
 
-<div class="row g-3 mb-4">
-    <div class="col-6 col-lg-3">
-        <div class="stat-tile">
-            <div class="stat-tile__value">{{ summary.days_until }}</div>
-            <div class="stat-tile__label">dias para o evento</div>
-        </div>
-    </div>
-    <div class="col-6 col-lg-3">
-        <div class="stat-tile">
-            <div class="stat-tile__value">{{ summary.events_total }}</div>
-            <div class="stat-tile__label">momentos</div>
-        </div>
-    </div>
-    <div class="col-6 col-lg-3">
-        <div class="stat-tile">
-            <div class="stat-tile__value">{{ summary.locations_total }}</div>
-            <div class="stat-tile__label">locais</div>
-        </div>
-    </div>
-    <div class="col-6 col-lg-3">
-        <a class="stat-tile stat-tile--link d-block text-decoration-none"
-           href="{% url 'subscriptions:detail' wedding.pk %}">
-            <div class="stat-tile__value">{{ guests_used }}<span class="text-body-secondary">/{{ limits.max_guests }}</span></div>
-            <div class="stat-tile__label">
-                convidados · pacote {{ limits.plan_name }}
-            </div>
-        </a>
-    </div>
+<div class="workspace-section-heading mb-3">
+    <span class="workspace-eyebrow">INFORMAÇÃO PRINCIPAL</span>
+    <h2 class="h4 mb-1">Detalhes do evento</h2>
+    <p class="text-body-secondary mb-0">Tudo o que identifica o evento e aparece no convite.</p>
 </div>
 
-{% if usage_percent >= 80 %}
-    <div class="alert alert-warning d-flex flex-wrap justify-content-between align-items-center gap-2">
-        <span>
-            <i class="bi bi-exclamation-triangle me-1"></i>
-            Já usou {{ usage_percent }}% dos convidados do pacote {{ limits.plan_name }}
-            ({{ guests_used }} de {{ limits.max_guests }}).
-        </span>
-        <a href="{% url 'subscriptions:detail' wedding.pk %}" class="btn btn-sm btn-primary">
-            Ver pacotes
-        </a>
-    </div>
-{% endif %}
-
 <div class="row g-4">
-    <div class="col-lg-7">
-        <div class="card shadow-sm h-100">
-            <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
-                <span class="fw-semibold">Momentos do evento</span>
-                <a href="{% url 'events:list' wedding.pk %}" class="btn btn-sm btn-outline-secondary">Gerir</a>
-            </div>
-            <div class="card-body">
-                {% if events %}
-                    <ul class="timeline list-unstyled mb-0">
-                        {% for event in events %}
-                            <li class="timeline__item">
-                                <div class="timeline__time">
-                                    {{ event.date|date:"d/m" }}<br>
-                                    <span class="small text-body-secondary">{{ event.start_time|time:"H:i"|default:"--:--" }}</span>
-                                </div>
-                                <div class="timeline__body">
-                                    <div class="fw-semibold">{{ event.name }}</div>
-                                    <div class="small text-body-secondary">
-                                        {{ event.get_event_type_display }}
-                                        {% if event.location %} · {{ event.location.name }}{% endif %}
-                                    </div>
-                                    <div class="mt-1">
-                                        {% if event.requires_rsvp %}<span class="badge text-bg-light border">Confirmação</span>{% endif %}
-                                        {% if event.requires_qr_code %}<span class="badge text-bg-light border">QR Code</span>{% endif %}
-                                        {% if not event.show_to_all_guests %}<span class="badge text-bg-light border">Convidados específicos</span>{% endif %}
-                                    </div>
-                                </div>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p class="text-body-secondary mb-3">Ainda não criou nenhum momento.</p>
-                    <a href="{% url 'events:create' wedding.pk %}" class="btn btn-sm btn-primary">Criar primeiro momento</a>
-                {% endif %}
+    <div class="col-xl-8">
+        <div class="card shadow-sm border-0 details-card">
+            <div class="card-body p-4 p-lg-5">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% include "partials/form_fields.html" %}
+                    {% if capabilities.can_manage_events %}
+                    <div class="mt-4"><button class="btn btn-primary px-4" type="submit">Guardar detalhes</button></div>
+                    {% endif %}
+                </form>
             </div>
         </div>
     </div>
-
-    <div class="col-lg-5">
-        <div class="card shadow-sm h-100">
-            <div class="card-header bg-transparent fw-semibold">O que falta</div>
-            <div class="card-body">
+    <div class="col-xl-4">
+        <div class="card shadow-sm border-0 details-card mb-3">
+            <div class="card-body p-4">
+                <h3 class="h6 mb-3">Estado da preparação</h3>
                 <ul class="checklist list-unstyled mb-3">
                     {% for item in checklist %}
-                        <li class="checklist__item {% if item.done %}checklist__item--done{% endif %}">
-                            <i class="bi {% if item.done %}bi-check-circle-fill text-success{% else %}bi-circle text-body-secondary{% endif %} me-2"></i>
-                            {% if item.url_name and not item.done %}
-                                <a href="{% url item.url_name wedding.pk %}">{{ item.label }}</a>
-                            {% else %}
-                                {{ item.label }}
-                            {% endif %}
-                            {% if item.required and not item.done %}
-                                <span class="badge text-bg-warning ms-1">obrigatório</span>
-                            {% endif %}
-                        </li>
+                    <li class="checklist__item {% if item.done %}checklist__item--done{% endif %}">
+                        <i class="bi {% if item.done %}bi-check-circle-fill text-success{% else %}bi-circle text-body-secondary{% endif %} me-2"></i>{{ item.label }}
+                    </li>
                     {% endfor %}
                 </ul>
-
                 {% if capabilities.can_manage_events %}
                     {% if wedding.status == 'published' %}
-                        <div class="alert alert-success small mb-3">
-                            Página pública activa em<br>
-                            <a href="{{ wedding.get_public_url }}" target="_blank" rel="noopener">{{ wedding.get_public_url }}</a>
-                            <div class="text-body-secondary mt-1">Disponível a partir da Fase 4.</div>
-                        </div>
-                        <form method="post" action="{% url 'weddings:unpublish' wedding.pk %}"
-                              data-confirm="Despublicar este evento? As páginas públicas deixam de responder.">
-                            {% csrf_token %}
-                            <button class="btn btn-outline-secondary btn-sm w-100">Despublicar</button>
-                        </form>
+                    <form method="post" action="{% url 'weddings:unpublish' wedding.pk %}">{% csrf_token %}<button class="btn btn-outline-secondary w-100">Despublicar evento</button></form>
                     {% else %}
-                        <form method="post" action="{% url 'weddings:publish' wedding.pk %}">
-                            {% csrf_token %}
-                            <button class="btn btn-primary w-100">Publicar evento</button>
-                        </form>
+                    <form method="post" action="{% url 'weddings:publish' wedding.pk %}">{% csrf_token %}<button class="btn btn-primary w-100">Publicar evento</button></form>
                     {% endif %}
                 {% endif %}
             </div>
+        </div>
+        <div class="card border-warning shadow-sm">
+            <div class="card-body p-4"><h3 class="h6">Arquivar evento</h3><p class="small text-body-secondary">Retira o evento da lista sem eliminar os dados.</p><form method="post" action="{% url 'weddings:archive' wedding.pk %}" data-confirm="Arquivar este evento?">{% csrf_token %}<button class="btn btn-sm btn-outline-warning">Arquivar</button></form></div>
         </div>
     </div>
 </div>

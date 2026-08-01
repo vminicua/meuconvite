@@ -135,6 +135,31 @@ class EventViewTests(TestCase):
         self.client.post(reverse("events:delete", args=[self.wedding.pk, event.pk]))
         self.assertFalse(WeddingEvent.objects.filter(pk=event.pk).exists())
 
+    def test_program_adds_name_date_hours_and_location_inline(self) -> None:
+        response = self.client.post(
+            reverse("events:organisation", args=[self.wedding.pk]),
+            data={
+                "name": "Copo de água",
+                "date": self.wedding.main_date.isoformat(),
+                "start_time": "15:00",
+                "end_time": "17:00",
+                "location_name": "Salão Acácias",
+                "address": "Av. da Marginal, Maputo",
+            },
+        )
+        self.assertRedirects(response, reverse("events:organisation", args=[self.wedding.pk]))
+        event = WeddingEvent.objects.select_related("location").get(wedding=self.wedding)
+        self.assertEqual(event.name, "Copo de água")
+        self.assertEqual(event.location.name, "Salão Acácias")
+        self.assertEqual(event.location.address, "Av. da Marginal, Maputo")
+
+    def test_program_page_has_one_sequence_and_inline_form(self) -> None:
+        response = self.client.get(reverse("events:organisation", args=[self.wedding.pk]))
+        self.assertContains(response, "Adicionar ao programa")
+        self.assertContains(response, 'name="location_name"', html=False)
+        self.assertNotContains(response, ">Momentos<", html=False)
+        self.assertNotContains(response, ">Locais<", html=False)
+
 
 class LocationViewTests(TestCase):
     def setUp(self) -> None:

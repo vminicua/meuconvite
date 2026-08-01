@@ -72,8 +72,7 @@
                                         <img src="{{ template.cover_image.url }}"
                                              alt="Cover do template {{ template.name }}" loading="lazy">
                                     {% else %}
-                                        <img src="{% static 'img/template-cover-default.webp' %}"
-                                             alt="Cover provisório do template {{ template.name }}" loading="lazy">
+                                        {% include "partials/template_cover_art.html" %}
                                     {% endif %}
                                     {% if template.is_featured %}
                                         <span class="market-template-card__badge">Destaque</span>

@@ -1,72 +1,164 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Convidados · {{ wedding.display_names }}{% endblock %}
 
 {% block content %}
 {% include "partials/wedding_nav.html" %}
 
-<div class="row g-4">
-    <div class="col-lg-4">
-        <div class="card shadow-sm workspace-sticky-card">
-            <div class="card-body">
-                <p class="workspace-eyebrow mb-1">Lista do evento</p>
-                <h2 class="h5">Adicionar convidado</h2>
-                <p class="small text-body-secondary">
-                    {{ guest_count }} de {{ limits.max_guests }} convidados usados no pacote {{ limits.plan_name }}.
-                </p>
+<section class="guest-workspace" data-guest-table>
+    <div class="alert alert-success guest-action-feedback" role="status" aria-live="polite" data-action-feedback hidden></div>
+    <header class="guest-workspace__header">
+        <div>
+            <p class="workspace-eyebrow mb-1">{{ guest_count }} de {{ limits.max_guests }} convidados</p>
+            <h2 class="h4 mb-1">Lista de convidados</h2>
+            <p class="text-body-secondary mb-0">Convites individuais, confirmações e acesso ao programa num só lugar.</p>
+        </div>
+        <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#guestComposer" aria-expanded="{% if form.errors %}true{% else %}false{% endif %}">
+            <i class="bi bi-person-plus me-1"></i> Adicionar convidado
+        </button>
+    </header>
+
+    <div class="collapse{% if form.errors %} show{% endif %}" id="guestComposer">
+        <div class="guest-composer card shadow-sm">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div><p class="workspace-eyebrow mb-1">Novo convite</p><h3 class="h5 mb-0">Adicionar convidado</h3></div>
+                    <button class="btn-close" type="button" data-bs-toggle="collapse" data-bs-target="#guestComposer" aria-label="Fechar"></button>
+                </div>
                 <form method="post" novalidate>
-                    {% csrf_token %}
-                    {{ form.non_field_errors }}
-                    {% for field in form %}
-                        <div class="mb-3">
+                    {% csrf_token %}{{ form.non_field_errors }}
+                    <div class="row g-3">
+                        {% for field in form %}
+                        <div class="{% if field.name == 'allowed_events' or field.name == 'notes' %}col-12{% else %}col-md-6{% endif %}">
                             <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-                            {{ field }}{{ field.errors }}
+                            {% if field.name == 'allowed_events' %}<div class="guest-programme-options">{{ field }}</div>{% else %}{{ field }}{% endif %}
+                            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}{{ field.errors }}
                         </div>
-                    {% endfor %}
-                    <button class="btn btn-primary w-100" type="submit">
-                        <i class="bi bi-person-plus me-1"></i>Adicionar à lista
-                    </button>
+                        {% endfor %}
+                    </div>
+                    <div class="d-flex gap-2 mt-4">
+                        <button class="btn btn-primary" type="submit"><i class="bi bi-person-check me-1"></i>Adicionar à lista</button>
+                        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#guestComposer">Cancelar</button>
+                    </div>
                 </form>
             </div>
         </div>
     </div>
-    <div class="col-lg-8">
-        <div class="d-flex justify-content-between align-items-end gap-3 mb-3">
-            <div>
-                <p class="workspace-eyebrow mb-1">{{ guest_count }} convidado{{ guest_count|pluralize }}</p>
-                <h2 class="h5 mb-0">Gerir convidados</h2>
-            </div>
+
+    {% if guest_rows %}
+    <div class="guest-table-card card shadow-sm">
+        <div class="guest-table-toolbar">
+            <label class="guest-table-search"><i class="bi bi-search"></i><input type="search" class="form-control" placeholder="Pesquisar nome, telefone ou email" data-table-search></label>
+            <select class="form-select" data-table-status aria-label="Filtrar por confirmação">
+                <option value="">Todos os estados</option><option value="pending">Por responder</option><option value="confirmed">Confirmados</option><option value="declined">Não comparecem</option>
+            </select>
+            <select class="form-select" data-table-programme aria-label="Filtrar por programa">
+                <option value="">Todo o programa</option>
+                {% for event in wedding.events.all %}{% if event.is_active %}<option value="{{ event.name|lower }}">{{ event.name }}</option>{% endif %}{% endfor %}
+            </select>
+            <button class="btn btn-outline-secondary" type="button" data-export-csv><i class="bi bi-download me-1"></i> Exportar CSV</button>
         </div>
-        {% if guests %}
-            <div class="card shadow-sm overflow-hidden">
-                <div class="table-responsive">
-                    <table class="table align-middle mb-0">
-                        <thead class="table-light"><tr><th>Convidado</th><th>Contacto</th><th>Lugares</th><th></th></tr></thead>
-                        <tbody>
-                        {% for guest in guests %}
-                            <tr>
-                                <td><strong>{{ guest.full_name }}</strong>{% if guest.notes %}<div class="small text-body-secondary">{{ guest.notes }}</div>{% endif %}</td>
-                                <td class="small">{{ guest.phone|default:"—" }}{% if guest.email %}<div class="text-body-secondary">{{ guest.email }}</div>{% endif %}</td>
-                                <td>{{ guest.party_size }}</td>
-                                <td class="text-end text-nowrap">
-                                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'guests:edit' wedding.pk guest.pk %}">Editar</a>
-                                    <form method="post" action="{% url 'guests:remove' wedding.pk guest.pk %}" class="d-inline" data-confirm="Remover {{ guest.full_name }} da lista?">
-                                        {% csrf_token %}<button class="btn btn-sm btn-outline-danger">Remover</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
+        <div class="table-responsive">
+            <table class="table guest-table align-middle mb-0">
+                <thead><tr>
+                    <th><button type="button" data-sort="name">Convidado <i class="bi bi-arrow-down-up"></i></button></th>
+                    <th><button type="button" data-sort="contact">Contacto <i class="bi bi-arrow-down-up"></i></button></th>
+                    <th><button type="button" data-sort="seats">Lugares <i class="bi bi-arrow-down-up"></i></button></th>
+                    <th>Programa autorizado</th>
+                    <th><button type="button" data-sort="status">Confirmação <i class="bi bi-arrow-down-up"></i></button></th>
+                    <th class="text-end">Convite</th>
+                </tr></thead>
+                <tbody>
+                {% for row in guest_rows %}{% with guest=row.guest %}
+                    <tr data-guest-row data-name="{{ guest.full_name|lower }}" data-contact="{{ guest.phone|lower }} {{ guest.email|lower }}" data-seats="{{ guest.party_size }}" data-status="{{ guest.rsvp_status }}" data-programme="{% for event in row.allowed_events %}{{ event.name|lower }} {% empty %}todos{% endfor %}">
+                        <td><strong>{{ guest.full_name }}</strong>{% if guest.notes %}<div class="small text-body-secondary text-truncate guest-note">{{ guest.notes }}</div>{% endif %}</td>
+                        <td class="small">{{ guest.phone|default:"—" }}{% if guest.email %}<div class="text-body-secondary">{{ guest.email }}</div>{% endif %}</td>
+                        <td><span class="guest-seats">{{ guest.party_size }}</span></td>
+                        <td>
+                            {% for event in row.allowed_events %}<span class="guest-programme-pill">{{ event.name }}</span>{% empty %}<span class="guest-programme-pill guest-programme-pill--all">Programa completo</span>{% endfor %}
+                        </td>
+                        <td>
+                            {% if guest.rsvp_status == 'confirmed' %}<span class="guest-status guest-status--confirmed"><i class="bi bi-check-circle-fill"></i> Confirmado</span>
+                            {% elif guest.rsvp_status == 'declined' %}<span class="guest-status guest-status--declined"><i class="bi bi-x-circle-fill"></i> Não comparece</span>
+                            {% else %}<span class="guest-status guest-status--pending"><i class="bi bi-clock"></i> Por responder</span>{% endif %}
+                            {% if guest.responded_at %}<div class="small text-body-secondary mt-1">{{ guest.responded_at|date:"d/m/Y H:i" }}</div>{% endif %}
+                        </td>
+                        <td class="text-end text-nowrap">
+                            <div class="btn-group btn-group-sm guest-actions" role="group" aria-label="Acções de {{ guest.full_name }}">
+                                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#qr-{{ guest.pk }}" title="Ver QR Code"><i class="bi bi-qr-code"></i></button>
+                                <button class="btn btn-outline-secondary" type="button" data-copy-link="{{ row.invitation_url }}" title="Copiar ligação"><i class="bi bi-link-45deg"></i></button>
+                                <button class="btn btn-outline-secondary" type="button" data-share-link="{{ row.invitation_url }}" data-share-name="{{ guest.full_name }}" title="Partilhar convite"><i class="bi bi-share"></i></button>
+                                <a class="btn btn-outline-secondary" href="{{ row.invitation_url }}" target="_blank" title="Visualizar convite"><i class="bi bi-eye"></i></a>
+                                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#edit-{{ guest.pk }}" title="Editar convidado"><i class="bi bi-pencil"></i></button>
+                            </div>
+                            <form method="post" action="{% url 'guests:remove' wedding.pk guest.pk %}" class="d-inline" data-confirm="Remover {{ guest.full_name }} da lista?">{% csrf_token %}<button class="btn btn-sm btn-link text-danger" title="Remover"><i class="bi bi-trash"></i></button></form>
+                        </td>
+                    </tr>
+                {% endwith %}{% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <footer class="guest-table-footer">
+            <span class="small text-body-secondary" data-table-summary></span>
+            <div class="d-flex align-items-center gap-2"><label class="small text-body-secondary">Por página <select class="form-select form-select-sm d-inline-block w-auto" data-page-size><option>10</option><option>25</option><option>50</option></select></label><nav class="guest-pagination" data-table-pagination></nav></div>
+        </footer>
+        <div class="guest-table-empty" data-table-empty hidden><i class="bi bi-search"></i><strong>Nenhum convidado encontrado</strong><span>Altere os filtros ou a pesquisa.</span></div>
+    </div>
+
+    <div class="modal fade" id="shareInvitationModal" tabindex="-1" aria-labelledby="shareInvitationTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+                <div class="modal-header"><h2 class="modal-title h5" id="shareInvitationTitle">Partilhar convite</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button></div>
+                <div class="modal-body">
+                    <p class="small text-body-secondary" data-share-description>Escolha como pretende enviar este convite individual.</p>
+                    <div class="d-grid gap-2">
+                        <a class="btn btn-success" href="#" target="_blank" rel="noopener" data-share-whatsapp><i class="bi bi-whatsapp me-2"></i>Partilhar no WhatsApp</a>
+                        <a class="btn btn-outline-secondary" href="#" data-share-email><i class="bi bi-envelope me-2"></i>Enviar por email</a>
+                        <button class="btn btn-outline-secondary" type="button" data-share-copy><i class="bi bi-link-45deg me-2"></i>Copiar ligação</button>
+                    </div>
                 </div>
             </div>
-        {% else %}
-            <div class="empty-state text-center py-5">
-                <i class="bi bi-people display-5 text-body-secondary"></i>
-                <h3 class="h6 mt-3">A lista ainda está vazia</h3>
-                <p class="small text-body-secondary mb-0">Use o formulário para acrescentar o primeiro convidado.</p>
-            </div>
-        {% endif %}
+        </div>
     </div>
-</div>
+
+    {% for row in guest_rows %}{% with guest=row.guest %}
+    <div class="modal fade" id="qr-{{ guest.pk }}" tabindex="-1" aria-labelledby="qr-title-{{ guest.pk }}" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content guest-qr-modal"><div class="modal-header"><h2 class="modal-title h5" id="qr-title-{{ guest.pk }}">QR de {{ guest.full_name }}</h2><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body text-center"><img src="{{ row.qr_data_uri }}" alt="QR Code individual de {{ guest.full_name }}"><p class="fw-semibold mb-1">{{ guest.party_size }} lugar{{ guest.party_size|pluralize:"es" }}</p><p class="small text-body-secondary">Este código abre o convite individual e identifica o convidado.</p><button class="btn btn-outline-secondary btn-sm" type="button" data-copy-link="{{ row.invitation_url }}"><i class="bi bi-link-45deg"></i> Copiar ligação</button></div></div></div>
+    </div>
+    <div class="modal fade" id="edit-{{ guest.pk }}" tabindex="-1" aria-labelledby="edit-title-{{ guest.pk }}" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <form method="post" action="{% url 'guests:edit' wedding.pk guest.pk %}" novalidate>
+                    <div class="modal-header">
+                        <div><p class="workspace-eyebrow mb-1">Convite individual</p><h2 class="modal-title h5" id="edit-title-{{ guest.pk }}">Editar {{ guest.full_name }}</h2></div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    </div>
+                    <div class="modal-body">
+                        {% csrf_token %}{{ row.edit_form.non_field_errors }}
+                        <div class="row g-3">
+                            {% for field in row.edit_form %}
+                            <div class="{% if field.name == 'allowed_events' or field.name == 'notes' %}col-12{% else %}col-md-6{% endif %}">
+                                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {% if field.name == 'allowed_events' %}<div class="guest-programme-options">{{ field }}</div>{% else %}{{ field }}{% endif %}
+                                {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}{{ field.errors }}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-check2 me-1"></i>Guardar alterações</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endwith %}{% endfor %}
+    {% else %}
+    <div class="empty-state text-center py-5"><i class="bi bi-people display-5 text-body-secondary"></i><h3 class="h6 mt-3">A lista ainda está vazia</h3><p class="small text-body-secondary">Clique em “Adicionar convidado” para criar o primeiro convite individual.</p></div>
+    {% endif %}
+</section>
 {% endblock %}
+
+{% block extra_js %}<script src="{% static 'js/guest-table.js' %}?v=20260801.1"></script>{% endblock %}

@@ -7,24 +7,19 @@
             {% for item in schedule %}
                 <li class="inv-timeline__item">
                     <span class="inv-timeline__dot" aria-hidden="true">
-                        {% if item.icon %}<i class="bi {{ item.icon }}"></i>{% endif %}
+                        <i class="bi bi-heart"></i>
                     </span>
-                    <span class="inv-timeline__time">{{ item.time_display|default:"—" }}</span>
+                    <span class="inv-timeline__time">{{ item.start_time|time:"H\hi"|default:"—" }}</span>
                     <span class="inv-timeline__body">
-                        <span class="inv-timeline__label">{{ item.title }}</span>
+                        <span class="inv-timeline__label">{{ item.programme_title }}</span>
+                        {% if item.date %}<span class="inv-timeline__note">{{ item.date|date:"d \d\e F" }}</span>{% endif %}
                         {% if item.description %}
                             <span class="inv-timeline__note">{{ item.description }}</span>
                         {% endif %}
                         {% if item.location %}
-                            <span class="inv-timeline__note">{{ item.location.name }}</span>
+                            <span class="inv-timeline__note"><i class="bi bi-geo-alt"></i> {{ item.location.name }}{% if item.location.address %} · {{ item.location.address }}{% endif %}</span>
+                            {% if item.location.directions_url %}<a class="inv-btn inv-btn--ghost" href="{{ item.location.directions_url }}" target="_blank" rel="noopener">Ver mapa</a>{% endif %}
                         {% endif %}
-                        {% with extras=item.extra_values %}
-                            {% if extras %}
-                                <span class="inv-timeline__note">
-                                    {% for extra in extras %}{{ extra.label }}: {{ extra.value }}{% if not forloop.last %} · {% endif %}{% endfor %}
-                                </span>
-                            {% endif %}
-                        {% endwith %}
                     </span>
                 </li>
             {% endfor %}

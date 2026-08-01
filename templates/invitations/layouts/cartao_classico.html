@@ -1,6 +1,28 @@
 {% include "invitations/_ornaments.html" %}
 
-<main class="inv-main" id="inv-main">
+{% if template.has_cover %}
+    <section class="inv-cover inv-cover--classic" id="inv-cover">
+        <div class="inv-cover__paper">
+            <span class="inv-cover__kicker">{{ wedding.cover_message|default:"Temos o prazer de convidar" }}</span>
+            <p class="inv-cover__eyebrow">{{ wedding.category_name }}</p>
+            <p class="inv-cover__names">
+                {{ wedding.primary_short_name }}{% if wedding.secondary_short_name %}
+                    <span class="inv-cover__amp">{{ wedding.names_separator }}</span>
+                    {{ wedding.secondary_short_name }}{% endif %}
+            </p>
+
+            <svg class="inv-cover__seal" viewBox="0 0 120 120" aria-hidden="true">
+                <use href="#inv-seal"/>
+                <text x="60" y="70" text-anchor="middle" class="inv-cover__monogram">{{ monogram }}</text>
+            </svg>
+
+            <p class="inv-cover__note">{{ wedding.main_date|date:"d \d\e F \d\e Y" }}</p>
+            <button type="button" class="inv-btn inv-btn--light" data-open-invitation>Abrir o convite</button>
+        </div>
+    </section>
+{% endif %}
+
+<main class="inv-main" id="inv-main" {% if template.has_cover %}hidden{% endif %}>
     <header class="inv-hero">
         {% if wedding.cover_image %}
             <div class="inv-hero__photo">
@@ -20,7 +42,7 @@
         <svg class="inv-divider" viewBox="0 0 200 24" aria-hidden="true"><use href="#inv-divider"/></svg>
 
         {% if guest_name %}<p class="inv-hero__greeting">Caro(a) {{ guest_name }},</p>{% endif %}
-        <p class="inv-hero__text">{{ wedding.full_names }} {{ invitation_greeting }}</p>
+        <p class="inv-hero__text">{% if wedding.invitation_message %}{{ wedding.invitation_message|linebreaksbr }}{% else %}{{ wedding.full_names }} {{ invitation_greeting }}{% endif %}</p>
 
         <p class="inv-hero__date">{{ wedding.main_date|date:"d \d\e F \d\e Y" }}</p>
         {% if wedding.city %}<p class="inv-hero__time">{{ wedding.city }}</p>{% endif %}
@@ -39,6 +61,5 @@
     {% endif %}
 
     {% include "invitations/_schedule.html" %}
-    {% include "invitations/_venues.html" %}
     {% include "invitations/_rsvp.html" %}
 </main>

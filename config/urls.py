@@ -9,6 +9,8 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 from django.views.generic import RedirectView
+from subscriptions import views as subscription_views
+from guests import views as guest_views
 
 # The Django admin path can be moved via the environment to reduce noise
 # from automated scanners in production.
@@ -30,6 +32,8 @@ urlpatterns = [
     path("casamentos/", RedirectView.as_view(pattern_name="weddings:list", permanent=False)),
     path("accounts/", include("allauth.urls")),
     path("perfil/", include("accounts.urls", namespace="accounts")),
+    path("subscricao/", subscription_views.account_subscription, name="account_subscription"),
+    path("convite/<str:token>/", guest_views.guest_invitation, name="guest_invitation"),
     # Área da equipa MeuConvite (exige is_staff).
     path("administracao/", include("platform_admin.urls", namespace="platform")),
     path("eventos/", include("weddings.urls", namespace="weddings")),

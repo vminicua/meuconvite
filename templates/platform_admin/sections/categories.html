@@ -2,7 +2,7 @@
     <div>
         <h1>Tipos de evento</h1>
         <p>
-            Cada tipo define os protagonistas, os campos próprios e os momentos e programa
+            Cada tipo define os protagonistas, os campos próprios e o programa
             sugeridos. Criar um tipo novo não exige alterações no código.
         </p>
     </div>
@@ -20,8 +20,7 @@
                     <th>Tipo</th>
                     <th>Protagonistas</th>
                     <th>Campos próprios</th>
-                    <th>Momentos</th>
-                    <th>Programa</th>
+                    <th>Programa base</th>
                     <th>Em uso</th>
                     <th>Estado</th>
                     <th class="no-sort"></th>
@@ -45,7 +44,6 @@
                         </td>
                         <td class="small">{{ category.extra_fields|length }}</td>
                         <td class="small">{{ category.default_moments|length }}</td>
-                        <td class="small">{{ category.default_schedule|length }}</td>
                         <td class="small">{{ category.usage }}</td>
                         <td>
                             {% if category.is_active %}

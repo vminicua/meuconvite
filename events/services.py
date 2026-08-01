@@ -28,6 +28,38 @@ def create_event(*, wedding, form, actor, request=None) -> WeddingEvent:
 
 
 @transaction.atomic
+def create_program_item(*, wedding, form, actor, request=None) -> WeddingEvent:
+    """Cria um item do programa e o respectivo local sem sair da página."""
+    location = None
+    location_name = (form.cleaned_data.get("location_name") or "").strip()
+    address = (form.cleaned_data.get("address") or "").strip()
+    if location_name:
+        location = WeddingLocation.objects.filter(
+            wedding=wedding, name__iexact=location_name
+        ).first()
+        if location is None:
+            location = WeddingLocation.objects.create(
+                wedding=wedding,
+                name=location_name,
+                address=address,
+                display_order=_next_display_order(WeddingLocation, wedding),
+            )
+            log_create(location, actor=actor, wedding=wedding, request=request)
+        elif address and not location.address:
+            location.address = address
+            location.save(update_fields=["address", "updated_at"])
+
+    event: WeddingEvent = form.save(commit=False)
+    event.wedding = wedding
+    event.location = location
+    event.display_order = _next_display_order(WeddingEvent, wedding)
+    event.full_clean(exclude=["slug"])
+    event.save()
+    log_create(event, actor=actor, wedding=wedding, request=request)
+    return event
+
+
+@transaction.atomic
 def update_event(*, event: WeddingEvent, form, actor, request=None) -> WeddingEvent:
     old_data = model_to_dict(event)
     event = form.save(commit=False)

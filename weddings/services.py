@@ -76,12 +76,12 @@ def create_wedding(
 @transaction.atomic
 def apply_category_defaults(*, wedding: Wedding, category) -> tuple[int, int]:
     """
-    Cria os momentos e o programa sugeridos pelo tipo de evento.
+    Cria uma única sequência de programa sugerida pelo tipo de evento.
 
     Nada é sobreposto: se o evento já tiver momentos ou programa, essa
     parte é ignorada. Devolve (momentos criados, itens de programa criados).
     """
-    from events.models import ScheduleItem, WeddingEvent
+    from events.models import WeddingEvent
 
     moments_created = 0
     if not WeddingEvent.objects.filter(wedding=wedding).exists():
@@ -102,20 +102,31 @@ def apply_category_defaults(*, wedding: Wedding, category) -> tuple[int, int]:
             )
             moments_created += 1
 
+    existing_names = {
+        name.casefold() for name in WeddingEvent.objects.filter(wedding=wedding)
+        .values_list("name", flat=True)
+    }
+    next_position = WeddingEvent.objects.filter(wedding=wedding).count() + 1
     schedule_created = 0
-    if not ScheduleItem.objects.filter(wedding=wedding).exists():
-        for position, definition in enumerate(category.default_schedule or [], start=1):
-            if not isinstance(definition, dict) or not definition.get("title"):
-                continue
-            ScheduleItem.objects.create(
-                wedding=wedding,
-                title=str(definition["title"])[:150],
-                start_time=definition.get("start_time") or None,
-                date=wedding.main_date,
-                icon=definition.get("icon", "")[:40],
-                display_order=position * 10,
-            )
-            schedule_created += 1
+    for definition in category.default_schedule or []:
+        if not isinstance(definition, dict) or not definition.get("title"):
+            continue
+        title = str(definition["title"])[:150]
+        if title.casefold() in existing_names:
+            continue
+        WeddingEvent.objects.create(
+            wedding=wedding,
+            name=title,
+            event_type="custom",
+            start_time=definition.get("start_time") or None,
+            end_time=definition.get("end_time") or None,
+            date=wedding.main_date,
+            requires_rsvp=False,
+            display_order=next_position * 10,
+        )
+        existing_names.add(title.casefold())
+        next_position += 1
+        schedule_created += 1
 
     return moments_created, schedule_created
 
@@ -140,7 +151,7 @@ def build_checklist(wedding: Wedding) -> list[ChecklistItem]:
     are added by those apps as they are implemented; the publish rule only
     depends on the required items present here.
     """
-    from events.models import ScheduleItem, WeddingEvent, WeddingLocation
+    from events.models import WeddingEvent
 
     events = WeddingEvent.objects.filter(wedding=wedding, is_active=True)
     has_rsvp_event = events.filter(requires_rsvp=True).exists()
@@ -151,56 +162,49 @@ def build_checklist(wedding: Wedding) -> list[ChecklistItem]:
             label=_("Informações principais preenchidas"),
             done=bool(wedding.primary_name and wedding.secondary_name),
             required=True,
-            url_name="weddings:settings",
+            url_name="weddings:detail",
         ),
         ChecklistItem(
             code="date",
             label=_("Data do evento definida"),
             done=bool(wedding.main_date),
             required=True,
-            url_name="weddings:settings",
+            url_name="weddings:detail",
         ),
         ChecklistItem(
             code="events",
-            label=_("Pelo menos um momento criado"),
+            label=_("Pelo menos um item no programa"),
             done=events.exists(),
             required=True,
-            url_name="events:list",
+            url_name="events:organisation",
         ),
         ChecklistItem(
             code="locations",
             label=_("Pelo menos um local criado"),
-            done=WeddingLocation.objects.filter(wedding=wedding).exists(),
+            done=events.filter(location__isnull=False).exists(),
             required=True,
-            url_name="events:location_list",
+            url_name="events:organisation",
         ),
         ChecklistItem(
             code="rsvp_event",
-            label=_("Um momento aceita confirmações de presença"),
+            label=_("Um item aceita confirmações de presença"),
             done=has_rsvp_event,
             required=False,
-            url_name="events:list",
-        ),
-        ChecklistItem(
-            code="schedule",
-            label=_("Programa do dia definido"),
-            done=ScheduleItem.objects.filter(wedding=wedding).exists(),
-            required=False,
-            url_name="events:schedule",
+            url_name="events:organisation",
         ),
         ChecklistItem(
             code="cover",
             label=_("Fotografia de capa carregada"),
             done=bool(wedding.cover_image),
             required=False,
-            url_name="weddings:settings",
+            url_name="weddings:design",
         ),
         ChecklistItem(
             code="welcome",
             label=_("Mensagem de boas-vindas escrita"),
             done=bool(wedding.welcome_message),
             required=False,
-            url_name="weddings:settings",
+            url_name="weddings:detail",
         ),
     ]
     return items

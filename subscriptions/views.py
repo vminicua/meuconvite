@@ -5,12 +5,41 @@ from django.core.exceptions import ValidationError
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
 
 from weddings.permissions import capability_flags, require_wedding
 
 from . import services
 from .forms import UpgradeRequestForm
 from .models import Payment, PaymentStatus, Plan
+
+
+@login_required
+def account_subscription(request: HttpRequest) -> HttpResponse:
+    """Subscrição apresentada como propriedade da conta, fora de um evento."""
+    wedding = request.user.owned_weddings.order_by("-created_at").first()
+    if wedding is None:
+        return render(
+            request,
+            "subscriptions/subscription_detail.html",
+            {"account_subscription": True, "plans": Plan.objects.active(), "no_events": True},
+        )
+    current = services.limits(wedding)
+    used = services.guest_count(wedding)
+    return render(request, "subscriptions/subscription_detail.html", {
+        "account_subscription": True,
+        "wedding": wedding,
+        "limits": current,
+        "guests_used": used,
+        "guests_remaining": current.guests_remaining(used),
+        "usage_percent": current.usage_percent(used),
+        "plans": Plan.objects.active().order_by("display_order", "max_guests"),
+        "upgrades": services.upgrade_options(wedding),
+        "open_payments": Payment.objects.filter(wedding__owner=request.user, status__in=[PaymentStatus.AWAITING_PROOF, PaymentStatus.UNDER_REVIEW]).select_related("plan"),
+        "history": Payment.objects.filter(wedding__owner=request.user).exclude(status__in=[PaymentStatus.AWAITING_PROOF, PaymentStatus.UNDER_REVIEW]).select_related("plan")[:10],
+        "instructions": services.payment_instructions(),
+        "capabilities": {"can_manage_billing": True},
+    })
 
 
 @require_wedding()

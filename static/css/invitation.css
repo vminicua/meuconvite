@@ -19,6 +19,15 @@ body.inv {
 
 img { max-width: 100%; display: block; }
 
+body.inv--embedded {
+    scrollbar-width: none;
+}
+
+body.inv--embedded::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
 /* --- Barra de pré-visualização -------------------------------------- */
 .inv-preview-bar {
     position: sticky;
@@ -42,6 +51,8 @@ img { max-width: 100%; display: block; }
 
 /* --- Capa ------------------------------------------------------------ */
 .inv-cover {
+    position: relative;
+    overflow: hidden;
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -68,13 +79,120 @@ img { max-width: 100%; display: block; }
     animation: inv-fade-up .9s ease both;
 }
 
-.inv-cover__guest { color: var(--inv-secondary); }
+.inv-cover__kicker {
+    display: block;
+    margin: 0 0 1.2rem;
+    font-size: .62rem;
+    font-weight: 600;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--inv-primary-text);
+    opacity: 1;
+}
+
+/* Capas editoriais: cada paleta recebe uma composição, não apenas uma
+   troca de cor. Mantêm-se leves para carregar bem em telemóvel. */
+.inv-cover--classic .inv-cover__paper,
+.inv-cover--sealed .inv-cover__paper,
+.inv-cover--botanical .inv-cover__paper {
+    min-height: min(78vh, 42rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.inv-cover--classic .inv-cover__paper::before,
+.inv-cover--classic .inv-cover__paper::after {
+    content: "";
+    position: absolute;
+    width: 7rem;
+    height: 7rem;
+    border: 1px solid color-mix(in srgb, var(--inv-secondary) 55%, transparent);
+    transform: rotate(45deg);
+}
+.inv-cover--classic .inv-cover__paper::before { top: -4.4rem; left: -4.4rem; }
+.inv-cover--classic .inv-cover__paper::after { right: -4.4rem; bottom: -4.4rem; }
+
+.inv-cover--sealed {
+    background:
+        repeating-linear-gradient(135deg, rgba(255,255,255,.025) 0 1px, transparent 1px 8px),
+        radial-gradient(circle at 50% 15%, color-mix(in srgb, var(--inv-primary) 76%, #fff), var(--inv-primary) 60%, color-mix(in srgb, var(--inv-primary) 72%, #000));
+}
+.inv-cover--sealed .inv-cover__paper {
+    background: color-mix(in srgb, var(--inv-primary) 82%, #000);
+    box-shadow: 0 35px 70px -32px rgba(0,0,0,.8);
+}
+.inv-cover--sealed .inv-cover__paper::before,
+.inv-cover--sealed .inv-cover__paper::after {
+    content: "";
+    position: absolute;
+    inset-inline: -12%;
+    height: 48%;
+    border: 1px solid color-mix(in srgb, var(--inv-secondary) 25%, transparent);
+    transform: rotate(45deg);
+}
+.inv-cover--sealed .inv-cover__paper::before { top: -34%; }
+.inv-cover--sealed .inv-cover__paper::after { bottom: -34%; }
+.inv-cover--sealed .inv-cover__paper > * { position: relative; z-index: 1; }
+
+.inv-cover--botanical {
+    background:
+        radial-gradient(ellipse at 5% 0%, color-mix(in srgb, var(--inv-primary) 18%, transparent), transparent 36%),
+        radial-gradient(ellipse at 95% 100%, color-mix(in srgb, var(--inv-secondary) 22%, transparent), transparent 40%),
+        var(--inv-paper);
+    color: var(--inv-ink);
+}
+.inv-cover--botanical .inv-cover__paper {
+    background: color-mix(in srgb, var(--inv-paper) 92%, transparent);
+    border-color: color-mix(in srgb, var(--inv-primary) 28%, transparent);
+    box-shadow: 0 32px 75px -55px var(--inv-primary);
+}
+
+.inv--template-minimal-branco .inv-cover--classic { background: #f6f6f3; color: #232323; }
+.inv--template-minimal-branco .inv-cover--classic .inv-cover__paper { background: #fff; border-radius: 0; }
+.inv--template-luxo-preto .inv-cover--classic,
+.inv--template-noite-estrelada .inv-cover--classic {
+    background-color: var(--inv-paper);
+    background-image: radial-gradient(circle, color-mix(in srgb, var(--inv-primary) 60%, transparent) 0 1px, transparent 1.5px);
+    background-size: 24px 24px;
+}
+.inv--template-floral-rosa .inv-cover--classic {
+    background:
+        radial-gradient(circle at 8% 15%, color-mix(in srgb, var(--inv-primary) 24%, transparent) 0 9%, transparent 10%),
+        radial-gradient(circle at 91% 87%, color-mix(in srgb, var(--inv-secondary) 18%, transparent) 0 12%, transparent 13%),
+        var(--inv-paper);
+}
+.inv--template-tropical .inv-cover--classic {
+    background:
+        radial-gradient(ellipse at 0 0, color-mix(in srgb, var(--inv-primary) 35%, transparent), transparent 42%),
+        radial-gradient(ellipse at 100% 100%, color-mix(in srgb, var(--inv-secondary) 32%, transparent), transparent 44%),
+        var(--inv-paper);
+}
+.inv--template-capulana .inv-cover--classic {
+    background-color: var(--inv-primary);
+    background-image: repeating-linear-gradient(45deg, transparent 0 18px, color-mix(in srgb, var(--inv-secondary) 28%, transparent) 18px 20px);
+}
+.inv--template-capulana .inv-cover--classic .inv-cover__paper { background: color-mix(in srgb, var(--inv-primary) 88%, #000); }
+.inv--template-terracota .inv-cover--classic,
+.inv--template-areia-dourada .inv-cover--classic {
+    background: linear-gradient(155deg, color-mix(in srgb, var(--inv-paper) 80%, #fff), color-mix(in srgb, var(--inv-secondary) 24%, var(--inv-paper)));
+}
+.inv--template-azul-marinho .inv-cover--classic { background: linear-gradient(160deg, var(--inv-secondary), var(--inv-paper) 72%); }
+.inv--template-lavanda .inv-cover--classic { background: radial-gradient(circle at 50% 10%, #fff, var(--inv-paper) 68%); }
+
+.inv--cartao_classico .inv-main { padding-top: 1.2rem; }
+.inv--cartao_classico .inv-hero { margin-top: 1rem; border: 1px solid color-mix(in srgb, var(--inv-primary) 20%, transparent); border-radius: .9rem; background: color-mix(in srgb, var(--inv-paper) 92%, #fff); }
+
+.inv-cover__guest { color: var(--inv-secondary-text); }
 
 .inv-cover__eyebrow {
     font-size: .7rem;
     letter-spacing: .34em;
     text-transform: uppercase;
-    opacity: .75;
+    color: var(--inv-primary-text);
+    opacity: 1;
     margin: 0 0 .5rem;
 }
 
@@ -89,14 +207,46 @@ img { max-width: 100%; display: block; }
 .inv-cover__amp {
     display: block;
     font-size: .6em;
-    opacity: .8;
+    opacity: 1;
+}
+
+/* A tipografia da capa acompanha a linguagem visual anunciada no catálogo. */
+.inv--template-carta-selada .inv-cover__guest,
+.inv--template-envelope-botanico .inv-cover__names,
+.inv--template-floral-rosa .inv-cover__names {
+    font-weight: 400;
+    font-size: clamp(3.35rem, 12vw, 5rem);
+    line-height: .92;
+    letter-spacing: 0;
+}
+
+.inv--template-classico-dourado .inv-cover__names,
+.inv--template-luxo-preto .inv-cover__names,
+.inv--template-capulana .inv-cover__names,
+.inv--template-azul-marinho .inv-cover__names,
+.inv--template-noite-estrelada .inv-cover__names {
+    font-weight: 500;
+    font-size: clamp(2.25rem, 8vw, 3.4rem);
+    line-height: 1.08;
+    letter-spacing: .035em;
+}
+
+.inv--template-minimal-branco .inv-cover__names,
+.inv--template-terracota .inv-cover__names,
+.inv--template-tropical .inv-cover__names,
+.inv--template-lavanda .inv-cover__names,
+.inv--template-areia-dourada .inv-cover__names {
+    font-weight: 500;
+    font-size: clamp(2.65rem, 9vw, 4rem);
+    line-height: 1;
+    letter-spacing: -.015em;
 }
 
 .inv-cover__seal {
     width: 6.5rem;
     height: 6.5rem;
     margin: .5rem auto 1rem;
-    color: var(--inv-secondary);
+    color: var(--inv-seal-bg);
     filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .35));
     animation: inv-seal-in 1s .2s ease both;
 }
@@ -105,21 +255,31 @@ img { max-width: 100%; display: block; }
     font-family: var(--inv-display);
     font-size: 2.2rem;
     letter-spacing: .04em;
-    fill: color-mix(in srgb, var(--inv-primary) 75%, #000);
+    fill: var(--inv-on-seal);
 }
 
 .inv-cover__note {
     font-size: .9rem;
-    opacity: .8;
+    color: var(--inv-primary-text);
+    font-weight: 600;
+    opacity: 1;
     margin: 0 0 1.75rem;
 }
 
 .inv-cover__branch {
     width: 9rem;
     height: 7rem;
-    color: var(--inv-primary);
+    color: var(--inv-primary-text);
     opacity: .8;
     margin: 0 auto;
+}
+
+.inv--template-carta-selada .inv-cover__kicker,
+.inv--template-carta-selada .inv-cover__eyebrow,
+.inv--template-carta-selada .inv-cover__guest,
+.inv--template-carta-selada .inv-cover__note {
+    color: var(--inv-paper);
+    opacity: 1;
 }
 
 .inv-cover__branch--bottom { transform: rotate(180deg); }
@@ -130,7 +290,7 @@ img { max-width: 100%; display: block; }
     padding: .7rem 1.9rem;
     border: 0;
     border-radius: 2rem;
-    background: var(--inv-primary);
+    background: var(--inv-primary-text);
     color: var(--inv-paper);
     font-family: var(--inv-body);
     font-size: .95rem;
@@ -146,14 +306,14 @@ img { max-width: 100%; display: block; }
    onde o contraste é maior (champanhe sobre creme não se lê). */
 .inv-btn--light {
     background: var(--inv-paper);
-    color: var(--inv-primary);
+    color: var(--inv-primary-text);
     font-weight: 600;
     letter-spacing: .08em;
 }
 
 .inv-btn--ghost {
     background: transparent;
-    color: var(--inv-primary);
+    color: var(--inv-primary-text);
     border: 1px solid currentColor;
     padding: .4rem 1.1rem;
     font-size: .85rem;
@@ -165,6 +325,16 @@ img { max-width: 100%; display: block; }
 }
 
 .inv-btn--disabled:hover { transform: none; }
+
+.inv-btn--outline {
+    background: transparent;
+    color: var(--inv-primary-text);
+    border: 1px solid color-mix(in srgb, var(--inv-primary) 48%, transparent);
+}
+
+.inv-rsvp-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: .65rem; margin-top: 1.25rem; }
+.inv-rsvp-state { display: inline-flex; align-items: center; gap: .45rem; padding: .55rem .85rem; border-radius: 999px; background: color-mix(in srgb, var(--inv-primary) 9%, transparent); color: var(--inv-primary-text); font-weight: 600; }
+.inv-rsvp-state--confirmed { background: #eaf5ed; color: #246b37; }
 
 /* --- Estrutura do convite -------------------------------------------- */
 .inv-main {
@@ -184,7 +354,7 @@ img { max-width: 100%; display: block; }
     position: absolute;
     width: 5.5rem;
     height: 5.5rem;
-    color: var(--inv-primary);
+    color: var(--inv-primary-text);
     pointer-events: none;
 }
 
@@ -226,7 +396,7 @@ img { max-width: 100%; display: block; }
     font-size: .72rem;
     letter-spacing: .32em;
     text-transform: uppercase;
-    color: var(--inv-primary);
+    color: var(--inv-primary-text);
     margin: 0 0 .6rem;
 }
 
@@ -234,7 +404,7 @@ img { max-width: 100%; display: block; }
     font-family: var(--inv-display);
     font-size: clamp(2.4rem, 9vw, 4rem);
     line-height: 1.08;
-    color: var(--inv-primary);
+    color: var(--inv-primary-text);
     margin: 0 0 .4rem;
     font-weight: 500;
 }
@@ -242,7 +412,7 @@ img { max-width: 100%; display: block; }
 .inv-hero__amp {
     display: block;
     font-size: .55em;
-    color: var(--inv-secondary);
+    color: var(--inv-secondary-text);
 }
 
 .inv-hero__greeting {
@@ -258,7 +428,7 @@ img { max-width: 100%; display: block; }
 .inv-hero__date {
     font-size: 1.3rem;
     font-weight: 600;
-    color: var(--inv-primary);
+    color: var(--inv-primary-text);
     margin: 0 0 .1rem;
 }
 
@@ -273,7 +443,7 @@ img { max-width: 100%; display: block; }
     width: 10rem;
     height: 1.4rem;
     margin: 1rem auto 1.25rem;
-    color: var(--inv-primary);
+    color: var(--inv-primary-text);
     opacity: .8;
 }
 
@@ -296,7 +466,7 @@ img { max-width: 100%; display: block; }
     display: block;
     font-size: 1.45rem;
     font-weight: 600;
-    color: var(--inv-primary);
+    color: var(--inv-primary-text);
     line-height: 1.1;
 }
 
@@ -304,7 +474,8 @@ img { max-width: 100%; display: block; }
     font-size: .68rem;
     letter-spacing: .14em;
     text-transform: uppercase;
-    opacity: .7;
+    color: var(--inv-ink);
+    opacity: .88;
 }
 
 /* --- Lugares reservados ---------------------------------------------- */
@@ -327,7 +498,7 @@ img { max-width: 100%; display: block; }
 
 .inv-seats strong {
     font-size: 1.15rem;
-    color: var(--inv-primary);
+    color: var(--inv-primary-text);
 }
 
 /* --- Secções --------------------------------------------------------- */
@@ -343,7 +514,7 @@ img { max-width: 100%; display: block; }
     font-size: .82rem;
     letter-spacing: .28em;
     text-transform: uppercase;
-    color: var(--inv-primary);
+    color: var(--inv-primary-text);
     margin: 0;
     font-weight: 600;
 }
@@ -360,10 +531,85 @@ img { max-width: 100%; display: block; }
 
 .inv-note {
     font-size: .82rem;
-    opacity: .7;
+    color: var(--inv-ink);
+    opacity: .88;
     max-width: 26rem;
     margin: .9rem auto 0;
 }
+
+/* --- QR Code individual --------------------------------------------- */
+.inv-section--qr {
+    margin-top: 1.25rem;
+    padding: 3.25rem 1.25rem;
+    background:
+        radial-gradient(circle at 50% 32%, color-mix(in srgb, var(--inv-primary) 9%, transparent), transparent 16rem),
+        color-mix(in srgb, var(--inv-paper) 92%, var(--inv-primary));
+    border: 1px solid color-mix(in srgb, var(--inv-primary) 20%, transparent);
+    border-radius: .85rem;
+}
+
+.inv-qr__eyebrow {
+    margin: 0 0 .45rem;
+    color: var(--inv-primary-text);
+    font-size: .68rem;
+    font-weight: 600;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+}
+
+.inv-qr__card {
+    width: min(100%, 17rem);
+    margin: .4rem auto 1.3rem;
+    padding: 1rem 1rem .85rem;
+    background: #fff;
+    border: 1px solid color-mix(in srgb, var(--inv-primary) 20%, transparent);
+    border-radius: .8rem;
+    box-shadow: 0 22px 42px -30px rgba(0, 0, 0, .55);
+}
+
+.inv-qr__image {
+    width: 100%;
+    aspect-ratio: 1;
+}
+
+.inv-qr__guest {
+    margin: .55rem 0 0;
+    color: var(--inv-primary-text);
+    font-family: var(--inv-display);
+    font-size: 1.35rem;
+}
+
+.inv-qr__seats {
+    margin: 0;
+    font-size: .72rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: #26323d;
+    opacity: 1;
+}
+
+.inv-qr__instructions { font-size: .9rem; }
+
+.inv-qr__events {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: .45rem;
+    max-width: 28rem;
+    margin: 1rem auto 0;
+    padding: 0;
+    list-style: none;
+}
+
+.inv-qr__events li {
+    padding: .3rem .65rem;
+    background: color-mix(in srgb, var(--inv-primary) 9%, transparent);
+    border-radius: 2rem;
+    color: var(--inv-primary-text);
+    font-size: .75rem;
+}
+
+.inv-qr__events i { margin-right: .28rem; }
 
 /* --- Programa -------------------------------------------------------- */
 .inv-timeline {
@@ -393,13 +639,13 @@ img { max-width: 100%; display: block; }
     height: 2rem;
     border-radius: 50%;
     background: color-mix(in srgb, var(--inv-primary) 14%, transparent);
-    color: var(--inv-primary);
+    color: var(--inv-primary-text);
     font-size: .95rem;
 }
 
 .inv-timeline__time {
     font-weight: 600;
-    color: var(--inv-primary);
+    color: var(--inv-primary-text);
     padding-top: .25rem;
 }
 
@@ -410,7 +656,8 @@ img { max-width: 100%; display: block; }
 .inv-timeline__note {
     display: block;
     font-size: .85rem;
-    opacity: .75;
+    color: var(--inv-ink);
+    opacity: .9;
 }
 
 /* --- Locais ---------------------------------------------------------- */
@@ -430,7 +677,7 @@ img { max-width: 100%; display: block; }
 .inv-venue__name {
     font-family: var(--inv-display);
     font-size: 1.5rem;
-    color: var(--inv-primary);
+    color: var(--inv-primary-text);
     margin: 0 0 .3rem;
     font-weight: 500;
 }
@@ -452,20 +699,22 @@ img { max-width: 100%; display: block; }
 .inv-footer__names {
     font-family: var(--inv-display);
     font-size: 1.9rem;
-    color: var(--inv-primary);
+    color: var(--inv-primary-text);
     margin: 0;
 }
 
 .inv-footer__date,
 .inv-footer__hashtag {
     font-size: .85rem;
-    opacity: .75;
+    color: var(--inv-ink);
+    opacity: .9;
     margin: .2rem 0 0;
 }
 
 .inv-footer__brand {
     font-size: .72rem;
-    opacity: .5;
+    color: var(--inv-ink);
+    opacity: .78;
     margin-top: 1.5rem;
     letter-spacing: .06em;
 }
@@ -490,6 +739,23 @@ img { max-width: 100%; display: block; }
             color-mix(in srgb, var(--inv-primary) 12%, transparent), transparent 70%);
 }
 
+/* A carta selada usa agora matéria real (papel, renda e lacre) em vez de
+   um rectângulo colorido. A arte é original da colecção MeuConvite. */
+.inv--carta_selada .inv-cover--sealed {
+    background: #461411 url("../img/invitations/burgundy-lace-v2.png") center/cover no-repeat;
+}
+.inv--carta_selada .inv-cover--sealed .inv-cover__paper {
+    min-height: min(74vh, 39rem);
+    padding: 4rem 2rem 3rem;
+    background: linear-gradient(180deg, rgba(35,7,5,.1), rgba(35,7,5,.42));
+    border-color: rgba(238,213,174,.28);
+    box-shadow: 0 35px 80px -35px #140302;
+    text-shadow: 0 2px 18px rgba(0,0,0,.45);
+}
+.inv--carta_selada .inv-cover--sealed .inv-cover__paper::before,
+.inv--carta_selada .inv-cover--sealed .inv-cover__paper::after { display:none; }
+.inv--carta_selada .inv-cover__seal { margin-top:1.2rem; }
+
 .inv--carta_selada .inv-section--rsvp {
     background: color-mix(in srgb, var(--inv-primary) 7%, transparent);
     border-radius: .75rem;
@@ -506,7 +772,7 @@ img { max-width: 100%; display: block; }
     color: var(--inv-ink);
 }
 
-.inv--envelope_botanico .inv-cover__eyebrow { color: var(--inv-primary); }
+.inv--envelope_botanico .inv-cover__eyebrow { color: var(--inv-primary-text); }
 
 .inv--envelope_botanico .inv-cover__paper {
     border-color: color-mix(in srgb, var(--inv-primary) 35%, transparent);
@@ -514,7 +780,7 @@ img { max-width: 100%; display: block; }
     box-shadow: 0 30px 60px -40px rgba(0, 0, 0, .45);
 }
 
-.inv--envelope_botanico .inv-cover__names { color: var(--inv-primary); }
+.inv--envelope_botanico .inv-cover__names { color: var(--inv-primary-text); }
 
 .inv--envelope_botanico .inv-timeline__item {
     border-bottom-style: solid;
@@ -530,6 +796,260 @@ img { max-width: 100%; display: block; }
     border-radius: .5rem;
     box-shadow: 0 30px 60px -45px rgba(0, 0, 0, .5);
 }
+
+.inv--cartao_classico .inv-cover--classic .inv-cover__paper {
+    background: color-mix(in srgb, var(--inv-primary) 88%, #000);
+    border-color: color-mix(in srgb, var(--inv-secondary) 55%, transparent);
+    box-shadow: 0 32px 64px -38px rgba(0, 0, 0, .75);
+}
+
+.inv--cartao_classico .inv-cover--classic .inv-cover__seal {
+    color: var(--inv-seal-bg);
+}
+
+/* --- Colecção editorial: composições próprias por template ---------- */
+.inv--template-floral-rosa .inv-cover--classic,
+.inv--template-terracota .inv-cover--classic,
+.inv--template-areia-dourada .inv-cover--classic {
+    background: #fffaf1 url("../img/invitations/floral-terracotta-v2.png") center/cover no-repeat;
+    color: var(--inv-ink);
+}
+.inv--template-floral-rosa .inv-cover--classic .inv-cover__paper,
+.inv--template-terracota .inv-cover--classic .inv-cover__paper,
+.inv--template-areia-dourada .inv-cover--classic .inv-cover__paper {
+    max-width: 28rem;
+    min-height: min(75vh, 43rem);
+    background: rgba(255,252,244,.72);
+    backdrop-filter: blur(2px);
+    border: 1px solid rgba(163,104,49,.26);
+    box-shadow: 0 34px 80px -45px rgba(78,43,16,.55);
+}
+.inv--template-floral-rosa .inv-cover__names,
+.inv--template-terracota .inv-cover__names,
+.inv--template-areia-dourada .inv-cover__names { color: var(--inv-primary-text); font-size:clamp(2.7rem,10vw,4.5rem); }
+.inv--template-floral-rosa .inv-cover__seal,
+.inv--template-terracota .inv-cover__seal,
+.inv--template-areia-dourada .inv-cover__seal { width:4.5rem; height:4.5rem; filter:none; }
+.inv--template-floral-rosa .inv-btn--light,
+.inv--template-terracota .inv-btn--light,
+.inv--template-areia-dourada .inv-btn--light { background:var(--inv-primary-text); color:var(--inv-paper); }
+
+.inv--template-classico-dourado .inv-cover--classic {
+    background: linear-gradient(140deg,#f7f0df,#fffdf8 48%,#eee1bd);
+    color:#2e2a23;
+}
+.inv--template-classico-dourado .inv-cover--classic .inv-cover__paper { background:rgba(255,255,255,.58); border:double 4px color-mix(in srgb,var(--inv-primary) 55%,transparent); border-radius:0; }
+.inv--template-classico-dourado .inv-cover__names { color:var(--inv-primary-text); }
+
+.inv--template-luxo-preto .inv-cover--classic,
+.inv--template-noite-estrelada .inv-cover--classic {
+    background-color:#080a10;
+    background-image:radial-gradient(circle at 18% 14%,rgba(255,223,132,.95) 0 1px,transparent 1.6px),radial-gradient(circle at 75% 30%,rgba(255,255,255,.75) 0 1px,transparent 1.8px),radial-gradient(circle at 45% 82%,rgba(255,218,110,.6) 0 1px,transparent 2px),linear-gradient(155deg,#05070c,#161a2b 58%,#090b13);
+    background-size:47px 47px,73px 73px,91px 91px,auto;
+}
+.inv--template-luxo-preto .inv-cover--classic .inv-cover__paper,
+.inv--template-noite-estrelada .inv-cover--classic .inv-cover__paper { background:rgba(4,5,8,.68); border:1px solid rgba(230,193,91,.48); box-shadow:0 0 0 8px rgba(230,193,91,.05),0 35px 80px -35px #000; }
+
+.inv--template-luxo-preto .inv-cover--classic,
+.inv--template-noite-estrelada .inv-cover--classic,
+.inv--template-luxo-preto .inv-cover--classic .inv-cover__paper,
+.inv--template-noite-estrelada .inv-cover--classic .inv-cover__paper {
+    color: var(--inv-ink);
+}
+
+.inv--template-luxo-preto .inv-cover__names,
+.inv--template-noite-estrelada .inv-cover__names {
+    color: var(--inv-primary);
+    text-shadow: 0 2px 24px rgba(0, 0, 0, .75);
+}
+
+.inv--template-luxo-preto .inv-cover__amp,
+.inv--template-noite-estrelada .inv-cover__amp,
+.inv--template-luxo-preto .inv-cover__eyebrow,
+.inv--template-noite-estrelada .inv-cover__eyebrow {
+    color: var(--inv-primary);
+    opacity: 1;
+}
+
+.inv--template-luxo-preto .inv-cover__kicker,
+.inv--template-noite-estrelada .inv-cover__kicker,
+.inv--template-luxo-preto .inv-cover__note,
+.inv--template-noite-estrelada .inv-cover__note {
+    color: var(--inv-ink);
+    opacity: 1;
+}
+
+.inv--template-luxo-preto .inv-cover .inv-btn--light,
+.inv--template-noite-estrelada .inv-cover .inv-btn--light {
+    background: var(--inv-primary-text);
+    color: var(--inv-paper);
+    box-shadow: 0 12px 32px -18px var(--inv-primary-text);
+}
+
+.inv--template-azul-marinho .inv-cover--classic { background:linear-gradient(150deg,#07172e,#15355e 55%,#7187a5); }
+.inv--template-azul-marinho .inv-cover--classic .inv-cover__paper { background:linear-gradient(155deg,rgba(255,255,255,.03),rgba(255,255,255,.1)); border-color:rgba(219,229,240,.5); }
+
+.inv--template-capulana .inv-cover--classic {
+    background-color:#a93f1e;
+    background-image:radial-gradient(circle,#e9c66a 0 3px,transparent 3.5px),repeating-linear-gradient(45deg,transparent 0 22px,rgba(18,94,83,.55) 22px 32px,transparent 32px 54px),repeating-linear-gradient(-45deg,transparent 0 22px,rgba(250,216,128,.24) 22px 32px,transparent 32px 54px);
+    background-size:28px 28px,auto,auto;
+}
+.inv--template-capulana .inv-cover--classic .inv-cover__paper { background:#aa431f; border:8px double rgba(242,204,103,.75); box-shadow:0 25px 70px -30px #351007; }
+.inv--template-capulana .inv-cover__names { color:#fff0ca; }
+
+.inv--template-minimal-branco .inv-cover--classic { background:#f4f1eb; color:#1f2428; }
+.inv--template-minimal-branco .inv-cover--classic .inv-cover__paper { min-height:min(72vh,40rem); background:#fff; border:0; border-radius:0; box-shadow:0 35px 80px -55px #25303b; }
+.inv--template-minimal-branco .inv-cover__seal { display:none; }
+.inv--template-minimal-branco .inv-cover__names { color:#181c20; font-weight:500; letter-spacing:-.015em; }
+
+.inv--template-tropical .inv-cover--classic { background:linear-gradient(135deg,#edf8f1,#fff8ec); color:#163f35; overflow:hidden; }
+.inv--template-tropical .inv-cover--classic::before,.inv--template-tropical .inv-cover--classic::after { content:""; position:absolute; width:18rem; height:28rem; background:radial-gradient(ellipse at 50% 100%,#1f7860 0 14%,transparent 15%),radial-gradient(ellipse at 80% 80%,#67a26b 0 13%,transparent 14%); opacity:.55; transform:rotate(-25deg); }
+.inv--template-tropical .inv-cover--classic::before { left:-10rem; top:-12rem; }.inv--template-tropical .inv-cover--classic::after { right:-10rem; bottom:-12rem; transform:rotate(155deg); }
+.inv--template-tropical .inv-cover--classic .inv-cover__paper { z-index:1; background:rgba(255,255,255,.74); border-color:rgba(30,110,86,.25); }
+
+.inv--template-lavanda .inv-cover--classic { background:radial-gradient(circle at 20% 15%,rgba(149,113,185,.28),transparent 28%),radial-gradient(circle at 84% 82%,rgba(103,127,178,.2),transparent 32%),linear-gradient(145deg,#fbf9ff,#eee8f7); color:#4d3d61; }
+.inv--template-lavanda .inv-cover--classic .inv-cover__paper { background:rgba(255,255,255,.6); border-color:rgba(114,82,148,.3); }
+
+/* Fundos editoriais da capa interactiva. As imagens do catálogo continuam
+   independentes: estes cenários aparecem apenas ao abrir o convite. */
+.inv--template-envelope-botanico .inv-cover--botanical {
+    background: #f5f1e6 url("../img/invitations/botanical-elegance-v1.webp") center/cover no-repeat;
+}
+
+.inv--template-envelope-botanico .inv-cover--botanical .inv-cover__paper {
+    background: linear-gradient(
+        180deg,
+        rgba(251, 250, 244, .12),
+        rgba(251, 250, 244, .3)
+    );
+    border-color: rgba(103, 122, 64, .32);
+    box-shadow: 0 30px 70px -48px rgba(48, 57, 34, .72);
+    backdrop-filter: blur(.6px);
+}
+
+.inv--template-classico-dourado .inv-cover--classic {
+    background: #eee0bf url("../img/invitations/classic-gold-v1.webp") center/cover no-repeat;
+}
+
+.inv--template-classico-dourado .inv-cover--classic .inv-cover__paper {
+    background: linear-gradient(155deg, rgba(255, 253, 248, .28), rgba(255, 250, 238, .5));
+    border: double 4px rgba(160, 123, 44, .5);
+    box-shadow: 0 36px 86px -45px rgba(91, 62, 14, .68);
+    backdrop-filter: blur(.8px);
+}
+
+.inv--template-classico-dourado .inv-cover .inv-btn--light {
+    background: var(--inv-primary-text);
+    color: var(--inv-paper);
+}
+
+.inv--template-luxo-preto .inv-cover--classic {
+    background: #090909 url("../img/invitations/black-gold-v1.webp") center/cover no-repeat;
+}
+
+.inv--template-luxo-preto .inv-cover--classic .inv-cover__paper {
+    background: linear-gradient(160deg, rgba(5, 5, 7, .42), rgba(5, 5, 7, .62));
+    border-color: rgba(230, 193, 91, .58);
+    backdrop-filter: blur(.8px);
+}
+
+.inv--template-capulana .inv-cover--classic {
+    background: #d8b785 url("../img/invitations/capulana-editorial-v1.webp") center/cover no-repeat;
+    color: var(--inv-ink);
+}
+
+.inv--template-capulana .inv-cover--classic .inv-cover__paper {
+    background: linear-gradient(155deg, rgba(255, 246, 236, .2), rgba(255, 241, 225, .44));
+    border: double 4px rgba(166, 72, 40, .72);
+    box-shadow: 0 36px 82px -42px rgba(53, 26, 8, .72);
+    backdrop-filter: blur(.6px);
+}
+
+.inv--template-capulana .inv-cover__names { color: var(--inv-primary-text); }
+.inv--template-capulana .inv-cover .inv-btn--light {
+    background: var(--inv-primary-text);
+    color: var(--inv-paper);
+}
+
+.inv--template-minimal-branco .inv-cover--classic {
+    background: #f2f0ec url("../img/invitations/minimal-paper-v1.webp") center/cover no-repeat;
+}
+
+.inv--template-minimal-branco .inv-cover--classic .inv-cover__paper {
+    background: linear-gradient(160deg, rgba(255, 255, 255, .38), rgba(255, 255, 255, .56));
+    border: 1px solid rgba(31, 36, 40, .08);
+    box-shadow: 0 38px 88px -50px rgba(31, 36, 40, .6);
+    backdrop-filter: blur(.6px);
+}
+
+.inv--template-minimal-branco .inv-cover .inv-btn--light {
+    background: #1f2428;
+    color: #fff;
+}
+
+.inv--template-azul-marinho .inv-cover--classic {
+    background: #0b1c35 url("../img/invitations/navy-silver-v1.webp") center/cover no-repeat;
+}
+
+.inv--template-azul-marinho .inv-cover--classic .inv-cover__paper {
+    background: linear-gradient(155deg, rgba(7, 23, 46, .4), rgba(7, 23, 46, .6));
+    border-color: rgba(219, 229, 240, .55);
+    box-shadow: 0 38px 88px -42px #020711;
+    backdrop-filter: blur(.8px);
+}
+
+.inv--template-tropical .inv-cover--classic {
+    background: #efe0bd url("../img/invitations/tropical-editorial-v1.webp") center/cover no-repeat;
+    color: #163f35;
+}
+
+.inv--template-tropical .inv-cover--classic::before,
+.inv--template-tropical .inv-cover--classic::after { display: none; }
+
+.inv--template-tropical .inv-cover--classic .inv-cover__paper {
+    background: linear-gradient(155deg, rgba(255, 255, 255, .28), rgba(255, 252, 240, .52));
+    border-color: rgba(30, 110, 86, .28);
+    box-shadow: 0 38px 84px -45px rgba(16, 63, 52, .7);
+    backdrop-filter: blur(.7px);
+}
+
+.inv--template-tropical .inv-cover .inv-btn--light {
+    background: var(--inv-primary-text);
+    color: var(--inv-paper);
+}
+
+.inv--template-lavanda .inv-cover--classic {
+    background: #d9cce4 url("../img/invitations/lavender-editorial-v1.webp") center/cover no-repeat;
+    color: #4d3d61;
+}
+
+.inv--template-lavanda .inv-cover--classic .inv-cover__paper {
+    background: linear-gradient(155deg, rgba(251, 250, 254, .24), rgba(245, 239, 251, .46));
+    border-color: rgba(114, 82, 148, .28);
+    box-shadow: 0 38px 88px -45px rgba(67, 43, 92, .58);
+    backdrop-filter: blur(.6px);
+}
+
+.inv--template-lavanda .inv-cover .inv-btn--light {
+    background: var(--inv-primary-text);
+    color: var(--inv-paper);
+}
+
+.inv--template-noite-estrelada .inv-cover--classic {
+    background: #07162b url("../img/invitations/starry-night-v1.webp") center/cover no-repeat;
+}
+
+.inv--template-noite-estrelada .inv-cover--classic .inv-cover__paper {
+    background: linear-gradient(155deg, rgba(5, 14, 31, .4), rgba(5, 14, 31, .58));
+    border-color: rgba(232, 200, 106, .5);
+    box-shadow: 0 38px 90px -40px #01050d;
+    backdrop-filter: blur(.8px);
+}
+
+/* O interior mantém o mesmo nível de acabamento da capa. */
+.inv--template-floral-rosa .inv-main,.inv--template-terracota .inv-main,.inv--template-areia-dourada .inv-main { background:linear-gradient(rgba(255,253,248,.94),rgba(255,253,248,.94)),url("../img/invitations/floral-terracotta-v2.png") center top/cover fixed; }
+.inv--template-luxo-preto .inv-section,.inv--template-noite-estrelada .inv-section { border-color:color-mix(in srgb,var(--inv-secondary) 25%,transparent); }
+.inv--template-minimal-branco .inv-section { text-align:left; }
 
 /* =====================================================================
    Animações e acessibilidade

@@ -11,16 +11,27 @@
         <p class="inv-text">Pedimos a gentileza de confirmar a sua presença.</p>
     {% endif %}
 
-    {% if is_preview %}
+    {% if is_preview or not guest %}
         <span class="inv-btn inv-btn--disabled" aria-disabled="true">Confirmar presença</span>
         <p class="inv-note">
             Na pré-visualização o formulário está desligado. Cada convidado receberá
             uma ligação própria, com o seu nome e os lugares reservados.
         </p>
     {% else %}
-        <a class="inv-btn" href="#">Confirmar presença</a>
+        {% if guest.rsvp_status == 'confirmed' %}
+            <p class="inv-rsvp-state inv-rsvp-state--confirmed"><i class="bi bi-check-circle-fill"></i> Presença confirmada</p>
+        {% elif guest.rsvp_status == 'declined' %}
+            <p class="inv-rsvp-state"><i class="bi bi-info-circle"></i> Indicou que não poderá comparecer</p>
+        {% endif %}
+        <form method="post" class="inv-rsvp-actions">
+            {% csrf_token %}
+            <button class="inv-btn" type="submit" name="rsvp" value="confirmed">Sim, vou estar presente</button>
+            <button class="inv-btn inv-btn--outline" type="submit" name="rsvp" value="declined">Não poderei comparecer</button>
+        </form>
     {% endif %}
 </section>
+
+{% include "invitations/_qr.html" %}
 
 <footer class="inv-footer">
     <svg class="inv-hearts" viewBox="0 0 200 24" aria-hidden="true"><use href="#inv-divider"/></svg>

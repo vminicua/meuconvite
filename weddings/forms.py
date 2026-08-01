@@ -127,6 +127,8 @@ class WeddingSettingsForm(BootstrapModelForm):
             "country",
             "slug",
             "hashtag",
+            "cover_message",
+            "invitation_message",
             "welcome_message",
             "story",
             "rsvp_deadline",
@@ -136,6 +138,7 @@ class WeddingSettingsForm(BootstrapModelForm):
         widgets = {
             "main_date": forms.DateInput(),
             "rsvp_deadline": forms.DateInput(),
+            "invitation_message": forms.Textarea(attrs={"rows": 3}),
             "welcome_message": forms.Textarea(attrs={"rows": 3}),
             "story": forms.Textarea(attrs={"rows": 6}),
         }

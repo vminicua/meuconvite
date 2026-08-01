@@ -113,13 +113,13 @@ class EventCreationViewTests(TestCase):
         self.assertEqual(wedding.display_names, "Ivone & Dário")
 
     def test_category_defaults_are_applied(self) -> None:
-        """O evento não nasce vazio: momentos e programa já vêm sugeridos."""
+        """O evento nasce com uma única sequência de programa sugerida."""
         from events.models import ScheduleItem, WeddingEvent
 
         self.client.post(self._form_url(), data=self._payload())
         wedding = Wedding.objects.get(owner=self.user)
-        self.assertEqual(WeddingEvent.objects.filter(wedding=wedding).count(), 1)
-        self.assertEqual(ScheduleItem.objects.filter(wedding=wedding).count(), 1)
+        self.assertEqual(WeddingEvent.objects.filter(wedding=wedding).count(), 2)
+        self.assertEqual(ScheduleItem.objects.filter(wedding=wedding).count(), 0)
 
     def test_a_free_subscription_is_created(self) -> None:
         self.client.post(self._form_url(), data=self._payload())
@@ -226,20 +226,55 @@ class DashboardViewTests(TestCase):
     def test_dashboard_shows_the_checklist(self) -> None:
         response = self.client.get(reverse("weddings:detail", args=[self.wedding.pk]))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "O que falta")
-        self.assertEqual(len(response.context["checklist"]), 8)
+        self.assertContains(response, "Estado da preparação")
+        self.assertEqual(len(response.context["checklist"]), 7)
+
+    def test_cover_and_invitation_messages_are_edited_in_event_details(self) -> None:
+        url = reverse("weddings:detail", args=[self.wedding.pk])
+        response = self.client.get(url)
+        self.assertContains(response, "Mensagem da capa")
+        self.assertContains(response, "Mensagem principal do convite")
+
+        response = self.client.post(url, {
+            "primary_name": self.wedding.primary_name,
+            "secondary_name": self.wedding.secondary_name,
+            "primary_short_name": self.wedding.primary_short_name,
+            "secondary_short_name": self.wedding.secondary_short_name,
+            "main_date": self.wedding.main_date.isoformat(),
+            "city": self.wedding.city,
+            "country": self.wedding.country,
+            "slug": self.wedding.slug,
+            "cover_message": "O nosso grande dia começa aqui",
+            "invitation_message": "É com muita alegria que queremos celebrar consigo.",
+            "show_seat_before_event": self.wedding.show_seat_before_event,
+        })
+        self.assertRedirects(response, url)
+        self.wedding.refresh_from_db()
+        self.assertEqual(self.wedding.cover_message, "O nosso grande dia começa aqui")
+        self.assertEqual(
+            self.wedding.invitation_message,
+            "É com muita alegria que queremos celebrar consigo.",
+        )
+
+        preview = self.client.get(reverse("weddings:invitation_preview", args=[self.wedding.pk]))
+        self.assertContains(preview, "O nosso grande dia começa aqui")
+        self.assertContains(preview, "É com muita alegria que queremos celebrar consigo.")
 
     def test_invitation_is_the_first_workspace_tab(self) -> None:
         response = self.client.get(reverse("weddings:preview", args=[self.wedding.pk]))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Pré-visualização do convite")
         self.assertContains(response, "?embedded=1")
+        self.assertContains(response, "invitation-device")
+        self.assertContains(response, "O scroll fica dentro do telemóvel")
+        self.assertEqual(response.context["preview_sections"], ["Capa", "Convite", "RSVP"])
         self.assertContains(response, ">Convite</a>", html=False)
-        self.assertContains(response, ">Organização</a>", html=False)
+        self.assertContains(response, ">Detalhes do evento</a>", html=False)
         self.assertContains(response, ">Convidados</a>", html=False)
         self.assertNotContains(response, ">Momentos</a>", html=False)
-        self.assertNotContains(response, ">Programa</a>", html=False)
+        self.assertContains(response, ">Programa</a>", html=False)
         self.assertNotContains(response, ">Locais</a>", html=False)
+        self.assertContains(response, 'href="/subscricao/"', html=False)
 
     def test_setup_progress_grows_with_completed_items(self) -> None:
         before = self.client.get(reverse("weddings:setup", args=[self.wedding.pk]))
@@ -298,6 +333,14 @@ class DesignViewTests(TestCase):
         response = self.client.get(self.url)
         self.assertContains(response, 'template-choice is-selected')
         self.assertContains(response, 'template-card__selected-label')
+        self.assertNotContains(response, 'id="apply-template-button"')
+        self.assertContains(
+            response,
+            "Aplicar",
+            count=len(response.context["templates"]) - 1,
+        )
+        self.assertNotContains(response, "Aplicar template")
+        self.assertNotContains(response, "Guardar aspecto")
         self.assertEqual(
             response.content.count(b'class="template-choice '),
             len(response.context["templates"]),

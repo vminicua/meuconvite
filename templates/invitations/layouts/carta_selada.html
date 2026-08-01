@@ -1,8 +1,9 @@
 {% include "invitations/_ornaments.html" %}
 
 {% if template.has_cover %}
-    <section class="inv-cover" id="inv-cover">
+    <section class="inv-cover inv-cover--sealed" id="inv-cover">
         <div class="inv-cover__paper">
+            <span class="inv-cover__kicker">{{ wedding.cover_message|default:"Uma celebração para recordar" }}</span>
             <p class="inv-cover__eyebrow">{% if guest_name %}Para{% else %}Convite de{% endif %}</p>
             <p class="inv-cover__guest">{{ guest_name|default:wedding.display_names }}</p>
 
@@ -45,7 +46,7 @@
             <p class="inv-hero__greeting">Caro(a) {{ guest_name }},</p>
         {% endif %}
         <p class="inv-hero__text">
-            {{ wedding.full_names }} {{ invitation_greeting }}
+            {% if wedding.invitation_message %}{{ wedding.invitation_message|linebreaksbr }}{% else %}{{ wedding.full_names }} {{ invitation_greeting }}{% endif %}
         </p>
 
         <p class="inv-hero__date">{{ wedding.main_date|date:"d \d\e F \d\e Y" }}</p>
@@ -75,6 +76,5 @@
     {% endif %}
 
     {% include "invitations/_schedule.html" %}
-    {% include "invitations/_venues.html" %}
     {% include "invitations/_rsvp.html" %}
 </main>

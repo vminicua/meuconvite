@@ -479,3 +479,24 @@ table.dataTable thead th {
         animation: none;
     }
 }
+.admin-phone-preview {
+    position: relative;
+    width: min(100%, 19.5rem);
+    aspect-ratio: 390 / 844;
+    margin: .5rem auto 1rem;
+    padding: .55rem;
+    overflow: hidden;
+    background: #151617;
+    border: 3px solid #303235;
+    border-radius: 3rem;
+    box-shadow: 0 24px 55px -28px rgba(0, 0, 0, .75), inset 0 0 0 1px #060606;
+}
+.admin-phone-preview iframe { width: 100%; height: 100%; border: 0; border-radius: 2.35rem; background: #fff; }
+.admin-phone-preview__island { position: absolute; z-index: 3; top: .95rem; left: 50%; width: 5.8rem; height: 1.35rem; transform: translateX(-50%); border-radius: 2rem; background: #08090a; pointer-events: none; }
+.admin-phone-preview__home { position: absolute; z-index: 3; bottom: .8rem; left: 50%; width: 5.3rem; height: .28rem; transform: translateX(-50%); border-radius: 1rem; background: #111; pointer-events: none; }
+.admin-template-cover--generated { position:relative; isolation:isolate; flex:0 0 4rem; width:4rem; height:5rem; padding:0; overflow:hidden; display:inline-block; border-radius:.35rem; }
+.admin-template-cover--generated .template-cover-art { position:absolute; inset:0; width:auto; height:auto; min-height:0; padding:.3rem; transform:none; }
+.admin-template-cover--generated .template-cover-art__frame { inset:.25rem; padding:.25rem; border-width:1px; }
+.admin-template-cover--generated .template-cover-art__frame small,.admin-template-cover--generated .template-cover-art__frame em,.admin-template-cover--generated .template-cover-art__frame button,.admin-template-cover--generated .template-cover-art__frame i { display:none; }
+.admin-template-cover--generated .template-cover-art__monogram { font-size:.85rem; margin:auto 0 .15rem; }
+.admin-template-cover--generated .template-cover-art__frame strong { font-size:.42rem; line-height:1.1; margin:auto 0; }

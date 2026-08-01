@@ -10,9 +10,12 @@ from __future__ import annotations
 
 from datetime import datetime, time
 
+from django.conf import settings
 from django.utils import timezone
 
-from .models import InvitationTemplate
+import segno
+
+from .models import InvitationTemplate, _relative_luminance
 
 # Nome usado quando ainda não há um convidado real (pré-visualização).
 DEMO_GUEST_NAME = "Élio Nhaca"
@@ -43,6 +46,7 @@ def invitation_context(
     *,
     guest_name: str | None = None,
     seats: int | None = None,
+    guest=None,
     is_preview: bool = False,
     use_event_colours: bool = True,
 ) -> dict:
@@ -54,7 +58,7 @@ def invitation_context(
     mostra-se a paleta original desse template — caso contrário
     experimentar um template novo mostrava sempre as cores antigas.
     """
-    from events.models import ScheduleItem, WeddingLocation
+    from events.models import ScheduleItem, WeddingEvent, WeddingLocation
 
     category = wedding.category
     first_moment = _first_moment(wedding)
@@ -62,6 +66,55 @@ def invitation_context(
     monogram = wedding.primary_short_name[:1].upper()
     if wedding.secondary_short_name:
         monogram = f"{monogram}{wedding.secondary_short_name[:1].upper()}"
+
+    programme_qs = WeddingEvent.objects.filter(wedding=wedding, is_active=True)
+    if guest is not None and guest.allowed_events.exists():
+        programme_qs = programme_qs.filter(pk__in=guest.allowed_events.values("pk"))
+
+    qr_events = list(
+        programme_qs.filter(
+            requires_qr_code=True,
+        ).order_by("date", "start_time", "display_order")
+    )
+    qr_data_uri = ""
+    if qr_events:
+        # O convite público terá um token por convidado. No estúdio usamos um
+        # endereço de demonstração estável para que a página de QR também faça
+        # parte da pré-visualização completa.
+        qr_url = (
+            f"{settings.SITE_BASE_URL}/convite/{guest.invitation_token}/"
+            if guest is not None
+            else f"{settings.SITE_BASE_URL}/convite/{wedding.public_token}/demo/"
+        )
+        # O QR precisa de contraste real, não apenas de combinar com a cor
+        # decorativa do template. Ordenar papel/tinta pela luminosidade evita
+        # dourado-claro sobre creme e mantém os templates escuros legíveis.
+        qr_dark, qr_light = sorted(
+            (template.paper, template.ink), key=_relative_luminance
+        )
+        qr_data_uri = segno.make(qr_url, error="h").svg_data_uri(
+            scale=6,
+            border=2,
+            dark=qr_dark,
+            light=qr_light,
+        )
+
+    programme = list(
+        programme_qs
+        .select_related("location")
+        .order_by("date", "start_time", "display_order")
+    )
+    # Compatibilidade durante a migração: itens antigos que ainda não foram
+    # convertidos entram na mesma sequência, sem duplicar nomes.
+    programme_names = {item.name.casefold() for item in programme}
+    for legacy in (
+        ScheduleItem.objects.filter(wedding=wedding, is_public=True)
+        .select_related("location")
+        .order_by("date", "start_time", "display_order")
+    ):
+        if legacy.title.casefold() not in programme_names:
+            programme.append(legacy)
+            programme_names.add(legacy.title.casefold())
 
     return {
         "wedding": wedding,
@@ -76,18 +129,17 @@ def invitation_context(
             category.invitation_greeting if category else "convida-o para"
         ),
         "monogram": monogram,
-        "guest_name": guest_name,
-        "seats": seats,
+        "guest": guest,
+        "guest_name": guest.full_name if guest is not None else guest_name,
+        "seats": guest.party_size if guest is not None else seats,
         "first_moment": first_moment,
         "countdown_target": _countdown_target(wedding, first_moment),
-        "schedule": list(
-            ScheduleItem.objects.filter(wedding=wedding, is_public=True)
-            .select_related("event", "location")
-            .order_by("display_order", "start_time")
-        ),
+        "schedule": programme,
         "locations": list(
             WeddingLocation.objects.filter(wedding=wedding).order_by("display_order", "name")
         ),
+        "qr_events": qr_events,
+        "qr_data_uri": qr_data_uri,
         "is_preview": is_preview,
         "show_branding": _show_branding(wedding),
     }

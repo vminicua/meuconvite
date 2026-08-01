@@ -11,6 +11,7 @@ from weddings.permissions import capability_flags, require_wedding
 
 from . import services
 from .forms import (
+    ProgramItemForm,
     ScheduleFieldForm,
     ScheduleItemForm,
     WeddingEventForm,
@@ -25,19 +26,26 @@ from .models import ScheduleItem, WeddingEvent, WeddingLocation
 
 @require_wedding()
 def organisation(request: HttpRequest, wedding) -> HttpResponse:
-    """One workspace for moments, their programme and their locations."""
+    """Programa único: nome, data, horas e local na mesma sequência."""
+    capabilities = capability_flags(wedding, request.user)
+    if request.method == "POST":
+        if not capabilities["can_manage_events"]:
+            raise Http404
+        form = ProgramItemForm(request.POST, wedding=wedding)
+        if form.is_valid():
+            services.create_program_item(
+                wedding=wedding, form=form, actor=request.user, request=request
+            )
+            messages.success(request, "Item adicionado ao programa.")
+            return redirect("events:organisation", wedding_id=wedding.pk)
+        messages.error(request, "Corrija os campos assinalados.")
+    else:
+        form = ProgramItemForm(wedding=wedding, initial={"date": wedding.main_date})
+
     events = list(
         WeddingEvent.objects.filter(wedding=wedding)
         .select_related("location")
         .order_by("date", "start_time", "display_order")
-    )
-    locations = list(
-        WeddingLocation.objects.filter(wedding=wedding).order_by("display_order", "name")
-    )
-    schedule_items = list(
-        ScheduleItem.objects.filter(wedding=wedding)
-        .select_related("event", "location")
-        .order_by("display_order", "start_time")
     )
     return render(
         request,
@@ -45,9 +53,8 @@ def organisation(request: HttpRequest, wedding) -> HttpResponse:
         {
             "wedding": wedding,
             "events": events,
-            "locations": locations,
-            "schedule_items": schedule_items,
-            "capabilities": capability_flags(wedding, request.user),
+            "form": form,
+            "capabilities": capabilities,
         },
     )
 

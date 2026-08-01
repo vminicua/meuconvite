@@ -135,17 +135,53 @@ def wedding_create(request: HttpRequest) -> HttpResponse:
 @require_wedding()
 def wedding_preview(request: HttpRequest, wedding) -> HttpResponse:
     """Workspace preview: the first tab shows the invitation with current event data."""
+    from templates_manager import registry
+
+    selected_template = registry.get_template(wedding.selected_template)
+    preview_sections = []
+    if selected_template and selected_template.has_cover:
+        preview_sections.append("Capa")
+    preview_sections.append("Convite")
+    if wedding.events.filter(is_active=True).exists():
+        preview_sections.append("Programa")
+    preview_sections.append("RSVP")
+    if wedding.events.filter(is_active=True, requires_qr_code=True).exists():
+        preview_sections.append("QR Code")
+
     return render(
         request,
         "weddings/wedding_preview.html",
-        {"wedding": wedding, "capabilities": capability_flags(wedding, request.user)},
+        {
+            "wedding": wedding,
+            "selected_template": selected_template,
+            "preview_sections": preview_sections,
+            "capabilities": capability_flags(wedding, request.user),
+        },
     )
 
 
 @require_wedding()
 def wedding_detail(request: HttpRequest, wedding) -> HttpResponse:
-    """Painel do evento."""
+    """Detalhes e estado do evento numa única secção."""
     from subscriptions import services as subscription_services
+
+    capabilities = capability_flags(wedding, request.user)
+    if request.method == "POST":
+        if not capabilities["can_manage_events"]:
+            raise Http404
+        form = WeddingSettingsForm(request.POST, instance=wedding)
+        if form.is_valid():
+            data = {
+                key: value for key, value in form.cleaned_data.items()
+                if not key.startswith("extra__")
+            }
+            data["extra_data"] = form.extra_data()
+            services.update_wedding(wedding=wedding, data=data, actor=request.user, request=request)
+            messages.success(request, "Detalhes do evento actualizados.")
+            return redirect("weddings:detail", wedding_id=wedding.pk)
+        messages.error(request, "Corrija os campos assinalados.")
+    else:
+        form = WeddingSettingsForm(instance=wedding)
 
     limits = subscription_services.limits(wedding)
     guests_used = subscription_services.guest_count(wedding)
@@ -162,7 +198,8 @@ def wedding_detail(request: HttpRequest, wedding) -> HttpResponse:
             "guests_used": guests_used,
             "guests_remaining": limits.guests_remaining(guests_used),
             "usage_percent": limits.usage_percent(guests_used),
-            "capabilities": capability_flags(wedding, request.user),
+            "form": form,
+            "capabilities": capabilities,
         },
     )
 
@@ -187,37 +224,35 @@ def wedding_setup(request: HttpRequest, wedding) -> HttpResponse:
 
 @require_wedding()
 def wedding_settings(request: HttpRequest, wedding) -> HttpResponse:
+    """Ligação antiga servida pela nova secção consolidada de detalhes."""
     if not user_can(wedding, request.user, "can_manage_events"):
         raise Http404
-
     if request.method == "POST":
         form = WeddingSettingsForm(request.POST, instance=wedding)
         if form.is_valid():
-            # Os campos `extra__*` do esquema do tipo de evento não são
-            # colunas: vão todos para `extra_data`.
-            data = {
-                key: value
-                for key, value in form.cleaned_data.items()
-                if not key.startswith("extra__")
-            }
+            data = {key: value for key, value in form.cleaned_data.items() if not key.startswith("extra__")}
             data["extra_data"] = form.extra_data()
-            services.update_wedding(
-                wedding=wedding,
-                data=data,
-                actor=request.user,
-                request=request,
-            )
-            messages.success(request, "Definições actualizadas.")
+            services.update_wedding(wedding=wedding, data=data, actor=request.user, request=request)
+            messages.success(request, "Detalhes do evento actualizados.")
             return redirect("weddings:settings", wedding_id=wedding.pk)
-        messages.error(request, "Corrija os erros assinalados no formulário.")
+        messages.error(request, "Corrija os campos assinalados.")
     else:
         form = WeddingSettingsForm(instance=wedding)
-
-    return render(
-        request,
-        "weddings/wedding_settings.html",
-        {"wedding": wedding, "form": form, "capabilities": capability_flags(wedding, request.user)},
-    )
+    from subscriptions import services as subscription_services
+    limits = subscription_services.limits(wedding)
+    guests_used = subscription_services.guest_count(wedding)
+    return render(request, "weddings/wedding_detail.html", {
+        "wedding": wedding,
+        "summary": dashboard_summary(wedding),
+        "checklist": services.build_checklist(wedding),
+        "events": upcoming_events(wedding),
+        "limits": limits,
+        "guests_used": guests_used,
+        "guests_remaining": limits.guests_remaining(guests_used),
+        "usage_percent": limits.usage_percent(guests_used),
+        "form": form,
+        "capabilities": capability_flags(wedding, request.user),
+    })
 
 
 @require_wedding("can_manage_design")

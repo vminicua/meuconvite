@@ -25,9 +25,9 @@
                 if (!radio.checked) return;
                 cards.forEach(function (other) {
                     const selected = other === card;
-                    other.classList.toggle("is-selected", selected);
+                    other.classList.toggle("is-pending", selected && !other.classList.contains("is-selected"));
                     const wrapper = other.closest(".template-choice");
-                    if (wrapper) wrapper.classList.toggle("is-selected", selected);
+                    if (wrapper) wrapper.classList.toggle("is-pending", selected && !wrapper.classList.contains("is-selected"));
                 });
                 applyColour(primaryInput, card.dataset.primary, suggestedPrimary);
                 applyColour(secondaryInput, card.dataset.secondary, suggestedSecondary);
@@ -36,6 +36,14 @@
                 if (nameOutput) nameOutput.textContent = card.dataset.name || "";
                 if (descriptionOutput) descriptionOutput.textContent = card.dataset.description || "";
             });
+
+            const applyButton = card.querySelector(".template-apply-button");
+            if (applyButton) {
+                applyButton.addEventListener("click", function () {
+                    radio.checked = true;
+                    radio.dispatchEvent(new Event("change", { bubbles: true }));
+                });
+            }
         });
     }
 

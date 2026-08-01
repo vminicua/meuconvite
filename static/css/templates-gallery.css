@@ -251,6 +251,37 @@
     transition: transform .45s ease;
 }
 
+.template-cover-art {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    padding: 9%;
+    place-items: center;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 15% 10%, color-mix(in srgb, var(--tpl-primary) 20%, transparent), transparent 30%),
+        radial-gradient(circle at 90% 90%, color-mix(in srgb, var(--tpl-secondary) 22%, transparent), transparent 32%),
+        var(--tpl-paper);
+    color: var(--tpl-ink);
+}
+.template-cover-art::before, .template-cover-art::after { content: ""; position: absolute; width: 8rem; height: 8rem; border: 1px solid color-mix(in srgb, var(--tpl-primary) 35%, transparent); transform: rotate(45deg); }
+.template-cover-art::before { top: -5rem; left: -5rem; }
+.template-cover-art::after { right: -5rem; bottom: -5rem; }
+.template-cover-art__frame { position: relative; z-index: 1; display: flex; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center; padding: 12%; border: 1px solid color-mix(in srgb, var(--tpl-primary) 35%, transparent); text-align: center; }
+.template-cover-art small { color: var(--tpl-primary); font: 700 .55rem/1.2 system-ui; letter-spacing: .18em; }
+.template-cover-art__monogram { margin: 1rem 0 .7rem; color: var(--tpl-primary); font: 2.1rem/1 var(--tpl-display); }
+.template-cover-art__monogram span { display: block; color: var(--tpl-secondary); font-size: .55em; }
+.template-cover-art strong { max-width: 10rem; font: 1.35rem/1.15 var(--tpl-display); }
+.template-cover-art i { width: 2.5rem; margin: .9rem 0; border-top: 1px solid var(--tpl-primary); }
+.template-cover-art em { font: .78rem/1.2 var(--tpl-body); }
+.template-cover-art button { margin-top: 1.2rem; padding: .45rem .9rem; border: 0; border-radius: 2rem; background: var(--tpl-primary); color: var(--tpl-paper); font-size: .62rem; }
+.template-cover-art--carta_selada { background-color: var(--tpl-primary); background-image: repeating-linear-gradient(135deg, transparent 0 10px, rgba(255,255,255,.035) 10px 11px); color: var(--tpl-paper); }
+.template-cover-art--carta_selada .template-cover-art__frame { border-color: color-mix(in srgb, var(--tpl-secondary) 55%, transparent); }
+.template-cover-art--carta_selada small, .template-cover-art--carta_selada .template-cover-art__monogram, .template-cover-art--carta_selada strong { color: var(--tpl-paper); }
+.template-cover-art--luxo-preto, .template-cover-art--noite-estrelada { background-color: var(--tpl-paper); background-image: radial-gradient(circle, color-mix(in srgb, var(--tpl-primary) 65%, transparent) 0 1px, transparent 1.5px); background-size: 18px 18px; }
+.template-cover-art--capulana { background-color: var(--tpl-primary); background-image: repeating-linear-gradient(45deg, transparent 0 16px, color-mix(in srgb, var(--tpl-secondary) 34%, transparent) 16px 19px); color: var(--tpl-paper); }
+.template-cover-art--floral-rosa, .template-cover-art--tropical { background-image: radial-gradient(circle at 10% 10%, color-mix(in srgb, var(--tpl-primary) 35%, transparent) 0 12%, transparent 13%), radial-gradient(circle at 90% 90%, color-mix(in srgb, var(--tpl-secondary) 32%, transparent) 0 15%, transparent 16%); }
+
 .market-template-card:hover .market-template-card__media img {
     transform: scale(1.025);
 }
@@ -360,13 +391,29 @@
     flex: 1;
 }
 
-.template-choice > .btn {
-    align-self: center;
+.template-card__select {
+    display: block;
+    color: inherit;
+    cursor: pointer;
+}
+
+.template-choice__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: .5rem;
+    min-height: 3.55rem;
+    padding: .75rem 1rem 1rem;
+    border-top: 1px solid rgba(0, 0, 0, .06);
+    background: #fff;
+}
+
+.template-apply-button {
+    box-shadow: 0 .45rem 1.1rem -.65rem rgba(31, 41, 51, .7);
 }
 
 .template-card {
     display: block;
-    cursor: pointer;
     position: relative;
     background: #fff;
     border: 2px solid rgba(0, 0, 0, .08);
@@ -402,6 +449,11 @@
     box-shadow: 0 0 0 .22rem rgba(200, 169, 106, .2), 0 18px 34px -24px rgba(31, 41, 51, .65);
 }
 
+.template-choice.is-pending .template-card {
+    border-color: var(--mc-gold-dark);
+    box-shadow: 0 0 0 .16rem rgba(157, 120, 45, .14);
+}
+
 .template-card:hover {
     transform: translateY(-3px);
     box-shadow: 0 16px 32px -22px rgba(31, 41, 51, .5);
@@ -429,7 +481,7 @@
     top: .6rem;
     right: .6rem;
     background: var(--mc-gold);
-    color: #fff;
+    color: var(--mc-ink);
     font-size: .68rem;
     letter-spacing: .06em;
     padding: .1rem .55rem;

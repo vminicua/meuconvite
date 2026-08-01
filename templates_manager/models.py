@@ -16,6 +16,62 @@ from __future__ import annotations
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+
+def _rgb(hex_colour: str) -> tuple[int, int, int] | None:
+    value = (hex_colour or "").strip().lstrip("#")
+    if len(value) == 3:
+        value = "".join(channel * 2 for channel in value)
+    if len(value) != 6:
+        return None
+    try:
+        return tuple(int(value[index:index + 2], 16) for index in (0, 2, 4))
+    except ValueError:
+        return None
+
+
+def _relative_luminance(hex_colour: str) -> float:
+    rgb = _rgb(hex_colour)
+    if rgb is None:
+        return 0
+    channels = []
+    for value in rgb:
+        channel = value / 255
+        channels.append(
+            channel / 12.92
+            if channel <= .04045
+            else ((channel + .055) / 1.055) ** 2.4
+        )
+    return .2126 * channels[0] + .7152 * channels[1] + .0722 * channels[2]
+
+
+def _contrast(first: str, second: str) -> float:
+    lighter, darker = sorted(
+        (_relative_luminance(first), _relative_luminance(second)), reverse=True
+    )
+    return (lighter + .05) / (darker + .05)
+
+
+def _mix(first: str, second: str, amount: float) -> str:
+    first_rgb = _rgb(first)
+    second_rgb = _rgb(second)
+    if first_rgb is None or second_rgb is None:
+        return second
+    mixed = tuple(round(a + (b - a) * amount) for a, b in zip(first_rgb, second_rgb))
+    return "#" + "".join(f"{channel:02X}" for channel in mixed)
+
+
+def readable_colour(accent: str, background: str, ink: str, minimum: float = 4.5) -> str:
+    """Preserva o tom da paleta, aproximando-o da tinta até ficar legível."""
+    if _rgb(accent) is None or _rgb(background) is None or _rgb(ink) is None:
+        return ink
+    if _contrast(accent, background) >= minimum:
+        return accent
+    for step in range(1, 21):
+        candidate = _mix(accent, ink, step / 20)
+        if _contrast(candidate, background) >= minimum:
+            return candidate
+    return ink
+
 from core.models import BaseModel
 from core.storage import template_cover_upload_to
 from core.validators import validate_hex_color, validate_image_upload
@@ -157,6 +213,11 @@ class InvitationTemplate(BaseModel):
     def __str__(self) -> str:
         return self.name
 
+    def save(self, *args, **kwargs):
+        # A capa faz parte do padrão visual da plataforma.
+        self.has_cover = True
+        return super().save(*args, **kwargs)
+
     @property
     def tag_list(self) -> list[str]:
         return [tag.strip() for tag in self.tags.split(",") if tag.strip()]
@@ -195,9 +256,36 @@ class InvitationTemplate(BaseModel):
         As cores do evento, quando existem, ganham às do template: os
         noivos podem afinar a paleta sem sair do design escolhido.
         """
+        primary = primary or self.primary
+        secondary = secondary or self.secondary
+        # Texto e acções usam contraste AAA. O limite anterior de 4.5 podia
+        # ser tecnicamente válido e ainda assim parecer fraco em ecrãs móveis.
+        primary_text = readable_colour(primary, self.paper, self.ink, minimum=7.0)
+        secondary_text = readable_colour(secondary, self.paper, self.ink, minimum=7.0)
+        on_primary = max(
+            (self.paper, self.ink, "#FFFFFF", "#000000"),
+            key=lambda colour: _contrast(colour, primary),
+        )
+        on_secondary = max(
+            (self.paper, self.ink, "#FFFFFF", "#000000"),
+            key=lambda colour: _contrast(colour, secondary),
+        )
+        seal_background = secondary
+        seal_foreground = on_secondary
+        if _contrast(seal_background, seal_foreground) < 7.0:
+            seal_background = readable_colour(
+                secondary, self.paper, self.ink, minimum=7.0
+            )
+            seal_foreground = self.paper
         return (
-            f"--inv-primary: {primary or self.primary};"
-            f"--inv-secondary: {secondary or self.secondary};"
+            f"--inv-primary: {primary};"
+            f"--inv-secondary: {secondary};"
+            f"--inv-primary-text: {primary_text};"
+            f"--inv-secondary-text: {secondary_text};"
+            f"--inv-on-primary: {on_primary};"
+            f"--inv-on-secondary: {on_secondary};"
+            f"--inv-seal-bg: {seal_background};"
+            f"--inv-on-seal: {seal_foreground};"
             f"--inv-paper: {self.paper};"
             f"--inv-ink: {self.ink};"
             f"--inv-display: {self.display_font};"

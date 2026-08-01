@@ -83,17 +83,17 @@ class EventCategoryForm(BootstrapModelForm):
             "names_separator",
             "invitation_greeting",
             "default_moments",
-            "default_schedule",
             "is_active",
             "display_order",
         ]
         widgets = {
             "default_moments": forms.Textarea(attrs={"rows": 6, "class": "form-control font-monospace"}),
-            "default_schedule": forms.Textarea(attrs={"rows": 6, "class": "form-control font-monospace"}),
         }
+        labels = {"default_moments": _("Programa predefinido")}
         help_texts = {
             "icon": _("Nome de um ícone Bootstrap, por exemplo bi-cake2."),
             "names_separator": _("Usado no título: «Ivone & Dário»."),
+            "default_moments": _("Lista JSON com name, start_time e opções de RSVP/QR Code."),
         }
 
     def _clean_json_list(self, field: str) -> list:
@@ -117,16 +117,6 @@ class EventCategoryForm(BootstrapModelForm):
                     _("O momento %(n)s precisa de «name».") % {"n": position}
                 )
         return moments
-
-    def clean_default_schedule(self) -> list:
-        items = self._clean_json_list("default_schedule")
-        for position, item in enumerate(items, start=1):
-            if not isinstance(item, dict) or not item.get("title"):
-                raise forms.ValidationError(
-                    _("O item %(n)s do programa precisa de «title».") % {"n": position}
-                )
-        return items
-
 
 class CategoryFieldForm(BootstrapForm):
     """Acrescenta um campo próprio a um tipo de evento."""
@@ -179,6 +169,14 @@ class CategoryFieldForm(BootstrapForm):
         return definition
 
 
+TEMPLATE_FONT_CHOICES = [
+    ('"Playfair Display", Georgia, serif', _("Playfair Display — elegante")),
+    ('"Great Vibes", cursive', _("Great Vibes — manuscrita")),
+    ('"Cormorant Garamond", Georgia, serif', _("Cormorant Garamond — clássica")),
+    ('"Montserrat", "Segoe UI", sans-serif', _("Montserrat — moderna")),
+]
+
+
 class InvitationTemplateForm(BootstrapModelForm):
     """Criação e edição de um template de convite."""
 
@@ -198,7 +196,6 @@ class InvitationTemplateForm(BootstrapModelForm):
             "body_font",
             "google_fonts",
             "tags",
-            "has_cover",
             "has_countdown",
             "supports_music",
             "cover_image",
@@ -211,12 +208,41 @@ class InvitationTemplateForm(BootstrapModelForm):
             "secondary": forms.TextInput(attrs={"type": "color", "class": "form-control form-control-color"}),
             "paper": forms.TextInput(attrs={"type": "color", "class": "form-control form-control-color"}),
             "ink": forms.TextInput(attrs={"type": "color", "class": "form-control form-control-color"}),
+            "display_font": forms.Select(choices=TEMPLATE_FONT_CHOICES),
+            "body_font": forms.Select(choices=TEMPLATE_FONT_CHOICES),
+            "google_fonts": forms.HiddenInput(),
             "categories": forms.SelectMultiple(attrs={"class": "form-select js-select2", "size": 6}),
         }
-        help_texts = {
-            "categories": _("Vazio = serve todos os tipos de evento."),
-            "code": _("Identificador usado nos eventos. Evite mudá-lo depois de estar em uso."),
+        labels = {
+            "display_font": _("Fonte dos títulos"),
+            "body_font": _("Fonte do texto"),
+            "cover_image": _("Capa do template"),
+            "display_order": _("Posição no catálogo"),
         }
+        help_texts = {
+            "categories": _("Deixe vazio para disponibilizar este template em todos os tipos de evento."),
+            "code": "",
+            "layout": _("Escolha o estilo base do convite."),
+            "display_font": "",
+            "body_font": "",
+            "google_fonts": "",
+        }
+
+    def clean(self):
+        cleaned = super().clean()
+        font_parameters = {
+            '"Playfair Display", Georgia, serif': "Playfair+Display:wght@500;600",
+            '"Great Vibes", cursive': "Great+Vibes",
+            '"Cormorant Garamond", Georgia, serif': "Cormorant+Garamond:wght@400;600",
+            '"Montserrat", "Segoe UI", sans-serif': "Montserrat:wght@400;600",
+        }
+        selected = []
+        for field_name in ("display_font", "body_font"):
+            parameter = font_parameters.get(cleaned.get(field_name))
+            if parameter and parameter not in selected:
+                selected.append(parameter)
+        cleaned["google_fonts"] = "|".join(selected)
+        return cleaned
 
 
 class BlockEventForm(BootstrapForm):

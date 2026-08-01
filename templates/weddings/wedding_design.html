@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:wght@400;600&family=Playfair+Display:wght@500;600&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
-    <link href="{% static 'css/templates-gallery.css' %}?v=20260731.4" rel="stylesheet">
+    <link href="{% static 'css/templates-gallery.css' %}?v=20260731.7" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -29,7 +29,6 @@
                href="{% url 'weddings:invitation_preview' wedding.pk %}">
                 <i class="bi bi-eye me-1"></i>Ver o convite
             </a>
-            <button type="submit" class="btn btn-primary">Guardar aspecto</button>
         </div>
     </div>
 
@@ -40,39 +39,48 @@
     <div class="template-grid mb-4">
         {% for template in templates %}
             <div class="template-choice {% if template.code == wedding.selected_template %}is-selected{% endif %}">
-                <label class="template-card {% if template.code == wedding.selected_template %}is-selected{% endif %}"
-                       data-template="{{ template.code }}"
-                       data-name="{{ template.name }}"
-                       data-description="{{ template.description }}"
-                       data-primary="{{ template.primary }}"
-                       data-secondary="{{ template.secondary }}">
-                    <input type="radio" name="selected_template" value="{{ template.code }}"
-                           {% if template.code == wedding.selected_template %}checked{% endif %}
-                           class="visually-hidden">
-                    <span class="template-card__selected-label"><i class="bi bi-check-circle-fill"></i> Selecionado</span>
-                    <span class="template-card__preview template-card__preview--cover">
-                        {% if template.cover_image %}
-                            <img src="{{ template.cover_image.url }}" alt="Cover do template {{ template.name }}">
-                        {% else %}
-                            <img src="{% static 'img/template-cover-default.webp' %}"
-                                 alt="Cover provisório do template {{ template.name }}">
-                        {% endif %}
-                    </span>
-
-                    <span class="template-card__body">
-                        <span class="template-card__name">{{ template.name }}<i class="bi bi-check-circle-fill template-card__check"></i></span>
-                        <span class="template-card__layout">{{ template.get_layout_display }}</span>
-                        <span class="template-card__description">{{ template.description }}</span>
-                        <span class="template-card__tags">
-                            {% for tag in template.tag_list %}<span class="template-card__tag">{{ tag }}</span>{% endfor %}
+                <div class="template-card {% if template.code == wedding.selected_template %}is-selected{% endif %}"
+                     data-template="{{ template.code }}"
+                     data-name="{{ template.name }}"
+                     data-description="{{ template.description }}"
+                     data-primary="{{ template.primary }}"
+                     data-secondary="{{ template.secondary }}">
+                    <label class="template-card__select">
+                        <input type="radio" name="selected_template" value="{{ template.code }}"
+                               {% if template.code == wedding.selected_template %}checked{% endif %}
+                               class="visually-hidden">
+                        <span class="template-card__selected-label"><i class="bi bi-check-circle-fill"></i> Selecionado</span>
+                        <span class="template-card__preview template-card__preview--cover">
+                            {% if template.cover_image %}
+                                <img src="{{ template.cover_image.url }}" alt="Cover do template {{ template.name }}">
+                            {% else %}
+                                {% include "partials/template_cover_art.html" %}
+                            {% endif %}
                         </span>
-                    </span>
-                </label>
-                <a class="btn btn-sm btn-outline-secondary"
-                   href="{% url 'weddings:invitation_preview_template' wedding.pk template.code %}"
-                   target="_blank" rel="noopener">
-                    <i class="bi bi-eye me-1"></i>Pré-visualizar
-                </a>
+
+                        <span class="template-card__body">
+                            <span class="template-card__name">{{ template.name }}<i class="bi bi-check-circle-fill template-card__check"></i></span>
+                            <span class="template-card__layout">{{ template.get_layout_display }}</span>
+                            <span class="template-card__description">{{ template.description }}</span>
+                            <span class="template-card__tags">
+                                {% for tag in template.tag_list %}<span class="template-card__tag">{{ tag }}</span>{% endfor %}
+                            </span>
+                        </span>
+                    </label>
+                    <div class="template-choice__actions">
+                        <a class="btn btn-sm btn-outline-secondary"
+                           href="{% url 'weddings:invitation_preview_template' wedding.pk template.code %}"
+                           target="_blank" rel="noopener">
+                            <i class="bi bi-eye me-1"></i>Pré-visualizar
+                        </a>
+                        {% if template.code != wedding.selected_template %}
+                            <button type="submit" class="btn btn-sm btn-primary template-apply-button"
+                                    name="selected_template" value="{{ template.code }}">
+                                <i class="bi bi-check2-circle me-1"></i>Aplicar
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
         {% endfor %}
     </div>
@@ -150,7 +158,7 @@
     </div>
 
     <div class="mt-4">
-        <button type="submit" class="btn btn-primary">Guardar aspecto</button>
+        <button type="submit" class="btn btn-primary">Guardar alterações</button>
         <a href="{% url 'weddings:detail' wedding.pk %}" class="btn btn-outline-secondary">Voltar ao painel</a>
     </div>
 </form>

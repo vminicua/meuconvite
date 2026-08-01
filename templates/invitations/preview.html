@@ -13,9 +13,9 @@
         <link href="{{ template.fonts_url }}" rel="stylesheet">
     {% endif %}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="{% static 'css/invitation.css' %}" rel="stylesheet">
+    <link href="{% static 'css/invitation.css' %}?v=20260731.15" rel="stylesheet">
 </head>
-<body class="inv inv--{{ template.layout }}" style="{{ css_variables }}">
+<body class="inv inv--{{ template.layout }} inv--template-{{ template.code }}{% if embedded %} inv--embedded{% endif %}" style="{{ css_variables }}">
 
 {% if is_preview and not embedded %}
     <div class="inv-preview-bar">

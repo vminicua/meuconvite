@@ -20,6 +20,7 @@ from django.core.exceptions import ValidationError
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
+from django.views.decorators.clickjacking import xframe_options_sameorigin
 
 from audit.models import AuditAction, AuditLog
 from audit.services import log_action, log_update, model_to_dict
@@ -457,6 +458,31 @@ def template_form(request: HttpRequest, template_id=None) -> HttpResponse:
         "platform_admin/sections/template_form.html",
         {"form": form, "template": template},
     )
+
+
+@staff_member_required
+@xframe_options_sameorigin
+def template_preview(request: HttpRequest, template_id) -> HttpResponse:
+    """Preview móvel completo de um template dentro da administração."""
+    from templates_manager.models import InvitationTemplate
+    from templates_manager.services import DEMO_GUEST_NAME, invitation_context
+
+    template = get_object_or_404(InvitationTemplate, pk=template_id)
+    wedding = Wedding.objects.select_related("category", "owner").order_by("-created_at").first()
+    if wedding is None:
+        return HttpResponse(
+            '<div style="font-family:system-ui;padding:2rem;text-align:center">Crie um evento para visualizar este template.</div>'
+        )
+    context = invitation_context(
+        wedding,
+        template,
+        guest_name=DEMO_GUEST_NAME,
+        seats=2,
+        is_preview=True,
+        use_event_colours=False,
+    )
+    context["embedded"] = True
+    return render(request, "invitations/preview.html", context)
 
 
 # ---------------------------------------------------------------------

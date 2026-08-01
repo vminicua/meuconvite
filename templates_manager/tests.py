@@ -4,17 +4,26 @@ from __future__ import annotations
 
 from io import BytesIO
 import tempfile
+from urllib.parse import unquote
 
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.contrib.staticfiles import finders
 from django.test import TestCase
 from django.urls import reverse
 from PIL import Image
 
 from templates_manager import registry, services
-from templates_manager.models import InvitationLayout, InvitationTemplate
+from templates_manager.models import (
+    InvitationLayout,
+    InvitationTemplate,
+    _contrast,
+    _relative_luminance,
+    readable_colour,
+)
 from weddings.tests.factories import (
     DEFAULT_PASSWORD,
     create_category,
+    create_event,
     create_location,
     create_schedule_item,
     create_user,
@@ -66,13 +75,61 @@ class CatalogueTests(TestCase):
     def test_fonts_url_is_built_from_the_families(self) -> None:
         template = registry.get_template("carta-selada")
         self.assertIn("fonts.googleapis.com", template.fonts_url)
-        self.assertIn("family=Playfair+Display", template.fonts_url)
+        self.assertIn("family=Italianno", template.fonts_url)
+
+    def test_each_template_has_curated_typography(self) -> None:
+        expected_display_fonts = {
+            "carta-selada": "Italianno",
+            "envelope-botanico": "Great Vibes",
+            "classico-dourado": "Cinzel",
+            "luxo-preto": "Cinzel",
+            "capulana": "Cinzel",
+            "floral-rosa": "Great Vibes",
+            "minimal-branco": "Cormorant Garamond",
+            "azul-marinho": "Cinzel",
+            "terracota": "Cormorant Garamond",
+            "tropical": "Cormorant Garamond",
+            "lavanda": "Cormorant Garamond",
+            "areia-dourada": "Cormorant Garamond",
+            "noite-estrelada": "Cinzel",
+        }
+        for code, family in expected_display_fonts.items():
+            with self.subTest(template=code):
+                template = registry.get_template(code)
+                self.assertIn(family, template.display_font)
+                self.assertIn(family.replace(" ", "+"), template.fonts_url)
 
     def test_event_colours_win_over_the_template_palette(self) -> None:
         template = registry.get_template("carta-selada")
         variables = template.css_variables("#123456", "#654321")
         self.assertIn("--inv-primary: #123456", variables)
         self.assertIn("--inv-secondary: #654321", variables)
+
+    def test_every_palette_has_readable_semantic_colours(self) -> None:
+        for template in InvitationTemplate.objects.active():
+            with self.subTest(template=template.code):
+                accent = readable_colour(
+                    template.primary, template.paper, template.ink, minimum=7.0
+                )
+                self.assertGreaterEqual(_contrast(accent, template.paper), 7.0)
+
+                variables = template.css_variables()
+                self.assertIn(f"--inv-primary-text: {accent}", variables)
+                self.assertIn("--inv-secondary-text:", variables)
+                self.assertIn("--inv-on-primary:", variables)
+                self.assertIn("--inv-on-secondary:", variables)
+                self.assertIn("--inv-seal-bg:", variables)
+                self.assertIn("--inv-on-seal:", variables)
+                semantic = dict(
+                    declaration.split(":", 1)
+                    for declaration in variables.rstrip(";").split(";")
+                )
+                self.assertGreaterEqual(
+                    _contrast(
+                        semantic["--inv-seal-bg"], semantic["--inv-on-seal"]
+                    ),
+                    7.0,
+                )
 
 
 class InvitationContextTests(TestCase):
@@ -113,6 +170,29 @@ class InvitationContextTests(TestCase):
         )
         self.assertTrue(context["show_branding"])
 
+    def test_preview_includes_a_personal_qr_page_when_checkin_is_required(self) -> None:
+        event = create_event(self.wedding, requires_qr_code=True)
+        context = services.invitation_context(
+            self.wedding,
+            registry.get_template("carta-selada"),
+            guest_name="Élio Nhaca",
+            seats=2,
+            is_preview=True,
+        )
+        self.assertEqual(context["qr_events"], [event])
+        self.assertTrue(context["qr_data_uri"].startswith("data:image/svg+xml"))
+
+    def test_qr_uses_the_high_contrast_paper_and_ink_pair(self) -> None:
+        create_event(self.wedding, name="Recepção", requires_qr_code=True)
+        template = registry.get_template("luxo-preto")
+        context = services.invitation_context(self.wedding, template, is_preview=True)
+        dark, light = sorted(
+            (template.paper, template.ink), key=_relative_luminance
+        )
+        svg = unquote(context["qr_data_uri"]).lower()
+        self.assertIn(f"fill='{light.lower()}'", svg)
+        self.assertIn(f"stroke='{dark.lower()}'", svg)
+
 
 class InvitationPreviewTests(TestCase):
     def setUp(self) -> None:
@@ -128,6 +208,17 @@ class InvitationPreviewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "inv--carta_selada")
         self.assertContains(response, self.wedding.primary_short_name)
+
+    def test_classic_template_respects_its_cover_setting(self) -> None:
+        response = self.client.get(
+            reverse(
+                "weddings:invitation_preview_template",
+                args=[self.wedding.pk, "capulana"],
+            )
+        )
+        self.assertContains(response, 'id="inv-cover"')
+        self.assertContains(response, "Abrir o convite")
+        self.assertContains(response, 'id="inv-main" hidden')
 
     def test_preview_can_show_another_template(self) -> None:
         response = self.client.get(
@@ -151,6 +242,15 @@ class InvitationPreviewTests(TestCase):
         )
         self.assertContains(response, "inv-btn--disabled")
 
+    def test_qr_page_uses_the_same_invitation_template(self) -> None:
+        create_event(self.wedding, requires_qr_code=True)
+        response = self.client.get(
+            reverse("weddings:invitation_preview", args=[self.wedding.pk])
+        )
+        self.assertContains(response, "O seu QR Code")
+        self.assertContains(response, "QR de demonstração")
+        self.assertContains(response, "data:image/svg+xml")
+
     def test_another_user_cannot_preview_this_invitation(self) -> None:
         stranger = create_user("estranho@example.com")
         self.client.login(email=stranger.email, password=DEFAULT_PASSWORD)
@@ -171,6 +271,22 @@ class InvitationPreviewTests(TestCase):
                 )
                 self.assertEqual(response.status_code, 200)
 
+    def test_every_editorial_preview_background_exists(self) -> None:
+        backgrounds = (
+            "botanical-elegance-v1.webp",
+            "classic-gold-v1.webp",
+            "black-gold-v1.webp",
+            "capulana-editorial-v1.webp",
+            "minimal-paper-v1.webp",
+            "navy-silver-v1.webp",
+            "tropical-editorial-v1.webp",
+            "lavender-editorial-v1.webp",
+            "starry-night-v1.webp",
+        )
+        for background in backgrounds:
+            with self.subTest(background=background):
+                self.assertIsNotNone(finders.find(f"img/invitations/{background}"))
+
 
 class TemplateAdminTests(TestCase):
     def setUp(self) -> None:
@@ -186,6 +302,24 @@ class TemplateAdminTests(TestCase):
         response = self.client.get(reverse("platform:templates"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Carta Selada")
+
+    def test_every_template_is_forced_to_have_an_interactive_cover(self) -> None:
+        template = InvitationTemplate.objects.create(
+            code="sem-capa", name="Sem capa", has_cover=False
+        )
+        self.assertTrue(template.has_cover)
+
+    def test_admin_edit_page_contains_an_iphone_preview(self) -> None:
+        create_wedding(self.staff, category=create_category())
+        template = InvitationTemplate.objects.active().first()
+        response = self.client.get(reverse("platform:template_edit", args=[template.pk]))
+        self.assertContains(response, "admin-phone-preview")
+        self.assertContains(response, reverse("platform:template_preview", args=[template.pk]))
+        preview = self.client.get(reverse("platform:template_preview", args=[template.pk]))
+        self.assertEqual(preview.status_code, 200)
+        self.assertEqual(preview.headers["X-Frame-Options"], "SAMEORIGIN")
+        self.assertContains(preview, "Abrir o convite")
+        self.assertNotContains(response, "Cada layout é um ficheiro")
 
     def test_creating_a_template(self) -> None:
         response = self.client.post(

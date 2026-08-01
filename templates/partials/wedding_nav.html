@@ -26,12 +26,12 @@
                data-workspace-nav href="{% url 'weddings:preview' wedding.pk %}"><i class="bi bi-eye me-1"></i>Convite</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link {% if request.resolver_match.url_name == 'detail' %}active{% endif %}"
-               data-workspace-nav href="{% url 'weddings:detail' wedding.pk %}"><i class="bi bi-speedometer2 me-1"></i>Visão geral</a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'detail' or request.resolver_match.url_name == 'settings' %}active{% endif %}"
+               data-workspace-nav href="{% url 'weddings:detail' wedding.pk %}"><i class="bi bi-card-checklist me-1"></i>Detalhes do evento</a>
         </li>
         <li class="nav-item">
             <a class="nav-link {% if request.resolver_match.namespace == 'events' %}active{% endif %}"
-               data-workspace-nav href="{% url 'events:organisation' wedding.pk %}"><i class="bi bi-calendar3 me-1"></i>Organização</a>
+               data-workspace-nav href="{% url 'events:organisation' wedding.pk %}"><i class="bi bi-calendar3 me-1"></i>Programa</a>
         </li>
         {% if capabilities.can_manage_guests %}
             <li class="nav-item">
@@ -49,16 +49,6 @@
             <li class="nav-item">
                 <a class="nav-link {% if 'team' in request.resolver_match.url_name %}active{% endif %}"
                    data-workspace-nav href="{% url 'weddings:team' wedding.pk %}"><i class="bi bi-person-gear me-1"></i>Equipa</a>
-            </li>
-        {% endif %}
-        <li class="nav-item">
-            <a class="nav-link {% if request.resolver_match.namespace == 'subscriptions' %}active{% endif %}"
-               data-workspace-nav href="{% url 'subscriptions:detail' wedding.pk %}"><i class="bi bi-gem me-1"></i>Subscrição</a>
-        </li>
-        {% if capabilities.can_manage_events %}
-            <li class="nav-item">
-                <a class="nav-link {% if request.resolver_match.url_name == 'settings' %}active{% endif %}"
-                   data-workspace-nav href="{% url 'weddings:settings' wedding.pk %}"><i class="bi bi-gear me-1"></i>Definições</a>
             </li>
         {% endif %}
     </ul>

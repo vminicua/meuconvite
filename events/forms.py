@@ -16,6 +16,59 @@ from core.schema import (
 from .models import ScheduleItem, WeddingEvent, WeddingLocation
 
 
+class ProgramItemForm(BootstrapModelForm):
+    """Formulário curto usado directamente na página do programa."""
+
+    location_name = forms.CharField(
+        label=_("Local"),
+        max_length=150,
+        required=False,
+        widget=forms.TextInput(attrs={"placeholder": _("Ex.: Paróquia de Santo António")}),
+    )
+    address = forms.CharField(
+        label=_("Endereço"),
+        max_length=250,
+        required=False,
+        widget=forms.TextInput(attrs={"placeholder": _("Rua, bairro ou ligação do mapa")}),
+    )
+
+    class Meta:
+        model = WeddingEvent
+        fields = ["name", "date", "start_time", "end_time"]
+        labels = {"name": _("Nome no programa")}
+        widgets = {
+            "name": forms.TextInput(attrs={"placeholder": _("Ex.: Cerimónia religiosa")}),
+            "date": forms.DateInput(),
+            "start_time": forms.TimeInput(),
+            "end_time": forms.TimeInput(),
+        }
+
+    def __init__(self, *args, wedding=None, **kwargs) -> None:
+        self.wedding = wedding
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk and self.instance.location:
+            self.fields["location_name"].initial = self.instance.location.name
+            self.fields["address"].initial = self.instance.location.address
+
+    def clean(self):
+        cleaned = super().clean()
+        start = cleaned.get("start_time")
+        end = cleaned.get("end_time")
+        if start and end and end < start:
+            self.add_error("end_time", _("A hora de fim deve ser posterior à hora de início."))
+        return cleaned
+
+    def clean_name(self) -> str:
+        name = self.cleaned_data["name"].strip()
+        if self.wedding is not None:
+            duplicates = WeddingEvent.objects.filter(wedding=self.wedding, name__iexact=name)
+            if self.instance.pk:
+                duplicates = duplicates.exclude(pk=self.instance.pk)
+            if duplicates.exists():
+                raise forms.ValidationError(_("Já existe um item com este nome no programa."))
+        return name
+
+
 class WeddingEventForm(BootstrapModelForm):
     """
     Create/edit an event.

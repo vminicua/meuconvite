@@ -145,6 +145,18 @@ class Wedding(BaseModel):
         null=True,
         validators=[validate_image_upload],
     )
+    cover_message = models.CharField(
+        _("mensagem da capa"),
+        max_length=200,
+        blank=True,
+        help_text=_("Frase curta apresentada antes de abrir o convite."),
+    )
+    invitation_message = models.TextField(
+        _("mensagem principal do convite"),
+        max_length=1000,
+        blank=True,
+        help_text=_("Mensagem apresentada ao convidado depois de abrir o convite."),
+    )
     welcome_message = models.TextField(_("mensagem de boas-vindas"), blank=True, max_length=1000)
     story = models.TextField(_("a nossa história"), blank=True, max_length=5000)
     hashtag = models.CharField(_("hashtag"), max_length=60, blank=True)

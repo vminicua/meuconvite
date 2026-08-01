@@ -8,7 +8,7 @@
     <div>
         <p class="workspace-eyebrow mb-1">Como os convidados vão ver</p>
         <h2 class="h5 mb-1">Pré-visualização do convite</h2>
-        <p class="small text-body-secondary mb-0">Este preview usa o template e todos os detalhes atualmente guardados.</p>
+        <p class="small text-body-secondary mb-0">Veja e percorra o convite exatamente no formato que os convidados usarão.</p>
     </div>
     {% if capabilities.can_manage_design %}
         <a class="btn btn-outline-secondary" href="{% url 'weddings:design' wedding.pk %}" data-workspace-nav>
@@ -16,9 +16,37 @@
         </a>
     {% endif %}
 </div>
-<div class="invitation-preview-shell">
-    <iframe title="Pré-visualização do convite de {{ wedding.display_names }}"
-            src="{% url 'weddings:invitation_preview' wedding.pk %}?embedded=1"
-            class="invitation-preview-frame"></iframe>
+
+<div class="invitation-preview-studio">
+    <aside class="invitation-preview-studio__info">
+        <span class="invitation-preview-studio__eyebrow"><i class="bi bi-phone me-1"></i>Visualização móvel</span>
+        <h3>{{ selected_template.name }}</h3>
+        <p>O convite abre no tamanho real de um iPhone. Faça scroll dentro do ecrã para percorrer todas as páginas.</p>
+        <div class="invitation-preview-studio__sections" aria-label="Páginas incluídas no convite">
+            {% for section in preview_sections %}<span>{{ section }}</span>{% endfor %}
+        </div>
+        <p class="invitation-preview-studio__hint"><i class="bi bi-mouse2 me-2"></i>O scroll fica dentro do telemóvel</p>
+        <a class="btn btn-sm btn-outline-secondary" target="_blank" rel="noopener"
+           href="{% url 'weddings:invitation_preview' wedding.pk %}">
+            <i class="bi bi-box-arrow-up-right me-1"></i>Abrir em nova janela
+        </a>
+    </aside>
+
+    <div class="invitation-device-wrap">
+        <span class="invitation-device-wrap__label">PREVIEW INTERATIVO</span>
+        <div class="invitation-device" aria-label="iPhone com a pré-visualização do convite">
+            <span class="invitation-device__button invitation-device__button--silent" aria-hidden="true"></span>
+            <span class="invitation-device__button invitation-device__button--volume-up" aria-hidden="true"></span>
+            <span class="invitation-device__button invitation-device__button--volume-down" aria-hidden="true"></span>
+            <span class="invitation-device__button invitation-device__button--power" aria-hidden="true"></span>
+            <div class="invitation-device__screen">
+                <div class="invitation-device__island" aria-hidden="true"><span></span></div>
+                <iframe title="Pré-visualização do convite de {{ wedding.display_names }}"
+                        src="{% url 'weddings:invitation_preview' wedding.pk %}?embedded=1"
+                        class="invitation-preview-frame"></iframe>
+                <span class="invitation-device__home" aria-hidden="true"></span>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

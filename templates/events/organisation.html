@@ -1,50 +1,98 @@
 {% extends "base.html" %}
+{% load static %}
 
-{% block title %}Organização · {{ wedding.display_names }}{% endblock %}
+{% block title %}Programa · {{ wedding.display_names }}{% endblock %}
 
 {% block content %}
 {% include "partials/wedding_nav.html" %}
-<div class="workspace-section-heading mb-4">
-    <div>
-        <p class="workspace-eyebrow mb-1">Tudo no mesmo sítio</p>
-        <h2 class="h5 mb-1">Organização do evento</h2>
-        <p class="small text-body-secondary mb-0">Momentos, programa e locais fazem parte da mesma sequência da celebração.</p>
-    </div>
+
+<div class="workspace-section-heading mb-3">
+    <span class="workspace-eyebrow">SEQUÊNCIA DA CELEBRAÇÃO</span>
+    <h2 class="h4 mb-1">Programa</h2>
+    <p class="text-body-secondary mb-0">Cada item reúne o nome, a data, as horas e o local.</p>
 </div>
 
-<div class="organisation-grid">
-    <section class="card shadow-sm organisation-card">
-        <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
-            <div><span class="organisation-card__number">01</span><strong>Momentos</strong></div>
-            <a class="btn btn-sm btn-outline-secondary" href="{% url 'events:list' wedding.pk %}">Gerir</a>
+{% if capabilities.can_manage_events %}
+<div class="card program-composer mb-4">
+    <div class="card-body p-4">
+        <div class="d-flex align-items-center gap-3 mb-3">
+            <span class="program-composer__icon"><i class="bi bi-plus-lg"></i></span>
+            <div>
+                <h3 class="h6 mb-0">Adicionar ao programa</h3>
+                <p class="small text-body-secondary mb-0">Preencha tudo aqui, sem abrir outra página.</p>
+            </div>
         </div>
-        <div class="card-body">
-            {% for event in events|slice:":4" %}
-                <div class="organisation-row"><span><strong>{{ event.name }}</strong><small>{{ event.date|date:"d/m" }} · {{ event.start_time|time:"H:i"|default:"hora por definir" }}</small></span><i class="bi bi-calendar-event"></i></div>
-            {% empty %}<p class="small text-body-secondary mb-0">Ainda não há momentos.</p>{% endfor %}
-        </div>
-    </section>
-    <section class="card shadow-sm organisation-card">
-        <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
-            <div><span class="organisation-card__number">02</span><strong>Programa</strong></div>
-            <a class="btn btn-sm btn-outline-secondary" href="{% url 'events:schedule' wedding.pk %}">Gerir</a>
-        </div>
-        <div class="card-body">
-            {% for item in schedule_items|slice:":4" %}
-                <div class="organisation-row"><span><strong>{{ item.title }}</strong><small>{{ item.time_display|default:"hora por definir" }}</small></span><i class="bi bi-list-check"></i></div>
-            {% empty %}<p class="small text-body-secondary mb-0">O programa ainda está vazio.</p>{% endfor %}
-        </div>
-    </section>
-    <section class="card shadow-sm organisation-card">
-        <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
-            <div><span class="organisation-card__number">03</span><strong>Locais</strong></div>
-            <a class="btn btn-sm btn-outline-secondary" href="{% url 'events:location_list' wedding.pk %}">Gerir</a>
-        </div>
-        <div class="card-body">
-            {% for location in locations|slice:":4" %}
-                <div class="organisation-row"><span><strong>{{ location.name }}</strong><small>{{ location.address|default:"endereço por definir" }}</small></span><i class="bi bi-geo-alt"></i></div>
-            {% empty %}<p class="small text-body-secondary mb-0">Ainda não há locais.</p>{% endfor %}
-        </div>
-    </section>
+        <form method="post" class="row g-3 align-items-end" novalidate>
+            {% csrf_token %}
+            <div class="col-lg-4">
+                <label class="form-label" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+                {{ form.name }}{{ form.name.errors }}
+            </div>
+            <div class="col-sm-6 col-lg-2">
+                <label class="form-label" for="{{ form.date.id_for_label }}">Data</label>
+                {{ form.date }}{{ form.date.errors }}
+            </div>
+            <div class="col-6 col-sm-3 col-lg-2">
+                <label class="form-label" for="{{ form.start_time.id_for_label }}">Início</label>
+                {{ form.start_time }}{{ form.start_time.errors }}
+            </div>
+            <div class="col-6 col-sm-3 col-lg-2">
+                <label class="form-label" for="{{ form.end_time.id_for_label }}">Fim</label>
+                {{ form.end_time }}{{ form.end_time.errors }}
+            </div>
+            <div class="col-lg-4">
+                <label class="form-label" for="{{ form.location_name.id_for_label }}">{{ form.location_name.label }}</label>
+                {{ form.location_name }}{{ form.location_name.errors }}
+            </div>
+            <div class="col-lg-5">
+                <label class="form-label" for="{{ form.address.id_for_label }}">{{ form.address.label }}</label>
+                {{ form.address }}{{ form.address.errors }}
+            </div>
+            <div class="col-lg-3">
+                <button class="btn btn-primary w-100" type="submit"><i class="bi bi-plus-lg me-1"></i>Adicionar</button>
+            </div>
+            {% if form.non_field_errors %}<div class="col-12 text-danger small">{{ form.non_field_errors }}</div>{% endif %}
+        </form>
+    </div>
 </div>
+{% endif %}
+
+{% if events %}
+<div class="program-timeline" id="program-list" data-reorder-url="{% url 'events:reorder' wedding.pk %}" data-sortable="{{ capabilities.can_manage_events|yesno:'true,false' }}">
+    {% for event in events %}
+    <article class="program-row" data-id="{{ event.pk }}">
+        <div class="program-row__rail"><span>{{ forloop.counter|stringformat:"02d" }}</span></div>
+        <div class="program-row__when">
+            <strong>{{ event.date|date:"d M"|default:"Data por definir" }}</strong>
+            <span>{{ event.time_range_display|default:"Hora por definir" }}</span>
+        </div>
+        <div class="program-row__content">
+            <h3>{{ event.name }}</h3>
+            {% if event.location %}
+                <p><i class="bi bi-geo-alt"></i> {{ event.location.name }}{% if event.location.address %}<span> · {{ event.location.address }}</span>{% endif %}</p>
+            {% else %}<p class="text-body-secondary"><i class="bi bi-geo-alt"></i> Local por definir</p>{% endif %}
+            <div class="d-flex flex-wrap gap-1 mt-2">
+                {% if event.requires_rsvp %}<span class="program-badge">RSVP</span>{% endif %}
+                {% if event.requires_qr_code %}<span class="program-badge">QR Code</span>{% endif %}
+            </div>
+        </div>
+        {% if capabilities.can_manage_events %}
+        <div class="program-row__actions">
+            <span class="program-row__handle" aria-label="Arrastar"><i class="bi bi-grip-vertical"></i></span>
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'events:edit' wedding.pk event.pk %}">Editar</a>
+            <form method="post" action="{% url 'events:delete' wedding.pk event.pk %}" data-confirm="Remover «{{ event.name }}» do programa?">
+                {% csrf_token %}<button class="btn btn-sm btn-link text-danger" type="submit" aria-label="Remover"><i class="bi bi-trash"></i></button>
+            </form>
+        </div>
+        {% endif %}
+    </article>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state text-center py-5"><i class="bi bi-calendar2-plus display-5 text-body-secondary"></i><h3 class="h6 mt-3">O programa está vazio</h3><p class="text-body-secondary">Adicione a primeira parte da celebração no formulário acima.</p></div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if capabilities.can_manage_events and events %}<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script><script src="{% static 'js/program-reorder.js' %}"></script>{% endif %}
 {% endblock %}

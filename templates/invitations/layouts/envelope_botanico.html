@@ -1,13 +1,14 @@
 {% include "invitations/_ornaments.html" %}
 
 {% if template.has_cover %}
-    <section class="inv-cover" id="inv-cover">
+    <section class="inv-cover inv-cover--botanical" id="inv-cover">
         <div class="inv-cover__paper">
             <svg class="inv-cover__branch inv-cover__branch--top" viewBox="0 0 160 120" aria-hidden="true">
                 <use href="#inv-branch"/>
             </svg>
 
             <p class="inv-cover__eyebrow">{{ wedding.category_name }}</p>
+            <span class="inv-cover__kicker">{{ wedding.cover_message|default:"Junte-se a nós neste dia especial" }}</span>
             <p class="inv-cover__names">
                 {{ wedding.primary_short_name }}{% if wedding.secondary_short_name %}
                     <span class="inv-cover__amp">{{ wedding.names_separator }}</span>
@@ -47,7 +48,7 @@
         <svg class="inv-divider" viewBox="0 0 200 24" aria-hidden="true"><use href="#inv-divider"/></svg>
 
         {% if guest_name %}<p class="inv-hero__greeting">Caro(a) {{ guest_name }},</p>{% endif %}
-        <p class="inv-hero__text">{{ wedding.full_names }} {{ invitation_greeting }}</p>
+        <p class="inv-hero__text">{% if wedding.invitation_message %}{{ wedding.invitation_message|linebreaksbr }}{% else %}{{ wedding.full_names }} {{ invitation_greeting }}{% endif %}</p>
 
         <p class="inv-hero__date">{{ wedding.main_date|date:"d \d\e F \d\e Y" }}</p>
         {% if wedding.city or wedding.country %}
@@ -79,6 +80,5 @@
         </section>
     {% endif %}
 
-    {% include "invitations/_venues.html" %}
     {% include "invitations/_rsvp.html" %}
 </main>

@@ -37,6 +37,7 @@ urlpatterns = [
     path("templates/", views.templates, name="templates"),
     path("templates/novo/", views.template_form, name="template_create"),
     path("templates/<uuid:template_id>/", views.template_form, name="template_edit"),
+    path("templates/<uuid:template_id>/pre-visualizar/", views.template_preview, name="template_preview"),
     # Auditoria
     path("auditoria/", views.audit, name="audit"),
 ]
