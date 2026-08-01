@@ -42,6 +42,12 @@ def normalize_phone(value: str) -> str:
     return normalized
 
 
+def whatsapp_cover_version(wedding) -> str:
+    """Versão curta que renova a pré-visualização quando a capa muda."""
+    cover_identity = f"{wedding.selected_template}:{getattr(wedding.cover_image, 'name', '')}"
+    return hashlib.sha256(cover_identity.encode("utf-8")).hexdigest()[:6]
+
+
 def invitation_message(guest, invitation_url: str, channel: str) -> str:
     if channel == InvitationChannel.SMS:
         first_name = _sms_ascii((guest.full_name or "Convidado").split()[0], 20)
@@ -62,19 +68,19 @@ def invitation_message(guest, invitation_url: str, channel: str) -> str:
                 "Reduza a mensagem nos detalhes do evento."
             )
         return body
-    cover_identity = (
-        f"{guest.wedding.selected_template}:"
-        f"{getattr(guest.wedding.cover_image, 'name', '')}"
-    )
-    cover_version = hashlib.sha256(cover_identity.encode("utf-8")).hexdigest()[:6]
+    cover_version = whatsapp_cover_version(guest.wedding)
     separator = "&" if "?" in invitation_url else "?"
     whatsapp_url = f"{invitation_url}{separator}v={cover_version}"
+    event_names = re.sub(r"\bAntonio\b", "António", guest.wedding.display_names)
+    category_code = getattr(getattr(guest.wedding, "category", None), "code", "")
+    occasion = "o nosso casamento" if category_code in {"", "casamento"} else "este momento especial"
     return (
-        f"Olá {guest.full_name}!\n\n"
-        f"Somos {guest.wedding.display_names} e queremos muito celebrar este dia contigo.\n\n"
-        f"Preparámos um convite especial para ti. Abre-o e confirma a tua presença:\n"
+        f"Olá, {guest.full_name}!\n\n"
+        f"É com muita alegria que te convidamos a celebrar connosco {occasion}.\n\n"
+        "Preparámos um convite especial para ti. Abre o link abaixo e confirma a tua "
+        "presença:\n\n"
         f"{whatsapp_url}\n\n"
-        f"Com carinho,\n{guest.wedding.display_names}"
+        f"Com carinho,\n{event_names}"
     )
 
 
