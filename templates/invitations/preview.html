@@ -43,9 +43,9 @@
 {% include template.layout_template %}
 {% include "invitations/_floating_actions.html" %}
 
-{% if wedding.show_music and template.supports_music %}
+{% if not is_preview and wedding.show_music and template.supports_music %}
 <div class="inv-music" data-music-player>
-    <audio loop autoplay preload="auto" data-music-audio src="{% if wedding.invitation_music %}{{ wedding.invitation_music.url }}{% else %}{% url 'invitation_default_music' %}{% endif %}"></audio>
+    <audio loop autoplay preload="auto" data-music-audio src="{% if wedding.invitation_music %}{{ wedding.invitation_music.url }}{% elif template.default_music %}{{ template.default_music.url }}{% else %}{% url 'invitation_default_music' %}{% endif %}"></audio>
     <button type="button" data-music-toggle aria-label="Reproduzir música"><i class="bi bi-music-note-beamed"></i><span>Ouvir</span></button>
 </div>
 {% endif %}

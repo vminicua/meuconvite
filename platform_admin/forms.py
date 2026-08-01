@@ -263,6 +263,7 @@ class InvitationTemplateForm(BootstrapModelForm):
             "tags",
             "has_countdown",
             "supports_music",
+            "default_music",
             "cover_image",
             "is_featured",
             "is_active",
@@ -277,11 +278,15 @@ class InvitationTemplateForm(BootstrapModelForm):
             "body_font": forms.Select(choices=TEMPLATE_FONT_CHOICES),
             "google_fonts": forms.HiddenInput(),
             "categories": forms.SelectMultiple(attrs={"class": "form-select js-select2", "size": 6}),
+            "default_music": forms.ClearableFileInput(
+                attrs={"accept": ".mp3,.m4a,.ogg,audio/mpeg,audio/mp4,audio/ogg"}
+            ),
         }
         labels = {
             "display_font": _("Fonte dos títulos"),
             "body_font": _("Fonte do texto"),
             "cover_image": _("Capa do template"),
+            "default_music": _("Música deste template"),
             "display_order": _("Posição no catálogo"),
         }
         help_texts = {
@@ -291,6 +296,9 @@ class InvitationTemplateForm(BootstrapModelForm):
             "display_font": "",
             "body_font": "",
             "google_fonts": "",
+            "default_music": _(
+                "Opcional. Se não escolher uma faixa, será usada a música padrão de casamento."
+            ),
         }
 
     def clean(self):

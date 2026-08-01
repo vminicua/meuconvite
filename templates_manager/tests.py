@@ -208,6 +208,7 @@ class InvitationPreviewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "inv--carta_selada")
         self.assertContains(response, self.wedding.primary_short_name)
+        self.assertNotContains(response, "data-music-player")
 
     def test_classic_template_respects_its_cover_setting(self) -> None:
         response = self.client.get(
@@ -319,6 +320,8 @@ class TemplateAdminTests(TestCase):
         self.assertEqual(preview.status_code, 200)
         self.assertEqual(preview.headers["X-Frame-Options"], "SAMEORIGIN")
         self.assertContains(preview, "Abrir o convite")
+        self.assertNotContains(preview, "data-music-player")
+        self.assertContains(response, 'name="default_music"')
         self.assertNotContains(response, "Cada layout é um ficheiro")
 
     def test_creating_a_template(self) -> None:

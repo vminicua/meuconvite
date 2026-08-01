@@ -34,7 +34,7 @@ urlpatterns = [
     path("perfil/", include("accounts.urls", namespace="accounts")),
     path("subscricao/", subscription_views.account_subscription, name="account_subscription"),
     path(
-        "media/convite/musica.wav",
+        "media/convite/musica.mp3",
         guest_views.invitation_default_music,
         name="invitation_default_music",
     ),

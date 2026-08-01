@@ -230,7 +230,7 @@ class GuestViewTests(TestCase):
             reverse("invitation_default_music"), HTTP_RANGE="bytes=0-1023"
         )
         self.assertEqual(audio_response.status_code, 206)
-        self.assertEqual(audio_response["Content-Type"], "audio/wav")
+        self.assertEqual(audio_response["Content-Type"], "audio/mpeg")
         self.assertEqual(audio_response["Content-Length"], "1024")
         self.assertTrue(audio_response["Content-Range"].startswith("bytes 0-1023/"))
 

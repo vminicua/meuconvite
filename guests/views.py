@@ -66,8 +66,8 @@ def _qr_data_uri(url: str) -> str:
 
 
 def invitation_default_music(request: HttpRequest) -> HttpResponse:
-    """Serve the bundled WAV with MIME and byte-range support for mobile browsers."""
-    audio_path = settings.BASE_DIR / "static" / "audio" / "meuconvite-theme.wav"
+    """Serve the bundled MP3 with MIME and byte-range support for mobile browsers."""
+    audio_path = settings.BASE_DIR / "static" / "audio" / "default-wedding.mp3"
     if not audio_path.exists():
         raise Http404
     content = audio_path.read_bytes()
@@ -86,7 +86,7 @@ def invitation_default_music(request: HttpRequest) -> HttpResponse:
         start = max(0, min(start, total - 1))
         end = max(start, min(end, total - 1))
         status = 206
-    response = HttpResponse(content[start : end + 1], content_type="audio/wav", status=status)
+    response = HttpResponse(content[start : end + 1], content_type="audio/mpeg", status=status)
     response["Accept-Ranges"] = "bytes"
     response["Content-Length"] = str(end - start + 1)
     response["Cache-Control"] = "public, max-age=604800"

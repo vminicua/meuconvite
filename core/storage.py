@@ -44,3 +44,7 @@ def user_avatar_upload_to(instance, filename: str) -> str:
 
 def template_cover_upload_to(instance, filename: str) -> str:
     return _build_path("templates/covers", instance.pk or uuid.uuid4(), filename)
+
+
+def template_music_upload_to(instance, filename: str) -> str:
+    return _build_path("templates/music", instance.pk or uuid.uuid4(), filename, "mp3")

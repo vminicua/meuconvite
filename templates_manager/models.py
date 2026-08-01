@@ -73,8 +73,8 @@ def readable_colour(accent: str, background: str, ink: str, minimum: float = 4.5
     return ink
 
 from core.models import BaseModel
-from core.storage import template_cover_upload_to
-from core.validators import validate_hex_color, validate_image_upload
+from core.storage import template_cover_upload_to, template_music_upload_to
+from core.validators import validate_audio_upload, validate_hex_color, validate_image_upload
 
 
 class InvitationLayout(models.TextChoices):
@@ -175,6 +175,18 @@ class InvitationTemplate(BaseModel):
     )
     has_countdown = models.BooleanField(_("contagem regressiva"), default=True)
     supports_music = models.BooleanField(_("suporta música"), default=True)
+
+    default_music = models.FileField(
+        _("música do template"),
+        upload_to=template_music_upload_to,
+        blank=True,
+        null=True,
+        validators=[validate_audio_upload],
+        help_text=_(
+            "Opcional. Quando vazio, usa a música padrão da plataforma. "
+            "MP3, M4A ou OGG até 8 MB."
+        ),
+    )
 
     cover_image = models.ImageField(
         _("cover do template"),
