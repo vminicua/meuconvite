@@ -33,6 +33,11 @@ urlpatterns = [
     path("accounts/", include("allauth.urls")),
     path("perfil/", include("accounts.urls", namespace="accounts")),
     path("subscricao/", subscription_views.account_subscription, name="account_subscription"),
+    path(
+        "media/convite/musica.wav",
+        guest_views.invitation_default_music,
+        name="invitation_default_music",
+    ),
     path("convite/<str:token>/", guest_views.guest_invitation, name="guest_invitation"),
     path(
         "convite/<str:token>/partilha.jpg",
