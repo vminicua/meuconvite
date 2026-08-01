@@ -1,6 +1,7 @@
 from datetime import timedelta
 from unittest.mock import patch
 from io import BytesIO
+from urllib.parse import parse_qs, urlparse
 
 from django.test import TestCase, override_settings
 from django.urls import reverse
@@ -158,6 +159,11 @@ class GuestViewTests(TestCase):
         self.assertTrue(response.url.startswith("https://wa.me/258840297715?text="))
         self.assertIn("convite", response.url.lower())
         self.assertIn(guest.invitation_token, response.url)
+        message = parse_qs(urlparse(response.url).query)["text"][0]
+        self.assertIn("Olá, Ana Mucavele!", message)
+        self.assertIn("É com muita alegria que te convidamos", message)
+        self.assertIn("Abre o link abaixo e confirma a tua presença:", message)
+        self.assertRegex(message, rf"/convite/{guest.invitation_token}/\?v=[0-9a-f]{{6}}")
         client_factory.assert_not_called()
         self.assertFalse(InvitationDelivery.objects.filter(guest=guest).exists())
 
