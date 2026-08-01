@@ -219,7 +219,7 @@ class Wedding(BaseModel):
         default=WeddingStatus.DRAFT,
         db_index=True,
     )
-    show_music = models.BooleanField(_("reproduzir música"), default=False)
+    show_music = models.BooleanField(_("reproduzir música"), default=True)
     show_countdown = models.BooleanField(_("mostrar contagem regressiva"), default=True)
     show_seat_before_event = models.CharField(
         _("visibilidade da mesa"),

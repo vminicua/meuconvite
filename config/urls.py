@@ -35,6 +35,11 @@ urlpatterns = [
     path("subscricao/", subscription_views.account_subscription, name="account_subscription"),
     path("convite/<str:token>/", guest_views.guest_invitation, name="guest_invitation"),
     path(
+        "convite/<str:token>/partilha.jpg",
+        guest_views.guest_invitation_share_image,
+        name="guest_invitation_share_image",
+    ),
+    path(
         "convite/<str:token>/presentes/<uuid:gift_id>/selecionar/",
         guest_views.guest_gift_select,
         name="guest_gift_select",

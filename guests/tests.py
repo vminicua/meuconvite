@@ -1,9 +1,11 @@
 from datetime import timedelta
 from unittest.mock import patch
+from io import BytesIO
 
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
+from PIL import Image
 from events.models import WeddingEvent
 
 from weddings.tests.factories import DEFAULT_PASSWORD, create_plan, create_user, create_wedding
@@ -203,6 +205,20 @@ class GuestViewTests(TestCase):
         self.assertEqual(len(first.invitation_token), 4)
         self.assertEqual(len(second.invitation_token), 4)
         self.assertNotEqual(first.invitation_token, second.invitation_token)
+
+    def test_invitation_exposes_whatsapp_jpeg_and_default_music(self):
+        guest = Guest.objects.create(wedding=self.wedding, full_name="Ana")
+
+        invitation = self.client.get(reverse("guest_invitation", args=[guest.invitation_token]))
+        image_url = reverse("guest_invitation_share_image", args=[guest.invitation_token])
+        self.assertContains(invitation, image_url)
+        self.assertContains(invitation, "audio/meuconvite-theme.wav")
+
+        image_response = self.client.get(image_url)
+        self.assertEqual(image_response.status_code, 200)
+        self.assertEqual(image_response["Content-Type"], "image/jpeg")
+        with Image.open(BytesIO(image_response.content)) as image:
+            self.assertEqual(image.size, (1200, 630))
 
     def test_sms_settings_reject_unicode(self):
         from weddings.forms import WeddingSettingsForm

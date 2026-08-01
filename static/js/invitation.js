@@ -34,15 +34,20 @@
     });
 
     const musicPlayer = document.querySelector("[data-music-player]");
+    let startMusic = function () {};
     if (musicPlayer) {
         const audio = musicPlayer.querySelector("[data-music-audio]");
         const toggle = musicPlayer.querySelector("[data-music-toggle]");
+        startMusic = function () {
+            if (!audio.paused) return;
+            audio.play().then(function () {
+                musicPlayer.classList.add("is-playing");
+                toggle.querySelector("span").textContent = "Pausar";
+            }).catch(function () {});
+        };
         toggle.addEventListener("click", function () {
             if (audio.paused) {
-                audio.play().then(function () {
-                    musicPlayer.classList.add("is-playing");
-                    toggle.querySelector("span").textContent = "Pausar";
-                }).catch(function () {});
+                startMusic();
             } else {
                 audio.pause();
                 musicPlayer.classList.remove("is-playing");
@@ -63,6 +68,7 @@
 
     if (cover && main && opener) {
         opener.addEventListener("click", function () {
+            startMusic();
             main.removeAttribute("hidden");
             if (reducedMotion) {
                 cover.remove();

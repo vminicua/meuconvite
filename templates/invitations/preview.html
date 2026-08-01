@@ -7,7 +7,14 @@
     <title>{{ wedding.display_names }} · Convite</title>
     <meta property="og:title" content="Um convite especial de {{ wedding.display_names }}">
     <meta property="og:description" content="Abra o seu convite personalizado e confirme a sua presença.">
-    {% if share_cover_url %}<meta property="og:image" content="{{ share_cover_url }}">{% endif %}
+    {% if share_cover_url %}
+    <meta property="og:image" content="{{ share_cover_url }}">
+    <meta property="og:image:secure_url" content="{{ share_cover_url }}">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Convite de {{ wedding.display_names }}">
+    {% endif %}
     {% if invitation_url %}<meta property="og:url" content="{{ invitation_url }}">{% endif %}
     <meta property="og:type" content="website">
 
@@ -36,15 +43,15 @@
 {% include template.layout_template %}
 {% include "invitations/_floating_actions.html" %}
 
-{% if wedding.invitation_music and wedding.show_music and template.supports_music %}
+{% if wedding.show_music and template.supports_music %}
 <div class="inv-music" data-music-player>
-    <audio loop preload="metadata" data-music-audio src="{{ wedding.invitation_music.url }}"></audio>
+    <audio loop preload="metadata" data-music-audio src="{% if wedding.invitation_music %}{{ wedding.invitation_music.url }}{% else %}{% static 'audio/meuconvite-theme.wav' %}{% endif %}"></audio>
     <button type="button" data-music-toggle aria-label="Reproduzir música"><i class="bi bi-music-note-beamed"></i><span>Ouvir</span></button>
 </div>
 {% endif %}
 
 <script src="https://unpkg.com/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 <script src="{% static 'js/dialog-fallback.js' %}?v=20260801.1"></script>
-<script src="{% static 'js/invitation.js' %}?v=20260801.3"></script>
+<script src="{% static 'js/invitation.js' %}?v=20260801.4"></script>
 </body>
 </html>

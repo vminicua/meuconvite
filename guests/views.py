@@ -7,6 +7,7 @@ from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.templatetags.static import static
+from django.contrib.staticfiles import finders
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
@@ -27,8 +28,12 @@ def _guest_invitation_url(request: HttpRequest, guest: Guest) -> str:
     return request.build_absolute_uri(reverse("guest_invitation", args=[guest.invitation_token]))
 
 
-def _share_cover_url(request: HttpRequest, wedding) -> str:
+def _share_cover_url(request: HttpRequest, wedding, guest=None) -> str:
     """Imagem simples do desenho para anexar, sem o mockup do catálogo."""
+    if guest is not None:
+        return request.build_absolute_uri(
+            reverse("guest_invitation_share_image", args=[guest.invitation_token])
+        )
     if wedding.cover_image:
         return request.build_absolute_uri(wedding.cover_image.url)
     assets = {
@@ -75,7 +80,6 @@ def guest_list(request: HttpRequest, wedding) -> HttpResponse:
         .order_by("full_name")
     )
     current_limits = limits(wedding)
-    share_cover_url = _share_cover_url(request, wedding)
     enabled_ids = enabled_guest_ids(wedding, current_limits.max_guests)
     guest_rows = []
     for guest in guests:
@@ -90,7 +94,7 @@ def guest_list(request: HttpRequest, wedding) -> HttpResponse:
             "share_message": messaging.invitation_message(
                 guest, invitation_url, InvitationChannel.WHATSAPP
             ) if is_enabled else "",
-            "share_cover_url": share_cover_url if is_enabled else "",
+            "share_cover_url": _share_cover_url(request, wedding, guest) if is_enabled else "",
             "allowed_events": list(guest.allowed_events.all()),
             "latest_delivery": deliveries[0] if deliveries else None,
             "edit_form": GuestForm(
@@ -364,12 +368,70 @@ def guest_invitation(request: HttpRequest, token: str) -> HttpResponse:
         gift.selected_by_guest = any(item.guest_id == guest.pk for item in selections)
         gift.unavailable = bool(selections) and not gift.allow_multiple and not gift.selected_by_guest
     context["gifts"] = gifts
-    context["share_cover_url"] = _share_cover_url(request, wedding)
+    context["share_cover_url"] = _share_cover_url(request, wedding, guest)
     context["invitation_url"] = _guest_invitation_url(request, guest)
     context["css_variables"] = template.css_variables(
         wedding.primary_color, wedding.secondary_color
     )
     return render(request, "invitations/preview.html", context)
+
+
+@rate_limit("invitation_view", methods=("GET",))
+def guest_invitation_share_image(request: HttpRequest, token: str) -> HttpResponse:
+    """JPEG Open Graph estável para WhatsApp e outras redes sociais."""
+    from io import BytesIO
+
+    from PIL import Image, ImageOps
+
+    guest = get_object_or_404(
+        Guest.objects.select_related("wedding"), invitation_token=token, is_active=True
+    )
+    wedding = guest.wedding
+    if wedding.status in {"archived", "blocked"} or guest.pk not in enabled_guest_ids(wedding):
+        raise Http404
+
+    source = None
+    if wedding.cover_image:
+        try:
+            source = wedding.cover_image.open("rb")
+        except (FileNotFoundError, OSError):
+            source = None
+    if source is None:
+        assets = {
+            "carta-selada": "img/invitations/burgundy-lace-v2.png",
+            "envelope-botanico": "img/invitations/botanical-elegance-v1.webp",
+            "classico-dourado": "img/invitations/classic-gold-v1.webp",
+            "luxo-preto": "img/invitations/black-gold-v1.webp",
+            "capulana": "img/invitations/capulana-editorial-v1.webp",
+            "floral-rosa": "img/invitations/floral-terracotta-v2.png",
+            "minimal-branco": "img/invitations/minimal-paper-v1.webp",
+            "azul-marinho": "img/invitations/navy-silver-v1.webp",
+            "terracota": "img/invitations/floral-terracotta-v2.png",
+            "tropical": "img/invitations/tropical-editorial-v1.webp",
+            "lavanda": "img/invitations/lavender-editorial-v1.webp",
+            "areia-dourada": "img/invitations/floral-terracotta-v2.png",
+            "noite-estrelada": "img/invitations/starry-night-v1.webp",
+        }
+        source = finders.find(
+            assets.get(wedding.selected_template, "img/invitations/classic-gold-v1.webp")
+        )
+    if not source:
+        raise Http404
+
+    try:
+        with Image.open(source) as image:
+            image = ImageOps.exif_transpose(image).convert("RGB")
+            image = ImageOps.fit(image, (1200, 630), method=Image.Resampling.LANCZOS)
+            output = BytesIO()
+            image.save(output, format="JPEG", quality=88, optimize=True, progressive=True)
+    finally:
+        if hasattr(source, "close"):
+            source.close()
+
+    response = HttpResponse(output.getvalue(), content_type="image/jpeg")
+    response["Cache-Control"] = "public, max-age=86400"
+    response["Content-Disposition"] = 'inline; filename="capa-convite.jpg"'
+    return response
 
 
 @require_POST
