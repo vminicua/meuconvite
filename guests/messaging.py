@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import re
 from urllib.parse import urlencode
 
@@ -61,11 +62,18 @@ def invitation_message(guest, invitation_url: str, channel: str) -> str:
                 "Reduza a mensagem nos detalhes do evento."
             )
         return body
+    cover_identity = (
+        f"{guest.wedding.selected_template}:"
+        f"{getattr(guest.wedding.cover_image, 'name', '')}"
+    )
+    cover_version = hashlib.sha256(cover_identity.encode("utf-8")).hexdigest()[:6]
+    separator = "&" if "?" in invitation_url else "?"
+    whatsapp_url = f"{invitation_url}{separator}v={cover_version}"
     return (
         f"Olá {guest.full_name}!\n\n"
         f"Somos {guest.wedding.display_names} e queremos muito celebrar este dia contigo.\n\n"
         f"Preparámos um convite especial para ti. Abre-o e confirma a tua presença:\n"
-        f"{invitation_url}\n\n"
+        f"{whatsapp_url}\n\n"
         f"Com carinho,\n{guest.wedding.display_names}"
     )
 
