@@ -977,6 +977,9 @@ main {
 .guest-table tbody tr.guest-row--disabled .guest-status { filter:grayscale(1); opacity:.72; }
 .guest-order { width:4.5rem; color:#73787c; font-variant-numeric:tabular-nums; }
 .guest-subscribe-action { width:2.25rem; }
+.guest-plan-state { display:inline-flex; align-items:center; gap:.3rem; color:#7b8085; font-size:.7rem; font-weight:700; }
+.guest-plan-state--enabled { color:#2f8750; }
+.guest-plan-action { min-width:5.2rem; }
 .invitation-channel-options { display:grid; grid-template-columns:1fr 1fr; gap:.75rem; }
 .invitation-channel-options label { display:flex; align-items:center; gap:.55rem; padding:1rem; border:1px solid var(--bs-border-color); border-radius:.65rem; cursor:pointer; }
 .invitation-channel-options label:has(input:checked) { border-color:var(--mc-gold); background:#fcf7ea; }

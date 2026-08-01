@@ -178,16 +178,56 @@ def guest_count(wedding) -> int:
 
 
 def enabled_guest_ids(wedding, allowance: int | None = None) -> set:
-    """Convidados cobertos pelo plano, pela ordem em que foram adicionados."""
+    """Convidados cobertos pelo plano, respeitando uma selecção manual."""
     related = getattr(wedding, "guests", None)
     if related is None:
         return set()
     maximum = limits(wedding).max_guests if allowance is None else allowance
+    active = related.filter(is_active=True)
+    if active.filter(plan_access__isnull=False).exists():
+        active = active.filter(plan_access=True)
     return set(
-        related.filter(is_active=True)
-        .order_by("created_at", "pk")
-        .values_list("pk", flat=True)[:maximum]
+        active.order_by("created_at", "pk").values_list("pk", flat=True)[:maximum]
     )
+
+
+@transaction.atomic
+def set_guest_plan_access(*, wedding, guest, enabled: bool) -> None:
+    """Inclui ou retira um convidado, preservando os restantes lugares actuais."""
+    related = wedding.guests.select_for_update().filter(is_active=True)
+    current_ids = enabled_guest_ids(wedding)
+
+    # Na primeira alteração convertemos a selecção automática numa escolha
+    # explícita. Isso impede que a vaga libertada seja ocupada pelo convidado
+    # seguinte antes de o utilizador escolher quem pretende incluir.
+    if not related.filter(plan_access__isnull=False).exists():
+        related.filter(pk__in=current_ids).update(plan_access=True)
+
+    maximum = limits(wedding).max_guests
+    if enabled:
+        selected = related.filter(plan_access=True).exclude(pk=guest.pk).count()
+        if selected >= maximum:
+            raise ValidationError(
+                _(
+                    "O plano já tem %(max)s convidados activos. "
+                    "Retire primeiro um convidado do limite."
+                )
+                % {"max": maximum}
+            )
+        guest.plan_access = True
+    else:
+        guest.plan_access = False
+    guest.save(update_fields=["plan_access", "updated_at"])
+
+
+def select_new_guest_if_capacity(*, wedding, guest) -> None:
+    """Em modo manual, usa automaticamente uma vaga ainda disponível."""
+    active = wedding.guests.filter(is_active=True)
+    if not active.filter(plan_access__isnull=False).exists():
+        return
+    if active.filter(plan_access=True).count() < limits(wedding).max_guests:
+        guest.plan_access = True
+        guest.save(update_fields=["plan_access", "updated_at"])
 
 
 def check_can_add_guests(wedding, quantity: int = 1) -> None:

@@ -17,7 +17,13 @@ from audit.models import AuditAction
 from audit.services import log_action, log_create, log_delete, log_update, model_to_dict
 from core.ratelimit import rate_limit
 from core.utils import get_client_ip
-from subscriptions.services import enabled_guest_ids, limits, sms_count
+from subscriptions.services import (
+    enabled_guest_ids,
+    limits,
+    select_new_guest_if_capacity,
+    set_guest_plan_access,
+    sms_count,
+)
 from weddings.permissions import capability_flags, require_wedding
 
 from .forms import GiftForm, GuestForm, SendInvitationForm
@@ -103,6 +109,7 @@ def guest_list(request: HttpRequest, wedding) -> HttpResponse:
             guest = form.save(commit=False)
             guest.wedding = wedding
             guest.save()
+            select_new_guest_if_capacity(wedding=wedding, guest=guest)
             form.instance = guest
             form.save_m2m()
             log_create(guest, actor=request.user, wedding=wedding, request=request)
@@ -153,6 +160,7 @@ def guest_list(request: HttpRequest, wedding) -> HttpResponse:
             "form": form,
             "limits": current_limits,
             "guest_count": len(guests),
+            "enabled_count": len(enabled_ids),
             "sms_used": sms_count(wedding),
             "capabilities": capability_flags(wedding, request.user),
         },
@@ -306,6 +314,29 @@ def guest_remove(request: HttpRequest, wedding, guest_id) -> HttpResponse:
     guest.is_active = False
     guest.save(update_fields=["is_active", "updated_at"])
     messages.info(request, "Convidado removido.")
+    return redirect("guests:list", wedding_id=wedding.pk)
+
+
+@require_POST
+@require_wedding("can_manage_guests")
+def guest_plan_access(request: HttpRequest, wedding, guest_id) -> HttpResponse:
+    guest = get_object_or_404(Guest, pk=guest_id, wedding=wedding, is_active=True)
+    action = request.POST.get("action")
+    if action not in {"enable", "disable"}:
+        messages.error(request, "Escolha incluir ou retirar o convidado do plano.")
+        return redirect("guests:list", wedding_id=wedding.pk)
+    enabled = action == "enable"
+    old_data = model_to_dict(guest)
+    try:
+        set_guest_plan_access(wedding=wedding, guest=guest, enabled=enabled)
+    except ValidationError as exc:
+        messages.error(request, " ".join(exc.messages))
+    else:
+        log_update(guest, old_data, actor=request.user, wedding=wedding, request=request)
+        if enabled:
+            messages.success(request, f"{guest.full_name} incluído no limite do plano.")
+        else:
+            messages.info(request, f"{guest.full_name} retirado do limite do plano.")
     return redirect("guests:list", wedding_id=wedding.pk)
 
 

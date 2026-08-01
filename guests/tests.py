@@ -93,7 +93,8 @@ class GuestViewTests(TestCase):
 
         extra = Guest.objects.get(full_name="Convidado excedente")
         self.assertContains(response, "guest-row--disabled")
-        self.assertContains(response, f"Subscrever para activar {extra.full_name}")
+        self.assertContains(response, "Fora do plano")
+        self.assertContains(response, "Incluir")
         self.assertNotContains(response, f'data-bs-target="#qr-{extra.pk}"')
         self.assertEqual(
             self.client.get(reverse("guest_invitation", args=[extra.invitation_token])).status_code,
@@ -116,6 +117,51 @@ class GuestViewTests(TestCase):
             reverse("guest_invitation", args=[guests[-1].invitation_token])
         )
         self.assertEqual(response.status_code, 200)
+
+    def test_owner_can_swap_which_guests_are_inside_the_plan_limit(self):
+        guests = [
+            Guest.objects.create(wedding=self.wedding, full_name=f"Convidado {number:02}")
+            for number in range(21)
+        ]
+        list_url = reverse("guests:list", args=[self.wedding.pk])
+
+        response = self.client.post(
+            reverse("guests:plan_access", args=[self.wedding.pk, guests[0].pk]),
+            {"action": "disable"},
+        )
+        self.assertRedirects(response, list_url)
+        response = self.client.post(
+            reverse("guests:plan_access", args=[self.wedding.pk, guests[-1].pk]),
+            {"action": "enable"},
+        )
+        self.assertRedirects(response, list_url)
+
+        from subscriptions.services import enabled_guest_ids
+
+        enabled = enabled_guest_ids(self.wedding)
+        self.assertNotIn(guests[0].pk, enabled)
+        self.assertIn(guests[-1].pk, enabled)
+        self.assertEqual(len(enabled), 20)
+        self.assertEqual(
+            self.client.get(reverse("guest_invitation", args=[guests[0].invitation_token])).status_code,
+            404,
+        )
+        self.assertEqual(
+            self.client.get(reverse("guest_invitation", args=[guests[-1].invitation_token])).status_code,
+            200,
+        )
+
+    def test_plan_selection_refuses_a_new_guest_until_a_place_is_freed(self):
+        guests = [
+            Guest.objects.create(wedding=self.wedding, full_name=f"Convidado {number:02}")
+            for number in range(21)
+        ]
+        response = self.client.post(
+            reverse("guests:plan_access", args=[self.wedding.pk, guests[-1].pk]),
+            {"action": "enable"},
+            follow=True,
+        )
+        self.assertContains(response, "Retire primeiro um convidado do limite")
 
     def test_excel_export_returns_a_real_xlsx_file(self):
         Guest.objects.create(wedding=self.wedding, full_name="Ana Mucavele")

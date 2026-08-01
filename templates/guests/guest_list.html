@@ -10,7 +10,7 @@
     <div class="alert alert-success guest-action-feedback" role="status" aria-live="polite" data-action-feedback hidden></div>
     <header class="guest-workspace__header">
         <div>
-            <p class="workspace-eyebrow mb-1">{{ guest_count }}/{{ limits.max_guests }} convidados · {% if limits.is_free %}SMS disponível nos planos pagos{% else %}{{ sms_used }}/{{ limits.max_sms }} SMS usados{% endif %}</p>
+            <p class="workspace-eyebrow mb-1">{{ enabled_count }}/{{ limits.max_guests }} activos no plano · {{ guest_count }} na lista · {% if limits.is_free %}SMS disponível nos planos pagos{% else %}{{ sms_used }}/{{ limits.max_sms }} SMS usados{% endif %}</p>
             <h2 class="h4 mb-1">Lista de convidados</h2>
             <p class="text-body-secondary mb-0">Convites individuais, confirmações e acesso ao programa num só lugar.</p>
         </div>
@@ -71,6 +71,7 @@
                     <th><button type="button" data-sort="seats">Lugares <i class="bi bi-arrow-down-up"></i></button></th>
                     <th>Programa autorizado</th>
                     <th><button type="button" data-sort="status">Confirmação <i class="bi bi-arrow-down-up"></i></button></th>
+                    <th>Plano</th>
                     <th class="text-end">Convite</th>
                 </tr></thead>
                 <tbody>
@@ -90,6 +91,15 @@
                             {% if guest.responded_at %}<div class="small text-body-secondary mt-1">{{ guest.responded_at|date:"d/m/Y H:i" }}</div>{% endif %}
                             {% if row.latest_delivery %}<div class="small text-body-secondary mt-1"><i class="bi bi-send-check me-1"></i>{{ row.latest_delivery.get_channel_display }}: {{ row.latest_delivery.get_status_display }}</div>{% endif %}
                         </td>
+                        <td class="text-nowrap">
+                            {% if row.is_enabled %}
+                            <span class="guest-plan-state guest-plan-state--enabled"><i class="bi bi-check-circle-fill"></i> No plano</span>
+                            <form method="post" action="{% url 'guests:plan_access' wedding.pk guest.pk %}" class="mt-1" data-confirm="Retirar {{ guest.full_name }} do limite do plano? O convite ficará temporariamente indisponível.">{% csrf_token %}<input type="hidden" name="action" value="disable"><button class="btn btn-sm btn-outline-warning guest-plan-action" title="Retirar do limite do plano"><i class="bi bi-person-dash me-1"></i>Retirar</button></form>
+                            {% else %}
+                            <span class="guest-plan-state"><i class="bi bi-dash-circle"></i> Fora do plano</span>
+                            <form method="post" action="{% url 'guests:plan_access' wedding.pk guest.pk %}" class="mt-1" data-confirm="Incluir {{ guest.full_name }} no limite deste plano?">{% csrf_token %}<input type="hidden" name="action" value="enable"><button class="btn btn-sm btn-primary guest-plan-action" title="Incluir no limite do plano"><i class="bi bi-person-check me-1"></i>Incluir</button></form>
+                            {% endif %}
+                        </td>
                         <td class="text-end text-nowrap">
                             {% if row.is_enabled %}
                             <div class="btn-group btn-group-sm guest-actions" role="group" aria-label="Acções de {{ guest.full_name }}">
@@ -100,7 +110,7 @@
                             </div>
                             <form method="post" action="{% url 'guests:remove' wedding.pk guest.pk %}" class="d-inline" data-confirm="Remover {{ guest.full_name }} da lista?">{% csrf_token %}<button class="btn btn-sm btn-link text-danger" title="Remover"><i class="bi bi-trash"></i></button></form>
                             {% else %}
-                            <a class="btn btn-sm btn-primary guest-subscribe-action" href="{% url 'subscriptions:detail' wedding.pk %}" title="Subscrever para activar este convidado" aria-label="Subscrever para activar {{ guest.full_name }}"><i class="bi bi-gem"></i></a>
+                            <span class="small text-body-secondary">Active-o para usar o convite</span>
                             {% endif %}
                         </td>
                     </tr>

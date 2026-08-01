@@ -35,6 +35,16 @@ class Guest(BaseModel, SoftDeleteModel):
         default=RSVPStatus.PENDING, db_index=True,
     )
     responded_at = models.DateTimeField(_("respondido em"), null=True, blank=True)
+    plan_access = models.BooleanField(
+        _("incluído no plano"),
+        null=True,
+        blank=True,
+        default=None,
+        db_index=True,
+        help_text=_(
+            "Sem valor usa a ordem automática; sim inclui e não exclui explicitamente."
+        ),
+    )
     allowed_events = models.ManyToManyField(
         "events.WeddingEvent", verbose_name=_("programa autorizado"),
         blank=True, related_name="invited_guests",
