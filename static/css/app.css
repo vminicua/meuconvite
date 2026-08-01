@@ -778,7 +778,9 @@ main {
 /* Event cover: compact, truthful iPhone preview with the template cover as baseline. */
 .cover-studio--phone { grid-template-columns:minmax(12rem,15rem) minmax(14rem,1fr); justify-content:center; gap:2rem; }
 .cover-phone { position:relative; width:14rem; padding:.55rem; border-radius:2.35rem; background:#111318; box-shadow:0 1.2rem 2.8rem rgba(20,24,30,.22); }
-.cover-phone__screen { aspect-ratio:9/19.5; overflow:hidden; border-radius:1.85rem; background:#eee9df center/cover no-repeat; }
+.cover-phone__screen { position:relative; aspect-ratio:9/19.5; overflow:hidden; border-radius:1.85rem; background:#eee9df; }
+.cover-phone__frame { width:100%; height:100%; border:0; background:#eee9df; }
+.cover-phone__upload-preview { position:absolute; inset:0; background:center/cover no-repeat; }
 .cover-phone__island { position:absolute; z-index:2; top:.92rem; left:50%; width:5.1rem; height:1.25rem; border-radius:999px; background:#08090b; transform:translateX(-50%); }
 .cover-phone__home { position:absolute; bottom:.9rem; left:50%; width:4.4rem; height:.22rem; border-radius:999px; background:#050607; transform:translateX(-50%); }
 .cover-phone__fallback { display:grid; height:100%; place-content:center; justify-items:center; gap:.5rem; color:#858b91; }

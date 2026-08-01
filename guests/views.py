@@ -6,6 +6,7 @@ from django.db.models import Q
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.templatetags.static import static
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
@@ -23,6 +24,28 @@ from . import messaging
 
 def _guest_invitation_url(request: HttpRequest, guest: Guest) -> str:
     return request.build_absolute_uri(reverse("guest_invitation", args=[guest.invitation_token]))
+
+
+def _share_cover_url(request: HttpRequest, wedding) -> str:
+    """Imagem simples do desenho para anexar, sem o mockup do catálogo."""
+    if wedding.cover_image:
+        return request.build_absolute_uri(wedding.cover_image.url)
+    assets = {
+        "carta-selada": "img/invitations/burgundy-lace-v2.png",
+        "envelope-botanico": "img/invitations/botanical-elegance-v1.webp",
+        "classico-dourado": "img/invitations/classic-gold-v1.webp",
+        "luxo-preto": "img/invitations/black-gold-v1.webp",
+        "capulana": "img/invitations/capulana-editorial-v1.webp",
+        "floral-rosa": "img/invitations/floral-terracotta-v2.png",
+        "minimal-branco": "img/invitations/minimal-paper-v1.webp",
+        "azul-marinho": "img/invitations/navy-silver-v1.webp",
+        "terracota": "img/invitations/floral-terracotta-v2.png",
+        "tropical": "img/invitations/tropical-editorial-v1.webp",
+        "lavanda": "img/invitations/lavender-editorial-v1.webp",
+        "areia-dourada": "img/invitations/floral-terracotta-v2.png",
+        "noite-estrelada": "img/invitations/starry-night-v1.webp",
+    }
+    return request.build_absolute_uri(static(assets.get(wedding.selected_template, "img/invitations/classic-gold-v1.webp")))
 
 
 def _qr_data_uri(url: str) -> str:
@@ -51,6 +74,7 @@ def guest_list(request: HttpRequest, wedding) -> HttpResponse:
         .order_by("full_name")
     )
     current_limits = limits(wedding)
+    share_cover_url = _share_cover_url(request, wedding)
     enabled_ids = enabled_guest_ids(wedding, current_limits.max_guests)
     guest_rows = []
     for guest in guests:
@@ -65,6 +89,7 @@ def guest_list(request: HttpRequest, wedding) -> HttpResponse:
             "share_message": messaging.invitation_message(
                 guest, invitation_url, InvitationChannel.WHATSAPP
             ) if is_enabled else "",
+            "share_cover_url": share_cover_url if is_enabled else "",
             "allowed_events": list(guest.allowed_events.all()),
             "latest_delivery": deliveries[0] if deliveries else None,
             "edit_form": GuestForm(
@@ -341,8 +366,7 @@ def guest_invitation(request: HttpRequest, token: str) -> HttpResponse:
         gift.selected_by_guest = any(item.guest_id == guest.pk for item in selections)
         gift.unavailable = bool(selections) and not gift.allow_multiple and not gift.selected_by_guest
     context["gifts"] = gifts
-    cover = wedding.cover_image or template.cover_image
-    context["share_cover_url"] = request.build_absolute_uri(cover.url) if cover else ""
+    context["share_cover_url"] = _share_cover_url(request, wedding)
     context["invitation_url"] = _guest_invitation_url(request, guest)
     context["css_variables"] = template.css_variables(
         wedding.primary_color, wedding.secondary_color

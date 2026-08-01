@@ -127,6 +127,7 @@
             const name = button.dataset.shareName;
             const text = button.dataset.shareMessage || ("Olá " + name + "! Temos um convite muito especial para ti: " + url);
             const eventName = button.dataset.shareEvent || "MeuConvite";
+            const coverUrl = button.dataset.shareCover || "";
             const modalElement = document.getElementById("shareInvitationModal");
             if (!modalElement || !window.bootstrap) {
                 copyLink(url, button, "A ligação foi copiada e está pronta para partilhar.");
@@ -138,16 +139,54 @@
                 qrImage.src = button.dataset.shareQr || "";
                 qrImage.alt = "QR Code individual de " + name;
             }
+            const coverImage = modalElement.querySelector("[data-share-cover-image]");
+            if (coverImage) coverImage.src = coverUrl;
             modalElement.querySelector("[data-share-whatsapp]").href = "https://wa.me/?text=" + encodeURIComponent(text);
             modalElement.querySelector("[data-share-email]").href = "mailto:?subject=" + encodeURIComponent("Um convite especial de " + eventName) + "&body=" + encodeURIComponent(text);
             const copyButton = modalElement.querySelector("[data-share-copy]");
             copyButton.dataset.copyLink = text;
+            const coverButton = modalElement.querySelector("[data-share-with-cover]");
+            coverButton.dataset.shareText = text;
+            coverButton.dataset.shareCover = coverUrl;
+            coverButton.dataset.shareTitle = "Convite de " + eventName;
             window.bootstrap.Modal.getOrCreateInstance(modalElement).show();
         });
     });
     const shareCopyButton = root.querySelector("[data-share-copy]");
     if (shareCopyButton) shareCopyButton.addEventListener("click", function () {
         copyLink(shareCopyButton.dataset.copyLink, shareCopyButton, "Mensagem do convite copiada.");
+    });
+    async function shareCoverMessage(coverUrl, text, title) {
+        try {
+            const response = await fetch(coverUrl);
+            if (!response.ok) throw new Error("cover");
+            const blob = await response.blob();
+            const extension = blob.type.includes("png") ? "png" : blob.type.includes("jpeg") ? "jpg" : "webp";
+            const file = new File([blob], "capa-do-convite." + extension, {type: blob.type});
+            const payload = {title: title, text: text, files: [file]};
+            if (!navigator.share || (navigator.canShare && !navigator.canShare(payload))) throw new Error("unsupported");
+            await navigator.share(payload);
+        } catch (error) {
+            if (error && error.name === "AbortError") return;
+            const download = document.createElement("a");
+            download.href = coverUrl; download.download = "capa-do-convite"; download.hidden = true;
+            document.body.appendChild(download); download.click(); download.remove();
+            showFeedback("A capa foi descarregada. Anexe-a no WhatsApp juntamente com a mensagem.", "warning");
+            window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank", "noopener");
+        }
+    }
+    const shareWithCover = root.querySelector("[data-share-with-cover]");
+    if (shareWithCover) shareWithCover.addEventListener("click", async function () {
+        await shareCoverMessage(shareWithCover.dataset.shareCover, shareWithCover.dataset.shareText, shareWithCover.dataset.shareTitle);
+    });
+    root.querySelectorAll("[data-invitation-send]").forEach(function (form) {
+        form.addEventListener("submit", async function (event) {
+            const selected = form.querySelector("[name=channel]:checked");
+            if (!selected || selected.value !== "whatsapp") return;
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            await shareCoverMessage(form.dataset.shareCover, form.dataset.shareMessage, form.dataset.shareTitle);
+        });
     });
 
     const exportButton = root.querySelector("[data-export-excel]");

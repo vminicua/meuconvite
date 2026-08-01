@@ -93,7 +93,7 @@
                         <td class="text-end text-nowrap">
                             {% if row.is_enabled %}
                             <div class="btn-group btn-group-sm guest-actions" role="group" aria-label="Acções de {{ guest.full_name }}">
-                                <button class="btn btn-outline-secondary" type="button" data-copy-link="{{ row.invitation_url }}" data-share-link="{{ row.invitation_url }}" data-share-name="{{ guest.full_name }}" data-share-event="{{ wedding.display_names }}" data-share-message="{{ row.share_message }}" data-share-qr="{{ row.qr_data_uri }}" title="QR Code, copiar e partilhar"><i class="bi bi-share"></i></button>
+                                <button class="btn btn-outline-secondary" type="button" data-copy-link="{{ row.invitation_url }}" data-share-link="{{ row.invitation_url }}" data-share-name="{{ guest.full_name }}" data-share-event="{{ wedding.display_names }}" data-share-message="{{ row.share_message }}" data-share-cover="{{ row.share_cover_url }}" data-share-qr="{{ row.qr_data_uri }}" title="QR Code, copiar e partilhar"><i class="bi bi-share"></i></button>
                                 <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#send-{{ guest.pk }}" title="Enviar convite por SMS ou WhatsApp"><i class="bi bi-send"></i></button>
                                 <a class="btn btn-outline-secondary" href="{{ row.invitation_url }}" target="_blank" title="Visualizar convite"><i class="bi bi-eye"></i></a>
                                 <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#edit-{{ guest.pk }}" title="Editar convidado"><i class="bi bi-pencil"></i></button>
@@ -122,11 +122,13 @@
                 <div class="modal-body">
                     <p class="small text-body-secondary" data-share-description>Escolha como pretende enviar este convite individual.</p>
                     <div class="text-center border rounded-3 p-3 mb-3">
+                        <img data-share-cover-image alt="Capa do convite" class="d-block mx-auto mb-3 rounded-3" style="width:180px;max-width:100%;height:220px;object-fit:cover">
                         <img data-share-qr-image alt="QR Code individual" style="width:180px;max-width:100%;height:auto">
                         <div class="small text-body-secondary mt-2">O mesmo acesso pode ser copiado, mostrado em QR ou partilhado.</div>
                     </div>
                     <div class="d-grid gap-2">
-                        <a class="btn btn-success" href="#" target="_blank" rel="noopener" data-share-whatsapp><i class="bi bi-whatsapp me-2"></i>Partilhar no WhatsApp</a>
+                        <button class="btn btn-success" type="button" data-share-with-cover><i class="bi bi-whatsapp me-2"></i>Partilhar capa e mensagem</button>
+                        <a class="btn btn-outline-success" href="#" target="_blank" rel="noopener" data-share-whatsapp><i class="bi bi-whatsapp me-2"></i>Abrir só a mensagem</a>
                         <a class="btn btn-outline-secondary" href="#" data-share-email><i class="bi bi-envelope me-2"></i>Enviar por email</a>
                         <button class="btn btn-outline-secondary" type="button" data-share-copy><i class="bi bi-clipboard me-2"></i>Copiar mensagem</button>
                     </div>
@@ -141,7 +143,9 @@
         <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
             <form method="post" action="{% url 'guests:send_invitation' wedding.pk guest.pk %}"
                   data-confirm="Enviar agora o convite de {{ guest.full_name }}?"
-                  data-confirm-title="Enviar convite">
+                  data-confirm-title="Enviar convite" data-invitation-send
+                  data-share-message="{{ row.share_message }}" data-share-cover="{{ row.share_cover_url }}"
+                  data-share-title="Convite de {{ wedding.display_names }}">
                 <div class="modal-header"><div><p class="workspace-eyebrow mb-1">Convite individual</p><h2 class="modal-title h5" id="send-title-{{ guest.pk }}">Enviar convite a {{ guest.full_name }}</h2></div><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button></div>
                 <div class="modal-body">
                     {% csrf_token %}
@@ -152,7 +156,7 @@
                             <label><input class="form-check-input" type="radio" name="channel" value="whatsapp" required> <i class="bi bi-whatsapp"></i> WhatsApp</label>
                         </div>
                     </fieldset>
-                    <div class="alert alert-light border small mt-3 mb-0"><i class="bi bi-info-circle me-1"></i>O SMS é enviado automaticamente pela Twilio. No WhatsApp, abriremos a conversa com a mensagem pronta para confirmar manualmente.</div>
+                    <div class="alert alert-light border small mt-3 mb-0"><i class="bi bi-info-circle me-1"></i>O SMS é enviado pela Twilio. Para WhatsApp, o dispositivo abrirá a partilha com a capa e a mensagem prontas.</div>
                 </div>
                 <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary" type="submit"><i class="bi bi-send me-1"></i>Enviar convite</button></div>
             </form>
@@ -199,4 +203,4 @@
 </section>
 {% endblock %}
 
-{% block extra_js %}<script src="{% static 'js/guest-table.js' %}?v=20260801.4"></script>{% endblock %}
+{% block extra_js %}<script src="{% static 'js/guest-table.js' %}?v=20260801.5"></script>{% endblock %}

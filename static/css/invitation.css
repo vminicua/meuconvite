@@ -69,6 +69,13 @@ body.inv--embedded::-webkit-scrollbar {
     color: var(--inv-paper);
 }
 
+.inv--cover-only { overflow:hidden; }
+.inv--cover-only .inv-cover { min-height:100vh; height:100vh; padding:.7rem .55rem; }
+.inv--cover-only .inv-cover__paper { min-height:calc(100vh - 1.4rem); padding:2rem .8rem; }
+.inv--cover-only .inv-floating-actions,
+.inv--cover-only .inv-main,
+.inv--cover-only .inv-music { display:none !important; }
+
 .inv-cover__paper {
     max-width: 32rem;
     width: 100%;

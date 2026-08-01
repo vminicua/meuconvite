@@ -23,7 +23,7 @@ from core.validators import (
 )
 
 DEFAULT_SMS_INVITATION_MESSAGE = (
-    "Olá {nome}! 💛 Somos {evento} e queremos muito celebrar este dia contigo. "
+    "Olá {nome}! Somos {evento} e queremos muito celebrar este dia contigo. "
     "Preparámos um convite especial para ti; abre e confirma a tua presença: {link} "
     "Com carinho, {evento}."
 )

@@ -320,6 +320,8 @@ def invitation_preview(request: HttpRequest, wedding, template_code: str = "") -
         include_qr=not embedded,
     )
     context["embedded"] = embedded
+    context["cover_only"] = request.GET.get("cover_only") == "1"
+    context["ignore_custom_cover"] = request.GET.get("default_cover") == "1"
     return render(request, "invitations/preview.html", context)
 
 

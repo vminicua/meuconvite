@@ -21,10 +21,9 @@
             <div class="cover-studio cover-studio--phone">
                 <div class="cover-phone" aria-label="Pré-visualização da capa num iPhone">
                     <div class="cover-phone__island"></div>
-                    <div class="cover-phone__screen" data-cover-preview
-                         data-default-cover="{% if selected_template.cover_image %}{{ selected_template.cover_image.url }}{% endif %}"
-                         style="background-image:url('{% if wedding.cover_image %}{{ wedding.cover_image.url }}{% elif selected_template.cover_image %}{{ selected_template.cover_image.url }}{% endif %}')">
-                        <div class="cover-phone__fallback" data-cover-empty {% if wedding.cover_image or selected_template.cover_image %}hidden{% endif %}><i class="bi bi-image"></i><span>Capa do template</span></div>
+                    <div class="cover-phone__screen" data-cover-preview data-default-preview-url="{% url 'weddings:invitation_preview' wedding.pk %}?embedded=1&amp;cover_only=1&amp;default_cover=1">
+                        <iframe class="cover-phone__frame" title="Capa actual do convite" src="{% url 'weddings:invitation_preview' wedding.pk %}?embedded=1&amp;cover_only=1"></iframe>
+                        <div class="cover-phone__upload-preview" data-cover-upload-preview hidden></div>
                     </div>
                     <div class="cover-phone__home"></div>
                 </div>

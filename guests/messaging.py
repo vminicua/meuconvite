@@ -47,9 +47,9 @@ def invitation_message(guest, invitation_url: str, channel: str) -> str:
         except (KeyError, ValueError):
             return f"Convite para {first_name[:20]}: {invitation_url}"
     return (
-        f"Olá {guest.full_name}! 💛\n\n"
+        f"Olá {guest.full_name}!\n\n"
         f"Somos {guest.wedding.display_names} e queremos muito celebrar este dia contigo.\n\n"
-        f"✨ Preparámos um convite especial para ti. Abre-o e confirma a tua presença:\n"
+        f"Preparámos um convite especial para ti. Abre-o e confirma a tua presença:\n"
         f"{invitation_url}\n\n"
         f"Com carinho,\n{guest.wedding.display_names}"
     )

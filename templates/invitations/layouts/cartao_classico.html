@@ -1,7 +1,7 @@
 {% include "invitations/_ornaments.html" %}
 
 {% if template.has_cover %}
-    <section class="inv-cover inv-cover--classic" id="inv-cover">
+    <section class="inv-cover inv-cover--classic" id="inv-cover"{% if wedding.cover_image and not ignore_custom_cover %} style="background-image:linear-gradient(rgba(20,20,20,.28),rgba(20,20,20,.28)),url('{{ wedding.cover_image.url }}');background-size:cover;background-position:center"{% endif %}>
         <div class="inv-cover__paper">
             <span class="inv-cover__kicker">{{ wedding.cover_message|default:"Temos o prazer de convidar" }}</span>
             <p class="inv-cover__eyebrow">{{ wedding.category_name }}</p>

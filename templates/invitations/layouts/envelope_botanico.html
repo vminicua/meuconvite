@@ -1,7 +1,7 @@
 {% include "invitations/_ornaments.html" %}
 
 {% if template.has_cover %}
-    <section class="inv-cover inv-cover--botanical" id="inv-cover">
+    <section class="inv-cover inv-cover--botanical" id="inv-cover"{% if wedding.cover_image and not ignore_custom_cover %} style="background-image:linear-gradient(rgba(20,25,20,.2),rgba(20,25,20,.2)),url('{{ wedding.cover_image.url }}');background-size:cover;background-position:center"{% endif %}>
         <div class="inv-cover__paper">
             <svg class="inv-cover__branch inv-cover__branch--top" viewBox="0 0 160 120" aria-hidden="true">
                 <use href="#inv-branch"/>
