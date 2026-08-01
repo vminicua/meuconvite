@@ -1,7 +1,9 @@
 (function () {
     "use strict";
-    const form = document.querySelector("[data-event-details]");
-    if (!form) return;
+    function init(root) {
+    const form = root.querySelector("[data-event-details]");
+    if (!form || form.dataset.detailsReady === "1") return;
+    form.dataset.detailsReady = "1";
     const coverInput = form.querySelector("[data-cover-input]");
     const cover = form.querySelector("[data-cover-preview]");
     const empty = form.querySelector("[data-cover-empty]");
@@ -31,5 +33,8 @@
     function renderSms() {
         counter.textContent = sms.value.length;
     }
-    sms.addEventListener("input", renderSms); renderSms();
+    if (sms) { sms.addEventListener("input", renderSms); renderSms(); }
+    }
+    init(document);
+    document.addEventListener("workspace:loaded", function () { init(document); });
 })();
