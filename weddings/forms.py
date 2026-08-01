@@ -171,8 +171,6 @@ class WeddingSettingsForm(BootstrapModelForm):
             "cover_message",
             "invitation_message",
             "sms_invitation_message",
-            "notification_phone_primary",
-            "notification_phone_secondary",
             "welcome_message",
             "story",
             "rsvp_deadline",

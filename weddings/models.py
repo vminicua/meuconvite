@@ -23,7 +23,10 @@ from core.validators import (
 )
 
 DEFAULT_SMS_INVITATION_MESSAGE = (
-    "Ola {nome}! Somos {evento}. Preparamos este convite para ti: {link}"
+    "*O Nosso Casamento*\n"
+    "Ola {nome}! Sera uma alegria celebrar este dia contigo.\n"
+    "Convite:{link}\n\n"
+    "{evento}"
 )
 
 SMS_TEMPLATE_MAX_LENGTH = 100

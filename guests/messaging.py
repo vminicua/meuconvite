@@ -153,68 +153,6 @@ def send_invitation(*, guest, channel: str, invitation_url: str, actor) -> Invit
     return delivery
 
 
-def notify_couple(*, guest, body: str) -> list[InvitationDelivery]:
-    """Envia uma notificação operacional aos noivos, sem consumir a quota de convites."""
-    from platform_admin.models import configured_value
-    from weddings.models import WeddingRole
-
-    wedding = guest.wedding
-    body = _sms_ascii(body, SMS_MAX_LENGTH)
-    users = [wedding.owner]
-    users.extend(
-        member.user
-        for member in wedding.members.filter(
-            role=WeddingRole.SPOUSE, is_active=True
-        ).select_related("user")
-        if member.user.is_active
-    )
-    recipients: list[str] = []
-    candidates = [wedding.notification_phone_primary, wedding.notification_phone_secondary]
-    candidates.extend(user.phone for user in users)
-    for candidate in candidates:
-        try:
-            phone = normalize_phone(candidate)
-        except ValidationError:
-            continue
-        if phone not in recipients:
-            recipients.append(phone)
-
-    sender = configured_value("twilio_sms_from")
-    deliveries: list[InvitationDelivery] = []
-    for phone in recipients:
-        delivery = InvitationDelivery.objects.create(
-            wedding=wedding,
-            guest=guest,
-            channel=InvitationChannel.SMS,
-            destination=phone,
-            message_body=body,
-            counts_toward_limit=False,
-        )
-        deliveries.append(delivery)
-        if not sender:
-            delivery.status = DeliveryStatus.FAILED
-            delivery.error_message = "O remetente SMS ainda não está configurado."
-            delivery.save(update_fields=["status", "error_message", "updated_at"])
-            continue
-        arguments = {"body": body, "from_": sender, "to": phone}
-        callback = status_callback_url()
-        if callback:
-            arguments["status_callback"] = callback
-        try:
-            message = _client().messages.create(**arguments)
-        except Exception as exc:
-            delivery.status = DeliveryStatus.FAILED
-            delivery.error_code = str(getattr(exc, "code", "") or "")[:30]
-            delivery.error_message = str(getattr(exc, "msg", "") or exc)[:500]
-            delivery.save(update_fields=["status", "error_code", "error_message", "updated_at"])
-            continue
-        delivery.provider_sid = message.sid
-        delivery.status = message.status if message.status in DeliveryStatus.values else DeliveryStatus.QUEUED
-        delivery.sent_at = timezone.now()
-        delivery.save(update_fields=["provider_sid", "status", "sent_at", "updated_at"])
-    return deliveries
-
-
 def update_delivery_status(*, provider_sid: str, status: str, error_code: str = ""):
     delivery = InvitationDelivery.objects.filter(provider_sid=provider_sid).first()
     if delivery is None:

@@ -190,7 +190,8 @@ class GuestViewTests(TestCase):
         )
 
         self.assertIn("Ercilia", body)
-        self.assertIn("Preparamos este convite", body)
+        self.assertIn("*O Nosso Casamento*", body)
+        self.assertIn("Sera uma alegria celebrar este dia contigo.", body)
         self.assertIn("https://meuconvite.co.mz/convite/abc123/", body)
         self.assertTrue(body.isascii())
         self.assertLessEqual(len(body), 160)

@@ -63,14 +63,6 @@
             {% for error in form.sms_invitation_message.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
         </section>
 
-        <section class="details-panel">
-            <div class="details-panel__heading"><span class="details-panel__number"><i class="bi bi-bell"></i></span><div><h3>Alertas aos noivos</h3><p>Enviamos um SMS quando alguém confirma ou escolhe um presente.</p></div></div>
-            <div class="row g-3">
-                <div class="col-12"><label class="form-label" for="{{ form.notification_phone_primary.id_for_label }}">{{ form.notification_phone_primary.label }}</label>{{ form.notification_phone_primary }}{% if form.notification_phone_primary.help_text %}<div class="form-text">{{ form.notification_phone_primary.help_text }}</div>{% endif %}{% for error in form.notification_phone_primary.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}</div>
-                <div class="col-12"><label class="form-label" for="{{ form.notification_phone_secondary.id_for_label }}">{{ form.notification_phone_secondary.label }}</label>{{ form.notification_phone_secondary }}{% if form.notification_phone_secondary.help_text %}<div class="form-text">{{ form.notification_phone_secondary.help_text }}</div>{% endif %}{% for error in form.notification_phone_secondary.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}</div>
-            </div>
-        </section>
-
         <section class="details-panel preparation-card"><h3>Preparação do evento</h3><ul>{% for item in checklist %}<li class="{% if item.done %}is-done{% endif %}"><i class="bi {% if item.done %}bi-check-circle-fill{% else %}bi-circle{% endif %}"></i><span>{{ item.label }}</span></li>{% endfor %}</ul></section>
         {% if capabilities.can_manage_events %}<button class="btn btn-primary btn-lg w-100 details-submit" type="submit"><i class="bi bi-check2 me-1"></i>Guardar alterações</button>{% endif %}
         {% if capabilities.is_owner %}<form method="post" action="{% url 'weddings:archive' wedding.pk %}" data-confirm="Arquivar este evento? Poderá continuar a consultar os dados.">{% csrf_token %}<button class="btn btn-link text-danger w-100 mt-2" type="submit">Arquivar evento</button></form>{% endif %}
