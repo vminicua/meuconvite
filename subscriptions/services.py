@@ -212,7 +212,7 @@ def sms_count(wedding) -> int:
     related = getattr(wedding, "invitation_deliveries", None)
     if related is None:
         return 0
-    return related.filter(channel="sms").count()
+    return related.filter(channel="sms", counts_toward_limit=True).count()
 
 
 def check_can_send_sms(wedding) -> None:

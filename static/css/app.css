@@ -774,3 +774,21 @@ main {
 .guest-qr-modal img { width:13rem; max-width:100%; border-radius:1rem; margin-bottom:1rem; }
 @media (max-width: 991.98px) { .guest-table-toolbar { grid-template-columns:1fr 1fr; } .guest-workspace__header { align-items:flex-start; } }
 @media (max-width: 575.98px) { .guest-workspace__header { flex-direction:column; } .guest-workspace__header .btn { width:100%; } .guest-table-toolbar { grid-template-columns:1fr; } .guest-table-footer { align-items:flex-start; flex-direction:column; } }
+
+/* Event cover: compact, truthful iPhone preview with the template cover as baseline. */
+.cover-studio--phone { grid-template-columns:minmax(12rem,15rem) minmax(14rem,1fr); justify-content:center; gap:2rem; }
+.cover-phone { position:relative; width:14rem; padding:.55rem; border-radius:2.35rem; background:#111318; box-shadow:0 1.2rem 2.8rem rgba(20,24,30,.22); }
+.cover-phone__screen { aspect-ratio:9/19.5; overflow:hidden; border-radius:1.85rem; background:#eee9df center/cover no-repeat; }
+.cover-phone__island { position:absolute; z-index:2; top:.92rem; left:50%; width:5.1rem; height:1.25rem; border-radius:999px; background:#08090b; transform:translateX(-50%); }
+.cover-phone__home { position:absolute; bottom:.9rem; left:50%; width:4.4rem; height:.22rem; border-radius:999px; background:#050607; transform:translateX(-50%); }
+.cover-phone__fallback { display:grid; height:100%; place-content:center; justify-items:center; gap:.5rem; color:#858b91; }
+.cover-studio__controls { display:grid; align-content:center; gap:.75rem; }
+.cover-studio__controls h4 { margin:0; font-size:1.15rem; }
+.cover-studio__controls > p { margin:0; color:#747c85; font-size:.8rem; }
+.sms-studio--simple textarea { min-height:11rem; line-height:1.55; }
+.gift-grid--wide { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.gift-empty-state { grid-column:1/-1; border:1px dashed #d7d1c6; border-radius:1rem; background:#fff; }
+.invitation-preview-frame { opacity:0; transition:opacity .18s ease; }
+.invitation-preview-frame.is-loaded { opacity:1; }
+@media (max-width:1199.98px) { .gift-grid--wide { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media (max-width:767.98px) { .cover-studio--phone { grid-template-columns:1fr; }.cover-phone { margin:auto; }.gift-grid--wide { grid-template-columns:1fr; } }

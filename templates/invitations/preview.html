@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
     <title>{{ wedding.display_names }} · Convite</title>
+    <meta property="og:title" content="Um convite especial de {{ wedding.display_names }}">
+    <meta property="og:description" content="Abra o seu convite personalizado e confirme a sua presença.">
+    {% if share_cover_url %}<meta property="og:image" content="{{ share_cover_url }}">{% endif %}
+    {% if invitation_url %}<meta property="og:url" content="{{ invitation_url }}">{% endif %}
+    <meta property="og:type" content="website">
 
     <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
     {% if template.fonts_url %}
@@ -29,6 +34,7 @@
 {% endif %}
 
 {% include template.layout_template %}
+{% include "invitations/_floating_actions.html" %}
 
 {% if wedding.invitation_music and wedding.show_music and template.supports_music %}
 <div class="inv-music" data-music-player>

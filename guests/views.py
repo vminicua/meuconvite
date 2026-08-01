@@ -321,6 +321,11 @@ def guest_invitation(request: HttpRequest, token: str) -> HttpResponse:
             guest.rsvp_status = response
             guest.responded_at = timezone.now()
             guest.save(update_fields=["rsvp_status", "responded_at", "updated_at"])
+            answer = "confirmou a presença" if response == RSVPStatus.CONFIRMED else "informou que não poderá comparecer"
+            transaction.on_commit(lambda: messaging.notify_couple(
+                guest=guest,
+                body=f"MeuConvite: {guest.full_name} {answer} em {wedding.display_names}.",
+            ))
             messages.success(request, "A sua resposta foi registada. Obrigado!")
             return redirect("guest_invitation", token=guest.invitation_token)
 
@@ -336,6 +341,9 @@ def guest_invitation(request: HttpRequest, token: str) -> HttpResponse:
         gift.selected_by_guest = any(item.guest_id == guest.pk for item in selections)
         gift.unavailable = bool(selections) and not gift.allow_multiple and not gift.selected_by_guest
     context["gifts"] = gifts
+    cover = wedding.cover_image or template.cover_image
+    context["share_cover_url"] = request.build_absolute_uri(cover.url) if cover else ""
+    context["invitation_url"] = _guest_invitation_url(request, guest)
     context["css_variables"] = template.css_variables(
         wedding.primary_color, wedding.secondary_color
     )
@@ -354,6 +362,7 @@ def guest_gift_select(request: HttpRequest, token: str, gift_id) -> HttpResponse
             Gift.objects.select_for_update(), pk=gift_id, wedding=wedding, is_active=True
         )
         own_selection = GiftSelection.objects.filter(gift=gift, guest=guest).first()
+        selected = False
         if own_selection:
             own_selection.delete()
             messages.info(request, f"Deixou de levar “{gift.name}”.")
@@ -361,7 +370,14 @@ def guest_gift_select(request: HttpRequest, token: str, gift_id) -> HttpResponse
             messages.error(request, "Este presente já foi escolhido por outro convidado.")
         else:
             GiftSelection.objects.create(gift=gift, guest=guest)
+            selected = True
             messages.success(request, f"Obrigado! Ficou registado que vai levar “{gift.name}”.")
+
+        if selected:
+            transaction.on_commit(lambda: messaging.notify_couple(
+                guest=guest,
+                body=f"MeuConvite: {guest.full_name} escolheu oferecer “{gift.name}” em {wedding.display_names}.",
+            ))
 
     return redirect("guest_invitation", token=guest.invitation_token)
 

@@ -18,12 +18,14 @@ from core.validators import (
     validate_audio_upload,
     validate_hex_color,
     validate_image_upload,
+    validate_phone,
     validate_wedding_slug,
 )
 
 DEFAULT_SMS_INVITATION_MESSAGE = (
-    "Olá {nome}! 💌 É com muita alegria que partilhamos contigo o convite de {evento}. "
-    "Abre o teu convite e confirma a tua presença: {link}"
+    "Olá {nome}! 💛 Somos {evento} e queremos muito celebrar este dia contigo. "
+    "Preparámos um convite especial para ti; abre e confirma a tua presença: {link} "
+    "Com carinho, {evento}."
 )
 
 
@@ -167,6 +169,16 @@ class Wedding(BaseModel):
         max_length=500,
         default=DEFAULT_SMS_INVITATION_MESSAGE,
         help_text=_("Pode usar {nome}, {evento} e {link}."),
+    )
+    notification_phone_primary = models.CharField(
+        _("telefone para notificações"), max_length=20, blank=True,
+        validators=[validate_phone],
+        help_text=_("Recebe SMS quando um convidado responde ou escolhe um presente."),
+    )
+    notification_phone_secondary = models.CharField(
+        _("segundo telefone"), max_length=20, blank=True,
+        validators=[validate_phone],
+        help_text=_("Opcional. Pode ser o telefone do outro noivo ou anfitrião."),
     )
     welcome_message = models.TextField(_("mensagem de boas-vindas"), blank=True, max_length=1000)
     story = models.TextField(_("a nossa história"), blank=True, max_length=5000)

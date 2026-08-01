@@ -1,65 +1,9 @@
-<div class="inv-floating-actions" aria-label="Acções do convite">
-    {% if gifts and guest %}
-    <button class="inv-fab inv-fab--secondary" type="button" data-dialog-open="gift-dialog">
-        <i class="bi bi-gift-fill"></i><span>Selecionar presente</span>
-    </button>
-    {% endif %}
-    <button class="inv-fab" type="button" data-dialog-open="rsvp-dialog">
-        <i class="bi bi-check2-circle"></i><span>{% if guest.rsvp_status == 'confirmed' %}Presença confirmada{% else %}Confirmar presença{% endif %}</span>
-    </button>
-</div>
-
-<dialog class="inv-dialog" id="rsvp-dialog">
-    <button class="inv-dialog__close" type="button" data-dialog-close aria-label="Fechar"><i class="bi bi-x-lg"></i></button>
-    <span class="inv-dialog__icon"><i class="bi bi-calendar-heart"></i></span>
-    <h2>Confirmação de presença</h2>
-    {% if wedding.rsvp_deadline %}<p>Pedimos a gentileza de responder até <strong>{{ wedding.rsvp_deadline|date:"d/m/Y" }}</strong>.</p>{% else %}<p>Será uma alegria celebrar consigo. Pode confirmar agora?</p>{% endif %}
-    {% if is_preview or not guest %}
-        <span class="inv-btn inv-btn--disabled" aria-disabled="true">Disponível no link individual</span>
-        <p class="inv-note">Cada convidado recebe uma ligação própria com a confirmação activa.</p>
-    {% else %}
-        {% if guest.rsvp_status == 'confirmed' %}<p class="inv-rsvp-state inv-rsvp-state--confirmed"><i class="bi bi-check-circle-fill"></i> Presença confirmada</p>{% elif guest.rsvp_status == 'declined' %}<p class="inv-rsvp-state"><i class="bi bi-info-circle"></i> Indicou que não poderá comparecer</p>{% endif %}
-        <form method="post" class="inv-rsvp-actions">{% csrf_token %}
-            <button class="inv-btn" type="submit" name="rsvp" value="confirmed">Sim, vou estar presente</button>
-            <button class="inv-btn inv-btn--outline" type="submit" name="rsvp" value="declined">Não poderei comparecer</button>
-        </form>
-    {% endif %}
-</dialog>
-
-{% if gifts and guest %}
-<dialog class="inv-dialog inv-dialog--gifts" id="gift-dialog">
-    <button class="inv-dialog__close" type="button" data-dialog-close aria-label="Fechar"><i class="bi bi-x-lg"></i></button>
-    <span class="inv-dialog__icon"><i class="bi bi-gift-fill"></i></span>
-    <h2>Escolha um presente</h2>
-    <p>A sua escolha fica reservada e os anfitriões saberão com o que podem contar.</p>
-    <div class="inv-gift-list">
-        {% for gift in gifts %}
-            <article class="inv-gift {% if gift.unavailable %}is-selected{% endif %}">
-                <div><strong>{{ gift.name }}</strong>{% if gift.description %}<small>{{ gift.description }}</small>{% endif %}</div>
-                {% if gift.allow_multiple %}<span class="inv-gift__badge">Várias pessoas</span>{% endif %}
-                {% if gift.selected_by_guest %}
-                    <form method="post" action="{% url 'guest_gift_select' guest.invitation_token gift.pk %}">{% csrf_token %}<button class="inv-gift__button is-own" type="submit"><i class="bi bi-check-circle-fill"></i> Eu levo · retirar</button></form>
-                {% elif not gift.unavailable %}
-                    <form method="post" action="{% url 'guest_gift_select' guest.invitation_token gift.pk %}">{% csrf_token %}<button class="inv-gift__button" type="submit">Vou oferecer</button></form>
-                {% else %}
-                    <span class="inv-gift__unavailable"><i class="bi bi-lock-fill"></i> Já escolhido</span>
-                {% endif %}
-            </article>
-        {% endfor %}
-    </div>
-</dialog>
-{% endif %}
-
 {% include "invitations/_qr.html" %}
 
 <footer class="inv-footer">
     <svg class="inv-hearts" viewBox="0 0 200 24" aria-hidden="true"><use href="#inv-divider"/></svg>
     <p class="inv-footer__names">{{ wedding.display_names }}</p>
-    <p class="inv-footer__date">
-        {{ wedding.main_date|date:"d/m/Y" }}{% if wedding.city %} · {{ wedding.city }}{% endif %}
-    </p>
+    <p class="inv-footer__date">{{ wedding.main_date|date:"d/m/Y" }}{% if wedding.city %} · {{ wedding.city }}{% endif %}</p>
     {% if wedding.hashtag %}<p class="inv-footer__hashtag">{{ wedding.hashtag }}</p>{% endif %}
-    {% if show_branding %}
-        <p class="inv-footer__brand">convite criado com <strong>MeuConvite</strong></p>
-    {% endif %}
+    {% if show_branding %}<p class="inv-footer__brand">convite criado com <strong>MeuConvite</strong></p>{% endif %}
 </footer>

@@ -41,8 +41,7 @@ class GuestForm(BootstrapModelForm):
 class GiftForm(BootstrapModelForm):
     class Meta:
         model = Gift
-        fields = ["name", "description", "allow_multiple", "display_order"]
+        fields = ["name", "description", "allow_multiple"]
         widgets = {
             "description": forms.Textarea(attrs={"rows": 2}),
-            "display_order": forms.NumberInput(attrs={"min": 0}),
         }

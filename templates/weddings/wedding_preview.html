@@ -39,11 +39,12 @@
             <span class="invitation-device__button invitation-device__button--volume-up" aria-hidden="true"></span>
             <span class="invitation-device__button invitation-device__button--volume-down" aria-hidden="true"></span>
             <span class="invitation-device__button invitation-device__button--power" aria-hidden="true"></span>
-            <div class="invitation-device__screen">
+            <div class="invitation-device__screen"{% if selected_template.cover_image %} style="background-image:url('{{ selected_template.cover_image.url }}');background-size:cover;background-position:center"{% endif %}>
                 <div class="invitation-device__island" aria-hidden="true"><span></span></div>
                 <iframe title="Pré-visualização do convite de {{ wedding.display_names }}"
                         src="{% url 'weddings:invitation_preview' wedding.pk %}?embedded=1"
-                        class="invitation-preview-frame"></iframe>
+                        class="invitation-preview-frame" loading="eager"
+                        onload="this.classList.add('is-loaded')"></iframe>
                 <span class="invitation-device__home" aria-hidden="true"></span>
             </div>
         </div>

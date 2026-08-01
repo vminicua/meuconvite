@@ -148,6 +148,11 @@ class InvitationDelivery(BaseModel):
         related_name="invitation_deliveries_sent",
     )
     sent_at = models.DateTimeField(null=True, blank=True)
+    counts_toward_limit = models.BooleanField(
+        _("conta para o limite"),
+        default=True,
+        help_text=_("Desmarcado para notificações operacionais e reposições de saldo."),
+    )
 
     class Meta:
         verbose_name = _("envio de convite")

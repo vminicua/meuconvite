@@ -11,23 +11,31 @@
     <div class="details-save-state"><i class="bi bi-cloud-check"></i><span>As alterações ficam activas depois de guardar</span></div>
 </div>
 
-<form method="post" enctype="multipart/form-data" novalidate data-event-details data-event-name="{{ wedding.display_names }}" data-event-link="{{ SITE_BASE_URL }}/convite/exemplo/">
+<form method="post" enctype="multipart/form-data" novalidate data-event-details>
 {% csrf_token %}
 {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
 <div class="row g-4 align-items-start">
     <div class="col-xl-8">
         <section class="details-panel details-cover-panel">
             <div class="details-panel__heading"><span class="details-panel__number">01</span><div><h3>Capa do convite</h3><p>A primeira imagem que os convidados vão ver.</p></div></div>
-            <div class="cover-studio">
-                <div class="cover-studio__preview" data-cover-preview {% if wedding.cover_image %}style="background-image:url('{{ wedding.cover_image.url }}')"{% endif %}>
-                    <div class="cover-studio__empty" data-cover-empty {% if wedding.cover_image %}hidden{% endif %}><i class="bi bi-image"></i><span>A sua fotografia aparece aqui</span></div>
-                    <div class="cover-studio__shade"></div><div class="cover-studio__names"><small>{{ wedding.category_name }}</small><strong>{{ wedding.display_names }}</strong><span>{{ wedding.main_date|date:"d · m · Y" }}</span></div>
+            <div class="cover-studio cover-studio--phone">
+                <div class="cover-phone" aria-label="Pré-visualização da capa num iPhone">
+                    <div class="cover-phone__island"></div>
+                    <div class="cover-phone__screen" data-cover-preview
+                         data-default-cover="{% if selected_template.cover_image %}{{ selected_template.cover_image.url }}{% endif %}"
+                         style="background-image:url('{% if wedding.cover_image %}{{ wedding.cover_image.url }}{% elif selected_template.cover_image %}{{ selected_template.cover_image.url }}{% endif %}')">
+                        <div class="cover-phone__fallback" data-cover-empty {% if wedding.cover_image or selected_template.cover_image %}hidden{% endif %}><i class="bi bi-image"></i><span>Capa do template</span></div>
+                    </div>
+                    <div class="cover-phone__home"></div>
                 </div>
                 <div class="cover-studio__controls">
-                    <label class="cover-upload" for="{{ form.cover_image.id_for_label }}"><i class="bi bi-cloud-arrow-up"></i><strong>Escolher fotografia</strong><span>JPG, PNG ou WEBP · até 5 MB</span></label>
+                    <span class="workspace-eyebrow">CAPA ACTUAL</span>
+                    <h4 data-cover-title>{% if wedding.cover_image %}Fotografia personalizada{% else %}Capa original · {{ selected_template.name }}{% endif %}</h4>
+                    <p>Escolha uma fotografia vertical. A alteração aparece imediatamente no iPhone antes de guardar.</p>
+                    <label class="cover-upload" for="{{ form.cover_image.id_for_label }}"><i class="bi bi-cloud-arrow-up"></i><strong>Escolher outra fotografia</strong><span>JPG, PNG ou WEBP · até 5 MB</span></label>
                     <div class="visually-hidden">{{ form.cover_image }}</div>
+                    <button class="btn btn-outline-secondary w-100" type="button" data-cover-reset {% if not wedding.cover_image %}disabled{% endif %}><i class="bi bi-arrow-counterclockwise me-1"></i>Voltar à capa original</button>
                     {% for error in form.cover_image.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-                    <p><i class="bi bi-lightbulb"></i> Uma fotografia vertical e luminosa funciona melhor em todos os templates.</p>
                 </div>
             </div>
         </section>
@@ -49,17 +57,19 @@
     </div>
 
     <div class="col-xl-4 details-sticky-column">
-        <section class="details-panel sms-studio">
-            <div class="details-panel__heading"><span class="details-panel__number">SMS</span><div><h3>Mensagem em tempo real</h3><p>Edite em baixo e veja como chega ao telemóvel.</p></div></div>
-            <div class="iphone-preview">
-                <div class="iphone-preview__speaker"></div><div class="iphone-preview__status"><span>9:41</span><i class="bi bi-reception-4"></i><i class="bi bi-wifi"></i><i class="bi bi-battery-full"></i></div>
-                <div class="iphone-preview__header"><span class="iphone-preview__avatar"><i class="bi bi-envelope-heart"></i></span><strong>MeuConvite</strong><small>Mensagem</small></div>
-                <div class="iphone-preview__thread"><div class="iphone-preview__bubble" data-sms-preview></div><small>Entregue</small></div>
-                <div class="iphone-preview__home"></div>
-            </div>
+        <section class="details-panel sms-studio sms-studio--simple">
+            <div class="details-panel__heading"><span class="details-panel__number"><i class="bi bi-chat-heart"></i></span><div><h3>Mensagem do convite</h3><p>Escreva como se fossem vocês a falar directamente com o convidado.</p></div></div>
             <label class="form-label mt-4" for="{{ form.sms_invitation_message.id_for_label }}">{{ form.sms_invitation_message.label }}</label>{{ form.sms_invitation_message }}
             <div class="d-flex justify-content-between gap-2"><div class="form-text">Use {nome}, {evento} e {link}.</div><div class="form-text"><span data-sms-count>0</span>/500</div></div>
             {% for error in form.sms_invitation_message.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+        </section>
+
+        <section class="details-panel">
+            <div class="details-panel__heading"><span class="details-panel__number"><i class="bi bi-bell"></i></span><div><h3>Alertas aos noivos</h3><p>Enviamos um SMS quando alguém confirma ou escolhe um presente.</p></div></div>
+            <div class="row g-3">
+                <div class="col-12"><label class="form-label" for="{{ form.notification_phone_primary.id_for_label }}">{{ form.notification_phone_primary.label }}</label>{{ form.notification_phone_primary }}{% if form.notification_phone_primary.help_text %}<div class="form-text">{{ form.notification_phone_primary.help_text }}</div>{% endif %}{% for error in form.notification_phone_primary.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}</div>
+                <div class="col-12"><label class="form-label" for="{{ form.notification_phone_secondary.id_for_label }}">{{ form.notification_phone_secondary.label }}</label>{{ form.notification_phone_secondary }}{% if form.notification_phone_secondary.help_text %}<div class="form-text">{{ form.notification_phone_secondary.help_text }}</div>{% endif %}{% for error in form.notification_phone_secondary.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}</div>
+            </div>
         </section>
 
         <section class="details-panel preparation-card"><h3>Preparação do evento</h3><ul>{% for item in checklist %}<li class="{% if item.done %}is-done{% endif %}"><i class="bi {% if item.done %}bi-check-circle-fill{% else %}bi-circle{% endif %}"></i><span>{{ item.label }}</span></li>{% endfor %}</ul></section>

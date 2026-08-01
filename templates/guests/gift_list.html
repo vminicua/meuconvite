@@ -6,62 +6,63 @@
 {% include "partials/wedding_nav.html" %}
 
 <div class="workspace-section-heading mb-4">
-    <span class="workspace-eyebrow">LISTA DE PRESENTES</span>
-    <h2 class="h4 mb-1">Presentes para a celebração</h2>
-    <p class="text-body-secondary mb-0">Sugira presentes e acompanhe quem se comprometeu a levar cada um.</p>
+    <div>
+        <span class="workspace-eyebrow">LISTA DE PRESENTES</span>
+        <h2 class="h4 mb-1">Presentes para a celebração</h2>
+        <p class="text-body-secondary mb-0">Sugira presentes e acompanhe quem se comprometeu a levar cada um.</p>
+    </div>
+    <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#addGiftModal">
+        <i class="bi bi-plus-lg me-1"></i>Adicionar presente
+    </button>
 </div>
 
-<div class="row g-4">
-    <div class="col-lg-4">
-        <div class="card border-0 shadow-sm gift-editor-card">
-            <div class="card-body p-4">
-                <div class="gift-editor-card__icon"><i class="bi bi-gift"></i></div>
-                <h3 class="h5 mt-3">Adicionar presente</h3>
-                <p class="small text-body-secondary">Por defeito, cada presente pode ser escolhido apenas uma vez.</p>
-                <form method="post" novalidate>
-                    {% csrf_token %}
-                    {% include "partials/form_fields.html" %}
-                    <button class="btn btn-primary w-100 mt-3" type="submit"><i class="bi bi-plus-lg me-1"></i>Adicionar à lista</button>
-                </form>
-            </div>
+<div class="gift-grid gift-grid--wide">
+    {% for gift in gifts %}
+    <article class="gift-card">
+        <div class="gift-card__top">
+            <span class="gift-card__icon"><i class="bi bi-gift"></i></span>
+            <span class="badge rounded-pill {% if gift.allow_multiple %}text-bg-info{% else %}text-bg-light border{% endif %}">{% if gift.allow_multiple %}Múltiplas escolhas{% else %}Uma escolha{% endif %}</span>
         </div>
+        <h3>{{ gift.name }}</h3>
+        {% if gift.description %}<p>{{ gift.description }}</p>{% endif %}
+        <div class="gift-card__selection">
+            {% with selections=gift.selections.all %}
+                {% if selections %}
+                    <span class="gift-card__selected-label"><i class="bi bi-check-circle-fill"></i> Seleccionado por</span>
+                    {% for selection in selections %}<strong>{{ selection.guest.full_name }}</strong>{% if not forloop.last %}<span class="text-body-secondary">, </span>{% endif %}{% endfor %}
+                {% else %}<span class="text-body-secondary"><i class="bi bi-stars me-1"></i>Ainda disponível</span>{% endif %}
+            {% endwith %}
+        </div>
+        <div class="gift-card__actions">
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'guests:gift_edit' wedding.pk gift.pk %}"><i class="bi bi-pencil me-1"></i>Editar</a>
+            <form method="post" action="{% url 'guests:gift_remove' wedding.pk gift.pk %}" data-confirm="Remover “{{ gift.name }}” da lista de presentes?">{% csrf_token %}<button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></form>
+        </div>
+    </article>
+    {% empty %}
+    <div class="empty-state text-center p-5 gift-empty-state">
+        <i class="bi bi-gift display-5 text-body-secondary"></i>
+        <h3 class="h5 mt-3">A lista ainda está vazia</h3>
+        <p class="text-body-secondary mb-3">Adicione o primeiro presente para ele aparecer no convite dos convidados.</p>
+        <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#addGiftModal"><i class="bi bi-plus-lg me-1"></i>Adicionar primeiro presente</button>
     </div>
-    <div class="col-lg-8">
-        <div class="gift-grid">
-            {% for gift in gifts %}
-            <article class="gift-card">
-                <div class="gift-card__top">
-                    <span class="gift-card__icon"><i class="bi bi-gift"></i></span>
-                    <span class="badge rounded-pill {% if gift.allow_multiple %}text-bg-info{% else %}text-bg-light border{% endif %}">
-                        {% if gift.allow_multiple %}Múltiplas escolhas{% else %}Uma escolha{% endif %}
-                    </span>
+    {% endfor %}
+</div>
+
+<div class="modal fade" id="addGiftModal" tabindex="-1" aria-labelledby="addGiftModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <form method="post" novalidate>
+                {% csrf_token %}
+                <div class="modal-header border-0 px-4 pt-4">
+                    <div><span class="workspace-eyebrow">NOVO PRESENTE</span><h2 class="modal-title h4" id="addGiftModalLabel">Adicionar à lista</h2></div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
-                <h3>{{ gift.name }}</h3>
-                {% if gift.description %}<p>{{ gift.description }}</p>{% endif %}
-                <div class="gift-card__selection">
-                    {% with selections=gift.selections.all %}
-                        {% if selections %}
-                            <span class="gift-card__selected-label"><i class="bi bi-check-circle-fill"></i> Seleccionado por</span>
-                            {% for selection in selections %}<strong>{{ selection.guest.full_name }}</strong>{% if not forloop.last %}<span class="text-body-secondary">, </span>{% endif %}{% endfor %}
-                        {% else %}
-                            <span class="text-body-secondary"><i class="bi bi-stars me-1"></i>Ainda disponível</span>
-                        {% endif %}
-                    {% endwith %}
+                <div class="modal-body px-4">{% include "partials/form_fields.html" %}</div>
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-primary" type="submit"><i class="bi bi-plus-lg me-1"></i>Adicionar à lista</button>
                 </div>
-                <div class="gift-card__actions">
-                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'guests:gift_edit' wedding.pk gift.pk %}"><i class="bi bi-pencil me-1"></i>Editar</a>
-                    <form method="post" action="{% url 'guests:gift_remove' wedding.pk gift.pk %}" data-confirm="Remover “{{ gift.name }}” da lista de presentes?">
-                        {% csrf_token %}<button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
-                    </form>
-                </div>
-            </article>
-            {% empty %}
-            <div class="empty-state text-center p-5">
-                <i class="bi bi-gift display-5 text-body-secondary"></i>
-                <h3 class="h5 mt-3">A lista ainda está vazia</h3>
-                <p class="text-body-secondary mb-0">Adicione o primeiro presente para ele aparecer no convite dos convidados.</p>
-            </div>
-            {% endfor %}
+            </form>
         </div>
     </div>
 </div>

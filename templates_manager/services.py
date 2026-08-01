@@ -49,6 +49,7 @@ def invitation_context(
     guest=None,
     is_preview: bool = False,
     use_event_colours: bool = True,
+    include_qr: bool = True,
 ) -> dict:
     """
     Tudo o que os layouts de convite precisam.
@@ -72,10 +73,8 @@ def invitation_context(
         programme_qs = programme_qs.filter(pk__in=guest.allowed_events.values("pk"))
 
     qr_events = list(
-        programme_qs.filter(
-            requires_qr_code=True,
-        ).order_by("date", "start_time", "display_order")
-    )
+        programme_qs.filter(requires_qr_code=True).order_by("date", "start_time", "display_order")
+    ) if include_qr else []
     qr_data_uri = ""
     if qr_events:
         # O convite público terá um token por convidado. No estúdio usamos um

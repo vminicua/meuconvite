@@ -186,6 +186,8 @@ def wedding_detail(request: HttpRequest, wedding) -> HttpResponse:
     limits = subscription_services.limits(wedding)
     guests_used = subscription_services.guest_count(wedding)
 
+    from templates_manager import registry
+    selected_template = registry.get_template(wedding.selected_template)
     return render(
         request,
         "weddings/wedding_detail.html",
@@ -200,6 +202,7 @@ def wedding_detail(request: HttpRequest, wedding) -> HttpResponse:
             "usage_percent": limits.usage_percent(guests_used),
             "form": form,
             "capabilities": capabilities,
+            "selected_template": selected_template,
         },
     )
 
@@ -241,6 +244,7 @@ def wedding_settings(request: HttpRequest, wedding) -> HttpResponse:
     from subscriptions import services as subscription_services
     limits = subscription_services.limits(wedding)
     guests_used = subscription_services.guest_count(wedding)
+    from templates_manager import registry
     return render(request, "weddings/wedding_detail.html", {
         "wedding": wedding,
         "summary": dashboard_summary(wedding),
@@ -252,6 +256,7 @@ def wedding_settings(request: HttpRequest, wedding) -> HttpResponse:
         "usage_percent": limits.usage_percent(guests_used),
         "form": form,
         "capabilities": capability_flags(wedding, request.user),
+        "selected_template": registry.get_template(wedding.selected_template),
     })
 
 
@@ -304,6 +309,7 @@ def invitation_preview(request: HttpRequest, wedding, template_code: str = "") -
     if template is None:
         raise Http404
 
+    embedded = request.GET.get("embedded") == "1"
     context = template_services.invitation_context(
         wedding,
         template,
@@ -311,8 +317,9 @@ def invitation_preview(request: HttpRequest, wedding, template_code: str = "") -
         seats=2,
         is_preview=True,
         use_event_colours=template.code == wedding.selected_template,
+        include_qr=not embedded,
     )
-    context["embedded"] = request.GET.get("embedded") == "1"
+    context["embedded"] = embedded
     return render(request, "invitations/preview.html", context)
 
 
