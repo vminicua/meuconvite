@@ -16,6 +16,7 @@ import segno
 from audit.models import AuditAction
 from audit.services import log_action, log_create, log_delete, log_update, model_to_dict
 from core.ratelimit import rate_limit
+from core.utils import get_client_ip
 from subscriptions.services import enabled_guest_ids, limits, sms_count
 from weddings.permissions import capability_flags, require_wedding
 
@@ -26,6 +27,11 @@ from . import messaging
 
 def _guest_invitation_url(request: HttpRequest, guest: Guest) -> str:
     return request.build_absolute_uri(reverse("guest_invitation", args=[guest.invitation_token]))
+
+
+def _invitation_rate_key(request: HttpRequest) -> str:
+    """Limita cada convite sem bloquear crawlers partilhados entre vários links."""
+    return f"{get_client_ip(request) or 'anon'}:{request.path}"
 
 
 def _share_cover_url(request: HttpRequest, wedding, guest=None) -> str:
@@ -359,7 +365,7 @@ def gift_remove(request: HttpRequest, wedding, gift_id) -> HttpResponse:
     return redirect("guests:gifts", wedding_id=wedding.pk)
 
 
-@rate_limit("invitation_view", methods=("GET",))
+@rate_limit("invitation_view", methods=("GET",), key_func=_invitation_rate_key)
 @rate_limit("rsvp_submit", methods=("POST",))
 def guest_invitation(request: HttpRequest, token: str) -> HttpResponse:
     """Individual invitation and RSVP surface addressed by an opaque token."""
