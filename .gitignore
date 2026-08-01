@@ -34,6 +34,7 @@ db.sqlite3-journal
 /media/
 /logs/
 /tmp/
+static/audio/meuconvite-theme.wav
 *.log
 local_settings.py
 
