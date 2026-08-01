@@ -45,13 +45,13 @@
 
 {% if wedding.show_music and template.supports_music %}
 <div class="inv-music" data-music-player>
-    <audio loop preload="metadata" data-music-audio src="{% if wedding.invitation_music %}{{ wedding.invitation_music.url }}{% else %}{% url 'invitation_default_music' %}{% endif %}"></audio>
+    <audio loop autoplay preload="auto" data-music-audio src="{% if wedding.invitation_music %}{{ wedding.invitation_music.url }}{% else %}{% url 'invitation_default_music' %}{% endif %}"></audio>
     <button type="button" data-music-toggle aria-label="Reproduzir música"><i class="bi bi-music-note-beamed"></i><span>Ouvir</span></button>
 </div>
 {% endif %}
 
 <script src="https://unpkg.com/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 <script src="{% static 'js/dialog-fallback.js' %}?v=20260801.1"></script>
-<script src="{% static 'js/invitation.js' %}?v=20260801.4"></script>
+<script src="{% static 'js/invitation.js' %}?v=20260801.5"></script>
 </body>
 </html>
