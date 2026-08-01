@@ -6,7 +6,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from core.models import BaseModel, SoftDeleteModel
-from core.utils import generate_secure_token
+from core.utils import generate_invitation_code
 
 
 class RSVPStatus(models.TextChoices):
@@ -27,8 +27,8 @@ class Guest(BaseModel, SoftDeleteModel):
     )
     notes = models.CharField(_("observações"), max_length=500, blank=True)
     invitation_token = models.CharField(
-        _("token do convite"), max_length=64, unique=True,
-        default=generate_secure_token, editable=False,
+        _("codigo do convite"), max_length=4, unique=True,
+        default=generate_invitation_code, editable=False,
     )
     rsvp_status = models.CharField(
         _("confirmação"), max_length=20, choices=RSVPStatus.choices,
@@ -54,6 +54,14 @@ class Guest(BaseModel, SoftDeleteModel):
 
     def __str__(self) -> str:
         return self.full_name
+
+    def save(self, *args, **kwargs):
+        if self._state.adding:
+            while not self.invitation_token or Guest.objects.filter(
+                invitation_token=self.invitation_token
+            ).exists():
+                self.invitation_token = generate_invitation_code()
+        return super().save(*args, **kwargs)
 
     @property
     def has_programme_restrictions(self) -> bool:

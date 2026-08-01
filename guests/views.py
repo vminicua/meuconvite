@@ -14,6 +14,7 @@ import segno
 
 from audit.models import AuditAction
 from audit.services import log_action, log_create, log_delete, log_update, model_to_dict
+from core.ratelimit import rate_limit
 from subscriptions.services import enabled_guest_ids, limits, sms_count
 from weddings.permissions import capability_flags, require_wedding
 
@@ -324,6 +325,8 @@ def gift_remove(request: HttpRequest, wedding, gift_id) -> HttpResponse:
     return redirect("guests:gifts", wedding_id=wedding.pk)
 
 
+@rate_limit("invitation_view", methods=("GET",))
+@rate_limit("rsvp_submit", methods=("POST",))
 def guest_invitation(request: HttpRequest, token: str) -> HttpResponse:
     """Individual invitation and RSVP surface addressed by an opaque token."""
     from templates_manager import registry
@@ -375,6 +378,7 @@ def guest_invitation(request: HttpRequest, token: str) -> HttpResponse:
 
 
 @require_POST
+@rate_limit("rsvp_submit", methods=("POST",))
 def guest_gift_select(request: HttpRequest, token: str, gift_id) -> HttpResponse:
     guest = get_object_or_404(Guest, invitation_token=token, is_active=True)
     wedding = guest.wedding

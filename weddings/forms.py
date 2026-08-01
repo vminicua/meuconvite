@@ -3,16 +3,24 @@ from __future__ import annotations
 import string
 
 from django import forms
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from core.forms import BootstrapForm, BootstrapModelForm
 from core.schema import add_schema_fields, collect_schema_values
-from core.utils import unique_slugify
+from core.utils import strip_accents, unique_slugify
 from templates_manager import registry
 
-from .models import DEFAULT_SMS_INVITATION_MESSAGE, Wedding, WeddingMember, WeddingRole
+from .models import (
+    DEFAULT_SMS_INVITATION_MESSAGE,
+    SMS_MAX_LENGTH,
+    SMS_TEMPLATE_MAX_LENGTH,
+    Wedding,
+    WeddingMember,
+    WeddingRole,
+)
 
 User = get_user_model()
 
@@ -89,8 +97,13 @@ class WeddingSettingsForm(BootstrapModelForm):
     sms_invitation_message = forms.CharField(
         label=_("Mensagem do convite por SMS"),
         required=False,
-        widget=forms.Textarea(attrs={"rows": 3}),
-        help_text=_("Pode usar {nome}, {evento} e {link}."),
+        max_length=SMS_TEMPLATE_MAX_LENGTH,
+        widget=forms.Textarea(attrs={
+            "rows": 3,
+            "maxlength": SMS_TEMPLATE_MAX_LENGTH,
+            "data-sms-ascii": "",
+        }),
+        help_text=_("Sem acentos ou emojis. Use {nome}, {evento} e {link}."),
     )
 
     def __init__(self, *args, **kwargs) -> None:
@@ -194,6 +207,10 @@ class WeddingSettingsForm(BootstrapModelForm):
 
     def clean_sms_invitation_message(self) -> str:
         value = (self.cleaned_data.get("sms_invitation_message") or "").strip() or DEFAULT_SMS_INVITATION_MESSAGE
+        if not value.isascii() or any(ord(char) < 32 and char not in "\r\n\t" for char in value):
+            raise forms.ValidationError(
+                _("Use apenas letras sem acentos, numeros e pontuacao simples. Emojis nao sao permitidos.")
+            )
         allowed = {"nome", "evento", "link"}
         try:
             fields = {
@@ -211,6 +228,14 @@ class WeddingSettingsForm(BootstrapModelForm):
             )
         if "link" not in fields:
             raise forms.ValidationError(_("Inclua {link} para enviar a ligação individual."))
+        preview_url = f"{settings.SITE_BASE_URL.rstrip('/')}/convite/ABCD/"
+        preview_event = strip_accents(self.instance.display_names)[:40]
+        preview = value.format(nome="Convidado", evento=preview_event, link=preview_url)
+        if len(preview) > SMS_MAX_LENGTH:
+            raise forms.ValidationError(
+                _("A mensagem completa teria %(length)s caracteres. Reduza para no maximo %(limit)s.")
+                % {"length": len(preview), "limit": SMS_MAX_LENGTH}
+            )
         return value
 
     def clean(self):

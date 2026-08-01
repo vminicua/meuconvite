@@ -177,7 +177,7 @@ class GuestViewTests(TestCase):
         client_factory.assert_not_called()
         self.assertFalse(InvitationDelivery.objects.exists())
 
-    def test_sms_invitation_uses_the_beautiful_editable_message(self):
+    def test_sms_invitation_is_ascii_and_one_segment(self):
         from guests.messaging import invitation_message
 
         guest = Guest.objects.create(
@@ -189,10 +189,33 @@ class GuestViewTests(TestCase):
             "sms",
         )
 
-        self.assertIn("Ercília", body)
-        self.assertIn("muita alegria", body)
-        self.assertIn("💌", body)
+        self.assertIn("Ercilia", body)
+        self.assertIn("Preparamos este convite", body)
         self.assertIn("https://meuconvite.co.mz/convite/abc123/", body)
+        self.assertTrue(body.isascii())
+        self.assertLessEqual(len(body), 160)
+
+    def test_new_guest_has_four_character_invitation_code(self):
+        first = Guest.objects.create(wedding=self.wedding, full_name="Ana")
+        second = Guest.objects.create(wedding=self.wedding, full_name="Bento")
+
+        self.assertEqual(len(first.invitation_token), 4)
+        self.assertEqual(len(second.invitation_token), 4)
+        self.assertNotEqual(first.invitation_token, second.invitation_token)
+
+    def test_sms_settings_reject_unicode(self):
+        from weddings.forms import WeddingSettingsForm
+
+        data = {
+            field.name: getattr(self.wedding, field.name)
+            for field in self.wedding._meta.fields
+            if field.name in WeddingSettingsForm.Meta.fields
+        }
+        data["sms_invitation_message"] = "Olá {nome}: {link}"
+        form = WeddingSettingsForm(data=data, instance=self.wedding)
+
+        self.assertFalse(form.is_valid())
+        self.assertIn("sms_invitation_message", form.errors)
 
     @override_settings(SITE_BASE_URL="https://meuconvite.example", TWILIO_AUTH_TOKEN="secret")
     def test_twilio_status_callback_is_signed_and_updates_delivery(self):

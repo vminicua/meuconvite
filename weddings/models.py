@@ -23,10 +23,11 @@ from core.validators import (
 )
 
 DEFAULT_SMS_INVITATION_MESSAGE = (
-    "Olá {nome}! Somos {evento} e queremos muito celebrar este dia contigo. "
-    "Preparámos um convite especial para ti; abre e confirma a tua presença: {link} "
-    "Com carinho, {evento}."
+    "Ola {nome}! Somos {evento}. Preparamos este convite para ti: {link}"
 )
+
+SMS_TEMPLATE_MAX_LENGTH = 100
+SMS_MAX_LENGTH = 160
 
 
 class WeddingStatus(models.TextChoices):
@@ -166,9 +167,9 @@ class Wedding(BaseModel):
     )
     sms_invitation_message = models.CharField(
         _("mensagem do convite por SMS"),
-        max_length=500,
+        max_length=SMS_TEMPLATE_MAX_LENGTH,
         default=DEFAULT_SMS_INVITATION_MESSAGE,
-        help_text=_("Pode usar {nome}, {evento} e {link}."),
+        help_text=_("Sem acentos ou emojis. Pode usar {nome}, {evento} e {link}."),
     )
     notification_phone_primary = models.CharField(
         _("telefone para notificações"), max_length=20, blank=True,

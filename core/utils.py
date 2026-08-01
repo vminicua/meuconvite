@@ -23,6 +23,11 @@ def generate_short_code(length: int = 8) -> str:
     return "".join(secrets.choice(_SHORT_CODE_ALPHABET) for _ in range(length))
 
 
+def generate_invitation_code() -> str:
+    """Return the compact, URL-safe code used in individual invitations."""
+    return generate_short_code(4)
+
+
 def generate_numeric_code(length: int = 6) -> str:
     return "".join(secrets.choice(string.digits) for _ in range(length))
 

@@ -32,6 +32,14 @@
     const sms = form.querySelector("[name=sms_invitation_message]");
     const counter = form.querySelector("[data-sms-count]");
     function renderSms() {
+        const cursor = sms.selectionStart;
+        const ascii = sms.value.normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[^\x20-\x7E\n\r\t]/g, "");
+        if (ascii !== sms.value) {
+            sms.value = ascii;
+            sms.setSelectionRange(Math.min(cursor, ascii.length), Math.min(cursor, ascii.length));
+        }
         counter.textContent = sms.value.length;
     }
     if (sms) { sms.addEventListener("input", renderSms); renderSms(); }

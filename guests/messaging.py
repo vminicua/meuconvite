@@ -8,8 +8,15 @@ from urllib.parse import urlencode
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
+from core.utils import strip_accents
 from .models import DeliveryStatus, InvitationChannel, InvitationDelivery
-from weddings.models import DEFAULT_SMS_INVITATION_MESSAGE
+from weddings.models import DEFAULT_SMS_INVITATION_MESSAGE, SMS_MAX_LENGTH
+
+
+def _sms_ascii(value: str, limit: int) -> str:
+    """Transliterate dynamic content and retain printable ASCII only."""
+    value = strip_accents(value or "")
+    return "".join(char for char in value if 32 <= ord(char) <= 126)[:limit]
 
 
 def normalize_phone(value: str) -> str:
@@ -36,16 +43,24 @@ def normalize_phone(value: str) -> str:
 
 def invitation_message(guest, invitation_url: str, channel: str) -> str:
     if channel == InvitationChannel.SMS:
-        first_name = (guest.full_name or "Convidado").split()[0]
+        first_name = _sms_ascii((guest.full_name or "Convidado").split()[0], 20)
         template = guest.wedding.sms_invitation_message or DEFAULT_SMS_INVITATION_MESSAGE
         try:
-            return template.format(
-                nome=first_name[:40],
-                evento=guest.wedding.display_names,
+            body = template.format(
+                nome=first_name,
+                evento=_sms_ascii(guest.wedding.display_names, 40),
                 link=invitation_url,
             )
         except (KeyError, ValueError):
-            return f"Convite para {first_name[:20]}: {invitation_url}"
+            body = f"Convite para {first_name}: {invitation_url}"
+        if not body.isascii():
+            raise ValidationError("A mensagem SMS contem acentos, emojis ou caracteres nao permitidos.")
+        if len(body) > SMS_MAX_LENGTH:
+            raise ValidationError(
+                f"A mensagem SMS tem {len(body)} caracteres. O limite e {SMS_MAX_LENGTH}. "
+                "Reduza a mensagem nos detalhes do evento."
+            )
+        return body
     return (
         f"Olá {guest.full_name}!\n\n"
         f"Somos {guest.wedding.display_names} e queremos muito celebrar este dia contigo.\n\n"
@@ -144,6 +159,7 @@ def notify_couple(*, guest, body: str) -> list[InvitationDelivery]:
     from weddings.models import WeddingRole
 
     wedding = guest.wedding
+    body = _sms_ascii(body, SMS_MAX_LENGTH)
     users = [wedding.owner]
     users.extend(
         member.user
