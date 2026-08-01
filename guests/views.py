@@ -37,9 +37,10 @@ def _invitation_rate_key(request: HttpRequest) -> str:
 def _share_cover_url(request: HttpRequest, wedding, guest=None) -> str:
     """Imagem simples do desenho para anexar, sem o mockup do catálogo."""
     if guest is not None:
-        return request.build_absolute_uri(
+        cover_url = request.build_absolute_uri(
             reverse("guest_invitation_share_image", args=[guest.invitation_token])
         )
+        return f"{cover_url}?v={messaging.whatsapp_cover_version(wedding)}"
     if wedding.cover_image:
         return request.build_absolute_uri(wedding.cover_image.url)
     assets = {
