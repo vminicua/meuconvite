@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}{{ legal_page.title }} — {{ SITE_NAME }}{% endblock %}
+{% block robots %}index,follow{% endblock %}
+{% block meta_description %}{{ legal_page.summary }}{% endblock %}
+
+{% block content %}
+<article class="legal-shell mx-auto">
+    <header class="legal-hero">
+        <span class="legal-eyebrow">{{ legal_page.eyebrow }}</span>
+        <h1>{{ legal_page.title }}</h1>
+        <p>{{ legal_page.summary }}</p>
+        <span class="legal-updated">Actualizado em 1 de Agosto de 2026</span>
+    </header>
+
+    <div class="legal-content">
+        {% if legal_page_key == "contact" %}
+            <a class="legal-contact" href="mailto:{{ SUPPORT_EMAIL }}">
+                <i class="bi bi-envelope" aria-hidden="true"></i>
+                <span><small>Email de apoio</small><strong>{{ SUPPORT_EMAIL }}</strong></span>
+            </a>
+        {% endif %}
+
+        {% for title, paragraphs, items in legal_page.sections %}
+            <section>
+                <h2>{{ title }}</h2>
+                {% for paragraph in paragraphs %}<p>{{ paragraph }}</p>{% endfor %}
+                {% if items %}
+                    <ul>{% for item in items %}<li>{{ item }}</li>{% endfor %}</ul>
+                {% endif %}
+            </section>
+        {% endfor %}
+
+        {% if legal_page_key == "privacy" %}
+            <div class="legal-note">
+                <strong>Contacto de privacidade</strong>
+                <a href="mailto:{{ SUPPORT_EMAIL }}">{{ SUPPORT_EMAIL }}</a>
+            </div>
+        {% endif %}
+    </div>
+</article>
+{% endblock %}

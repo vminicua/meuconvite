@@ -18,7 +18,7 @@ from django.db import transaction
 
 from subscriptions.models import Plan
 
-# O plano gratuito é deliberadamente limitado: 5 convidados e 10 SMS.
+# O plano gratuito é deliberadamente limitado: 5 convidados e sem envios por SMS.
 # Os preços são um ponto de partida e devem ser confirmados na administração.
 PLANS: list[dict] = [
     {
@@ -27,7 +27,7 @@ PLANS: list[dict] = [
         "description": "Para experimentar a plataforma e eventos pequenos.",
         "max_guests": 5,
         "max_events": 1,
-        "max_sms": 10,
+        "max_sms": 0,
         "price_mzn": Decimal("0"),
         "duration_days": 0,
         "templates_limit": 1,

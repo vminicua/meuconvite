@@ -47,6 +47,11 @@
     z-index: 2;
 }
 
+.hero__summary {
+    max-width: 38rem;
+    line-height: 1.55;
+}
+
 .hero__glow {
     position: absolute;
     border-radius: 50%;
@@ -158,12 +163,38 @@
 
 @media (max-width: 575.98px) {
     .hero {
-        min-height: auto;
+        min-height: 29rem;
     }
 
     .hero__banner-image {
-        opacity: .72;
-        object-position: 67% center;
+        opacity: .66;
+        object-position: 70% center;
+    }
+
+    .hero__banner-veil {
+        background: linear-gradient(90deg, rgba(255, 253, 248, .98) 0%, rgba(255, 253, 248, .9) 46%, rgba(255, 253, 248, .25) 100%);
+    }
+
+    .hero__content {
+        padding-top: 2.5rem !important;
+        padding-bottom: 2.5rem !important;
+    }
+
+    .hero__content h1 {
+        max-width: 22rem;
+        font-size: clamp(2rem, 9vw, 2.65rem);
+    }
+
+    .hero__summary {
+        max-width: 21rem;
+        padding: .75rem .85rem;
+        border: 1px solid rgba(255, 255, 255, .7);
+        border-radius: .75rem;
+        background: rgba(255, 253, 248, .78);
+        box-shadow: 0 .5rem 1.5rem rgba(31, 41, 51, .06);
+        font-size: 1.05rem;
+        line-height: 1.45;
+        backdrop-filter: blur(5px);
     }
 }
 

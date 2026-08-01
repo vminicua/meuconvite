@@ -59,6 +59,7 @@ def create_plan(code: str = "gratuito", **extra):
     defaults = {
         "name": "Gratuito",
         "max_guests": 20,
+        "max_sms": 0,
         "price_mzn": 0,
         "duration_days": 0,
         "is_default": True,

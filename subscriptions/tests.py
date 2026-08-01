@@ -43,8 +43,13 @@ class LimitTests(TestCase):
     def test_free_plan_allows_twenty_guests(self) -> None:
         limits = services.limits(self.wedding)
         self.assertEqual(limits.max_guests, 20)
+        self.assertEqual(limits.max_sms, 0)
         self.assertTrue(limits.is_free)
         self.assertFalse(limits.allows_qr_checkin)
+
+    def test_free_plan_cannot_send_sms(self) -> None:
+        with self.assertRaisesMessage(ValidationError, "não inclui envios por SMS"):
+            services.check_can_send_sms(self.wedding)
 
     def test_without_any_plan_the_platform_still_works(self) -> None:
         """Instalação nova, antes de `seed_plans`: cai no limite predefinido."""

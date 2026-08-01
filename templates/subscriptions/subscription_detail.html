@@ -46,7 +46,7 @@
             </div>
         </div>
         <div class="subscription-usage__item">
-            <div><span>Convites por SMS</span><strong>{{ sms_used }} / {{ limits.max_sms }}</strong></div>
+            <div><span>Convites por SMS</span><strong>{% if limits.is_free %}Não incluído{% else %}{{ sms_used }} / {{ limits.max_sms }}{% endif %}</strong></div>
             <div class="progress" role="progressbar" aria-label="SMS usados">
                 <div class="progress-bar {% if sms_used >= limits.max_sms %}bg-danger{% endif %}" style="width:{{ sms_usage_percent }}%"></div>
             </div>
@@ -91,7 +91,7 @@
 
             <div class="subscription-plan__limits">
                 <div><i class="bi bi-people"></i><strong>{{ plan.max_guests }}</strong><span>convidados</span></div>
-                <div><i class="bi bi-chat-dots"></i><strong>{{ plan.max_sms|intcomma }}</strong><span>SMS</span></div>
+                <div><i class="bi bi-chat-dots"></i><strong>{% if plan.is_free %}Sem{% else %}{{ plan.max_sms|intcomma }}{% endif %}</strong><span>SMS</span></div>
             </div>
 
             <ul class="subscription-plan__features">

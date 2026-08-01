@@ -31,7 +31,7 @@ from .models import (
 # Usado quando ainda não existe nenhum plano na base de dados (instalação
 # nova, antes de correr `seed_plans`): a plataforma continua utilizável.
 FALLBACK_GUEST_LIMIT = 5
-FALLBACK_SMS_LIMIT = 2
+FALLBACK_SMS_LIMIT = 0
 
 
 @dataclass(frozen=True)
@@ -131,7 +131,7 @@ def limits(wedding) -> Limits:
             plan_name=fallback.name,
             max_guests=fallback.max_guests,
             max_events=fallback.max_events,
-            max_sms=fallback.max_sms,
+            max_sms=0 if fallback.is_free else fallback.max_sms,
             allows_qr_checkin=fallback.allows_qr_checkin,
             allows_seating=fallback.allows_seating,
             allows_team=fallback.allows_team,
@@ -149,7 +149,9 @@ def limits(wedding) -> Limits:
         # O que foi comprado manda, mesmo que o plano mude depois.
         max_guests=subscription.guest_allowance or plan.max_guests,
         max_events=plan.max_events,
-        max_sms=subscription.sms_allowance,
+        # O plano gratuito nunca envia SMS, mesmo que uma subscrição antiga
+        # ainda guarde uma quota anterior no respectivo snapshot.
+        max_sms=0 if plan.is_free else subscription.sms_allowance,
         allows_qr_checkin=plan.allows_qr_checkin,
         allows_seating=plan.allows_seating,
         allows_team=plan.allows_team,
@@ -218,6 +220,13 @@ def sms_count(wedding) -> int:
 def check_can_send_sms(wedding) -> None:
     """Impede envios quando a quota de SMS do pacote foi atingida."""
     allowed = limits(wedding)
+    if allowed.is_free or allowed.max_sms <= 0:
+        raise ValidationError(
+            _(
+                "O pacote gratuito não inclui envios por SMS. "
+                "Subscreva um pacote pago para utilizar este canal."
+            )
+        )
     if sms_count(wedding) >= allowed.max_sms:
         raise ValidationError(
             _(

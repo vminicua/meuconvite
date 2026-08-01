@@ -29,6 +29,23 @@ class PublicPageTests(TestCase):
         self.assertNotContains(response, ">Começar agora<")
         self.assertNotContains(response, ">Já tenho conta<")
         self.assertNotContains(response, "<svg")
+        self.assertContains(response, "Organize cada momento da celebração")
+        self.assertContains(response, reverse("core:privacy"))
+        self.assertContains(response, reverse("core:terms"))
+
+    def test_public_legal_pages_render(self) -> None:
+        pages = {
+            "privacy": "Política de privacidade",
+            "terms": "Termos e condições",
+            "cookies": "Política de cookies",
+            "security": "Segurança",
+            "contact": "Contacto e apoio",
+        }
+        for name, heading in pages.items():
+            with self.subTest(name=name):
+                response = self.client.get(reverse(f"core:{name}"))
+                self.assertEqual(response.status_code, 200)
+                self.assertContains(response, heading)
 
     def test_home_shows_templates_and_selection_requests_login(self) -> None:
         from templates_manager.models import InvitationTemplate
