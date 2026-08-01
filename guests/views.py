@@ -406,9 +406,13 @@ def guest_invitation(request: HttpRequest, token: str) -> HttpResponse:
     return render(request, "invitations/preview.html", context)
 
 
-@rate_limit("invitation_view", methods=("GET",))
 def guest_invitation_share_image(request: HttpRequest, token: str) -> HttpResponse:
-    """JPEG Open Graph estável para WhatsApp e outras redes sociais."""
+    """JPEG Open Graph estável para WhatsApp e outras redes sociais.
+
+    Este recurso não usa o limite por IP da página do convite: os crawlers
+    sociais partilham poucos endereços IP e precisam de pedir a página e a
+    imagem em sequência para construir a pré-visualização.
+    """
     from io import BytesIO
 
     from PIL import Image, ImageOps
