@@ -46,12 +46,6 @@
         <svg class="inv-hero__corner inv-hero__corner--tl" viewBox="0 0 120 120" aria-hidden="true"><use href="#inv-corner"/></svg>
         <svg class="inv-hero__corner inv-hero__corner--br" viewBox="0 0 120 120" aria-hidden="true"><use href="#inv-corner"/></svg>
 
-        {% if wedding.cover_image %}
-            <div class="inv-hero__photo">
-                <img src="{{ wedding.cover_image.url }}" alt="">
-            </div>
-        {% endif %}
-
         <p class="inv-hero__eyebrow">{{ invitation_eyebrow }}</p>
         <h1 class="inv-hero__names">
             {{ wedding.primary_short_name }}

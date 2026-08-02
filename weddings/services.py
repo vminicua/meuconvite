@@ -10,7 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from django.core.exceptions import PermissionDenied, ValidationError
-from django.db import transaction
+from django.db import models, transaction
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
@@ -140,6 +140,13 @@ def update_wedding(*, wedding: Wedding, data: dict, actor, request=None) -> Wedd
     """Apply validated changes to a wedding, recording the diff."""
     old_data = model_to_dict(wedding)
     for field, value in data.items():
+        # ClearableFileInput devolve False quando o utilizador marca
+        # "limpar". ModelForm.save() converte esse valor numa string vazia,
+        # mas este serviço aplica os dados manualmente para preservar a
+        # auditoria. Faça aqui a mesma normalização para os ficheiros.
+        model_field = wedding._meta.get_field(field)
+        if value is False and isinstance(model_field, models.FileField):
+            value = ""
         setattr(wedding, field, value)
     wedding.full_clean(exclude=["public_token"])
     wedding.save()

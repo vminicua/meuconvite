@@ -30,12 +30,6 @@
         <svg class="inv-hero__leaf inv-hero__leaf--left" viewBox="0 0 40 96" aria-hidden="true"><use href="#inv-leaf"/></svg>
         <svg class="inv-hero__leaf inv-hero__leaf--right" viewBox="0 0 40 96" aria-hidden="true"><use href="#inv-leaf"/></svg>
 
-        {% if wedding.cover_image %}
-            <div class="inv-hero__photo inv-hero__photo--round">
-                <img src="{{ wedding.cover_image.url }}" alt="">
-            </div>
-        {% endif %}
-
         <p class="inv-hero__eyebrow">{{ invitation_eyebrow }}</p>
         <h1 class="inv-hero__names">
             {{ wedding.primary_short_name }}

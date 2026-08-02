@@ -222,6 +222,33 @@ class InvitationPreviewTests(TestCase):
         self.assertNotContains(response, "data-sealed-intro")
         self.assertContains(response, "burgundy-wax-seal-v1.png")
 
+    def test_custom_cover_is_not_repeated_inside_the_invitation(self) -> None:
+        self.wedding.cover_image.save(
+            "personalizada.png",
+            SimpleUploadedFile(
+                "personalizada.png",
+                b"custom-cover-test",
+                content_type="image/png",
+            ),
+            save=True,
+        )
+        preview_urls = [
+            reverse("weddings:invitation_preview", args=[self.wedding.pk]),
+            reverse(
+                "weddings:invitation_preview_template",
+                args=[self.wedding.pk, "capulana"],
+            ),
+            reverse(
+                "weddings:invitation_preview_template",
+                args=[self.wedding.pk, "envelope-botanico"],
+            ),
+        ]
+        for preview_url in preview_urls:
+            with self.subTest(url=preview_url):
+                response = self.client.get(preview_url)
+                self.assertEqual(response.status_code, 200)
+                self.assertNotContains(response, "inv-hero__photo")
+
     def test_classic_template_respects_its_cover_setting(self) -> None:
         response = self.client.get(
             reverse(

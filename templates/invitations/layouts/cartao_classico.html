@@ -57,12 +57,6 @@
 
 <main class="inv-main" id="inv-main" {% if template.has_cover %}hidden{% endif %}>
     <header class="inv-hero">
-        {% if wedding.cover_image %}
-            <div class="inv-hero__photo">
-                <img src="{{ wedding.cover_image.url }}" alt="">
-            </div>
-        {% endif %}
-
         <p class="inv-hero__eyebrow">{{ invitation_eyebrow }}</p>
         <h1 class="inv-hero__names">
             {{ wedding.primary_short_name }}

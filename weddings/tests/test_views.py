@@ -266,6 +266,36 @@ class DashboardViewTests(TestCase):
         self.assertContains(preview, "O nosso grande dia começa aqui")
         self.assertContains(preview, "É com muita alegria que queremos celebrar consigo.")
 
+    def test_returning_to_the_original_cover_clears_the_uploaded_file(self) -> None:
+        self.wedding.cover_image.save(
+            "personalizada.png",
+            SimpleUploadedFile(
+                "personalizada.png",
+                base64.b64decode(
+                    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII="
+                ),
+                content_type="image/png",
+            ),
+            save=True,
+        )
+        url = reverse("weddings:detail", args=[self.wedding.pk])
+        response = self.client.post(url, {
+            "primary_name": self.wedding.primary_name,
+            "secondary_name": self.wedding.secondary_name,
+            "primary_short_name": self.wedding.primary_short_name,
+            "secondary_short_name": self.wedding.secondary_short_name,
+            "main_date": self.wedding.main_date.isoformat(),
+            "city": self.wedding.city,
+            "country": self.wedding.country,
+            "slug": self.wedding.slug,
+            "cover_message": self.wedding.cover_message,
+            "invitation_message": self.wedding.invitation_message,
+            "cover_image-clear": "on",
+        })
+        self.assertRedirects(response, url)
+        self.wedding.refresh_from_db()
+        self.assertFalse(self.wedding.cover_image)
+
     def test_invitation_is_the_first_workspace_tab(self) -> None:
         response = self.client.get(reverse("weddings:preview", args=[self.wedding.pk]))
         self.assertEqual(response.status_code, 200)
