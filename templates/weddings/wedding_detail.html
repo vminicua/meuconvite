@@ -15,7 +15,7 @@
 {% csrf_token %}
 {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
 <div class="row g-4 align-items-start">
-    <div class="col-xl-8">
+    <div class="col-12">
         <section class="details-panel details-cover-panel">
             <div class="details-panel__heading"><span class="details-panel__number">01</span><div><h3>Capa do convite</h3><p>A primeira imagem que os convidados vão ver.</p></div></div>
             <div class="cover-studio cover-studio--phone">
@@ -47,32 +47,38 @@
         </section>
 
         <section class="details-panel">
-            <div class="details-panel__heading"><span class="details-panel__number">02</span><div><h3>Informação principal</h3><p>Nomes, data e endereço público do evento.</p></div></div>
+            <div class="details-panel__heading"><span class="details-panel__number">02</span><div><h3>Informação principal</h3><p>Os nomes completos e a data principal do evento.</p></div></div>
             <div class="row g-3">{% for field in form.details_identity_fields %}{% include "weddings/_detail_field.html" %}{% endfor %}</div>
         </section>
 
         <section class="details-panel">
-            <div class="details-panel__heading"><span class="details-panel__number">03</span><div><h3>Palavras que dão personalidade</h3><p>Textos apresentados na capa e dentro do convite.</p></div></div>
-            <div class="row g-3">{% for field in form.details_content_fields %}{% include "weddings/_detail_field.html" %}{% endfor %}{% for field in form.details_extra_fields %}{% include "weddings/_detail_field.html" %}{% endfor %}</div>
+            <div class="details-panel__heading"><span class="details-panel__number">03</span><div><h3>Palavras que dão personalidade</h3><p>Todas as mensagens da capa, do convite e das partilhas.</p></div></div>
+            <div class="row g-4 personality-message-grid">
+                <div class="col-lg-5 personality-message-grid__channels">
+                    <div class="personality-message-box" {% if not capabilities.allows_sms %}data-upgrade-modal data-upgrade-feature="Convites por SMS"{% endif %}>
+                        <label class="form-label" for="{{ form.sms_invitation_message.id_for_label }}">{{ form.sms_invitation_message.label }}{% if not capabilities.allows_sms %} <i class="bi bi-lock-fill text-primary"></i>{% endif %}</label>
+                        {{ form.sms_invitation_message }}
+                        <div class="d-flex justify-content-between gap-2"><div class="form-text">Sem acentos ou emojis. Use {nome}, {evento} e {link}.</div><div class="form-text text-nowrap"><span data-sms-count>0</span>/100</div></div>
+                        {% for error in form.sms_invitation_message.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="personality-message-box">
+                        <label class="form-label" for="{{ form.whatsapp_invitation_message.id_for_label }}">{{ form.whatsapp_invitation_message.label }}</label>
+                        {{ form.whatsapp_invitation_message }}
+                        {% if form.whatsapp_invitation_message.help_text %}<div class="form-text">{{ form.whatsapp_invitation_message.help_text }}</div>{% endif %}
+                        {% for error in form.whatsapp_invitation_message.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                    </div>
+                </div>
+                <div class="col-lg-7 personality-message-grid__invitation"><div class="row g-3">{% for field in form.details_content_fields %}{% include "weddings/_detail_field.html" %}{% endfor %}{% for field in form.details_extra_fields %}{% include "weddings/_detail_field.html" %}{% endfor %}</div></div>
+            </div>
         </section>
 
         <section class="details-panel">
             <div class="details-panel__heading"><span class="details-panel__number">04</span><div><h3>Confirmações e visibilidade</h3><p>Defina o prazo e o que os convidados podem consultar.</p></div></div>
             <div class="row g-3">{% for field in form.details_planning_fields %}{% include "weddings/_detail_field.html" %}{% endfor %}</div>
         </section>
-    </div>
-
-    <div class="col-xl-4 details-sticky-column">
-        <section class="details-panel sms-studio sms-studio--simple" {% if not capabilities.allows_sms %}data-upgrade-modal data-upgrade-feature="Convites por SMS" data-upgrade-url="{% url 'subscriptions:detail' wedding.pk %}"{% endif %}>
-            <div class="details-panel__heading"><span class="details-panel__number"><i class="bi bi-chat-heart"></i></span><div><h3>Mensagem do convite</h3><p>Escreva como se fossem vocês a falar directamente com o convidado.</p></div></div>
-            <label class="form-label mt-4" for="{{ form.sms_invitation_message.id_for_label }}">{{ form.sms_invitation_message.label }}{% if not capabilities.allows_sms %} <i class="bi bi-lock-fill text-primary"></i>{% endif %}</label>{{ form.sms_invitation_message }}
-            <div class="d-flex justify-content-between gap-2"><div class="form-text">Sem acentos ou emojis. Use {nome}, {evento} e {link}. O SMS final nunca pode ultrapassar 160 caracteres.</div><div class="form-text text-nowrap"><span data-sms-count>0</span>/100</div></div>
-            {% for error in form.sms_invitation_message.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-        </section>
-
-        {% if capabilities.can_manage_events %}<button class="btn btn-primary btn-lg w-100 details-submit" type="submit"><i class="bi bi-check2 me-1"></i>Guardar alterações</button>{% endif %}
-        {% if capabilities.is_owner %}<form method="post" action="{% url 'weddings:archive' wedding.pk %}" data-confirm="Arquivar este evento? Poderá continuar a consultar os dados.">{% csrf_token %}<button class="btn btn-link text-danger w-100 mt-2" type="submit">Arquivar evento</button></form>{% endif %}
+        {% if capabilities.can_manage_events %}<div class="d-flex justify-content-end"><button class="btn btn-primary btn-lg details-submit" type="submit"><i class="bi bi-check2 me-1"></i>Guardar alterações</button></div>{% endif %}
     </div>
 </div>
 </form>
+{% if capabilities.is_owner %}<form method="post" action="{% url 'weddings:archive' wedding.pk %}" class="text-end" data-confirm="Arquivar este evento? Poderá continuar a consultar os dados.">{% csrf_token %}<button class="btn btn-link text-danger mt-2" type="submit">Arquivar evento</button></form>{% endif %}
 {% endblock %}

@@ -53,7 +53,7 @@ class WeddingGalleryPhotoAdmin(admin.ModelAdmin):
         }),
         (_("Celebração"), {"fields": ("main_date", "city", "country", "timezone", "rsvp_deadline")}),
         (_("Endereços"), {"fields": ("slug", "public_token")}),
-        (_("Conteúdo"), {"fields": ("cover_image", "cover_message", "invitation_message", "welcome_message", "story", "hashtag")}),
+        (_("Conteúdo"), {"fields": ("cover_image", "cover_message", "invitation_message", "sms_invitation_message", "whatsapp_invitation_message", "welcome_message", "story", "hashtag")}),
         (_("Aspecto"), {
             "fields": (
                 "selected_template",

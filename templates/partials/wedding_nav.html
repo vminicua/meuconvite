@@ -8,7 +8,6 @@
             <h1 class="h4 mb-1">{{ wedding.display_names }}</h1>
             <div class="text-body-secondary small">
                 <i class="bi bi-calendar-event me-1"></i>{{ wedding.main_date|date:"d/m/Y" }}
-                {% if wedding.city %}<span class="mx-1">·</span><i class="bi bi-geo-alt me-1"></i>{{ wedding.city }}{% endif %}
                 {% if wedding.days_until >= 0 %}<span class="mx-1">·</span>faltam {{ wedding.days_until }} dia{{ wedding.days_until|pluralize }}{% endif %}
             </div>
         </div>

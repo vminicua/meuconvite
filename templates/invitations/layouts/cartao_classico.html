@@ -72,8 +72,6 @@
         <p class="inv-hero__text">{% if wedding.invitation_message %}{{ wedding.invitation_message|linebreaksbr }}{% else %}{{ wedding.full_names }} {{ invitation_greeting }}{% endif %}</p>
 
         <p class="inv-hero__date">{{ wedding.main_date|date:"d \d\e F \d\e Y" }}</p>
-        {% if wedding.city %}<p class="inv-hero__time">{{ wedding.city }}</p>{% endif %}
-
         {% include "invitations/_countdown.html" %}
 
         {% if seats %}

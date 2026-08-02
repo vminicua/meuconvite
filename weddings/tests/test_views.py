@@ -163,7 +163,7 @@ class EventCreationViewTests(TestCase):
         )
         self.assertRedirects(response, settings_url)
         wedding.refresh_from_db()
-        self.assertEqual(wedding.city, "Av. Julius Nyerere, Maputo")
+        self.assertEqual(wedding.city, "")
         self.assertEqual(wedding.extra_data.get("idade"), "40")
 
     def test_dress_code_and_gift_list_are_edited_after_creation(self) -> None:
@@ -238,8 +238,15 @@ class DashboardViewTests(TestCase):
         self.assertContains(response, "Música do convite")
         self.assertContains(response, 'id="id_invitation_music"', html=False)
         self.assertContains(response, 'id="id_show_music"', html=False)
+        self.assertContains(response, 'id="id_whatsapp_invitation_message"', html=False)
         self.assertContains(response, "Mensagem da capa")
         self.assertContains(response, "Mensagem principal do convite")
+        self.assertNotContains(response, 'id="id_primary_short_name"', html=False)
+        self.assertNotContains(response, 'id="id_secondary_short_name"', html=False)
+        self.assertNotContains(response, 'id="id_city"', html=False)
+        self.assertNotContains(response, 'id="id_slug"', html=False)
+        self.assertNotContains(response, 'id="id_hashtag"', html=False)
+        self.assertNotContains(response, '<h3>Mensagem do convite</h3>', html=False)
 
         response = self.client.post(url, {
             "primary_name": self.wedding.primary_name,
@@ -265,6 +272,23 @@ class DashboardViewTests(TestCase):
         preview = self.client.get(reverse("weddings:invitation_preview", args=[self.wedding.pk]))
         self.assertContains(preview, "O nosso grande dia começa aqui")
         self.assertContains(preview, "É com muita alegria que queremos celebrar consigo.")
+
+    def test_short_names_are_updated_automatically_from_complete_names(self) -> None:
+        url = reverse("weddings:detail", args=[self.wedding.pk])
+        response = self.client.post(url, {
+            "primary_name": "Jessica Elisa Mate",
+            "secondary_name": "Antonio Manuel Cossa",
+            "main_date": self.wedding.main_date.isoformat(),
+            "country": self.wedding.country,
+            "cover_message": self.wedding.cover_message,
+            "invitation_message": self.wedding.invitation_message,
+            "sms_invitation_message": self.wedding.sms_invitation_message,
+            "whatsapp_invitation_message": self.wedding.whatsapp_invitation_message,
+        })
+        self.assertRedirects(response, url)
+        self.wedding.refresh_from_db()
+        self.assertEqual(self.wedding.primary_short_name, "Jessica")
+        self.assertEqual(self.wedding.secondary_short_name, "Antonio")
 
     def test_returning_to_the_original_cover_clears_the_uploaded_file(self) -> None:
         self.wedding.cover_image.save(

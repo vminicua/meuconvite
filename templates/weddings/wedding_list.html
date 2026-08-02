@@ -50,7 +50,6 @@
                         </div>
                         <p class="text-body-secondary small mb-3">
                             <i class="bi bi-calendar-event me-1"></i>{{ wedding.main_date|date:"d/m/Y" }}
-                            {% if wedding.city %}<span class="mx-1">·</span>{{ wedding.city }}{% endif %}
                         </p>
                         <div class="d-flex gap-3 small text-body-secondary mb-3">
                             <span><i class="bi bi-calendar2-week me-1"></i>{{ wedding.event_count }} momento{{ wedding.event_count|pluralize }}</span>

@@ -30,6 +30,14 @@ DEFAULT_SMS_INVITATION_MESSAGE = (
     "{evento}"
 )
 
+DEFAULT_WHATSAPP_INVITATION_MESSAGE = (
+    "Olá, {nome}!\n\n"
+    "É com muita alegria que te convidamos a celebrar connosco este momento especial.\n\n"
+    "Preparámos um convite especial para ti. Abre o link abaixo e confirma a tua presença:\n\n"
+    "{link}\n\n"
+    "Com carinho,\n{evento}"
+)
+
 SMS_TEMPLATE_MAX_LENGTH = 100
 SMS_MAX_LENGTH = 160
 
@@ -174,6 +182,12 @@ class Wedding(BaseModel):
         max_length=SMS_TEMPLATE_MAX_LENGTH,
         default=DEFAULT_SMS_INVITATION_MESSAGE,
         help_text=_("Sem acentos ou emojis. Pode usar {nome}, {evento} e {link}."),
+    )
+    whatsapp_invitation_message = models.TextField(
+        _("mensagem do convite por WhatsApp"),
+        max_length=1000,
+        default=DEFAULT_WHATSAPP_INVITATION_MESSAGE,
+        help_text=_("Pode usar {nome}, {evento} e {link}."),
     )
     notification_phone_primary = models.CharField(
         _("telefone para notificações"), max_length=20, blank=True,

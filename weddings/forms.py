@@ -11,12 +11,13 @@ from django.utils.translation import gettext_lazy as _
 
 from core.forms import BootstrapForm, BootstrapModelForm
 from core.schema import add_schema_fields, collect_schema_values
-from core.utils import strip_accents, unique_slugify
+from core.utils import strip_accents
 from core.validators import validate_image_upload
 from templates_manager import registry
 
 from .models import (
     DEFAULT_SMS_INVITATION_MESSAGE,
+    DEFAULT_WHATSAPP_INVITATION_MESSAGE,
     SMS_MAX_LENGTH,
     SMS_TEMPLATE_MAX_LENGTH,
     Wedding,
@@ -108,13 +109,16 @@ class WeddingSettingsForm(BootstrapModelForm):
         }),
         help_text=_("Sem acentos ou emojis. Use {nome}, {evento} e {link}."),
     )
+    whatsapp_invitation_message = forms.CharField(
+        label=_("Mensagem do convite por WhatsApp"),
+        required=False,
+        max_length=1000,
+        widget=forms.Textarea(attrs={"rows": 7, "maxlength": 1000}),
+        help_text=_("Pode usar {nome}, {evento} e {link}."),
+    )
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.fields["city"].label = _("Endereço")
-        self.fields["city"].help_text = _(
-            "Opcional. Pode indicar a cidade, bairro ou endereço principal do evento."
-        )
         category = getattr(self.instance, "category", None)
         if not self.is_bound and self.instance and self.instance.pk:
             names = self.instance.display_names
@@ -126,7 +130,6 @@ class WeddingSettingsForm(BootstrapModelForm):
                 "welcome_message": _("Sejam muito bem-vindos à celebração de %(names)s.") % {
                     "names": names,
                 },
-                "hashtag": "#" + "".join(names.replace("&", " ").split()),
             }
             for field_name, value in suggestions.items():
                 if field_name in self.fields and not getattr(self.instance, field_name, ""):
@@ -143,17 +146,10 @@ class WeddingSettingsForm(BootstrapModelForm):
             return
 
         self.fields["primary_name"].label = category.primary_label
-        self.fields["primary_short_name"].label = _("%(label)s (nome curto)") % {
-            "label": category.primary_label
-        }
         if category.uses_two_names:
             self.fields["secondary_name"].label = category.secondary_label
-            self.fields["secondary_short_name"].label = _("%(label)s (nome curto)") % {
-                "label": category.secondary_label
-            }
         else:
             del self.fields["secondary_name"]
-            del self.fields["secondary_short_name"]
 
         add_schema_fields(self, category.extra_fields, self.instance.extra_data or {})
 
@@ -161,8 +157,7 @@ class WeddingSettingsForm(BootstrapModelForm):
             return [self[name] for name in names if name in self.fields]
 
         self.details_identity_fields = bound([
-            "primary_name", "secondary_name", "primary_short_name", "secondary_short_name",
-            "main_date", "city", "country", "slug", "hashtag",
+            "primary_name", "secondary_name", "main_date", "country",
         ])
         self.details_content_fields = bound([
             "cover_message", "invitation_message", "welcome_message", "story",
@@ -186,19 +181,15 @@ class WeddingSettingsForm(BootstrapModelForm):
         fields = [
             "primary_name",
             "secondary_name",
-            "primary_short_name",
-            "secondary_short_name",
             "main_date",
-            "city",
             "country",
-            "slug",
-            "hashtag",
             "cover_image",
             "invitation_music",
             "show_music",
             "cover_message",
             "invitation_message",
             "sms_invitation_message",
+            "whatsapp_invitation_message",
             "welcome_message",
             "story",
             "rsvp_deadline",
@@ -210,6 +201,7 @@ class WeddingSettingsForm(BootstrapModelForm):
             "rsvp_deadline": forms.DateInput(),
             "invitation_message": forms.Textarea(attrs={"rows": 3}),
             "sms_invitation_message": forms.Textarea(attrs={"rows": 3}),
+            "whatsapp_invitation_message": forms.Textarea(attrs={"rows": 7}),
             "welcome_message": forms.Textarea(attrs={"rows": 3}),
             "story": forms.Textarea(attrs={"rows": 6}),
             "cover_image": forms.ClearableFileInput(attrs={
@@ -221,18 +213,8 @@ class WeddingSettingsForm(BootstrapModelForm):
             }),
         }
         help_texts = {
-            "slug": _("Endereço público: meuconvite.co.mz/<endereço>/"),
             "rsvp_deadline": _("Depois desta data deixam de ser aceites confirmações."),
         }
-
-    def clean_slug(self) -> str:
-        slug = (self.cleaned_data.get("slug") or "").strip().lower()
-        if not slug:
-            return unique_slugify(
-                self.instance,
-                f"{self.instance.primary_short_name}-e-{self.instance.secondary_short_name}",
-            )
-        return slug
 
     def clean_sms_invitation_message(self) -> str:
         value = (self.cleaned_data.get("sms_invitation_message") or "").strip() or DEFAULT_SMS_INVITATION_MESSAGE
@@ -267,8 +249,36 @@ class WeddingSettingsForm(BootstrapModelForm):
             )
         return value
 
+    def clean_whatsapp_invitation_message(self) -> str:
+        value = (
+            self.cleaned_data.get("whatsapp_invitation_message") or ""
+        ).strip() or DEFAULT_WHATSAPP_INVITATION_MESSAGE
+        allowed = {"nome", "evento", "link"}
+        try:
+            fields = {
+                field_name
+                for _literal, field_name, _spec, _conversion in string.Formatter().parse(value)
+                if field_name
+            }
+        except ValueError as exc:
+            raise forms.ValidationError(_("A mensagem contém chavetas inválidas.")) from exc
+        unknown = fields - allowed
+        if unknown:
+            raise forms.ValidationError(
+                _("Placeholder desconhecido: %(fields)s. Use apenas {nome}, {evento} e {link}.")
+                % {"fields": ", ".join(sorted(unknown))}
+            )
+        if "link" not in fields:
+            raise forms.ValidationError(_("Inclua {link} para enviar a ligação individual."))
+        return value
+
     def clean(self):
         cleaned = super().clean()
+        if cleaned.get("primary_name"):
+            cleaned["primary_short_name"] = cleaned["primary_name"].split()[0][:60]
+        if "secondary_name" in self.fields:
+            secondary_name = cleaned.get("secondary_name") or ""
+            cleaned["secondary_short_name"] = secondary_name.split()[0][:60] if secondary_name else ""
         deadline = cleaned.get("rsvp_deadline")
         main_date = cleaned.get("main_date")
         if deadline and main_date and deadline > main_date:

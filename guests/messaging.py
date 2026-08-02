@@ -11,7 +11,11 @@ from django.utils import timezone
 
 from core.utils import strip_accents
 from .models import DeliveryStatus, InvitationChannel, InvitationDelivery
-from weddings.models import DEFAULT_SMS_INVITATION_MESSAGE, SMS_MAX_LENGTH
+from weddings.models import (
+    DEFAULT_SMS_INVITATION_MESSAGE,
+    DEFAULT_WHATSAPP_INVITATION_MESSAGE,
+    SMS_MAX_LENGTH,
+)
 
 
 WHATSAPP_PREVIEW_REVISION = "2"
@@ -78,16 +82,22 @@ def invitation_message(guest, invitation_url: str, channel: str) -> str:
     separator = "&" if "?" in invitation_url else "?"
     whatsapp_url = f"{invitation_url}{separator}v={cover_version}"
     event_names = re.sub(r"\bAntonio\b", "António", guest.wedding.display_names)
-    category_code = getattr(getattr(guest.wedding, "category", None), "code", "")
-    occasion = "o nosso casamento" if category_code in {"", "casamento"} else "este momento especial"
-    return (
-        f"Olá, {guest.full_name}!\n\n"
-        f"É com muita alegria que te convidamos a celebrar connosco {occasion}.\n\n"
-        "Preparámos um convite especial para ti. Abre o link abaixo e confirma a tua "
-        "presença:\n\n"
-        f"{whatsapp_url}\n\n"
-        f"Com carinho,\n{event_names}"
+    template = (
+        guest.wedding.whatsapp_invitation_message
+        or DEFAULT_WHATSAPP_INVITATION_MESSAGE
     )
+    try:
+        return template.format(
+            nome=guest.full_name,
+            evento=event_names,
+            link=whatsapp_url,
+        )
+    except (KeyError, ValueError):
+        return DEFAULT_WHATSAPP_INVITATION_MESSAGE.format(
+            nome=guest.full_name,
+            evento=event_names,
+            link=whatsapp_url,
+        )
 
 
 def whatsapp_invitation_url(*, guest, invitation_url: str) -> str:

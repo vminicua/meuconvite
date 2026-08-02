@@ -283,6 +283,25 @@ class GuestViewTests(TestCase):
         self.assertTrue(body.isascii())
         self.assertLessEqual(len(body), 160)
 
+    def test_whatsapp_invitation_uses_the_message_defined_by_the_couple(self):
+        from guests.messaging import invitation_message
+
+        self.wedding.whatsapp_invitation_message = (
+            "Olá {nome}! Celebre {evento} connosco. Convite: {link}"
+        )
+        self.wedding.save(update_fields=["whatsapp_invitation_message"])
+        guest = Guest.objects.create(
+            wedding=self.wedding, full_name="Ana Mabunda", phone="840297715"
+        )
+        body = invitation_message(
+            guest,
+            "https://meuconvite.co.mz/convite/abc123/",
+            "whatsapp",
+        )
+        self.assertIn("Olá Ana Mabunda!", body)
+        self.assertIn(self.wedding.display_names, body)
+        self.assertIn("https://meuconvite.co.mz/convite/abc123/?v=", body)
+
     def test_new_guest_has_four_character_invitation_code(self):
         first = Guest.objects.create(wedding=self.wedding, full_name="Ana")
         second = Guest.objects.create(wedding=self.wedding, full_name="Bento")
