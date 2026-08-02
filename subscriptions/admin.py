@@ -46,14 +46,13 @@ class PlanAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (None, {"fields": ("code", "name", "description", "display_order")}),
-        (_("Limites"), {"fields": ("max_guests", "max_sms", "templates_limit")}),
+        (_("Limites"), {"fields": ("max_guests", "max_sms")}),
         (_("Preço"), {"fields": ("price_mzn", "duration_days")}),
         (
             _("Funcionalidades"),
             {
                 "fields": (
                     "allows_seating",
-                    "allows_team",
                     "allows_exports",
                     "removes_branding",
                 )

@@ -175,10 +175,10 @@ def limits(wedding) -> Limits:
                 max_sms=FALLBACK_SMS_LIMIT,
                 allows_qr_checkin=True,
                 allows_seating=False,
-                allows_team=False,
+                allows_team=True,
                 allows_exports=False,
                 removes_branding=False,
-                templates_limit=1,
+                templates_limit=0,
                 is_free=True,
                 status=SubscriptionStatus.ACTIVE,
                 days_remaining=None,
@@ -192,10 +192,10 @@ def limits(wedding) -> Limits:
             max_sms=0 if fallback.is_free else fallback.max_sms,
             allows_qr_checkin=True,
             allows_seating=fallback.allows_seating,
-            allows_team=fallback.allows_team,
+            allows_team=True,
             allows_exports=fallback.allows_exports,
             removes_branding=fallback.removes_branding,
-            templates_limit=fallback.templates_limit,
+            templates_limit=0,
             is_free=fallback.is_free,
             status=subscription.status if subscription else SubscriptionStatus.ACTIVE,
             days_remaining=subscription.days_remaining if subscription else None,
@@ -212,28 +212,14 @@ def limits(wedding) -> Limits:
         max_sms=0 if plan.is_free else subscription.sms_allowance,
         allows_qr_checkin=True,
         allows_seating=plan.allows_seating,
-        allows_team=plan.allows_team,
+        allows_team=True,
         allows_exports=plan.allows_exports,
         removes_branding=plan.removes_branding,
-        templates_limit=plan.templates_limit,
+        templates_limit=0,
         is_free=plan.is_free,
         status=subscription.status,
         days_remaining=subscription.days_remaining,
     ))
-
-
-def allowed_template_codes(wedding, templates) -> set[str]:
-    """Templates incluídos, contando sempre o template já aplicado dentro do limite."""
-    catalogue = list(templates)
-    template_limit = limits(wedding).templates_limit
-    if template_limit <= 0:
-        return {item.code for item in catalogue}
-    allowed = {wedding.selected_template}
-    for item in catalogue:
-        if len(allowed) >= template_limit:
-            break
-        allowed.add(item.code)
-    return allowed
 
 
 @transaction.atomic

@@ -1,0 +1,16 @@
+{% load humanize %}
+{% if upgrade_modal_wedding %}
+<div class="modal fade upgrade-plans-modal" id="upgradePlansModal" tabindex="-1" aria-labelledby="upgradePlansTitle" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"><div class="modal-content">
+        <div class="modal-header"><div><span class="workspace-eyebrow">DESBLOQUEAR MAIS</span><h2 class="modal-title h4 mb-1" id="upgradePlansTitle">Escolha o plano certo</h2><p class="text-body-secondary mb-0" data-upgrade-modal-description>Continue sem perder o que já preparou.</p></div><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button></div>
+        <div class="modal-body"><div class="upgrade-modal-grid">
+            {% for plan in upgrade_modal_plans %}<article class="upgrade-modal-plan{% if plan.code == 'celebracao-100' %} is-recommended{% endif %}">
+                {% if plan.code == 'celebracao-100' %}<span class="upgrade-modal-plan__badge">Mais escolhido</span>{% endif %}<span class="upgrade-modal-plan__name">{{ plan.name }}</span><strong class="upgrade-modal-plan__price">{{ plan.price_display }}</strong>
+                <div class="upgrade-modal-plan__facts"><span><i class="bi bi-people"></i>{{ plan.max_guests }} convidados</span><span><i class="bi bi-chat-dots"></i>{{ plan.max_sms|intcomma }} SMS</span><span><i class="bi bi-qr-code"></i>Check-in QR</span></div>
+                {% if upgrade_modal_can_pay and upgrade_modal_payzeno_ready %}<form method="post" action="{% url 'subscriptions:detail' upgrade_modal_wedding.pk %}" data-loading="A abrir o pagamento seguro…">{% csrf_token %}<input type="hidden" name="plan_code" value="{{ plan.code }}"><label for="upgrade-phone-{{ plan.code }}">Número M-Pesa</label><input class="form-control" id="upgrade-phone-{{ plan.code }}" name="payer_phone" inputmode="tel" autocomplete="tel" placeholder="+258 84 000 0000" value="{{ request.user.phone }}" required><button class="btn btn-primary w-100 mt-2" type="submit">Escolher {{ plan.name }}</button></form>
+                {% elif upgrade_modal_can_pay %}<button class="btn btn-outline-secondary w-100" disabled>Pagamento em configuração</button>{% else %}<button class="btn btn-outline-secondary w-100" disabled>Só o proprietário pode subscrever</button>{% endif %}
+            </article>{% empty %}<div class="empty-state py-4">Já está no plano com o maior limite disponível.</div>{% endfor %}
+        </div></div>
+    </div></div>
+</div>
+{% endif %}

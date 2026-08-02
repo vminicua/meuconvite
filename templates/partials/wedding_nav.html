@@ -66,7 +66,7 @@
         {% if capabilities.is_owner or capabilities.manage_members %}
             <li class="nav-item">
                 <a class="nav-link {% if 'team' in request.resolver_match.url_name %}active{% endif %}"
-                   {% if not capabilities.allows_team %}data-upgrade-modal data-upgrade-feature="Equipa do evento" data-upgrade-url="{% url 'subscriptions:detail' wedding.pk %}"{% else %}data-workspace-nav{% endif %} href="{% url 'weddings:team' wedding.pk %}"><i class="bi bi-person-gear me-1"></i>Equipa{% if not capabilities.allows_team %}<i class="bi bi-lock-fill ms-1 small"></i>{% endif %}</a>
+                   {% if capabilities.event_locked %}data-upgrade-modal data-upgrade-feature="Este evento"{% else %}data-workspace-nav{% endif %} href="{% url 'weddings:team' wedding.pk %}"><i class="bi bi-person-gear me-1"></i>Equipa</a>
             </li>
         {% endif %}
         {% if capabilities.can_manage_billing %}

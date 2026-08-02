@@ -115,6 +115,7 @@ TEMPLATES = [
                 "django.template.context_processors.i18n",
                 "core.context_processors.site_settings",
                 "core.context_processors.staff_badges",
+                "subscriptions.context_processors.upgrade_modal",
             ],
         },
     },

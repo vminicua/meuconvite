@@ -281,19 +281,11 @@ def wedding_settings(request: HttpRequest, wedding) -> HttpResponse:
 @require_wedding("can_manage_design")
 def wedding_design(request: HttpRequest, wedding) -> HttpResponse:
     """Galeria de templates; o próprio template define a paleta."""
-    from subscriptions.services import allowed_template_codes
     from templates_manager import registry
 
     templates = list(registry.all_templates(wedding.category))
-    allowed_codes = allowed_template_codes(wedding, templates)
-    for item in templates:
-        item.is_locked = item.code not in allowed_codes
 
     if request.method == "POST":
-        requested_template = request.POST.get("selected_template", "")
-        if requested_template not in allowed_codes:
-            messages.warning(request, "Este template está disponível num pacote superior.")
-            return redirect("subscriptions:detail", wedding_id=wedding.pk)
         form = WeddingDesignForm(request.POST, request.FILES, instance=wedding)
         if form.is_valid():
             old_data = model_to_dict(wedding)
@@ -415,7 +407,7 @@ def invitation_preview(request: HttpRequest, wedding, template_code: str = "") -
     no URL, é esse que é desenhado; caso contrário usa-se o do evento.
     """
     from templates_manager import registry, services as template_services
-    from subscriptions.services import allowed_template_codes, event_requires_upgrade
+    from subscriptions.services import event_requires_upgrade
 
     if event_requires_upgrade(wedding):
         messages.warning(request, "Subscreva um pacote para abrir o convite deste evento.")
@@ -424,12 +416,6 @@ def invitation_preview(request: HttpRequest, wedding, template_code: str = "") -
     template = registry.get_template(template_code or wedding.selected_template)
     if template is None:
         raise Http404
-    if template_code and template.code != wedding.selected_template:
-        all_templates = list(registry.all_templates(wedding.category))
-        allowed_codes = allowed_template_codes(wedding, all_templates)
-        if template.code not in allowed_codes:
-            messages.warning(request, "Este template está disponível num pacote superior.")
-            return redirect("subscriptions:detail", wedding_id=wedding.pk)
 
     embedded = request.GET.get("embedded") == "1"
     context = template_services.invitation_context(
@@ -505,9 +491,6 @@ def wedding_archive(request: HttpRequest, wedding) -> HttpResponse:
 @require_wedding()
 def team_list(request: HttpRequest, wedding) -> HttpResponse:
     capabilities = capability_flags(wedding, request.user)
-    if not capabilities["allows_team"]:
-        messages.warning(request, "A equipa do evento está disponível num pacote superior.")
-        return redirect("subscriptions:detail", wedding_id=wedding.pk)
     if not capabilities["manage_members"] and not capabilities["is_owner"]:
         raise Http404
 
@@ -542,9 +525,6 @@ def team_list(request: HttpRequest, wedding) -> HttpResponse:
 @require_wedding()
 def team_edit(request: HttpRequest, wedding, member_id) -> HttpResponse:
     capabilities = capability_flags(wedding, request.user)
-    if not capabilities["allows_team"]:
-        messages.warning(request, "A equipa do evento está disponível num pacote superior.")
-        return redirect("subscriptions:detail", wedding_id=wedding.pk)
     if not capabilities["manage_members"] and not capabilities["is_owner"]:
         raise Http404
 
@@ -589,9 +569,6 @@ def team_edit(request: HttpRequest, wedding, member_id) -> HttpResponse:
 @require_wedding()
 def team_remove(request: HttpRequest, wedding, member_id) -> HttpResponse:
     capabilities = capability_flags(wedding, request.user)
-    if not capabilities["allows_team"]:
-        messages.warning(request, "A equipa do evento está disponível num pacote superior.")
-        return redirect("subscriptions:detail", wedding_id=wedding.pk)
     if not capabilities["manage_members"] and not capabilities["is_owner"]:
         raise Http404
 

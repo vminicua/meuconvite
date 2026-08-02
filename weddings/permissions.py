@@ -141,7 +141,7 @@ def capability_flags(wedding: Wedding, user) -> dict[str, bool]:
 
     flags["event_locked"] = locked
     flags["allows_seating"] = plan_limits.allows_seating and not locked
-    flags["allows_team"] = plan_limits.allows_team and not locked
+    flags["allows_team"] = not locked
     flags["allows_exports"] = plan_limits.allows_exports and not locked
     flags["allows_sms"] = plan_limits.max_sms > 0 and not locked
     flags["templates_limit"] = plan_limits.templates_limit

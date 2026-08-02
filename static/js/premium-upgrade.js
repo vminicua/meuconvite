@@ -7,23 +7,22 @@
         event.preventDefault();
         event.stopPropagation();
         const feature = trigger.dataset.upgradeFeature || "Esta funcionalidade";
-        const url = trigger.dataset.upgradeUrl || trigger.getAttribute("href") || "/subscricao/";
         const message = trigger.dataset.upgradeMessage || "Escolha um pacote para desbloquear esta funcionalidade neste evento.";
-        if (window.Swal) {
+        const modalElement = document.getElementById("upgradePlansModal");
+        if (modalElement && window.bootstrap) {
+            const title = modalElement.querySelector("#upgradePlansTitle");
+            const description = modalElement.querySelector("[data-upgrade-modal-description]");
+            if (title) title.textContent = feature;
+            if (description) description.textContent = message;
+            window.bootstrap.Modal.getOrCreateInstance(modalElement).show();
+        } else if (window.Swal) {
             window.Swal.fire({
                 icon: "info",
-                title: feature + " é Premium",
+                title: feature,
                 text: message,
-                confirmButtonText: "Ver pacotes",
-                cancelButtonText: "Agora não",
-                showCancelButton: true,
-                reverseButtons: true,
+                confirmButtonText: "Entendi",
                 confirmButtonColor: "#b5903e"
-            }).then(function (result) {
-                if (result.isConfirmed) window.location.href = url;
             });
-        } else if (window.confirm(feature + " é Premium. Ver os pacotes disponíveis?")) {
-            window.location.href = url;
         }
     }, true);
 })();

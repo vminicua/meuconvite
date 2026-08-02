@@ -109,10 +109,10 @@
 
             <ul class="subscription-plan__features">
                 <li class="is-included"><i class="bi bi-check-circle-fill"></i>{{ plan.max_events }} evento{{ plan.max_events|pluralize }} incluído{{ plan.max_events|pluralize }}</li>
-                <li class="is-included"><i class="bi bi-check-circle-fill"></i>{% if plan.templates_limit == 0 %}Todos os templates{% else %}{{ plan.templates_limit }} template{{ plan.templates_limit|pluralize }}{% endif %}</li>
+                <li class="is-included"><i class="bi bi-check-circle-fill"></i>Todos os templates</li>
                 <li class="{% if plan.allows_qr_checkin %}is-included{% else %}is-unavailable{% endif %}"><i class="bi {% if plan.allows_qr_checkin %}bi-check-circle-fill{% else %}bi-x-circle{% endif %}"></i>Check-in com QR Code</li>
                 <li class="{% if plan.allows_seating %}is-included{% else %}is-unavailable{% endif %}"><i class="bi {% if plan.allows_seating %}bi-check-circle-fill{% else %}bi-x-circle{% endif %}"></i>Gestão de mesas</li>
-                <li class="{% if plan.allows_team %}is-included{% else %}is-unavailable{% endif %}"><i class="bi {% if plan.allows_team %}bi-check-circle-fill{% else %}bi-x-circle{% endif %}"></i>Equipa do evento</li>
+                <li class="is-included"><i class="bi bi-check-circle-fill"></i>Equipa do evento</li>
                 <li class="{% if plan.allows_exports %}is-included{% else %}is-unavailable{% endif %}"><i class="bi {% if plan.allows_exports %}bi-check-circle-fill{% else %}bi-x-circle{% endif %}"></i>Exportações Excel e PDF</li>
                 <li class="{% if plan.removes_branding %}is-included{% else %}is-unavailable{% endif %}"><i class="bi {% if plan.removes_branding %}bi-check-circle-fill{% else %}bi-x-circle{% endif %}"></i>Sem marca MeuConvite</li>
             </ul>

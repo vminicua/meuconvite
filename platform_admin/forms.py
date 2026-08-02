@@ -103,11 +103,9 @@ class PlanForm(BootstrapModelForm):
             "description",
             "max_guests",
             "max_sms",
-            "templates_limit",
             "price_mzn",
             "duration_days",
             "allows_seating",
-            "allows_team",
             "allows_exports",
             "removes_branding",
             "is_active",
@@ -116,7 +114,6 @@ class PlanForm(BootstrapModelForm):
         ]
         help_texts = {
             "code": _("Identificador interno. Não mude depois de haver subscrições."),
-            "templates_limit": _("0 = todos os templates."),
             "duration_days": _("0 = sem validade (usado no plano gratuito)."),
             "is_default": _("O pacote atribuído automaticamente a cada evento novo."),
         }
