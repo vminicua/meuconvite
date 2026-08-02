@@ -1,0 +1,50 @@
+{% if gallery %}
+<section class="inv-section inv-gallery-teaser" data-reveal>
+    <div class="inv-gallery-teaser__stack" aria-hidden="true">
+        {% for photo in gallery|slice:":3" %}
+            <span style="--stack-index:{{ forloop.counter0 }}"><img src="{{ photo.source_url }}" alt="" loading="lazy"></span>
+        {% endfor %}
+    </div>
+    <div class="inv-gallery-teaser__copy">
+        <p class="inv-gallery-teaser__eyebrow">A nossa história em imagens</p>
+        <h2 class="inv-section__title">Memórias de nós</h2>
+        <p>{{ gallery|length }} momento{{ gallery|length|pluralize }} escolhido{{ gallery|length|pluralize }} para partilhar consigo.</p>
+        <button class="inv-btn inv-gallery-teaser__button" type="button" data-gallery-open>
+            <i class="bi bi-images"></i> Ver a nossa galeria
+        </button>
+    </div>
+</section>
+
+<div class="inv-gallery" data-gallery-overlay hidden role="dialog" aria-modal="true" aria-label="Galeria de {{ wedding.display_names }}">
+    <div class="inv-gallery__ambient" aria-hidden="true"></div>
+    <header class="inv-gallery__header">
+        <div>
+            <span>A nossa galeria</span>
+            <strong>{{ wedding.display_names }}</strong>
+        </div>
+        <button type="button" data-gallery-close aria-label="Fechar galeria"><i class="bi bi-x-lg"></i></button>
+    </header>
+
+    <div class="inv-gallery__stage" data-gallery-stage>
+        {% for photo in gallery %}
+        <figure class="inv-gallery__slide{% if forloop.first %} is-active{% endif %}" data-gallery-slide aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}">
+            <div class="inv-gallery__backdrop" style="background-image:url('{{ photo.source_url }}')" aria-hidden="true"></div>
+            <img src="{{ photo.source_url }}" alt="{{ photo.caption|default:'Memória do casal' }}"{% if not forloop.first %} loading="lazy"{% endif %}>
+            <figcaption>
+                {% if photo.caption %}<p>{{ photo.caption }}</p>{% endif %}
+                {% if photo.credit_name %}<small>Fotografia de {% if photo.credit_url %}<a href="{{ photo.credit_url }}" target="_blank" rel="noopener">{{ photo.credit_name }}</a>{% else %}{{ photo.credit_name }}{% endif %} · Unsplash</small>{% endif %}
+            </figcaption>
+        </figure>
+        {% endfor %}
+    </div>
+
+    <footer class="inv-gallery__footer">
+        <button type="button" data-gallery-prev aria-label="Fotografia anterior"><i class="bi bi-arrow-left"></i></button>
+        <div class="inv-gallery__position">
+            <span><b data-gallery-current>01</b> / {{ gallery|length|stringformat:"02d" }}</span>
+            <i><em data-gallery-progress></em></i>
+        </div>
+        <button type="button" data-gallery-next aria-label="Fotografia seguinte"><i class="bi bi-arrow-right"></i></button>
+    </footer>
+</div>
+{% endif %}

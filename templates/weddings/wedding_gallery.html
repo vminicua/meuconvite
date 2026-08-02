@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Galeria · {{ wedding.display_names }}{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/wedding-gallery.css' %}?v=20260802.1" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+{% include "partials/wedding_nav.html" %}
+
+<section class="gallery-studio">
+    <header class="gallery-studio__intro">
+        <div>
+            <span class="gallery-studio__eyebrow"><i class="bi bi-stars"></i> Memórias do casal</span>
+            <h2>Galeria do convite</h2>
+            <p>Escolha os momentos que contam a vossa história. Cada descrição acompanha a fotografia na experiência imersiva do convite.</p>
+        </div>
+        <a class="btn btn-outline-secondary" target="_blank" rel="noopener" href="{% url 'weddings:invitation_preview' wedding.pk %}">
+            <i class="bi bi-eye me-1"></i>Ver no convite
+        </a>
+    </header>
+
+    <form method="post" enctype="multipart/form-data" class="gallery-upload" data-gallery-upload>
+        {% csrf_token %}
+        <div class="gallery-upload__icon"><i class="bi bi-images"></i></div>
+        <div class="gallery-upload__copy">
+            <h3>Adicionar fotografias</h3>
+            <p>Arraste ou seleccione várias imagens. Depois pode escrever uma descrição única para cada memória.</p>
+            {{ form.photos }}
+            {% for error in form.photos.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+            <small>{{ form.photos.help_text }}</small>
+        </div>
+        <button class="btn btn-primary" type="submit"><i class="bi bi-cloud-arrow-up me-1"></i>Adicionar à galeria</button>
+    </form>
+
+    {% if photos %}
+        <div class="gallery-studio__summary">
+            <div><strong>{{ photos|length }}</strong><span>fotografia{{ photos|length|pluralize }}</span></div>
+            <p><i class="bi bi-lightbulb"></i> A primeira fotografia abre a galeria. Use as setas para construir a sequência da história.</p>
+        </div>
+
+        <div class="gallery-manager">
+            {% for photo in photos %}
+            <article class="gallery-photo-card{% if not photo.is_visible %} is-hidden{% endif %}">
+                <div class="gallery-photo-card__visual">
+                    <img src="{{ photo.source_url }}" alt="{{ photo.caption|default:'Fotografia do casal' }}" loading="lazy">
+                    <span class="gallery-photo-card__number">{{ forloop.counter|stringformat:"02d" }}</span>
+                    {% if not photo.is_visible %}<span class="gallery-photo-card__status"><i class="bi bi-eye-slash"></i> Oculta</span>{% endif %}
+                </div>
+                <form method="post" action="{% url 'weddings:gallery_photo_update' wedding.pk photo.pk %}" class="gallery-photo-card__form">
+                    {% csrf_token %}
+                    <label for="caption-{{ photo.pk }}">Descrição</label>
+                    <textarea id="caption-{{ photo.pk }}" name="caption" rows="2" maxlength="240" placeholder="Ex.: O dia em que começou a nossa aventura…">{{ photo.caption }}</textarea>
+                    <label class="form-check gallery-photo-card__toggle">
+                        <input class="form-check-input" type="checkbox" name="is_visible"{% if photo.is_visible %} checked{% endif %}>
+                        <span>Mostrar no convite</span>
+                    </label>
+                    {% if photo.credit_name %}
+                        <p class="gallery-photo-card__credit">Fotografia de {% if photo.credit_url %}<a href="{{ photo.credit_url }}" target="_blank" rel="noopener">{{ photo.credit_name }}</a>{% else %}{{ photo.credit_name }}{% endif %} · Unsplash</p>
+                    {% endif %}
+                    <button class="btn btn-sm btn-dark" type="submit"><i class="bi bi-check2"></i> Guardar descrição</button>
+                </form>
+                <div class="gallery-photo-card__actions">
+                    <form method="post" action="{% url 'weddings:gallery_photo_move' wedding.pk photo.pk %}">{% csrf_token %}<input type="hidden" name="direction" value="up"><button type="submit" title="Mover para trás"{% if forloop.first %} disabled{% endif %}><i class="bi bi-arrow-left"></i></button></form>
+                    <form method="post" action="{% url 'weddings:gallery_photo_move' wedding.pk photo.pk %}">{% csrf_token %}<input type="hidden" name="direction" value="down"><button type="submit" title="Mover para a frente"{% if forloop.last %} disabled{% endif %}><i class="bi bi-arrow-right"></i></button></form>
+                    <form method="post" action="{% url 'weddings:gallery_photo_delete' wedding.pk photo.pk %}" data-confirm="Remover esta fotografia da galeria?">{% csrf_token %}<button class="is-danger" type="submit" title="Remover"><i class="bi bi-trash3"></i></button></form>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="gallery-empty">
+            <span><i class="bi bi-camera"></i></span>
+            <h3>A vossa história ainda está por revelar</h3>
+            <p>Adicione as primeiras fotografias. A secção só aparece no convite quando existir pelo menos uma imagem visível.</p>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/wedding-gallery.js' %}?v=20260802.1"></script>
+{% endblock %}

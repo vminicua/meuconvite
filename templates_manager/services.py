@@ -139,6 +139,10 @@ def invitation_context(
             .select_related("wedding")
             .order_by("display_order", "name")
         ),
+        "gallery": list(
+            wedding.gallery_photos.filter(is_visible=True)
+            .order_by("display_order", "created_at")
+        ),
         "qr_events": qr_events,
         "qr_data_uri": qr_data_uri,
         "is_preview": is_preview,

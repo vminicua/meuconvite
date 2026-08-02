@@ -3,7 +3,7 @@ from __future__ import annotations
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 
-from .models import Wedding, WeddingMember
+from .models import Wedding, WeddingGalleryPhoto, WeddingMember
 
 
 class WeddingMemberInline(admin.TabularInline):
@@ -11,6 +11,12 @@ class WeddingMemberInline(admin.TabularInline):
     extra = 0
     autocomplete_fields = ["user"]
     fields = ("user", "role", "is_active", "can_manage_guests", "can_check_in", "can_view_reports")
+
+
+class WeddingGalleryPhotoInline(admin.TabularInline):
+    model = WeddingGalleryPhoto
+    extra = 0
+    fields = ("image", "external_url", "caption", "display_order", "is_visible")
 
 
 @admin.register(Wedding)
@@ -27,7 +33,15 @@ class WeddingAdmin(admin.ModelAdmin):
     date_hierarchy = "main_date"
     readonly_fields = ("public_token", "created_at", "updated_at", "published_at")
     autocomplete_fields = ["owner"]
-    inlines = [WeddingMemberInline]
+    inlines = [WeddingMemberInline, WeddingGalleryPhotoInline]
+
+
+@admin.register(WeddingGalleryPhoto)
+class WeddingGalleryPhotoAdmin(admin.ModelAdmin):
+    list_display = ("wedding", "caption", "display_order", "is_visible", "created_at")
+    list_filter = ("is_visible", "created_at")
+    search_fields = ("wedding__primary_name", "wedding__secondary_name", "caption")
+    autocomplete_fields = ["wedding"]
 
     fieldsets = (
         (_("Noivos"), {

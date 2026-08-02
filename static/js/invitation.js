@@ -113,6 +113,108 @@
         });
     }
 
+    /* --- Galeria imersiva ------------------------------------------- */
+    const gallery = document.querySelector("[data-gallery-overlay]");
+    const galleryOpener = document.querySelector("[data-gallery-open]");
+    if (gallery && galleryOpener) {
+        // Alguns templates animam o <main> com transform. Um elemento fixed
+        // dentro desse contentor ficaria preso à largura do cartão; no body
+        // a galeria ocupa sempre o ecrã inteiro, sem navegar para outra página.
+        document.body.appendChild(gallery);
+        const slides = Array.from(gallery.querySelectorAll("[data-gallery-slide]"));
+        const closeButton = gallery.querySelector("[data-gallery-close]");
+        const previousButton = gallery.querySelector("[data-gallery-prev]");
+        const nextButton = gallery.querySelector("[data-gallery-next]");
+        const currentLabel = gallery.querySelector("[data-gallery-current]");
+        const progress = gallery.querySelector("[data-gallery-progress]");
+        let current = 0;
+        let timer = null;
+        let progressFrame = null;
+        let progressStarted = 0;
+        let touchStart = null;
+        const duration = 6500;
+
+        function preloadAround(index) {
+            [-1, 1].forEach(function (offset) {
+                const slide = slides[(index + offset + slides.length) % slides.length];
+                const image = slide && slide.querySelector("img");
+                if (image && image.loading === "lazy") image.loading = "eager";
+            });
+        }
+
+        function paintProgress(now) {
+            const elapsed = Math.min(1, (now - progressStarted) / duration);
+            if (progress) progress.style.transform = "scaleX(" + elapsed + ")";
+            if (elapsed < 1) progressFrame = window.requestAnimationFrame(paintProgress);
+        }
+
+        function stopAutoplay() {
+            window.clearTimeout(timer);
+            window.cancelAnimationFrame(progressFrame);
+        }
+
+        function startAutoplay() {
+            stopAutoplay();
+            if (slides.length < 2 || reducedMotion || document.hidden) return;
+            progressStarted = performance.now();
+            progressFrame = window.requestAnimationFrame(paintProgress);
+            timer = window.setTimeout(function () { show(current + 1); }, duration);
+        }
+
+        function show(index) {
+            current = (index + slides.length) % slides.length;
+            slides.forEach(function (slide, slideIndex) {
+                const active = slideIndex === current;
+                slide.classList.toggle("is-active", active);
+                slide.setAttribute("aria-hidden", active ? "false" : "true");
+            });
+            currentLabel.textContent = String(current + 1).padStart(2, "0");
+            preloadAround(current);
+            startAutoplay();
+        }
+
+        function openGallery() {
+            gallery.hidden = false;
+            document.body.classList.add("inv--gallery-open");
+            window.requestAnimationFrame(function () {
+                gallery.classList.add("is-open");
+                show(current);
+                closeButton.focus();
+            });
+        }
+
+        function closeGallery() {
+            stopAutoplay();
+            gallery.classList.remove("is-open");
+            document.body.classList.remove("inv--gallery-open");
+            window.setTimeout(function () { gallery.hidden = true; }, reducedMotion ? 0 : 450);
+            galleryOpener.focus();
+        }
+
+        galleryOpener.addEventListener("click", openGallery);
+        closeButton.addEventListener("click", closeGallery);
+        previousButton.addEventListener("click", function () { show(current - 1); });
+        nextButton.addEventListener("click", function () { show(current + 1); });
+        gallery.addEventListener("pointerdown", function (event) { touchStart = event.clientX; });
+        gallery.addEventListener("pointerup", function (event) {
+            if (touchStart === null) return;
+            const distance = event.clientX - touchStart;
+            touchStart = null;
+            if (Math.abs(distance) > 55) show(current + (distance < 0 ? 1 : -1));
+        });
+        gallery.addEventListener("mouseenter", stopAutoplay);
+        gallery.addEventListener("mouseleave", startAutoplay);
+        document.addEventListener("visibilitychange", function () {
+            if (!gallery.hidden) startAutoplay();
+        });
+        document.addEventListener("keydown", function (event) {
+            if (gallery.hidden) return;
+            if (event.key === "Escape") closeGallery();
+            if (event.key === "ArrowLeft") show(current - 1);
+            if (event.key === "ArrowRight") show(current + 1);
+        });
+    }
+
     /* --- Contagem regressiva ------------------------------------------ */
     const countdown = document.querySelector("[data-countdown]");
     if (!countdown) return;

@@ -14,6 +14,22 @@ urlpatterns = [
     path("<uuid:wedding_id>/assistente/", views.wedding_setup, name="setup"),
     path("<uuid:wedding_id>/definicoes/", views.wedding_settings, name="settings"),
     path("<uuid:wedding_id>/aspecto/", views.wedding_design, name="design"),
+    path("<uuid:wedding_id>/galeria/", views.wedding_gallery, name="gallery"),
+    path(
+        "<uuid:wedding_id>/galeria/<uuid:photo_id>/actualizar/",
+        views.gallery_photo_update,
+        name="gallery_photo_update",
+    ),
+    path(
+        "<uuid:wedding_id>/galeria/<uuid:photo_id>/mover/",
+        views.gallery_photo_move,
+        name="gallery_photo_move",
+    ),
+    path(
+        "<uuid:wedding_id>/galeria/<uuid:photo_id>/remover/",
+        views.gallery_photo_delete,
+        name="gallery_photo_delete",
+    ),
     path(
         "<uuid:wedding_id>/convite/pre-visualizar/",
         views.invitation_preview,

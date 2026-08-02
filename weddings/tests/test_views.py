@@ -1,13 +1,15 @@
 from __future__ import annotations
 
+import base64
 from datetime import timedelta
 
 from django.test import TestCase
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 from django.utils import timezone
 
 from templates_manager.models import InvitationTemplate
-from weddings.models import Wedding, WeddingMember, WeddingRole
+from weddings.models import Wedding, WeddingGalleryPhoto, WeddingMember, WeddingRole
 
 from .factories import (
     DEFAULT_PASSWORD,
@@ -448,3 +450,55 @@ class TeamViewTests(TestCase):
         self.assertEqual(membership.role, WeddingRole.VIEWER)
         self.assertFalse(membership.can_manage_guests)
         self.assertTrue(membership.can_view_reports)
+
+class WeddingGalleryViewTests(TestCase):
+    def setUp(self) -> None:
+        self.user = create_user(email="galeria@example.com")
+        self.wedding = create_wedding(owner=self.user)
+        self.client.login(email=self.user.email, password=DEFAULT_PASSWORD)
+        self.url = reverse("weddings:gallery", args=[self.wedding.pk])
+
+    def test_gallery_tab_is_available_to_the_couple(self) -> None:
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Galeria do convite")
+        self.assertContains(response, "Adicionar fotografias")
+
+    def test_upload_adds_a_photo_to_the_wedding(self) -> None:
+        # PNG 1x1 válido; mantém o teste pequeno e independente de fixtures.
+        image = SimpleUploadedFile(
+            "memoria.png",
+            base64.b64decode(
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII="
+            ),
+            content_type="image/png",
+        )
+        response = self.client.post(self.url, {"photos": image})
+        self.assertRedirects(response, self.url)
+        self.assertEqual(self.wedding.gallery_photos.count(), 1)
+
+    def test_caption_and_visibility_can_be_updated(self) -> None:
+        photo = WeddingGalleryPhoto.objects.create(
+            wedding=self.wedding,
+            external_url="https://example.com/couple.jpg",
+        )
+        response = self.client.post(
+            reverse("weddings:gallery_photo_update", args=[self.wedding.pk, photo.pk]),
+            {"caption": "O começo da nossa história"},
+        )
+        self.assertRedirects(response, self.url)
+        photo.refresh_from_db()
+        self.assertEqual(photo.caption, "O começo da nossa história")
+        self.assertFalse(photo.is_visible)
+
+    def test_photo_from_another_wedding_is_never_accessible(self) -> None:
+        other = create_wedding(owner=create_user(email="outra@example.com"))
+        photo = WeddingGalleryPhoto.objects.create(
+            wedding=other,
+            external_url="https://example.com/private.jpg",
+        )
+        response = self.client.post(
+            reverse("weddings:gallery_photo_delete", args=[self.wedding.pk, photo.pk])
+        )
+        self.assertEqual(response.status_code, 404)
+        self.assertTrue(WeddingGalleryPhoto.objects.filter(pk=photo.pk).exists())

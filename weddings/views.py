@@ -3,6 +3,8 @@ from __future__ import annotations
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied, ValidationError
+from django.db import transaction
+from django.db.models import Max
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
@@ -14,11 +16,13 @@ from . import services
 from .forms import (
     MemberInviteForm,
     MemberPermissionsForm,
+    GalleryPhotoForm,
+    GalleryUploadForm,
     WeddingCreateForm,
     WeddingDesignForm,
     WeddingSettingsForm,
 )
-from .models import WeddingMember
+from .models import WeddingGalleryPhoto, WeddingMember
 from .permissions import capability_flags, require_wedding, user_can
 from .selectors import (
     archived_weddings_for_user,
@@ -142,6 +146,8 @@ def wedding_preview(request: HttpRequest, wedding) -> HttpResponse:
     if selected_template and selected_template.has_cover:
         preview_sections.append("Capa")
     preview_sections.append("Convite")
+    if wedding.gallery_photos.filter(is_visible=True).exists():
+        preview_sections.append("Galeria")
     if wedding.events.filter(is_active=True).exists():
         preview_sections.append("Programa")
     preview_sections.append("RSVP")
@@ -295,6 +301,90 @@ def wedding_design(request: HttpRequest, wedding) -> HttpResponse:
             "capabilities": capability_flags(wedding, request.user),
         },
     )
+
+
+@require_wedding("can_manage_design")
+def wedding_gallery(request: HttpRequest, wedding) -> HttpResponse:
+    """Fotografias e legendas que alimentam a galeria imersiva do convite."""
+    form = GalleryUploadForm(request.POST or None, request.FILES or None)
+    if request.method == "POST":
+        if form.is_valid():
+            photos = form.cleaned_data["photos"]
+            if wedding.gallery_photos.count() + len(photos) > 50:
+                messages.error(request, "A galeria pode ter até 50 fotografias.")
+            else:
+                next_order = (
+                    wedding.gallery_photos.aggregate(value=Max("display_order"))["value"] or 0
+                )
+                for offset, photo in enumerate(photos, start=1):
+                    WeddingGalleryPhoto.objects.create(
+                        wedding=wedding,
+                        image=photo,
+                        display_order=next_order + offset,
+                    )
+                messages.success(
+                    request,
+                    f"{len(photos)} fotografia{'s' if len(photos) != 1 else ''} adicionada{'s' if len(photos) != 1 else ''}.",
+                )
+                return redirect("weddings:gallery", wedding_id=wedding.pk)
+        else:
+            messages.error(request, "Seleccione fotografias válidas para continuar.")
+
+    return render(
+        request,
+        "weddings/wedding_gallery.html",
+        {
+            "wedding": wedding,
+            "form": form,
+            "photos": wedding.gallery_photos.all(),
+            "capabilities": capability_flags(wedding, request.user),
+        },
+    )
+
+
+@require_POST
+@require_wedding("can_manage_design")
+def gallery_photo_update(request: HttpRequest, wedding, photo_id) -> HttpResponse:
+    photo = get_object_or_404(WeddingGalleryPhoto, pk=photo_id, wedding=wedding)
+    form = GalleryPhotoForm(request.POST, instance=photo)
+    if form.is_valid():
+        form.save()
+        messages.success(request, "Descrição da fotografia actualizada.")
+    else:
+        messages.error(request, "A descrição não pôde ser guardada.")
+    return redirect("weddings:gallery", wedding_id=wedding.pk)
+
+
+@require_POST
+@require_wedding("can_manage_design")
+def gallery_photo_move(request: HttpRequest, wedding, photo_id) -> HttpResponse:
+    photo = get_object_or_404(WeddingGalleryPhoto, pk=photo_id, wedding=wedding)
+    direction = request.POST.get("direction")
+    ordered = list(wedding.gallery_photos.order_by("display_order", "created_at"))
+    current = next((index for index, item in enumerate(ordered) if item.pk == photo.pk), None)
+    if current is not None:
+        target = current - 1 if direction == "up" else current + 1
+        if 0 <= target < len(ordered):
+            other = ordered[target]
+            with transaction.atomic():
+                photo.display_order, other.display_order = other.display_order, photo.display_order
+                if photo.display_order == other.display_order:
+                    photo.display_order, other.display_order = target, current
+                WeddingGalleryPhoto.objects.bulk_update(
+                    [photo, other], ["display_order", "updated_at"]
+                )
+    return redirect("weddings:gallery", wedding_id=wedding.pk)
+
+
+@require_POST
+@require_wedding("can_manage_design")
+def gallery_photo_delete(request: HttpRequest, wedding, photo_id) -> HttpResponse:
+    photo = get_object_or_404(WeddingGalleryPhoto, pk=photo_id, wedding=wedding)
+    if photo.image:
+        photo.image.delete(save=False)
+    photo.delete()
+    messages.info(request, "Fotografia removida da galeria.")
+    return redirect("weddings:gallery", wedding_id=wedding.pk)
 
 
 @xframe_options_sameorigin

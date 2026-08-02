@@ -33,6 +33,12 @@
             <a class="nav-link {% if request.resolver_match.namespace == 'events' %}active{% endif %}"
                data-workspace-nav href="{% url 'events:organisation' wedding.pk %}"><i class="bi bi-calendar3 me-1"></i>Programa</a>
         </li>
+        {% if capabilities.can_manage_design %}
+            <li class="nav-item">
+                <a class="nav-link {% if 'gallery' in request.resolver_match.url_name %}active{% endif %}"
+                   data-workspace-nav href="{% url 'weddings:gallery' wedding.pk %}"><i class="bi bi-images me-1"></i>Galeria</a>
+            </li>
+        {% endif %}
         {% if capabilities.can_manage_guests %}
             <li class="nav-item">
                 <a class="nav-link {% if request.resolver_match.url_name == 'list' or request.resolver_match.url_name == 'edit' %}active{% endif %}"

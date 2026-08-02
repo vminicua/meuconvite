@@ -11,6 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from core.forms import BootstrapForm, BootstrapModelForm
 from core.schema import add_schema_fields, collect_schema_values
 from core.utils import strip_accents, unique_slugify
+from core.validators import validate_image_upload
 from templates_manager import registry
 
 from .models import (
@@ -18,6 +19,7 @@ from .models import (
     SMS_MAX_LENGTH,
     SMS_TEMPLATE_MAX_LENGTH,
     Wedding,
+    WeddingGalleryPhoto,
     WeddingMember,
     WeddingRole,
 )
@@ -282,6 +284,39 @@ class WeddingDesignForm(BootstrapModelForm):
                 "selected_template", "primary_color", "secondary_color", "updated_at",
             ])
         return wedding
+
+
+class MultipleImageInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
+
+
+class MultipleImageField(forms.ImageField):
+    widget = MultipleImageInput
+
+    def clean(self, data, initial=None):
+        files = data if isinstance(data, (list, tuple)) else [data]
+        files = [item for item in files if item]
+        if not files and self.required:
+            raise forms.ValidationError(self.error_messages["required"], code="required")
+        return [super().clean(item, initial) for item in files]
+
+
+class GalleryUploadForm(forms.Form):
+    photos = MultipleImageField(
+        label=_("Escolher fotografias"),
+        help_text=_("JPG, PNG ou WEBP até 5 MB cada. Pode seleccionar várias de uma vez."),
+        widget=MultipleImageInput(attrs={"accept": "image/jpeg,image/png,image/webp"}),
+        validators=[validate_image_upload],
+    )
+
+
+class GalleryPhotoForm(BootstrapModelForm):
+    class Meta:
+        model = WeddingGalleryPhoto
+        fields = ["caption", "is_visible"]
+        widgets = {
+            "caption": forms.Textarea(attrs={"rows": 2, "maxlength": 240}),
+        }
 
 
 class MemberInviteForm(BootstrapForm):

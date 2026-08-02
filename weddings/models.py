@@ -11,6 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from core.models import BaseModel
 from core.storage import (
     wedding_cover_upload_to,
+    wedding_gallery_upload_to,
     wedding_music_upload_to,
 )
 from core.utils import generate_secure_token, unique_slugify
@@ -332,6 +333,60 @@ class Wedding(BaseModel):
 
     def get_public_url(self) -> str:
         return f"{settings.SITE_BASE_URL}/{self.slug}/"
+
+
+class WeddingGalleryPhoto(BaseModel):
+    """Uma memória visual apresentada na galeria imersiva do convite."""
+
+    wedding = models.ForeignKey(
+        Wedding,
+        verbose_name=_("evento"),
+        on_delete=models.CASCADE,
+        related_name="gallery_photos",
+    )
+    image = models.ImageField(
+        _("fotografia"),
+        upload_to=wedding_gallery_upload_to,
+        blank=True,
+        null=True,
+        validators=[validate_image_upload],
+    )
+    external_url = models.URLField(
+        _("endereço externo"),
+        max_length=500,
+        blank=True,
+        help_text=_("Usado apenas pelas fotografias editoriais de demonstração."),
+    )
+    caption = models.CharField(
+        _("descrição"),
+        max_length=240,
+        blank=True,
+        help_text=_("Aparece sobre a fotografia quando a galeria é aberta."),
+    )
+    credit_name = models.CharField(_("crédito"), max_length=120, blank=True)
+    credit_url = models.URLField(_("ligação do crédito"), max_length=500, blank=True)
+    display_order = models.PositiveIntegerField(_("ordem"), default=0, db_index=True)
+    is_visible = models.BooleanField(_("visível no convite"), default=True, db_index=True)
+
+    class Meta:
+        verbose_name = _("fotografia da galeria")
+        verbose_name_plural = _("fotografias da galeria")
+        ordering = ["display_order", "created_at"]
+        indexes = [
+            models.Index(
+                fields=["wedding", "is_visible", "display_order"],
+                name="gallery_wed_visible_order_idx",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return self.caption or f"Fotografia de {self.wedding.display_names}"
+
+    @property
+    def source_url(self) -> str:
+        if self.image:
+            return self.image.url
+        return self.external_url
 
 
 class WeddingMember(BaseModel):
