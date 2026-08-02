@@ -7,7 +7,7 @@ from django.urls import reverse
 
 from events.models import EventCategory
 from subscriptions import services as subscription_services
-from subscriptions.models import PaymentStatus, Plan
+from subscriptions.models import PaymentStatus, Plan, Voucher
 from subscriptions.tests import create_paid_plan
 from weddings.models import WeddingStatus
 from weddings.tests.factories import (
@@ -307,6 +307,23 @@ class PlanManagementTests(TestCase):
         )
         self.free.refresh_from_db()
         self.assertEqual(self.free.max_guests, 25)
+
+
+class VoucherManagementTests(TestCase):
+    def setUp(self) -> None:
+        self.staff = create_user("vouchers@example.com", is_staff=True)
+        self.client.login(email=self.staff.email, password=DEFAULT_PASSWORD)
+
+    def test_staff_can_create_a_voucher(self) -> None:
+        response = self.client.post(reverse("platform:voucher_create"), data={
+            "name": "Casamento 120", "code": "casamento120", "max_guests": 120,
+            "sms_enabled": "on", "max_sms": 40, "max_redemptions": 5,
+            "is_active": "on",
+        })
+        self.assertRedirects(response, reverse("platform:vouchers"))
+        voucher = Voucher.objects.get()
+        self.assertEqual(voucher.code, "CASAMENTO120")
+        self.assertEqual(voucher.max_sms, 40)
 
 
 class CategoryManagementTests(TestCase):

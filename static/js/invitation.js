@@ -55,21 +55,41 @@
     if (musicPlayer) {
         const audio = musicPlayer.querySelector("[data-music-audio]");
         const toggle = musicPlayer.querySelector("[data-music-toggle]");
+        let resumeWhenVisible = false;
+        function showMusicState(playing) {
+            musicPlayer.classList.toggle("is-playing", playing);
+            toggle.querySelector("span").textContent = playing ? "Pausar" : "Ouvir";
+        }
         startMusic = function () {
-            if (!audio.paused) return;
+            if (document.hidden || !audio.paused) return;
             audio.play().then(function () {
-                musicPlayer.classList.add("is-playing");
-                toggle.querySelector("span").textContent = "Pausar";
+                showMusicState(true);
             }).catch(function () {});
         };
         toggle.addEventListener("click", function () {
             if (audio.paused) {
+                resumeWhenVisible = false;
                 startMusic();
             } else {
+                resumeWhenVisible = false;
                 audio.pause();
-                musicPlayer.classList.remove("is-playing");
-                toggle.querySelector("span").textContent = "Ouvir";
+                showMusicState(false);
             }
+        });
+
+        document.addEventListener("visibilitychange", function () {
+            if (document.hidden) {
+                resumeWhenVisible = !audio.paused;
+                audio.pause();
+                showMusicState(false);
+            } else if (resumeWhenVisible) {
+                resumeWhenVisible = false;
+                startMusic();
+            }
+        });
+        window.addEventListener("pagehide", function () {
+            audio.pause();
+            showMusicState(false);
         });
 
         // Tenta iniciar assim que a página abre. Safari, Chrome e Firefox

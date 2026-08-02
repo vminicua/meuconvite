@@ -46,12 +46,20 @@
             </div>
         </div>
         <div class="subscription-usage__item">
-            <div><span>Convites por SMS</span><strong>{% if limits.is_free %}Não incluído{% else %}{{ sms_used }} / {{ limits.max_sms }}{% endif %}</strong></div>
+            <div><span>Convites por SMS</span><strong>{% if limits.max_sms <= 0 %}Não incluído{% else %}{{ sms_used }} / {{ limits.max_sms }}{% endif %}</strong></div>
             <div class="progress" role="progressbar" aria-label="SMS usados">
                 <div class="progress-bar {% if sms_used >= limits.max_sms %}bg-danger{% endif %}" style="width:{{ sms_usage_percent }}%"></div>
             </div>
         </div>
     </div>
+</section>
+
+<section class="card shadow-sm mb-4">
+    <div class="card-body p-4"><div class="row align-items-center g-3">
+        <div class="col-lg-7"><span class="workspace-eyebrow">TEM UM VOUCHER?</span><h2 class="h5 mt-1 mb-1">Aplicar benefício ao evento</h2>
+        {% if voucher_redemption %}<p class="mb-0 text-success"><i class="bi bi-check-circle-fill me-1"></i>Voucher <strong>{{ voucher_redemption.voucher.code }}</strong> aplicado — {{ voucher_redemption.guest_allowance }} convidados{% if voucher_redemption.sms_allowance %} e {{ voucher_redemption.sms_allowance }} SMS{% endif %}.</p>{% else %}<p class="text-body-secondary mb-0">Introduza o código recebido da equipa MeuConvite.</p>{% endif %}</div>
+        {% if not voucher_redemption and capabilities.can_manage_billing %}<div class="col-lg-5"><form method="post" action="{% url 'subscriptions:apply_voucher' wedding.pk %}" class="input-group">{% csrf_token %}{{ voucher_form.code }}<button class="btn btn-dark" type="submit">Aplicar</button></form></div>{% endif %}
+    </div></div>
 </section>
 
 {% if open_payments %}

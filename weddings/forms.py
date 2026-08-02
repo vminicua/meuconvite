@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import string
+from datetime import timedelta
 
 from django import forms
 from django.conf import settings
@@ -115,6 +116,29 @@ class WeddingSettingsForm(BootstrapModelForm):
             "Opcional. Pode indicar a cidade, bairro ou endereço principal do evento."
         )
         category = getattr(self.instance, "category", None)
+        if not self.is_bound and self.instance and self.instance.pk:
+            names = self.instance.display_names
+            suggestions = {
+                "cover_message": _("Uma celebração para recordar"),
+                "invitation_message": _(
+                    "Com muita alegria, convidamos para celebrar connosco este momento especial."
+                ),
+                "welcome_message": _("Sejam muito bem-vindos à celebração de %(names)s.") % {
+                    "names": names,
+                },
+                "hashtag": "#" + "".join(names.replace("&", " ").split()),
+            }
+            for field_name, value in suggestions.items():
+                if field_name in self.fields and not getattr(self.instance, field_name, ""):
+                    self.initial[field_name] = value
+            if not self.instance.rsvp_deadline:
+                days_until_event = (self.instance.main_date - timezone.localdate()).days
+                if days_until_event > 14:
+                    self.initial["rsvp_deadline"] = self.instance.main_date - timedelta(days=14)
+                elif days_until_event > 2:
+                    self.initial["rsvp_deadline"] = timezone.localdate() + timedelta(
+                        days=max(days_until_event // 2, 1)
+                    )
         if category is None:
             return
 

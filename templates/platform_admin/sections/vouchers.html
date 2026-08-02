@@ -1,0 +1,14 @@
+<div class="section-head" data-section-title="Vouchers">
+    <div><h1>Vouchers</h1><p>Conceda limites de convidados e, quando necessário, uma quota de SMS.</p></div>
+    <a class="btn btn-primary" href="{% url 'platform:voucher_create' %}" hx-get="{% url 'platform:voucher_create' %}" hx-target="#admin-content" hx-push-url="true"><i class="bi bi-plus-lg me-1"></i>Novo voucher</a>
+</div>
+<div class="admin-card"><div class="admin-card__body admin-card__body--flush"><table class="table table-hover align-middle mb-0" data-table data-page-length="50">
+<thead><tr><th>Código</th><th>Convidados</th><th>SMS</th><th>Validade</th><th>Utilizações</th><th>Estado</th><th class="no-sort"></th></tr></thead>
+<tbody>{% for voucher in vouchers %}<tr>
+<td><div class="fw-semibold"><code>{{ voucher.code }}</code></div><div class="small text-body-secondary">{{ voucher.name }}</div></td><td>{{ voucher.max_guests }}</td>
+<td>{% if voucher.sms_enabled %}{{ voucher.max_sms }}{% else %}<span class="text-body-secondary">Desactivado</span>{% endif %}</td>
+<td class="small">{% if voucher.valid_from %}{{ voucher.valid_from|date:"d/m/Y" }}{% else %}—{% endif %} a {% if voucher.valid_until %}{{ voucher.valid_until|date:"d/m/Y" }}{% else %}sem fim{% endif %}</td>
+<td>{{ voucher.redemption_total }} / {% if voucher.max_redemptions %}{{ voucher.max_redemptions }}{% else %}∞{% endif %}</td><td>{% if voucher.is_active %}<span class="badge text-bg-success">Activo</span>{% else %}<span class="badge text-bg-secondary">Inactivo</span>{% endif %}</td>
+<td class="text-end"><a class="btn btn-sm btn-outline-secondary" href="{% url 'platform:voucher_edit' voucher.pk %}" hx-get="{% url 'platform:voucher_edit' voucher.pk %}" hx-target="#admin-content" hx-push-url="true">Editar</a></td>
+</tr>{% empty %}<tr><td colspan="7" class="text-center py-5 text-body-secondary">Ainda não existem vouchers.</td></tr>{% endfor %}</tbody>
+</table></div></div>

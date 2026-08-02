@@ -17,6 +17,7 @@ from __future__ import annotations
 from datetime import date, timedelta
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -181,6 +182,71 @@ class Subscription(BaseModel):
         if not self.plan.duration_days:
             return None
         return (start or timezone.localdate()) + timedelta(days=self.plan.duration_days)
+
+
+class Voucher(BaseModel):
+    """Código promocional que concede limites a um único evento."""
+
+    code = models.CharField(_("código"), max_length=40, unique=True, db_index=True)
+    name = models.CharField(_("nome"), max_length=100)
+    description = models.CharField(_("descrição"), max_length=240, blank=True)
+    max_guests = models.PositiveIntegerField(_("limite de convidados"))
+    sms_enabled = models.BooleanField(_("activar envio por SMS"), default=False)
+    max_sms = models.PositiveIntegerField(_("limite de SMS"), default=0)
+    valid_from = models.DateField(_("válido desde"), null=True, blank=True)
+    valid_until = models.DateField(_("válido até"), null=True, blank=True)
+    max_redemptions = models.PositiveIntegerField(
+        _("número máximo de utilizações"), default=1,
+        help_text=_("0 permite utilizações ilimitadas."),
+    )
+    is_active = models.BooleanField(_("activo"), default=True, db_index=True)
+
+    class Meta:
+        verbose_name = _("voucher")
+        verbose_name_plural = _("vouchers")
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:
+        return f"{self.code} — {self.name}"
+
+    def clean(self) -> None:
+        super().clean()
+        if self.sms_enabled and self.max_sms <= 0:
+            raise ValidationError({"max_sms": _("Indique quantos SMS este voucher permite.")})
+        if self.valid_from and self.valid_until and self.valid_until < self.valid_from:
+            raise ValidationError({"valid_until": _("A data final não pode anteceder a inicial.")})
+
+    def save(self, *args, **kwargs):
+        self.code = (self.code or "").strip().upper()
+        if not self.sms_enabled:
+            self.max_sms = 0
+        return super().save(*args, **kwargs)
+
+
+class VoucherRedemption(BaseModel):
+    """Utilização imutável de um voucher, com os benefícios em snapshot."""
+
+    voucher = models.ForeignKey(
+        Voucher, on_delete=models.PROTECT, related_name="redemptions", verbose_name=_("voucher")
+    )
+    wedding = models.OneToOneField(
+        "weddings.Wedding", on_delete=models.CASCADE,
+        related_name="voucher_redemption", verbose_name=_("evento"),
+    )
+    redeemed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True,
+        related_name="voucher_redemptions", verbose_name=_("aplicado por"),
+    )
+    guest_allowance = models.PositiveIntegerField(_("convidados concedidos"))
+    sms_allowance = models.PositiveIntegerField(_("SMS concedidos"), default=0)
+
+    class Meta:
+        verbose_name = _("utilização de voucher")
+        verbose_name_plural = _("utilizações de vouchers")
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:
+        return f"{self.voucher.code} — {self.wedding}"
 
 
 class PaymentMethod(models.TextChoices):

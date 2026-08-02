@@ -17,16 +17,17 @@ import json
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.exceptions import ValidationError
+from django.db import models
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.decorators.http import require_POST
 from django.views.decorators.clickjacking import xframe_options_sameorigin
+from django.views.decorators.http import require_POST
 
 from audit.models import AuditAction, AuditLog
 from audit.services import log_action, log_update, model_to_dict
 from events.models import EventCategory
 from subscriptions import services as subscription_services
-from subscriptions.models import Payment, PaymentStatus, Plan
+from subscriptions.models import Payment, PaymentStatus, Plan, Voucher
 from weddings.models import Wedding, WeddingStatus
 
 from . import selectors
@@ -36,6 +37,7 @@ from .forms import (
     EventCategoryForm,
     PlanForm,
     PlatformConfigurationForm,
+    VoucherForm,
 )
 from .models import PlatformConfiguration, configured_value
 
@@ -349,6 +351,43 @@ def plan_form(request: HttpRequest, plan_id=None) -> HttpResponse:
         "plans",
         "platform_admin/sections/plan_form.html",
         {"form": form, "plan": plan},
+    )
+
+
+# ---------------------------------------------------------------------
+# Vouchers
+# ---------------------------------------------------------------------
+
+
+@staff_member_required
+def vouchers(request: HttpRequest) -> HttpResponse:
+    queryset = Voucher.objects.annotate(redemption_total=models.Count("redemptions"))
+    return _render(
+        request, "vouchers", "platform_admin/sections/vouchers.html",
+        {"vouchers": queryset.order_by("-created_at")},
+    )
+
+
+@staff_member_required
+def voucher_form(request: HttpRequest, voucher_id=None) -> HttpResponse:
+    voucher = get_object_or_404(Voucher, pk=voucher_id) if voucher_id else None
+    if request.method == "POST":
+        form = VoucherForm(request.POST, instance=voucher)
+        if form.is_valid():
+            old_data = model_to_dict(voucher) if voucher else {}
+            saved = form.save()
+            if voucher:
+                log_update(saved, old_data=old_data, actor=request.user, request=request)
+            else:
+                log_action(action=AuditAction.CREATE, actor=request.user, request=request, instance=saved)
+            messages.success(request, f"Voucher «{saved.code}» guardado.")
+            return redirect("platform:vouchers")
+        messages.error(request, "Corrija os erros assinalados.")
+    else:
+        form = VoucherForm(instance=voucher)
+    return _render(
+        request, "vouchers", "platform_admin/sections/voucher_form.html",
+        {"form": form, "voucher": voucher},
     )
 
 

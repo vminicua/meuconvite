@@ -23,6 +23,9 @@ urlpatterns = [
     path("pacotes/", views.plans, name="plans"),
     path("pacotes/novo/", views.plan_form, name="plan_create"),
     path("pacotes/<uuid:plan_id>/", views.plan_form, name="plan_edit"),
+    path("vouchers/", views.vouchers, name="vouchers"),
+    path("vouchers/novo/", views.voucher_form, name="voucher_create"),
+    path("vouchers/<uuid:voucher_id>/", views.voucher_form, name="voucher_edit"),
     path("configuracoes/", views.settings_view, name="settings"),
     # Tipos de evento
     path("tipos/", views.categories, name="categories"),

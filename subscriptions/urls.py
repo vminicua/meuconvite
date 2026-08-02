@@ -8,6 +8,7 @@ app_name = "subscriptions"
 
 urlpatterns = [
     path("subscricao/", views.subscription_detail, name="detail"),
+    path("subscricao/voucher/aplicar/", views.apply_voucher, name="apply_voucher"),
     path("subscricao/pacote/<slug:plan_code>/", views.upgrade, name="upgrade"),
     path("subscricao/pagamento/<str:reference>/", views.payment_detail, name="payment"),
     path(

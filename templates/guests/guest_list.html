@@ -10,7 +10,7 @@
     <div class="alert alert-success guest-action-feedback" role="status" aria-live="polite" data-action-feedback hidden></div>
     <header class="guest-workspace__header">
         <div>
-            <p class="workspace-eyebrow mb-1">{{ enabled_count }}/{{ limits.max_guests }} activos no plano · {{ guest_count }} na lista · {% if limits.is_free %}SMS disponível nos planos pagos{% else %}{{ sms_used }}/{{ limits.max_sms }} SMS usados{% endif %}</p>
+            <p class="workspace-eyebrow mb-1">{{ enabled_count }}/{{ limits.max_guests }} activos no plano · {{ guest_count }} na lista · {% if limits.max_sms <= 0 %}SMS não incluído{% else %}{{ sms_used }}/{{ limits.max_sms }} SMS usados{% endif %}</p>
             <h2 class="h4 mb-1">Lista de convidados</h2>
             <p class="text-body-secondary mb-0">Convites individuais, confirmações e acesso ao programa num só lugar.</p>
         </div>
@@ -162,7 +162,7 @@
                     <p class="text-body-secondary">O convite individual será enviado para <strong>{{ guest.phone|default:"sem telefone" }}</strong>.</p>
                     <fieldset><legend class="form-label fw-semibold">Escolha o canal</legend>
                         <div class="invitation-channel-options">
-                            <label class="{% if limits.is_free or sms_used >= limits.max_sms %}text-body-secondary{% endif %}"><input class="form-check-input" type="radio" name="channel" value="sms" required {% if limits.is_free or sms_used >= limits.max_sms %}disabled{% endif %}> <i class="bi bi-chat-dots"></i> SMS{% if limits.is_free %} · requer plano pago{% elif sms_used >= limits.max_sms %} · limite atingido{% endif %}</label>
+                            <label class="{% if limits.max_sms <= 0 or sms_used >= limits.max_sms %}text-body-secondary{% endif %}"><input class="form-check-input" type="radio" name="channel" value="sms" required {% if limits.max_sms <= 0 or sms_used >= limits.max_sms %}disabled{% endif %}> <i class="bi bi-chat-dots"></i> SMS{% if limits.max_sms <= 0 %} · não incluído{% elif sms_used >= limits.max_sms %} · limite atingido{% endif %}</label>
                             <label><input class="form-check-input" type="radio" name="channel" value="whatsapp" required> <i class="bi bi-whatsapp"></i> WhatsApp</label>
                         </div>
                     </fieldset>

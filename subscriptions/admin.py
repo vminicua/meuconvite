@@ -5,7 +5,22 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 
 from . import services
-from .models import Payment, PaymentStatus, Plan, Subscription
+from .models import Payment, PaymentStatus, Plan, Subscription, Voucher, VoucherRedemption
+
+
+@admin.register(Voucher)
+class VoucherAdmin(admin.ModelAdmin):
+    list_display = ("code", "name", "max_guests", "sms_enabled", "max_sms", "is_active")
+    list_filter = ("is_active", "sms_enabled")
+    search_fields = ("code", "name")
+
+
+@admin.register(VoucherRedemption)
+class VoucherRedemptionAdmin(admin.ModelAdmin):
+    list_display = ("voucher", "wedding", "guest_allowance", "sms_allowance", "created_at")
+    search_fields = ("voucher__code", "wedding__primary_name", "wedding__secondary_name")
+    autocomplete_fields = ("voucher", "wedding", "redeemed_by")
+    readonly_fields = ("created_at", "updated_at")
 
 
 @admin.register(Plan)

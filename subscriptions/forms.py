@@ -58,3 +58,17 @@ class UpgradeRequestForm(BootstrapForm):
                 _("Envie uma imagem (JPG, PNG, WEBP) ou um PDF.")
             )
         return proof
+
+
+class VoucherApplyForm(BootstrapForm):
+    code = forms.CharField(
+        label=_("Código do voucher"), max_length=40,
+        widget=forms.TextInput(attrs={
+            "placeholder": _("Ex.: CELEBRAR100"),
+            "autocomplete": "off",
+            "style": "text-transform:uppercase",
+        }),
+    )
+
+    def clean_code(self) -> str:
+        return (self.cleaned_data.get("code") or "").strip().upper()

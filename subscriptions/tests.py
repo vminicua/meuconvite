@@ -8,7 +8,9 @@ from django.urls import reverse
 
 from audit.models import AuditLog
 from subscriptions import services
-from subscriptions.models import Payment, PaymentStatus, Plan, SubscriptionStatus
+from subscriptions.models import (
+    Payment, PaymentStatus, Plan, SubscriptionStatus, Voucher, VoucherRedemption,
+)
 from weddings.models import WeddingRole
 from weddings.tests.factories import (
     DEFAULT_PASSWORD,
@@ -87,6 +89,24 @@ class LimitTests(TestCase):
         services.check_can_add_guests(self.wedding, 20)
         with self.assertRaises(ValidationError):
             services.check_can_add_guests(self.wedding, 21)
+
+    def test_voucher_can_enable_sms_on_free_plan(self) -> None:
+        voucher = Voucher.objects.create(
+            code="festa100", name="Festa 100", max_guests=100,
+            sms_enabled=True, max_sms=30,
+        )
+        services.apply_voucher(wedding=self.wedding, code=" FESTA100 ", actor=self.wedding.owner)
+        allowed = services.limits(self.wedding)
+        self.assertEqual(allowed.max_guests, 100)
+        self.assertEqual(allowed.max_sms, 30)
+        services.check_can_send_sms(self.wedding)
+        self.assertTrue(VoucherRedemption.objects.filter(wedding=self.wedding, voucher=voucher).exists())
+
+    def test_voucher_cannot_be_applied_twice_to_an_event(self) -> None:
+        Voucher.objects.create(code="UNICO", name="Único", max_guests=50)
+        services.apply_voucher(wedding=self.wedding, code="UNICO", actor=self.wedding.owner)
+        with self.assertRaisesMessage(ValidationError, "já utilizou um voucher"):
+            services.apply_voucher(wedding=self.wedding, code="UNICO", actor=self.wedding.owner)
 
 
 class PaymentFlowTests(TestCase):
@@ -208,6 +228,18 @@ class SubscriptionViewTests(TestCase):
             response,
             reverse("subscriptions:payment", args=[self.wedding.pk, payment.reference]),
         )
+
+    def test_owner_can_apply_a_voucher(self) -> None:
+        Voucher.objects.create(
+            code="NOIVOS50", name="Noivos 50", max_guests=50,
+            sms_enabled=True, max_sms=10,
+        )
+        response = self.client.post(
+            reverse("subscriptions:apply_voucher", args=[self.wedding.pk]),
+            data={"code": "noivos50"},
+        )
+        self.assertRedirects(response, reverse("subscriptions:detail", args=[self.wedding.pk]))
+        self.assertEqual(services.limits(self.wedding).max_sms, 10)
 
     def test_payment_page_shows_the_instructions(self) -> None:
         payment = services.request_upgrade(

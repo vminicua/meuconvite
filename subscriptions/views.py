@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from django.contrib import messages
 from django.core.exceptions import ValidationError
-from django.http import HttpRequest, HttpResponse
+from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from weddings.permissions import capability_flags, require_wedding
 
 from . import services
-from .forms import UpgradeRequestForm
+from .forms import UpgradeRequestForm, VoucherApplyForm
 from .models import Payment, PaymentStatus, Plan
 
 
@@ -85,8 +85,35 @@ def subscription_detail(request: HttpRequest, wedding) -> HttpResponse:
             "capabilities": capabilities,
             "upgrade_form": upgrade_form,
             "selected_plan_code": selected_plan_code,
+            "voucher_form": VoucherApplyForm(),
+            "voucher_redemption": getattr(wedding, "voucher_redemption", None),
         },
     )
+
+
+@require_POST
+@require_wedding("can_manage_billing")
+def apply_voucher(request: HttpRequest, wedding) -> HttpResponse:
+    form = VoucherApplyForm(request.POST)
+    if form.is_valid():
+        try:
+            redemption = services.apply_voucher(
+                wedding=wedding, code=form.cleaned_data["code"],
+                actor=request.user, request=request,
+            )
+        except ValidationError as exc:
+            for message in exc.messages:
+                messages.error(request, message)
+        else:
+            messages.success(
+                request,
+                f"Voucher {redemption.voucher.code} aplicado: "
+                f"até {redemption.guest_allowance} convidados"
+                + (f" e {redemption.sms_allowance} SMS." if redemption.sms_allowance else "."),
+            )
+    else:
+        messages.error(request, "Introduza um código de voucher válido.")
+    return redirect("subscriptions:detail", wedding_id=wedding.pk)
 
 
 @require_wedding("can_manage_billing")

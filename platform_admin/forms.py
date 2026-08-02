@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from core.forms import BootstrapForm, BootstrapModelForm
 from core.schema import FIELD_TYPES, MAX_FIELDS, slugify_key, validate_schema
 from events.models import EventCategory
-from subscriptions.models import Plan
+from subscriptions.models import Plan, Voucher
 from templates_manager.models import InvitationTemplate
 from .models import PlatformConfiguration
 
@@ -124,6 +124,29 @@ class PlanForm(BootstrapModelForm):
         if commit and plan.is_default:
             Plan.objects.exclude(pk=plan.pk).filter(is_default=True).update(is_default=False)
         return plan
+
+
+class VoucherForm(BootstrapModelForm):
+    """Criação dos códigos promocionais usados pelos noivos."""
+
+    class Meta:
+        model = Voucher
+        fields = [
+            "name", "code", "description", "max_guests", "sms_enabled", "max_sms",
+            "valid_from", "valid_until", "max_redemptions", "is_active",
+        ]
+        widgets = {
+            "valid_from": forms.DateInput(),
+            "valid_until": forms.DateInput(),
+        }
+        help_texts = {
+            "code": _("Código entregue aos noivos; será guardado em maiúsculas."),
+            "max_redemptions": _("0 permite utilizações ilimitadas."),
+            "max_sms": _("Só é usado quando «activar envio por SMS» estiver marcado."),
+        }
+
+    def clean_code(self) -> str:
+        return (self.cleaned_data.get("code") or "").strip().upper()
 
 
 class EventCategoryForm(BootstrapModelForm):

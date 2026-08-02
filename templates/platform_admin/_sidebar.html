@@ -44,6 +44,11 @@ actualiza o URL, para a mudança de secção ser instantânea.
             <i class="bi bi-gem"></i><span>Pacotes</span>
         </a>
 
+        <a class="admin-nav__item {% if section == 'vouchers' %}is-active{% endif %}"
+           href="{% url 'platform:vouchers' %}" hx-get="{% url 'platform:vouchers' %}">
+            <i class="bi bi-ticket-perforated"></i><span>Vouchers</span>
+        </a>
+
         <span class="admin-nav__group">Configuração</span>
 
         <a class="admin-nav__item {% if section == 'categories' %}is-active{% endif %}"

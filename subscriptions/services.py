@@ -26,6 +26,8 @@ from .models import (
     Plan,
     Subscription,
     SubscriptionStatus,
+    Voucher,
+    VoucherRedemption,
 )
 
 # Usado quando ainda não existe nenhum plano na base de dados (instalação
@@ -106,11 +108,31 @@ def ensure_subscription(wedding) -> Subscription | None:
 def limits(wedding) -> Limits:
     """Limites em vigor para este evento."""
     subscription = get_subscription(wedding)
+    redemption = getattr(wedding, "voucher_redemption", None)
+
+    def with_voucher(resolved: Limits) -> Limits:
+        if redemption is None:
+            return resolved
+        return Limits(
+            plan_name=f"{resolved.plan_name} + Voucher {redemption.voucher.code}",
+            max_guests=max(resolved.max_guests, redemption.guest_allowance),
+            max_events=resolved.max_events,
+            max_sms=max(resolved.max_sms, redemption.sms_allowance),
+            allows_qr_checkin=resolved.allows_qr_checkin,
+            allows_seating=resolved.allows_seating,
+            allows_team=resolved.allows_team,
+            allows_exports=resolved.allows_exports,
+            removes_branding=resolved.removes_branding,
+            templates_limit=resolved.templates_limit,
+            is_free=resolved.is_free,
+            status=resolved.status,
+            days_remaining=resolved.days_remaining,
+        )
 
     if subscription is None or not subscription.is_active:
         plan = subscription.plan if subscription else default_plan()
         if plan is None:
-            return Limits(
+            return with_voucher(Limits(
                 plan_name=str(_("Gratuito")),
                 max_guests=FALLBACK_GUEST_LIMIT,
                 max_events=1,
@@ -124,10 +146,10 @@ def limits(wedding) -> Limits:
                 is_free=True,
                 status=SubscriptionStatus.ACTIVE,
                 days_remaining=None,
-            )
+            ))
         # Subscrição expirada: volta-se ao plano inicial, sem perder dados.
         fallback = default_plan() or plan
-        return Limits(
+        return with_voucher(Limits(
             plan_name=fallback.name,
             max_guests=fallback.max_guests,
             max_events=fallback.max_events,
@@ -141,10 +163,10 @@ def limits(wedding) -> Limits:
             is_free=fallback.is_free,
             status=subscription.status if subscription else SubscriptionStatus.ACTIVE,
             days_remaining=subscription.days_remaining if subscription else None,
-        )
+        ))
 
     plan = subscription.plan
-    return Limits(
+    return with_voucher(Limits(
         plan_name=plan.name,
         # O que foi comprado manda, mesmo que o plano mude depois.
         max_guests=subscription.guest_allowance or plan.max_guests,
@@ -161,7 +183,45 @@ def limits(wedding) -> Limits:
         is_free=plan.is_free,
         status=subscription.status,
         days_remaining=subscription.days_remaining,
+    ))
+
+
+@transaction.atomic
+def apply_voucher(*, wedding, code: str, actor=None, request=None) -> VoucherRedemption:
+    """Valida e consome um voucher sem permitir reutilização no mesmo evento."""
+    normalised = (code or "").strip().upper()
+    if not normalised:
+        raise ValidationError(_("Introduza o código do voucher."))
+    if VoucherRedemption.objects.select_for_update().filter(wedding=wedding).exists():
+        raise ValidationError(_("Este evento já utilizou um voucher."))
+
+    try:
+        voucher = Voucher.objects.select_for_update().get(code__iexact=normalised)
+    except Voucher.DoesNotExist as exc:
+        raise ValidationError(_("O código do voucher não existe.")) from exc
+
+    today = timezone.localdate()
+    if not voucher.is_active:
+        raise ValidationError(_("Este voucher está desactivado."))
+    if voucher.valid_from and today < voucher.valid_from:
+        raise ValidationError(_("Este voucher ainda não está disponível."))
+    if voucher.valid_until and today > voucher.valid_until:
+        raise ValidationError(_("Este voucher expirou."))
+    if voucher.max_redemptions and voucher.redemptions.count() >= voucher.max_redemptions:
+        raise ValidationError(_("Este voucher já atingiu o limite de utilizações."))
+
+    redemption = VoucherRedemption.objects.create(
+        voucher=voucher,
+        wedding=wedding,
+        redeemed_by=actor,
+        guest_allowance=voucher.max_guests,
+        sms_allowance=voucher.max_sms if voucher.sms_enabled else 0,
     )
+    log_action(
+        action=AuditAction.CREATE, actor=actor, request=request,
+        instance=redemption, wedding=wedding,
+    )
+    return redemption
 
 
 def guest_count(wedding) -> int:
@@ -260,11 +320,11 @@ def sms_count(wedding) -> int:
 def check_can_send_sms(wedding) -> None:
     """Impede envios quando a quota de SMS do pacote foi atingida."""
     allowed = limits(wedding)
-    if allowed.is_free or allowed.max_sms <= 0:
+    if allowed.max_sms <= 0:
         raise ValidationError(
             _(
-                "O pacote gratuito não inclui envios por SMS. "
-                "Subscreva um pacote pago para utilizar este canal."
+                "A subscrição actual não inclui envios por SMS. "
+                "Subscreva um pacote ou aplique um voucher com SMS."
             )
         )
     if sms_count(wedding) >= allowed.max_sms:

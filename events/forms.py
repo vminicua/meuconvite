@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import date, datetime, timedelta
+
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
@@ -136,6 +138,28 @@ class WeddingEventForm(BootstrapModelForm):
             required=False,
             widget=forms.Select(attrs={"class": "form-select"}),
         )
+        if not self.is_bound and self.instance and self.instance.pk:
+            event = self.instance
+            if not event.description:
+                self.initial["description"] = _("%(event)s de %(couple)s.") % {
+                    "event": event.name, "couple": event.wedding.display_names,
+                }
+            if not event.date:
+                self.initial["date"] = event.wedding.main_date
+            if event.start_time and not event.end_time:
+                suggested = datetime.combine(date.today(), event.start_time) + timedelta(minutes=90)
+                if suggested.date() == date.today():
+                    self.initial["end_time"] = suggested.time().replace(second=0, microsecond=0)
+            if event.location and not event.map_url:
+                self.initial["map_url"] = event.location.map_url or event.location.directions_url
+            if not event.dress_code and event.event_type in {"religious", "civil", "reception"}:
+                self.initial["dress_code"] = "Traje formal"
+            if not event.instructions:
+                self.initial["instructions"] = _(
+                    "Pedimos que chegue 30 minutos antes do início para uma recepção tranquila."
+                )
+            if not event.host_family and event.event_type in {"lobolo", "xiguiane"}:
+                self.initial["host_family"] = _("Família anfitriã")
 
     def clean(self):
         cleaned = super().clean()
