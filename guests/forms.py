@@ -27,8 +27,10 @@ class GuestForm(BootstrapModelForm):
             ),
         }
 
-    def __init__(self, *args, wedding=None, **kwargs):
+    def __init__(self, *args, wedding=None, allow_seating=True, **kwargs):
         super().__init__(*args, **kwargs)
+        if not allow_seating:
+            self.fields.pop("seating_assignment", None)
         if wedding is not None:
             self.fields["allowed_events"].queryset = wedding.events.filter(
                 is_active=True

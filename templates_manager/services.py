@@ -76,14 +76,14 @@ def invitation_context(
         programme_qs.filter(requires_qr_code=True).order_by("date", "start_time", "display_order")
     ) if include_qr else []
     qr_data_uri = ""
-    if qr_events:
+    if include_qr:
         # O convite público terá um token por convidado. No estúdio usamos um
         # endereço de demonstração estável para que a página de QR também faça
         # parte da pré-visualização completa.
         qr_url = (
-            f"{settings.SITE_BASE_URL}/convite/{guest.invitation_token}/"
+            f"{settings.SITE_BASE_URL}/check-in/{guest.invitation_token}/"
             if guest is not None
-            else f"{settings.SITE_BASE_URL}/convite/{wedding.public_token}/demo/"
+            else f"{settings.SITE_BASE_URL}/check-in/demo/{wedding.public_token}/"
         )
         # O QR precisa de contraste real, não apenas de combinar com a cor
         # decorativa do template. Ordenar papel/tinta pela luminosidade evita

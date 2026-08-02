@@ -89,7 +89,7 @@ def get_subscription(wedding) -> Subscription | None:
 
 
 @transaction.atomic
-def ensure_subscription(wedding) -> Subscription | None:
+def ensure_subscription(wedding, *, allow_free: bool = True) -> Subscription | None:
     """
     Garante que o evento tem uma subscrição.
 
@@ -108,9 +108,19 @@ def ensure_subscription(wedding) -> Subscription | None:
     return Subscription.objects.create(
         wedding=wedding,
         plan=plan,
-        status=SubscriptionStatus.ACTIVE,
+        status=SubscriptionStatus.ACTIVE if allow_free else SubscriptionStatus.PENDING,
         guest_allowance=plan.max_guests,
         sms_allowance=plan.max_sms,
+    )
+
+
+def event_requires_upgrade(wedding) -> bool:
+    """Eventos adicionais começam bloqueados: cada conta recebe um único evento grátis."""
+    subscription = get_subscription(wedding)
+    return bool(
+        subscription
+        and subscription.plan.is_free
+        and subscription.status == SubscriptionStatus.PENDING
     )
 
 
@@ -118,6 +128,23 @@ def limits(wedding) -> Limits:
     """Limites em vigor para este evento."""
     subscription = get_subscription(wedding)
     redemption = getattr(wedding, "voucher_redemption", None)
+
+    if event_requires_upgrade(wedding):
+        return Limits(
+            plan_name=str(_("Aguardando upgrade")),
+            max_guests=0,
+            max_events=1,
+            max_sms=0,
+            allows_qr_checkin=True,
+            allows_seating=False,
+            allows_team=False,
+            allows_exports=False,
+            removes_branding=False,
+            templates_limit=0,
+            is_free=False,
+            status=SubscriptionStatus.PENDING,
+            days_remaining=None,
+        )
 
     def with_voucher(resolved: Limits) -> Limits:
         if redemption is None:
@@ -146,7 +173,7 @@ def limits(wedding) -> Limits:
                 max_guests=FALLBACK_GUEST_LIMIT,
                 max_events=1,
                 max_sms=FALLBACK_SMS_LIMIT,
-                allows_qr_checkin=False,
+                allows_qr_checkin=True,
                 allows_seating=False,
                 allows_team=False,
                 allows_exports=False,
@@ -163,7 +190,7 @@ def limits(wedding) -> Limits:
             max_guests=fallback.max_guests,
             max_events=fallback.max_events,
             max_sms=0 if fallback.is_free else fallback.max_sms,
-            allows_qr_checkin=fallback.allows_qr_checkin,
+            allows_qr_checkin=True,
             allows_seating=fallback.allows_seating,
             allows_team=fallback.allows_team,
             allows_exports=fallback.allows_exports,
@@ -183,7 +210,7 @@ def limits(wedding) -> Limits:
         # O plano gratuito nunca envia SMS, mesmo que uma subscrição antiga
         # ainda guarde uma quota anterior no respectivo snapshot.
         max_sms=0 if plan.is_free else subscription.sms_allowance,
-        allows_qr_checkin=plan.allows_qr_checkin,
+        allows_qr_checkin=True,
         allows_seating=plan.allows_seating,
         allows_team=plan.allows_team,
         allows_exports=plan.allows_exports,
@@ -193,6 +220,20 @@ def limits(wedding) -> Limits:
         status=subscription.status,
         days_remaining=subscription.days_remaining,
     ))
+
+
+def allowed_template_codes(wedding, templates) -> set[str]:
+    """Templates incluídos, contando sempre o template já aplicado dentro do limite."""
+    catalogue = list(templates)
+    template_limit = limits(wedding).templates_limit
+    if template_limit <= 0:
+        return {item.code for item in catalogue}
+    allowed = {wedding.selected_template}
+    for item in catalogue:
+        if len(allowed) >= template_limit:
+            break
+        allowed.add(item.code)
+    return allowed
 
 
 @transaction.atomic

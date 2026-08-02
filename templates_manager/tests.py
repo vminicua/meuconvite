@@ -81,17 +81,17 @@ class CatalogueTests(TestCase):
         expected_display_fonts = {
             "carta-selada": "Italianno",
             "envelope-botanico": "Great Vibes",
-            "classico-dourado": "Cinzel",
-            "luxo-preto": "Cinzel",
-            "capulana": "Cinzel",
+            "classico-dourado": "Allura",
+            "luxo-preto": "Parisienne",
+            "capulana": "Allura",
             "floral-rosa": "Great Vibes",
-            "minimal-branco": "Cormorant Garamond",
-            "azul-marinho": "Cinzel",
-            "terracota": "Cormorant Garamond",
-            "tropical": "Cormorant Garamond",
-            "lavanda": "Cormorant Garamond",
-            "areia-dourada": "Cormorant Garamond",
-            "noite-estrelada": "Cinzel",
+            "minimal-branco": "Parisienne",
+            "azul-marinho": "Allura",
+            "terracota": "Great Vibes",
+            "tropical": "Italianno",
+            "lavanda": "Parisienne",
+            "areia-dourada": "Allura",
+            "noite-estrelada": "Italianno",
         }
         for code, family in expected_display_fonts.items():
             with self.subTest(template=code):

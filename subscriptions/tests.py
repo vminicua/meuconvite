@@ -47,7 +47,7 @@ class LimitTests(TestCase):
         self.assertEqual(limits.max_guests, 20)
         self.assertEqual(limits.max_sms, 0)
         self.assertTrue(limits.is_free)
-        self.assertFalse(limits.allows_qr_checkin)
+        self.assertTrue(limits.allows_qr_checkin)
 
     def test_free_plan_cannot_send_sms(self) -> None:
         with self.assertRaisesMessage(ValidationError, "não inclui envios por SMS"):

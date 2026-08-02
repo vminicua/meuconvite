@@ -804,6 +804,7 @@ main {
 .program-badge { padding: .25rem .55rem; border-radius: 2rem; background: #f4ecdf; color: #846a34; font-size: .68rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
 
 .workspace-sticky-card { position: sticky; top: 5.5rem; }
+.event-upgrade-lock{display:flex;align-items:center;gap:.75rem;padding:.75rem .9rem;border:1px solid #dcc88f;border-radius:.75rem;background:#fff9e9;color:#57451f}.event-upgrade-lock>i{display:grid;place-items:center;width:2rem;height:2rem;border-radius:50%;background:#ead8a6}.event-upgrade-lock>div{display:grid;flex:1}.event-upgrade-lock span{color:#776b52;font-size:.72rem}.nav-link[data-upgrade-modal]{color:#8a7d68}.nav-link[data-upgrade-modal]:hover{background:#f8f1e2;color:#70551d}@media(max-width:575.98px){.event-upgrade-lock{align-items:flex-start;flex-wrap:wrap}.event-upgrade-lock .btn{width:100%}}
 
 .empty-state {
     background-color: var(--mc-surface);
@@ -970,3 +971,5 @@ main {
 .invitation-preview-frame.is-loaded { opacity:1; }
 @media (max-width:1199.98px) { .gift-grid--wide { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media (max-width:767.98px) { .cover-studio--phone { grid-template-columns:1fr; }.cover-phone { margin:auto; }.gift-grid--wide { grid-template-columns:1fr; } }
+.template-choice.is-locked .template-card{position:relative;filter:saturate(.7)}
+.template-choice.is-locked .template-card::after{content:"Premium";position:absolute;top:.75rem;right:.75rem;padding:.28rem .55rem;border-radius:999px;background:#17202a;color:#fff;font-size:.68rem;font-weight:700;letter-spacing:.06em;box-shadow:0 5px 18px rgba(0,0,0,.2)}

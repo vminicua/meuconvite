@@ -36,6 +36,7 @@
                             {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}{{ field.errors }}
                         </div>
                         {% endfor %}
+                        {% if not capabilities.allows_seating %}<div class="col-md-6"><label class="form-label">Mesa / cadeira <i class="bi bi-lock-fill text-primary"></i></label><button type="button" class="form-control text-start text-body-secondary" data-upgrade-modal data-upgrade-feature="Gestão de mesas" data-upgrade-url="{% url 'subscriptions:detail' wedding.pk %}">Disponível num pacote superior</button></div>{% endif %}
                     </div>
                     <div class="d-flex gap-2 mt-4">
                         <button class="btn btn-primary" type="submit"><i class="bi bi-person-check me-1"></i>Adicionar à lista</button>
@@ -60,7 +61,7 @@
             <select class="form-select" data-page-size aria-label="Quantidade de registos por página">
                 <option value="10">10 registos</option><option value="25">25 registos</option><option value="50">50 registos</option><option value="all">Todos</option>
             </select>
-            <a class="btn btn-outline-secondary text-nowrap" href="{% url 'guests:export_excel' wedding.pk %}" data-export-excel><i class="bi bi-file-earmark-excel me-1"></i> Exportar Excel</a>
+            <a class="btn btn-outline-secondary text-nowrap" href="{% url 'guests:export_excel' wedding.pk %}" data-export-excel {% if not capabilities.allows_exports %}data-upgrade-modal data-upgrade-feature="Exportação Excel" data-upgrade-url="{% url 'subscriptions:detail' wedding.pk %}"{% endif %}><i class="bi bi-file-earmark-excel me-1"></i> Exportar Excel{% if not capabilities.allows_exports %} <i class="bi bi-lock-fill"></i>{% endif %}</a>
         </div>
         <div class="table-responsive">
             <table class="table guest-table align-middle mb-0">
@@ -136,7 +137,7 @@
                     <div class="text-center border rounded-3 p-3 mb-3">
                         <img data-share-cover-image alt="Capa do convite" class="d-block mx-auto mb-3 rounded-3" style="width:180px;max-width:100%;height:220px;object-fit:cover">
                         <img data-share-qr-image alt="QR Code individual" style="width:180px;max-width:100%;height:auto">
-                        <div class="small text-body-secondary mt-2">O mesmo acesso pode ser copiado, mostrado em QR ou partilhado.</div>
+                        <div class="small text-body-secondary mt-2">A ligação abre o convite; este QR abre a credencial de entrada com nome, lugares e mesa.</div>
                     </div>
                     <div class="d-grid gap-2">
                         <button class="btn btn-success" type="button" data-share-with-cover><i class="bi bi-whatsapp me-2"></i>Partilhar capa e mensagem</button>
@@ -164,7 +165,7 @@
                     <p class="text-body-secondary">O convite individual será enviado para <strong>{{ guest.phone|default:"sem telefone" }}</strong>.</p>
                     <fieldset><legend class="form-label fw-semibold">Escolha o canal</legend>
                         <div class="invitation-channel-options">
-                            <label class="{% if limits.max_sms <= 0 or sms_used >= limits.max_sms %}text-body-secondary{% endif %}"><input class="form-check-input" type="radio" name="channel" value="sms" required {% if limits.max_sms <= 0 or sms_used >= limits.max_sms %}disabled{% endif %}> <i class="bi bi-chat-dots"></i> SMS{% if limits.max_sms <= 0 %} · não incluído{% elif sms_used >= limits.max_sms %} · limite atingido{% endif %}</label>
+                            <label class="{% if limits.max_sms <= 0 or sms_used >= limits.max_sms %}text-body-secondary{% endif %}" {% if limits.max_sms <= 0 %}data-upgrade-modal data-upgrade-feature="Convites por SMS" data-upgrade-url="{% url 'subscriptions:detail' wedding.pk %}"{% endif %}><input class="form-check-input" type="radio" name="channel" value="sms" required {% if limits.max_sms <= 0 or sms_used >= limits.max_sms %}disabled{% endif %}> <i class="bi bi-chat-dots"></i> SMS{% if limits.max_sms <= 0 %} · não incluído <i class="bi bi-lock-fill"></i>{% elif sms_used >= limits.max_sms %} · limite atingido{% endif %}</label>
                             <label><input class="form-check-input" type="radio" name="channel" value="whatsapp" required> <i class="bi bi-whatsapp"></i> WhatsApp</label>
                         </div>
                     </fieldset>
@@ -197,6 +198,7 @@
                                 {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
                             </div>
                             {% endfor %}
+                            {% if not capabilities.allows_seating %}<div class="col-md-6"><label class="form-label">Mesa / cadeira <i class="bi bi-lock-fill text-primary"></i></label><button type="button" class="form-control text-start text-body-secondary" data-upgrade-modal data-upgrade-feature="Gestão de mesas" data-upgrade-url="{% url 'subscriptions:detail' wedding.pk %}">Disponível num pacote superior</button></div>{% endif %}
                         </div>
                     </div>
                     <div class="modal-footer">

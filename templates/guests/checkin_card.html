@@ -1,0 +1,44 @@
+{% load static %}<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="robots" content="noindex,nofollow">
+    <title>Entrada · {{ wedding.display_names }}</title>
+    <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="{% static 'css/checkin-card.css' %}?v=20260802.1" rel="stylesheet">
+</head>
+<body style="--checkin-primary:{{ wedding.primary_color }};--checkin-secondary:{{ wedding.secondary_color }}">
+    <main class="checkin-shell">
+        <section class="checkin-card{% if is_demo %} is-demo{% endif %}">
+            <div class="checkin-card__glow"></div>
+            <header>
+                <span class="checkin-brand"><i class="bi bi-envelope-heart"></i> MeuConvite</span>
+                <span class="checkin-status"><i class="bi bi-patch-check-fill"></i>{% if is_demo %}Demonstração{% else %}Credencial encontrada{% endif %}</span>
+            </header>
+            <div class="checkin-card__event">
+                <p>{{ wedding.category_name }}</p>
+                <h1>{{ wedding.display_names }}</h1>
+                <span><i class="bi bi-calendar3"></i>{{ wedding.main_date|date:"d \d\e F \d\e Y" }}</span>
+            </div>
+            <div class="checkin-card__identity">
+                <span class="checkin-card__eyebrow">Convidado</span>
+                <h2>{% if guest %}{{ guest.full_name }}{% else %}Élio Nhaca{% endif %}</h2>
+                <div class="checkin-facts">
+                    <div><i class="bi bi-people-fill"></i><span>Lugares</span><strong>{% if guest %}{{ guest.party_size }}{% else %}2{% endif %}</strong></div>
+                    <div><i class="bi bi-geo-alt-fill"></i><span>Mesa / cadeira</span><strong>{% if guest and guest.seating_assignment %}{{ guest.seating_assignment }}{% elif is_demo %}Mesa dos Jacarandás{% else %}Por atribuir{% endif %}</strong></div>
+                </div>
+            </div>
+            {% if qr_events %}<div class="checkin-card__programme">
+                <span class="checkin-card__eyebrow">Entrada autorizada</span>
+                {% for event in qr_events %}<div class="checkin-event"><i class="bi bi-check2"></i><span><strong>{{ event.name }}</strong>{% if event.start_time %}<small>{{ event.start_time|time:"H\hi" }}</small>{% endif %}</span></div>{% endfor %}
+            </div>{% endif %}
+            <footer><i class="bi bi-shield-check"></i><span>Apresente este ecrã à equipa de recepção.</span></footer>
+        </section>
+    </main>
+</body>
+</html>

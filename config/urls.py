@@ -39,6 +39,8 @@ urlpatterns = [
         name="invitation_default_music",
     ),
     path("convite/<str:token>/", guest_views.guest_invitation, name="guest_invitation"),
+    path("check-in/<str:token>/", guest_views.guest_checkin, name="guest_checkin"),
+    path("check-in/demo/<str:token>/", guest_views.guest_checkin_demo, name="guest_checkin_demo"),
     path(
         "convite/<str:token>/partilha.jpg",
         guest_views.guest_invitation_share_image,

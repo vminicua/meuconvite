@@ -1,4 +1,4 @@
-{% if qr_data_uri and qr_events %}
+{% if qr_data_uri %}
 <section class="inv-section inv-section--qr" aria-label="QR Code pessoal do convidado">
     <p class="inv-qr__eyebrow">Entrada digital</p>
     <h2 class="inv-section__title">O seu QR Code</h2>
@@ -13,11 +13,11 @@
     <p class="inv-text inv-qr__instructions">
         Apresente este código à entrada. É pessoal e identifica os seus lugares reservados.
     </p>
-    <ul class="inv-qr__events">
+    {% if qr_events %}<ul class="inv-qr__events">
         {% for event in qr_events %}
             <li><i class="bi bi-check2-circle" aria-hidden="true"></i>{{ event.name }}</li>
         {% endfor %}
-    </ul>
+    </ul>{% endif %}
     {% if is_preview %}<p class="inv-note">QR de demonstração — cada convidado receberá o seu código individual.</p>{% endif %}
 </section>
 {% endif %}

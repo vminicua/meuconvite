@@ -75,9 +75,9 @@
     </div>
 
     <div class="col-xl-4 details-sticky-column">
-        <section class="details-panel sms-studio sms-studio--simple">
+        <section class="details-panel sms-studio sms-studio--simple" {% if not capabilities.allows_sms %}data-upgrade-modal data-upgrade-feature="Convites por SMS" data-upgrade-url="{% url 'subscriptions:detail' wedding.pk %}"{% endif %}>
             <div class="details-panel__heading"><span class="details-panel__number"><i class="bi bi-chat-heart"></i></span><div><h3>Mensagem do convite</h3><p>Escreva como se fossem vocês a falar directamente com o convidado.</p></div></div>
-            <label class="form-label mt-4" for="{{ form.sms_invitation_message.id_for_label }}">{{ form.sms_invitation_message.label }}</label>{{ form.sms_invitation_message }}
+            <label class="form-label mt-4" for="{{ form.sms_invitation_message.id_for_label }}">{{ form.sms_invitation_message.label }}{% if not capabilities.allows_sms %} <i class="bi bi-lock-fill text-primary"></i>{% endif %}</label>{{ form.sms_invitation_message }}
             <div class="d-flex justify-content-between gap-2"><div class="form-text">Sem acentos ou emojis. Use {nome}, {evento} e {link}. O SMS final nunca pode ultrapassar 160 caracteres.</div><div class="form-text text-nowrap"><span data-sms-count>0</span>/100</div></div>
             {% for error in form.sms_invitation_message.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
         </section>

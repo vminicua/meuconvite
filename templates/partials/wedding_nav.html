@@ -20,45 +20,53 @@
         </div>
     </div>
 
+    {% if capabilities.event_locked %}
+    <div class="event-upgrade-lock mt-3">
+        <i class="bi bi-lock-fill"></i>
+        <div><strong>Este é um evento adicional</strong><span>A sua conta já utilizou o evento gratuito. Escolha um pacote para começar a configurá-lo.</span></div>
+        <a class="btn btn-sm btn-dark" href="{% url 'subscriptions:detail' wedding.pk %}">Desbloquear evento</a>
+    </div>
+    {% endif %}
+
     <ul class="nav nav-pills wedding-nav mt-3 flex-nowrap overflow-auto pb-1" aria-label="Área do evento">
         <li class="nav-item">
             <a class="nav-link {% if request.resolver_match.url_name == 'preview' %}active{% endif %}"
-               data-workspace-nav href="{% url 'weddings:preview' wedding.pk %}"><i class="bi bi-eye me-1"></i>Convite</a>
+               {% if capabilities.event_locked %}data-upgrade-modal data-upgrade-feature="Convite" data-upgrade-url="{% url 'subscriptions:detail' wedding.pk %}"{% else %}data-workspace-nav{% endif %} href="{% url 'weddings:preview' wedding.pk %}"><i class="bi bi-eye me-1"></i>Convite</a>
         </li>
         <li class="nav-item">
             <a class="nav-link {% if request.resolver_match.url_name == 'detail' or request.resolver_match.url_name == 'settings' %}active{% endif %}"
-               data-workspace-nav href="{% url 'weddings:detail' wedding.pk %}"><i class="bi bi-card-checklist me-1"></i>Detalhes do evento</a>
+               {% if capabilities.event_locked %}data-upgrade-modal data-upgrade-feature="Detalhes do evento" data-upgrade-url="{% url 'subscriptions:detail' wedding.pk %}"{% else %}data-workspace-nav{% endif %} href="{% url 'weddings:detail' wedding.pk %}"><i class="bi bi-card-checklist me-1"></i>Detalhes do evento</a>
         </li>
         <li class="nav-item">
             <a class="nav-link {% if request.resolver_match.namespace == 'events' %}active{% endif %}"
-               data-workspace-nav href="{% url 'events:organisation' wedding.pk %}"><i class="bi bi-calendar3 me-1"></i>Programa</a>
+               {% if capabilities.event_locked %}data-upgrade-modal data-upgrade-feature="Programa" data-upgrade-url="{% url 'subscriptions:detail' wedding.pk %}"{% else %}data-workspace-nav{% endif %} href="{% url 'events:organisation' wedding.pk %}"><i class="bi bi-calendar3 me-1"></i>Programa</a>
         </li>
-        {% if capabilities.can_manage_design %}
+        {% if capabilities.can_manage_design or capabilities.event_locked and capabilities.is_owner %}
             <li class="nav-item">
                 <a class="nav-link {% if 'gallery' in request.resolver_match.url_name %}active{% endif %}"
-                   data-workspace-nav href="{% url 'weddings:gallery' wedding.pk %}"><i class="bi bi-images me-1"></i>Galeria</a>
+                   {% if capabilities.event_locked %}data-upgrade-modal data-upgrade-feature="Galeria" data-upgrade-url="{% url 'subscriptions:detail' wedding.pk %}"{% else %}data-workspace-nav{% endif %} href="{% url 'weddings:gallery' wedding.pk %}"><i class="bi bi-images me-1"></i>Galeria</a>
             </li>
         {% endif %}
-        {% if capabilities.can_manage_guests %}
+        {% if capabilities.can_manage_guests or capabilities.event_locked and capabilities.is_owner %}
             <li class="nav-item">
                 <a class="nav-link {% if request.resolver_match.url_name == 'list' or request.resolver_match.url_name == 'edit' %}active{% endif %}"
-                   data-workspace-nav href="{% url 'guests:list' wedding.pk %}"><i class="bi bi-people me-1"></i>Convidados</a>
+                   {% if capabilities.event_locked %}data-upgrade-modal data-upgrade-feature="Convidados" data-upgrade-url="{% url 'subscriptions:detail' wedding.pk %}"{% else %}data-workspace-nav{% endif %} href="{% url 'guests:list' wedding.pk %}"><i class="bi bi-people me-1"></i>Convidados</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link {% if 'gift' in request.resolver_match.url_name %}active{% endif %}"
-                   data-workspace-nav href="{% url 'guests:gifts' wedding.pk %}"><i class="bi bi-gift me-1"></i>Presentes</a>
+                   {% if capabilities.event_locked %}data-upgrade-modal data-upgrade-feature="Presentes" data-upgrade-url="{% url 'subscriptions:detail' wedding.pk %}"{% else %}data-workspace-nav{% endif %} href="{% url 'guests:gifts' wedding.pk %}"><i class="bi bi-gift me-1"></i>Presentes</a>
             </li>
         {% endif %}
-        {% if capabilities.can_manage_design %}
+        {% if capabilities.can_manage_design or capabilities.event_locked and capabilities.is_owner %}
             <li class="nav-item">
                 <a class="nav-link {% if request.resolver_match.url_name == 'design' %}active{% endif %}"
-                   data-workspace-nav href="{% url 'weddings:design' wedding.pk %}"><i class="bi bi-palette me-1"></i>Aspecto</a>
+                   {% if capabilities.event_locked %}data-upgrade-modal data-upgrade-feature="Aspecto do convite" data-upgrade-url="{% url 'subscriptions:detail' wedding.pk %}"{% else %}data-workspace-nav{% endif %} href="{% url 'weddings:design' wedding.pk %}"><i class="bi bi-palette me-1"></i>Aspecto</a>
             </li>
         {% endif %}
         {% if capabilities.is_owner or capabilities.manage_members %}
             <li class="nav-item">
                 <a class="nav-link {% if 'team' in request.resolver_match.url_name %}active{% endif %}"
-                   data-workspace-nav href="{% url 'weddings:team' wedding.pk %}"><i class="bi bi-person-gear me-1"></i>Equipa</a>
+                   {% if not capabilities.allows_team %}data-upgrade-modal data-upgrade-feature="Equipa do evento" data-upgrade-url="{% url 'subscriptions:detail' wedding.pk %}"{% else %}data-workspace-nav{% endif %} href="{% url 'weddings:team' wedding.pk %}"><i class="bi bi-person-gear me-1"></i>Equipa{% if not capabilities.allows_team %}<i class="bi bi-lock-fill ms-1 small"></i>{% endif %}</a>
             </li>
         {% endif %}
         {% if capabilities.can_manage_billing %}

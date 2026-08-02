@@ -44,7 +44,7 @@ def weddings_for_user(user) -> QuerySet[Wedding]:
     return (
         Wedding.objects.for_user(user)
         .exclude(status=WeddingStatus.ARCHIVED)
-        .select_related("owner")
+        .select_related("owner", "subscription", "subscription__plan")
         .annotate(
             event_count=Count("events", filter=Q(events__is_active=True), distinct=True),
             member_count=Count("members", filter=Q(members__is_active=True), distinct=True),

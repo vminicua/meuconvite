@@ -6,7 +6,7 @@
 {% block extra_css %}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:wght@400;600&family=Playfair+Display:wght@500;600&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Allura&family=Great+Vibes&family=Italianno&family=Parisienne&family=Cormorant+Garamond:wght@400;600&family=Playfair+Display:wght@500;600&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <link href="{% static 'css/templates-gallery.css' %}?v=20260731.7" rel="stylesheet">
 {% endblock %}
 
@@ -38,12 +38,13 @@
 
     <div class="template-grid mb-4">
         {% for template in templates %}
-            <div class="template-choice {% if template.code == wedding.selected_template %}is-selected{% endif %}">
-                <div class="template-card {% if template.code == wedding.selected_template %}is-selected{% endif %}"
+            <div class="template-choice {% if template.code == wedding.selected_template %}is-selected{% endif %}{% if template.is_locked %} is-locked{% endif %}">
+                <div class="template-card {% if template.code == wedding.selected_template %}is-selected{% endif %}{% if template.is_locked %} is-locked{% endif %}"
                      data-template="{{ template.code }}">
-                    <label class="template-card__select">
+                    <label class="template-card__select" {% if template.is_locked %}data-upgrade-modal data-upgrade-feature="Template {{ template.name }}" data-upgrade-url="{% url 'subscriptions:detail' wedding.pk %}"{% endif %}>
                         <input type="radio" name="selected_template" value="{{ template.code }}"
                                {% if template.code == wedding.selected_template %}checked{% endif %}
+                               {% if template.is_locked %}disabled{% endif %}
                                class="visually-hidden">
                         <span class="template-card__selected-label"><i class="bi bi-check-circle-fill"></i> Selecionado</span>
                         <span class="template-card__preview template-card__preview--cover">
@@ -55,7 +56,7 @@
                         </span>
 
                         <span class="template-card__body">
-                            <span class="template-card__name">{{ template.name }}<i class="bi bi-check-circle-fill template-card__check"></i></span>
+                            <span class="template-card__name">{{ template.name }}<i class="bi bi-check-circle-fill template-card__check"></i>{% if template.is_locked %}<i class="bi bi-lock-fill ms-2" title="Premium"></i>{% endif %}</span>
                             <span class="template-card__layout">{{ template.get_layout_display }}</span>
                             <span class="template-card__description">{{ template.description }}</span>
                             <span class="template-card__tags">
@@ -65,12 +66,14 @@
                     </label>
                     <div class="template-choice__actions">
                         <a class="btn btn-sm btn-outline-secondary"
+                           {% if template.is_locked %}data-upgrade-modal data-upgrade-feature="Template {{ template.name }}" data-upgrade-url="{% url 'subscriptions:detail' wedding.pk %}"{% endif %}
                            href="{% url 'weddings:invitation_preview_template' wedding.pk template.code %}"
                            target="_blank" rel="noopener">
                             <i class="bi bi-eye me-1"></i>Pré-visualizar
                         </a>
                         {% if template.code != wedding.selected_template %}
                             <button type="submit" class="btn btn-sm btn-primary template-apply-button"
+                                    {% if template.is_locked %}data-upgrade-modal data-upgrade-feature="Template {{ template.name }}" data-upgrade-url="{% url 'subscriptions:detail' wedding.pk %}"{% endif %}
                                     name="selected_template" value="{{ template.code }}">
                                 <i class="bi bi-check2-circle me-1"></i>Aplicar
                             </button>

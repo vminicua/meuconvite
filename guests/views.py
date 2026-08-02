@@ -35,6 +35,10 @@ def _guest_invitation_url(request: HttpRequest, guest: Guest) -> str:
     return request.build_absolute_uri(reverse("guest_invitation", args=[guest.invitation_token]))
 
 
+def _guest_checkin_url(request: HttpRequest, guest: Guest) -> str:
+    return request.build_absolute_uri(reverse("guest_checkin", args=[guest.invitation_token]))
+
+
 def _invitation_rate_key(request: HttpRequest) -> str:
     """Limita cada convite sem bloquear crawlers partilhados entre vários links."""
     return f"{get_client_ip(request) or 'anon'}:{request.path}"
@@ -103,8 +107,9 @@ def invitation_default_music(request: HttpRequest) -> HttpResponse:
 
 @require_wedding("can_manage_guests")
 def guest_list(request: HttpRequest, wedding) -> HttpResponse:
+    current_limits = limits(wedding)
     if request.method == "POST":
-        form = GuestForm(request.POST, wedding=wedding)
+        form = GuestForm(request.POST, wedding=wedding, allow_seating=current_limits.allows_seating)
         if form.is_valid():
             guest = form.save(commit=False)
             guest.wedding = wedding
@@ -116,7 +121,7 @@ def guest_list(request: HttpRequest, wedding) -> HttpResponse:
             messages.success(request, "Convidado acrescentado.")
             return redirect("guests:list", wedding_id=wedding.pk)
     else:
-        form = GuestForm(wedding=wedding)
+        form = GuestForm(wedding=wedding, allow_seating=current_limits.allows_seating)
 
     guests = list(
         Guest.objects.filter(wedding=wedding, is_active=True)
@@ -126,7 +131,6 @@ def guest_list(request: HttpRequest, wedding) -> HttpResponse:
     active_programme_ids = set(
         wedding.events.filter(is_active=True).values_list("pk", flat=True)
     )
-    current_limits = limits(wedding)
     enabled_ids = enabled_guest_ids(wedding, current_limits.max_guests)
     guest_rows = []
     for guest in guests:
@@ -139,7 +143,7 @@ def guest_list(request: HttpRequest, wedding) -> HttpResponse:
             "guest": guest,
             "is_enabled": is_enabled,
             "invitation_url": invitation_url,
-            "qr_data_uri": _qr_data_uri(invitation_url) if is_enabled else "",
+            "qr_data_uri": _qr_data_uri(_guest_checkin_url(request, guest)) if is_enabled else "",
             "share_message": messaging.invitation_message(
                 guest, invitation_url, InvitationChannel.WHATSAPP
             ) if is_enabled else "",
@@ -151,6 +155,7 @@ def guest_list(request: HttpRequest, wedding) -> HttpResponse:
             "edit_form": GuestForm(
                 instance=guest,
                 wedding=wedding,
+                allow_seating=current_limits.allows_seating,
                 auto_id=f"edit-{guest.pk}-%s",
             ),
         })
@@ -177,6 +182,9 @@ def guest_list(request: HttpRequest, wedding) -> HttpResponse:
 @require_wedding("can_manage_guests")
 def guest_export_excel(request: HttpRequest, wedding) -> HttpResponse:
     """Exporta a lista filtrada num ficheiro Excel real (.xlsx)."""
+    if not limits(wedding).allows_exports:
+        messages.warning(request, "A exportação Excel está disponível nos pacotes superiores.")
+        return redirect("subscriptions:detail", wedding_id=wedding.pk)
     from io import BytesIO
 
     from openpyxl import Workbook
@@ -261,16 +269,17 @@ def guest_export_excel(request: HttpRequest, wedding) -> HttpResponse:
 @require_wedding("can_manage_guests")
 def guest_edit(request: HttpRequest, wedding, guest_id) -> HttpResponse:
     guest = get_object_or_404(Guest, pk=guest_id, wedding=wedding, is_active=True)
+    allow_seating = limits(wedding).allows_seating
     if request.method == "POST":
         old_data = model_to_dict(guest)
-        form = GuestForm(request.POST, instance=guest, wedding=wedding)
+        form = GuestForm(request.POST, instance=guest, wedding=wedding, allow_seating=allow_seating)
         if form.is_valid():
             form.save()
             log_update(guest, old_data, actor=request.user, wedding=wedding, request=request)
             messages.success(request, "Convidado actualizado.")
             return redirect("guests:list", wedding_id=wedding.pk)
     else:
-        form = GuestForm(instance=guest, wedding=wedding)
+        form = GuestForm(instance=guest, wedding=wedding, allow_seating=allow_seating)
     return render(
         request,
         "guests/guest_form.html",
@@ -466,6 +475,52 @@ def guest_invitation(request: HttpRequest, token: str) -> HttpResponse:
         wedding.primary_color, wedding.secondary_color
     )
     return render(request, "invitations/preview.html", context)
+
+
+@rate_limit("invitation_view", methods=("GET",), key_func=_invitation_rate_key)
+def guest_checkin(request: HttpRequest, token: str) -> HttpResponse:
+    """Credencial de entrada aberta exclusivamente pelo QR individual."""
+    guest = get_object_or_404(
+        Guest.objects.select_related("wedding", "wedding__category").prefetch_related(
+            "allowed_events"
+        ),
+        invitation_token=token,
+        is_active=True,
+    )
+    wedding = guest.wedding
+    if wedding.status in {"archived", "blocked"} or guest.pk not in enabled_guest_ids(wedding):
+        raise Http404
+    qr_events = list(
+        guest.allowed_events.filter(is_active=True, requires_qr_code=True)
+        .select_related("location")
+        .order_by("date", "start_time", "display_order")
+    )
+    return render(request, "guests/checkin_card.html", {
+        "guest": guest,
+        "wedding": wedding,
+        "qr_events": qr_events,
+        "is_demo": False,
+    })
+
+
+@rate_limit("invitation_view", methods=("GET",), key_func=_invitation_rate_key)
+def guest_checkin_demo(request: HttpRequest, token: str) -> HttpResponse:
+    from weddings.models import Wedding
+
+    wedding = get_object_or_404(
+        Wedding.objects.select_related("category"), public_token=token
+    )
+    if wedding.status in {"archived", "blocked"}:
+        raise Http404
+    return render(request, "guests/checkin_card.html", {
+        "guest": None,
+        "wedding": wedding,
+        "qr_events": list(
+            wedding.events.filter(is_active=True, requires_qr_code=True)
+            .select_related("location").order_by("date", "start_time", "display_order")
+        ),
+        "is_demo": True,
+    })
 
 
 def guest_invitation_share_image(request: HttpRequest, token: str) -> HttpResponse:

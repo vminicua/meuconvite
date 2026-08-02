@@ -59,6 +59,13 @@ def user_can(wedding: Wedding, user, capability: str) -> bool:
     """
     if not user or not user.is_authenticated:
         return False
+    from subscriptions.services import event_requires_upgrade, limits
+
+    if event_requires_upgrade(wedding) and capability != "can_manage_billing":
+        return False
+    plan_limits = limits(wedding)
+    if capability == "can_manage_seating" and not plan_limits.allows_seating:
+        return False
     if is_owner(wedding, user):
         return True
 
@@ -109,16 +116,33 @@ def require_wedding(capability: str | None = None, allow_blocked: bool = False) 
 
 def capability_flags(wedding: Wedding, user) -> dict[str, bool]:
     """All capabilities at once, for templates (avoids repeated queries)."""
+    from subscriptions.services import event_requires_upgrade, limits
+
+    plan_limits = limits(wedding)
+    locked = event_requires_upgrade(wedding)
     if is_owner(wedding, user):
         flags = {capability: True for capability in CAPABILITIES}
+        if locked:
+            flags = {capability: False for capability in CAPABILITIES}
+            flags["can_manage_billing"] = True
+        flags["can_manage_seating"] = flags["can_manage_seating"] and plan_limits.allows_seating
         flags["is_owner"] = True
         flags["manage_members"] = True
-        return flags
+    else:
+        membership = get_membership(wedding, user)
+        flags = {
+            capability: bool(getattr(membership, capability, False)) for capability in CAPABILITIES
+        }
+        if locked:
+            flags = {capability: False for capability in CAPABILITIES}
+        flags["can_manage_seating"] = flags["can_manage_seating"] and plan_limits.allows_seating
+        flags["is_owner"] = False
+        flags["manage_members"] = bool(membership and membership.role == WeddingRole.SPOUSE)
 
-    membership = get_membership(wedding, user)
-    flags = {
-        capability: bool(getattr(membership, capability, False)) for capability in CAPABILITIES
-    }
-    flags["is_owner"] = False
-    flags["manage_members"] = bool(membership and membership.role == WeddingRole.SPOUSE)
+    flags["event_locked"] = locked
+    flags["allows_seating"] = plan_limits.allows_seating and not locked
+    flags["allows_team"] = plan_limits.allows_team and not locked
+    flags["allows_exports"] = plan_limits.allows_exports and not locked
+    flags["allows_sms"] = plan_limits.max_sms > 0 and not locked
+    flags["templates_limit"] = plan_limits.templates_limit
     return flags

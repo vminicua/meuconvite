@@ -102,12 +102,10 @@ class PlanForm(BootstrapModelForm):
             "code",
             "description",
             "max_guests",
-            "max_events",
             "max_sms",
             "templates_limit",
             "price_mzn",
             "duration_days",
-            "allows_qr_checkin",
             "allows_seating",
             "allows_team",
             "allows_exports",
@@ -275,6 +273,9 @@ class CategoryFieldForm(BootstrapForm):
 TEMPLATE_FONT_CHOICES = [
     ('"Playfair Display", Georgia, serif', _("Playfair Display — elegante")),
     ('"Great Vibes", cursive', _("Great Vibes — manuscrita")),
+    ('"Allura", "Segoe Script", cursive', _("Allura — caligrafia romântica")),
+    ('"Parisienne", "Segoe Script", cursive', _("Parisienne — assinatura clássica")),
+    ('"Italianno", "Segoe Script", cursive', _("Italianno — convite tradicional")),
     ('"Cormorant Garamond", Georgia, serif', _("Cormorant Garamond — clássica")),
     ('"Montserrat", "Segoe UI", sans-serif', _("Montserrat — moderna")),
 ]

@@ -67,7 +67,11 @@ def create_wedding(
     # limites do plano sejam sempre determinados da mesma maneira.
     from subscriptions.services import ensure_subscription
 
-    ensure_subscription(wedding)
+    # A conta recebe exactamente um evento gratuito. Eventos adicionais são
+    # criados normalmente para não perder o trabalho inicial, mas começam
+    # bloqueados até escolherem um pacote pago.
+    has_previous_event = Wedding.objects.filter(owner=owner).exclude(pk=wedding.pk).exists()
+    ensure_subscription(wedding, allow_free=not has_previous_event)
 
     log_create(wedding, actor=owner, wedding=wedding, request=request)
     return wedding

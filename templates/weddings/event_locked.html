@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Desbloquear {{ wedding.display_names }}{% endblock %}
+{% block content %}
+{% include "partials/wedding_nav.html" %}
+<section class="empty-state text-center py-5 px-3 card shadow-sm border-0">
+    <div class="display-5 text-primary"><i class="bi bi-lock-fill"></i></div>
+    <h2 class="h4 mt-3">O evento foi criado e está guardado</h2>
+    <p class="text-body-secondary mx-auto" style="max-width:38rem">A sua conta já utilizou o evento gratuito. Subscreva um pacote para desbloquear o convite, programa, convidados e todas as restantes funcionalidades deste evento.</p>
+    <div><a class="btn btn-primary btn-lg" href="{% url 'subscriptions:detail' wedding.pk %}"><i class="bi bi-gem me-2"></i>Escolher pacote</a></div>
+</section>
+{% endblock %}
