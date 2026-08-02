@@ -32,18 +32,28 @@
                 </div>
             </div>
 
-            <div class="admin-card">
-                <div class="admin-card__header"><h2 class="h6 mb-1">Pagamentos e suporte</h2><p class="small text-body-secondary mb-0">Dados apresentados nas instruções de pagamento.</p></div>
+            <div class="admin-card mb-4">
+                <div class="admin-card__header d-flex align-items-center justify-content-between">
+                    <div><h2 class="h6 mb-1">Payzeno · M-Pesa</h2><p class="small text-body-secondary mb-0">Checkout real e activação automática dos pacotes.</p></div>
+                    {% if payzeno_status.enabled and payzeno_status.api_key and payzeno_status.https %}<span class="badge text-bg-success">Activo</span>{% else %}<span class="badge text-bg-warning">Incompleto</span>{% endif %}
+                </div>
                 <div class="admin-card__body">
                     <div class="row g-3">
-                        {% for field in form %}{% if field.name|slice:':7' != 'twilio_' %}
-                        <div class="col-md-6">
-                            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}
-                            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}{{ field.errors }}
-                        </div>
-                        {% endif %}{% endfor %}
+                        <div class="col-md-6"><label class="form-label" for="{{ form.payzeno_api_key.id_for_label }}">{{ form.payzeno_api_key.label }}</label>{{ form.payzeno_api_key }}<div class="form-text">{{ form.payzeno_api_key.help_text }}</div>{{ form.payzeno_api_key.errors }}</div>
+                        <div class="col-md-6"><label class="form-label" for="{{ form.payzeno_base_url.id_for_label }}">{{ form.payzeno_base_url.label }}</label>{{ form.payzeno_base_url }}<div class="form-text">{{ form.payzeno_base_url.help_text }}</div>{{ form.payzeno_base_url.errors }}</div>
+                        <div class="col-12"><div class="form-check">{{ form.payzeno_enabled }}<label class="form-check-label" for="{{ form.payzeno_enabled.id_for_label }}">{{ form.payzeno_enabled.label }}</label></div><div class="form-text">{{ form.payzeno_enabled.help_text }}</div>{{ form.payzeno_enabled.errors }}</div>
+                        <div class="col-12"><label class="form-label">Webhook a configurar na Payzeno</label><div class="input-group"><input class="form-control font-monospace" value="{{ payzeno_webhook_url }}" readonly><button class="btn btn-outline-secondary" type="button" onclick="navigator.clipboard.writeText(this.previousElementSibling.value)"><i class="bi bi-copy"></i> Copiar</button></div><div class="form-text">Eventos de pagamento podem ser reenviados; a integração é idempotente e confirma sempre o estado directamente na API.</div></div>
                     </div>
                 </div>
+            </div>
+
+            <div class="admin-card">
+                <div class="admin-card__header"><h2 class="h6 mb-1">Contactos de suporte</h2><p class="small text-body-secondary mb-0">Mantidos para pagamentos manuais antigos e apoio ao cliente.</p></div>
+                <div class="admin-card__body"><div class="row g-3">
+                    <div class="col-md-6"><label class="form-label" for="{{ form.mpesa_number.id_for_label }}">{{ form.mpesa_number.label }}</label>{{ form.mpesa_number }}{{ form.mpesa_number.errors }}</div>
+                    <div class="col-md-6"><label class="form-label" for="{{ form.mpesa_account_name.id_for_label }}">{{ form.mpesa_account_name.label }}</label>{{ form.mpesa_account_name }}{{ form.mpesa_account_name.errors }}</div>
+                    <div class="col-md-6"><label class="form-label" for="{{ form.whatsapp_number.id_for_label }}">{{ form.whatsapp_number.label }}</label>{{ form.whatsapp_number }}{{ form.whatsapp_number.errors }}</div>
+                </div></div>
             </div>
             <div class="mt-4"><button class="btn btn-primary" type="submit"><i class="bi bi-check2 me-1"></i>Guardar configurações</button></div>
         </div>

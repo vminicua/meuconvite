@@ -9,6 +9,24 @@ from core.utils import normalise_phone
 from .models import PaymentMethod
 
 
+class PayzenoCheckoutForm(BootstrapForm):
+    payer_phone = forms.CharField(
+        label=_("Número M-Pesa"),
+        max_length=20,
+        widget=forms.TextInput(attrs={
+            "placeholder": "+258 84 000 0000", "inputmode": "tel",
+            "autocomplete": "tel",
+        }),
+        help_text=_("A Payzeno usará este número para concluir o pagamento M-Pesa."),
+    )
+
+    def clean_payer_phone(self) -> str:
+        phone = normalise_phone(self.cleaned_data.get("payer_phone"))
+        if not phone.startswith("+258") or len("".join(filter(str.isdigit, phone))) != 12:
+            raise forms.ValidationError(_("Introduza um número moçambicano válido."))
+        return phone
+
+
 class UpgradeRequestForm(BootstrapForm):
     """
     Pedido de subscrição de um pacote.

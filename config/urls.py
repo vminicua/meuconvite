@@ -50,6 +50,7 @@ urlpatterns = [
         name="guest_gift_select",
     ),
     path("webhooks/twilio/mensagens/", guest_views.twilio_message_status, name="twilio_message_status"),
+    path("webhooks/payzeno/pagamentos/", subscription_views.payzeno_webhook, name="payzeno_webhook"),
     # Área da equipa MeuConvite (exige is_staff).
     path("administracao/", include("platform_admin.urls", namespace="platform")),
     path("eventos/", include("weddings.urls", namespace="weddings")),

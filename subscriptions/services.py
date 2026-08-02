@@ -10,11 +10,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import timedelta
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
+from urllib.parse import urlparse
 
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext as _
 
 from audit.models import AuditAction
@@ -22,12 +24,19 @@ from audit.services import log_action
 
 from .models import (
     Payment,
+    PaymentProvider,
     PaymentStatus,
     Plan,
     Subscription,
     SubscriptionStatus,
     Voucher,
     VoucherRedemption,
+)
+from .payzeno import (
+    PayzenoAPIError,
+    PayzenoClient,
+    PayzenoConfigurationError,
+    response_data,
 )
 
 # Usado quando ainda não existe nenhum plano na base de dados (instalação
@@ -363,6 +372,208 @@ def payment_instructions() -> dict:
     }
 
 
+def payzeno_configuration() -> dict:
+    """Configuração efectiva, sem nunca devolver a chave para templates."""
+    from django.conf import settings
+    from platform_admin.models import PlatformConfiguration, configured_value
+
+    configuration = PlatformConfiguration.load()
+    return {
+        "enabled": bool(
+            configuration.payzeno_enabled or getattr(settings, "PAYZENO_ENABLED", False)
+        ),
+        "api_key": configured_value("payzeno_api_key"),
+        "base_url": configuration.payzeno_base_url
+        or getattr(settings, "PAYZENO_BASE_URL", "https://api.payzeno.io"),
+        "timeout": getattr(settings, "PAYZENO_TIMEOUT_SECONDS", 20),
+    }
+
+
+def payzeno_is_ready() -> bool:
+    configuration = payzeno_configuration()
+    return bool(configuration["enabled"] and configuration["api_key"])
+
+
+def payzeno_client() -> PayzenoClient:
+    configuration = payzeno_configuration()
+    if not configuration["enabled"]:
+        raise PayzenoConfigurationError("Os pagamentos Payzeno ainda não estão activos.")
+    return PayzenoClient(
+        api_key=configuration["api_key"],
+        base_url=configuration["base_url"],
+        timeout=configuration["timeout"],
+    )
+
+
+def amount_in_minor_units(amount: Decimal) -> int:
+    return int((amount * Decimal("100")).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
+
+
+def _safe_provider_payload(data: dict) -> dict:
+    allowed = {
+        "checkout_id", "payment_id", "reference", "amount", "currency",
+        "status", "payment_method", "expires_at", "paid_at",
+    }
+    return {key: data[key] for key in allowed if key in data and data[key] is not None}
+
+
+def initiate_payzeno_checkout(
+    *, wedding, plan: Plan, actor, payer_phone: str,
+    success_url: str, cancel_url: str, request=None,
+) -> Payment:
+    """Cria (ou reutiliza) um checkout M-Pesa alojado pela Payzeno."""
+    if plan.is_free:
+        raise ValidationError(_("O plano gratuito não precisa de pagamento."))
+    if plan.max_guests <= limits(wedding).max_guests:
+        raise ValidationError(_("Escolha um pacote superior ao pacote actual."))
+    if not payer_phone.startswith("+"):
+        raise ValidationError(_("Indique o número M-Pesa no formato +258 84 000 0000."))
+
+    client = payzeno_client()
+    payment = Payment.objects.filter(
+        wedding=wedding,
+        plan=plan,
+        provider=PaymentProvider.PAYZENO,
+        status=PaymentStatus.PENDING_GATEWAY,
+    ).order_by("-created_at").first()
+    if payment and payment.provider_checkout_url and (
+        not payment.provider_expires_at or payment.provider_expires_at > timezone.now()
+    ):
+        return payment
+
+    if payment is None:
+        payment = Payment.objects.create(
+            wedding=wedding,
+            plan=plan,
+            requested_by=actor,
+            amount_mzn=plan.price_mzn,
+            method="mpesa",
+            payer_phone=payer_phone,
+            provider=PaymentProvider.PAYZENO,
+            status=PaymentStatus.PENDING_GATEWAY,
+        )
+    else:
+        payment.payer_phone = payer_phone
+        payment.save(update_fields=["payer_phone", "updated_at"])
+
+    customer_name = actor.get_full_name() or actor.get_short_name()
+    payload = {
+        "amount": amount_in_minor_units(payment.amount_mzn),
+        "currency": "MZN",
+        "language": getattr(actor, "preferred_language", "pt") or "pt",
+        "description": f"MeuConvite — {plan.name}",
+        "reference": payment.reference,
+        "customer": {
+            "name": customer_name,
+            "email": actor.email,
+            "phone": payer_phone,
+        },
+        "payment_methods": ["mpesa"],
+        "success_url": success_url.replace("REFERENCE", payment.reference),
+        "cancel_url": cancel_url.replace("REFERENCE", payment.reference),
+    }
+    response = response_data(
+        client.create_checkout(
+            payload, idempotency_key=f"meuconvite-checkout-{payment.pk}"
+        )
+    )
+    checkout_id = str(response.get("checkout_id") or "").strip()
+    checkout_url = str(response.get("checkout_url") or "").strip()
+    parsed_checkout = urlparse(checkout_url)
+    if (
+        not checkout_id
+        or parsed_checkout.scheme != "https"
+        or parsed_checkout.hostname != "checkout.payzeno.io"
+    ):
+        raise PayzenoAPIError("A Payzeno não devolveu um checkout válido.")
+
+    payment.provider_checkout_id = checkout_id
+    payment.provider_checkout_url = checkout_url
+    payment.provider_status = str(response.get("status") or "pending")[:40]
+    payment.provider_payload = _safe_provider_payload(response)
+    expires_at = parse_datetime(str(response.get("expires_at") or ""))
+    payment.provider_expires_at = expires_at
+    payment.provider_checked_at = timezone.now()
+    payment.save(update_fields=[
+        "provider_checkout_id", "provider_checkout_url", "provider_status",
+        "provider_payload", "provider_expires_at", "provider_checked_at", "updated_at",
+    ])
+    log_action(
+        action=AuditAction.CREATE, actor=actor, wedding=wedding, request=request,
+        instance=payment,
+        new_data={
+            "provider": PaymentProvider.PAYZENO,
+            "plan": plan.code,
+            "amount": str(plan.price_mzn),
+            "reference": payment.reference,
+        },
+    )
+    return payment
+
+
+def verify_payzeno_payment(*, payment: Payment, request=None) -> tuple[Payment, bool]:
+    """Consulta a Payzeno e activa apenas um pagamento integralmente coerente."""
+    if payment.provider != PaymentProvider.PAYZENO:
+        raise ValidationError(_("Este pagamento não pertence à Payzeno."))
+    data = response_data(payzeno_client().checkout_status(payment.provider_checkout_id))
+    status = str(data.get("status") or "").lower()
+
+    payment.provider_status = status[:40]
+    payment.provider_payment_id = str(data.get("payment_id") or "")[:100]
+    payment.provider_checked_at = timezone.now()
+    payment.provider_payload = _safe_provider_payload(data)
+    payment.save(update_fields=[
+        "provider_status", "provider_payment_id", "provider_checked_at",
+        "provider_payload", "updated_at",
+    ])
+
+    if status in {"paid", "succeeded"}:
+        expected = {
+            "checkout_id": payment.provider_checkout_id,
+            "reference": payment.reference,
+            "amount": amount_in_minor_units(payment.amount_mzn),
+            "currency": "MZN",
+            "payment_method": "mpesa",
+        }
+        received = {
+            "checkout_id": str(data.get("checkout_id") or ""),
+            "reference": str(data.get("reference") or ""),
+            "amount": data.get("amount"),
+            "currency": str(data.get("currency") or "").upper(),
+            "payment_method": str(data.get("payment_method") or "").lower(),
+        }
+        try:
+            received["amount"] = int(received["amount"])
+        except (TypeError, ValueError):
+            received["amount"] = None
+        if received != expected:
+            raise PayzenoAPIError(
+                "A confirmação da Payzeno não corresponde ao pedido criado."
+            )
+        if payment.provider_payment_id:
+            payment.transaction_id = payment.provider_payment_id
+            payment.save(update_fields=["transaction_id", "updated_at"])
+        confirm_payment(
+            payment=payment, actor=None, request=request,
+            notes="Confirmado automaticamente pela Payzeno.",
+        )
+        return Payment.objects.get(pk=payment.pk), True
+
+    mapped = {
+        "expired": PaymentStatus.EXPIRED,
+        "cancelled": PaymentStatus.CANCELLED,
+        "refunded": PaymentStatus.REFUNDED,
+        "chargeback": PaymentStatus.CHARGEBACK,
+    }.get(status)
+    if mapped and (
+        payment.status != PaymentStatus.CONFIRMED
+        or mapped in {PaymentStatus.REFUNDED, PaymentStatus.CHARGEBACK}
+    ):
+        payment.status = mapped
+        payment.save(update_fields=["status", "updated_at"])
+    return payment, False
+
+
 def whatsapp_url(payment: Payment) -> str:
     """Ligação que abre o WhatsApp com a mensagem do comprovativo pronta."""
     from urllib.parse import quote
@@ -451,6 +662,9 @@ def confirm_payment(*, payment: Payment, actor, request=None, notes: str = "") -
     Usado pela administração da plataforma. É idempotente na parte que
     importa: confirmar duas vezes não duplica subscrições.
     """
+    payment = Payment.objects.select_for_update().select_related(
+        "wedding__subscription", "plan"
+    ).get(pk=payment.pk)
     if payment.status == PaymentStatus.CONFIRMED:
         return payment.wedding.subscription
 

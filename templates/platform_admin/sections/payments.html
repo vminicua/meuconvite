@@ -2,9 +2,8 @@
     <div>
         <h1>Pagamentos</h1>
         <p>
-            Confirme depois de encontrar a entrada no M-Pesa
-            (<strong>{{ instructions.mpesa_number }}</strong>) ou o comprovativo no WhatsApp.
-            Confirmar activa o pacote imediatamente.
+            Os pagamentos Payzeno são validados directamente no gateway e activam o pacote
+            automaticamente. Pagamentos manuais antigos continuam disponíveis para revisão.
         </p>
     </div>
 </div>
@@ -60,7 +59,7 @@
                             </div>
                             <div class="col-sm-6">
                                 <dt>Método</dt>
-                                <dd>{{ payment.get_method_display }}</dd>
+                                <dd>{{ payment.get_method_display }} · {{ payment.get_provider_display }}</dd>
                                 <dt>Telefone</dt>
                                 <dd>{{ payment.payer_phone|default:"—" }}</dd>
                                 <dt>ID transacção</dt>
@@ -99,7 +98,7 @@
                                 <div class="d-flex gap-2">
                                     <button type="submit" name="decisao" value="confirmar"
                                             class="btn btn-success btn-sm flex-grow-1">
-                                        <i class="bi bi-check-lg me-1"></i>Confirmar e activar
+                                        <i class="bi bi-check-lg me-1"></i>{% if payment.provider == 'payzeno' %}Verificar na Payzeno{% else %}Confirmar e activar{% endif %}
                                     </button>
                                     <button type="submit" name="decisao" value="recusar"
                                             class="btn btn-outline-danger btn-sm">Recusar</button>

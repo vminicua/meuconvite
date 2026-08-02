@@ -5,7 +5,10 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 
 from . import services
-from .models import Payment, PaymentStatus, Plan, Subscription, Voucher, VoucherRedemption
+from .models import (
+    Payment, PaymentProvider, PaymentStatus, PaymentWebhookEvent, Plan,
+    Subscription, Voucher, VoucherRedemption,
+)
 
 
 @admin.register(Voucher)
@@ -85,11 +88,12 @@ class PaymentAdmin(admin.ModelAdmin):
         "plan",
         "amount_mzn",
         "method",
+        "provider",
         "status",
         "transaction_id",
         "created_at",
     )
-    list_filter = ("status", "method", "plan", "created_at")
+    list_filter = ("status", "provider", "method", "plan", "created_at")
     search_fields = (
         "reference",
         "transaction_id",
@@ -99,14 +103,23 @@ class PaymentAdmin(admin.ModelAdmin):
     )
     date_hierarchy = "created_at"
     autocomplete_fields = ["wedding", "plan"]
-    readonly_fields = ("reference", "created_at", "updated_at", "reviewed_by", "reviewed_at")
+    readonly_fields = (
+        "reference", "provider_checkout_id", "provider_payment_id", "provider_status",
+        "provider_checkout_url", "provider_expires_at", "provider_checked_at",
+        "provider_payload", "created_at", "updated_at", "reviewed_by", "reviewed_at",
+    )
     actions = ("action_confirm", "action_reject")
 
     fieldsets = (
         (None, {"fields": ("reference", "wedding", "plan", "requested_by")}),
         (
             _("Pagamento"),
-            {"fields": ("method", "amount_mzn", "paid_to", "payer_phone", "transaction_id", "proof")},
+            {"fields": (
+                "method", "provider", "amount_mzn", "paid_to", "payer_phone",
+                "transaction_id", "proof", "provider_checkout_id",
+                "provider_payment_id", "provider_status", "provider_checkout_url",
+                "provider_expires_at", "provider_checked_at", "provider_payload",
+            )},
         ),
         (_("Verificação"), {"fields": ("status", "review_notes", "reviewed_by", "reviewed_at")}),
         (_("Datas"), {"fields": ("created_at", "updated_at")}),
@@ -116,6 +129,15 @@ class PaymentAdmin(admin.ModelAdmin):
     def action_confirm(self, request, queryset) -> None:
         confirmed = 0
         for payment in queryset.exclude(status=PaymentStatus.CONFIRMED):
+            if payment.provider == PaymentProvider.PAYZENO:
+                try:
+                    _payment, paid = services.verify_payzeno_payment(payment=payment, request=request)
+                except Exception:
+                    continue
+                if not paid:
+                    continue
+                confirmed += 1
+                continue
             services.confirm_payment(
                 payment=payment,
                 actor=request.user,
@@ -138,7 +160,11 @@ class PaymentAdmin(admin.ModelAdmin):
     def action_reject(self, request, queryset) -> None:
         rejected = 0
         for payment in queryset.filter(
-            status__in=[PaymentStatus.AWAITING_PROOF, PaymentStatus.UNDER_REVIEW]
+            status__in=[
+                PaymentStatus.PENDING_GATEWAY,
+                PaymentStatus.AWAITING_PROOF,
+                PaymentStatus.UNDER_REVIEW,
+            ]
         ):
             services.reject_payment(
                 payment=payment,
@@ -150,3 +176,12 @@ class PaymentAdmin(admin.ModelAdmin):
         self.message_user(
             request, _("%(count)d pagamento(s) recusado(s).") % {"count": rejected}, messages.WARNING
         )
+
+
+@admin.register(PaymentWebhookEvent)
+class PaymentWebhookEventAdmin(admin.ModelAdmin):
+    list_display = ("event_type", "checkout_id", "payment", "processed", "created_at")
+    list_filter = ("processed", "event_type")
+    search_fields = ("checkout_id", "event_key", "payment__reference")
+    readonly_fields = [field.name for field in PaymentWebhookEvent._meta.fields]
+    actions = None

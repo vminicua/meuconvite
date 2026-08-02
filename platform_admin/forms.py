@@ -25,12 +25,19 @@ class PlatformConfigurationForm(BootstrapModelForm):
     twilio_auth_token = forms.CharField(
         label="Auth Token (webhooks)", required=False, widget=forms.PasswordInput(render_value=True)
     )
+    payzeno_api_key = forms.CharField(
+        label="API Key Payzeno",
+        required=False,
+        widget=forms.PasswordInput(render_value=False),
+        help_text=_("Chave privada pk_live_… criada em API & Webhooks na Payzeno."),
+    )
 
     SECRET_NAMES = (
         "twilio_account_sid",
         "twilio_api_key_sid",
         "twilio_api_key_secret",
         "twilio_auth_token",
+        "payzeno_api_key",
     )
 
     class Meta:
@@ -38,6 +45,8 @@ class PlatformConfigurationForm(BootstrapModelForm):
         fields = [
             "twilio_sms_from",
             "twilio_status_callback_url",
+            "payzeno_enabled",
+            "payzeno_base_url",
             "mpesa_number",
             "mpesa_account_name",
             "whatsapp_number",
@@ -53,6 +62,12 @@ class PlatformConfigurationForm(BootstrapModelForm):
         )
         self.fields["twilio_sms_from"].help_text = _(
             "Número Twilio em E.164 (por exemplo +123456789) ou Messaging Service compatível."
+        )
+        self.fields["payzeno_enabled"].help_text = _(
+            "Active apenas depois de o KYC e a aplicação Payzeno estarem aprovados."
+        )
+        self.fields["payzeno_base_url"].help_text = _(
+            "Mantenha https://api.payzeno.io, salvo indicação oficial da Payzeno."
         )
 
     def save(self, commit=True):

@@ -2,16 +2,22 @@ from __future__ import annotations
 
 from django.contrib import messages
 from django.core.exceptions import ValidationError
-from django.http import Http404, HttpRequest, HttpResponse
+import hashlib
+import json
+
+from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 
 from weddings.permissions import capability_flags, require_wedding
 
 from . import services
-from .forms import UpgradeRequestForm, VoucherApplyForm
-from .models import Payment, PaymentStatus, Plan
+from .forms import PayzenoCheckoutForm, UpgradeRequestForm, VoucherApplyForm
+from .models import Payment, PaymentProvider, PaymentStatus, PaymentWebhookEvent, Plan
+from .payzeno import PayzenoError
 
 
 @login_required
@@ -28,32 +34,41 @@ def subscription_detail(request: HttpRequest, wedding) -> HttpResponse:
     """Pacote actual, opções de upgrade e pagamentos em curso."""
     capabilities = capability_flags(wedding, request.user)
     selected_plan_code = ""
-    upgrade_form = UpgradeRequestForm()
+    upgrade_form = PayzenoCheckoutForm(initial={"payer_phone": request.user.phone})
 
     if request.method == "POST":
         if not capabilities["can_manage_billing"]:
             raise Http404
         selected_plan_code = request.POST.get("plan_code", "")
         plan = get_object_or_404(Plan.objects.active(), code=selected_plan_code)
-        upgrade_form = UpgradeRequestForm(request.POST, request.FILES)
+        upgrade_form = PayzenoCheckoutForm(request.POST)
         if upgrade_form.is_valid():
             try:
-                payment = services.request_upgrade(
+                success_url = request.build_absolute_uri(reverse(
+                    "subscriptions:payzeno_success",
+                    kwargs={"wedding_id": wedding.pk, "reference": "REFERENCE"},
+                ))
+                cancel_url = request.build_absolute_uri(reverse(
+                    "subscriptions:payzeno_cancel",
+                    kwargs={"wedding_id": wedding.pk, "reference": "REFERENCE"},
+                ))
+                # A referência nasce com Payment; o serviço substitui o marcador
+                # depois de persistir o pedido.
+                payment = services.initiate_payzeno_checkout(
                     wedding=wedding,
                     plan=plan,
                     actor=request.user,
                     request=request,
-                    **upgrade_form.cleaned_data,
+                    payer_phone=upgrade_form.cleaned_data["payer_phone"],
+                    success_url=success_url,
+                    cancel_url=cancel_url,
                 )
-            except ValidationError as exc:
-                for message in exc.messages:
+            except (ValidationError, PayzenoError) as exc:
+                error_messages = getattr(exc, "messages", [str(exc)])
+                for message in error_messages:
                     messages.error(request, message)
             else:
-                messages.success(
-                    request,
-                    f"Pedido do pacote {plan.name} registado. Referência: {payment.reference}.",
-                )
-                return redirect("subscriptions:detail", wedding_id=wedding.pk)
+                return redirect(payment.provider_checkout_url)
         else:
             messages.error(request, "Corrija os dados de pagamento assinalados.")
 
@@ -76,10 +91,18 @@ def subscription_detail(request: HttpRequest, wedding) -> HttpResponse:
             "upgrades": services.upgrade_options(wedding),
             "open_payments": Payment.objects.filter(
                 wedding=wedding,
-                status__in=[PaymentStatus.AWAITING_PROOF, PaymentStatus.UNDER_REVIEW],
+            status__in=[
+                PaymentStatus.PENDING_GATEWAY,
+                PaymentStatus.AWAITING_PROOF,
+                PaymentStatus.UNDER_REVIEW,
+            ],
             ).select_related("plan"),
             "history": Payment.objects.filter(wedding=wedding)
-            .exclude(status__in=[PaymentStatus.AWAITING_PROOF, PaymentStatus.UNDER_REVIEW])
+            .exclude(status__in=[
+                PaymentStatus.PENDING_GATEWAY,
+                PaymentStatus.AWAITING_PROOF,
+                PaymentStatus.UNDER_REVIEW,
+            ])
             .select_related("plan")[:10],
             "instructions": services.payment_instructions(),
             "capabilities": capabilities,
@@ -87,6 +110,7 @@ def subscription_detail(request: HttpRequest, wedding) -> HttpResponse:
             "selected_plan_code": selected_plan_code,
             "voucher_form": VoucherApplyForm(),
             "voucher_redemption": getattr(wedding, "voucher_redemption", None),
+            "payzeno_ready": services.payzeno_is_ready(),
         },
     )
 
@@ -118,48 +142,9 @@ def apply_voucher(request: HttpRequest, wedding) -> HttpResponse:
 
 @require_wedding("can_manage_billing")
 def upgrade(request: HttpRequest, wedding, plan_code: str) -> HttpResponse:
-    """Pede um pacote e mostra as instruções de pagamento."""
-    plan = get_object_or_404(Plan.objects.active(), code=plan_code)
-
-    if request.method == "POST":
-        form = UpgradeRequestForm(request.POST, request.FILES)
-        if form.is_valid():
-            try:
-                payment = services.request_upgrade(
-                    wedding=wedding,
-                    plan=plan,
-                    actor=request.user,
-                    request=request,
-                    **form.cleaned_data,
-                )
-            except ValidationError as exc:
-                for message in exc.messages:
-                    messages.error(request, message)
-            else:
-                messages.success(
-                    request,
-                    "Pedido registado. Siga as instruções de pagamento para concluir.",
-                )
-                return redirect(
-                    "subscriptions:payment", wedding_id=wedding.pk, reference=payment.reference
-                )
-        else:
-            messages.error(request, "Corrija os erros assinalados no formulário.")
-    else:
-        form = UpgradeRequestForm()
-
-    return render(
-        request,
-        "subscriptions/upgrade.html",
-        {
-            "wedding": wedding,
-            "plan": plan,
-            "form": form,
-            "limits": services.limits(wedding),
-            "instructions": services.payment_instructions(),
-            "capabilities": capability_flags(wedding, request.user),
-        },
-    )
+    """Compatibilidade: o checkout actual é iniciado na página de subscrição."""
+    get_object_or_404(Plan.objects.active(), code=plan_code)
+    return redirect("subscriptions:detail", wedding_id=wedding.pk)
 
 
 @require_wedding()
@@ -169,6 +154,12 @@ def payment_detail(request: HttpRequest, wedding, reference: str) -> HttpRespons
         Payment.objects.select_related("plan"), wedding=wedding, reference=reference
     )
     capabilities = capability_flags(wedding, request.user)
+
+    if payment.provider == PaymentProvider.PAYZENO:
+        return render(request, "subscriptions/payment_detail.html", {
+            "wedding": wedding, "payment": payment, "capabilities": capabilities,
+            "is_payzeno": True,
+        })
 
     if request.method == "POST":
         if not capabilities["can_manage_billing"]:
@@ -222,3 +213,96 @@ def cancel_payment(request: HttpRequest, wedding, reference: str) -> HttpRespons
         payment.save(update_fields=["status", "updated_at"])
         messages.info(request, "Pedido de pagamento cancelado.")
     return redirect("subscriptions:detail", wedding_id=wedding.pk)
+
+
+@require_wedding("can_manage_billing")
+def payzeno_success(request: HttpRequest, wedding, reference: str) -> HttpResponse:
+    payment = get_object_or_404(
+        Payment, wedding=wedding, reference=reference, provider=PaymentProvider.PAYZENO
+    )
+    try:
+        _payment, confirmed = services.verify_payzeno_payment(payment=payment, request=request)
+    except PayzenoError:
+        messages.warning(request, "O pagamento ainda não pôde ser confirmado. Voltaremos a verificar automaticamente.")
+    else:
+        if confirmed:
+            messages.success(request, f"Pagamento confirmado. O pacote {payment.plan.name} já está activo.")
+        else:
+            messages.info(request, "O pagamento ainda está a ser processado pela Payzeno.")
+    return redirect("subscriptions:detail", wedding_id=wedding.pk)
+
+
+@require_wedding("can_manage_billing")
+def payzeno_cancel(request: HttpRequest, wedding, reference: str) -> HttpResponse:
+    get_object_or_404(
+        Payment, wedding=wedding, reference=reference, provider=PaymentProvider.PAYZENO
+    )
+    messages.info(request, "O checkout foi fechado sem concluir o pagamento.")
+    return redirect("subscriptions:detail", wedding_id=wedding.pk)
+
+
+@require_POST
+@require_wedding("can_manage_billing")
+def verify_payzeno(request: HttpRequest, wedding, reference: str) -> HttpResponse:
+    payment = get_object_or_404(
+        Payment, wedding=wedding, reference=reference, provider=PaymentProvider.PAYZENO
+    )
+    try:
+        _payment, confirmed = services.verify_payzeno_payment(payment=payment, request=request)
+    except PayzenoError as exc:
+        messages.error(request, str(exc))
+    else:
+        messages.success(request, "Pagamento confirmado e pacote activado." if confirmed else "O pagamento continua pendente na Payzeno.")
+    return redirect("subscriptions:detail", wedding_id=wedding.pk)
+
+
+@csrf_exempt
+@require_POST
+def payzeno_webhook(request: HttpRequest) -> HttpResponse:
+    """Webhook sem confiança implícita: o estado é sempre reconfirmado na API."""
+    if len(request.body) > 64 * 1024:
+        return JsonResponse({"received": False}, status=413)
+    try:
+        payload = json.loads(request.body.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return JsonResponse({"received": False}, status=400)
+    if not isinstance(payload, dict):
+        return JsonResponse({"received": False}, status=400)
+
+    checkout_id = str(payload.get("checkout_id") or "")[:100]
+    reference = str(payload.get("reference") or "")[:20]
+    event_type = str(payload.get("event") or "")[:50]
+    if event_type not in {
+        "payment.succeeded", "payment.refunded", "payment.chargeback"
+    }:
+        return JsonResponse({"received": True}, status=202)
+    event_key = hashlib.sha256(
+        f"payzeno|{event_type}|{checkout_id}|{reference}|{payload.get('payment_id', '')}|{payload.get('status', '')}".encode()
+    ).hexdigest()
+    payment = Payment.objects.filter(
+        provider=PaymentProvider.PAYZENO, provider_checkout_id=checkout_id
+    ).first()
+    if payment is None and reference:
+        payment = Payment.objects.filter(
+            provider=PaymentProvider.PAYZENO, reference=reference
+        ).first()
+    if payment is None:
+        return JsonResponse({"received": True}, status=202)
+    event, created = PaymentWebhookEvent.objects.get_or_create(
+        event_key=event_key,
+        defaults={
+            "event_type": event_type, "checkout_id": checkout_id, "payment": payment,
+        },
+    )
+    if not created and event.processed:
+        return JsonResponse({"received": True})
+    try:
+        services.verify_payzeno_payment(payment=payment)
+    except PayzenoError:
+        event.processing_error = "Falha ao confirmar estado remoto."
+        event.save(update_fields=["processing_error", "updated_at"])
+        return JsonResponse({"received": False}, status=503)
+    event.processed = True
+    event.processing_error = ""
+    event.save(update_fields=["processed", "processing_error", "updated_at"])
+    return JsonResponse({"received": True})

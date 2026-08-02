@@ -316,9 +316,14 @@ SUPPORT_EMAIL = env("SUPPORT_EMAIL", default="info@meuconvite.co.mz")
 # ---------------------------------------------------------------------
 # Pagamentos (subscrições)
 # ---------------------------------------------------------------------
-# Nesta versão os pagamentos são confirmados à mão: o utilizador paga por
-# M-Pesa e envia o comprovativo por WhatsApp. Não há credenciais de API
-# envolvidas — apenas os contactos mostrados na plataforma.
+# Checkout M-Pesa processado pela Payzeno. A chave pode ser definida por
+# variável de ambiente ou, cifrada, na administração da plataforma.
+PAYZENO_ENABLED = env.bool("PAYZENO_ENABLED", default=False)
+PAYZENO_API_KEY = env("PAYZENO_API_KEY", default="")
+PAYZENO_BASE_URL = env("PAYZENO_BASE_URL", default="https://api.payzeno.io")
+PAYZENO_TIMEOUT_SECONDS = env.int("PAYZENO_TIMEOUT_SECONDS", default=20)
+
+# Contactos antigos são mantidos apenas para pagamentos manuais já existentes.
 MPESA_NUMBER = env("MPESA_NUMBER", default="840297715")
 MPESA_ACCOUNT_NAME = env("MPESA_ACCOUNT_NAME", default="MeuConvite")
 WHATSAPP_NUMBER = env("WHATSAPP_NUMBER", default="+258840297715")

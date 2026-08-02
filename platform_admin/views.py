@@ -20,6 +20,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.views.decorators.http import require_POST
 
@@ -27,7 +28,8 @@ from audit.models import AuditAction, AuditLog
 from audit.services import log_action, log_update, model_to_dict
 from events.models import EventCategory
 from subscriptions import services as subscription_services
-from subscriptions.models import Payment, PaymentStatus, Plan, Voucher
+from subscriptions.models import Payment, PaymentProvider, PaymentStatus, Plan, Voucher
+from subscriptions.payzeno import PayzenoError
 from weddings.models import Wedding, WeddingStatus
 
 from . import selectors
@@ -72,7 +74,11 @@ def dashboard(request: HttpRequest) -> HttpResponse:
             "chart_revenue": json.dumps(selectors.revenue_per_month()),
             "chart_categories": json.dumps(selectors.events_by_category()),
             "pending_payments": Payment.objects.filter(
-                status__in=[PaymentStatus.AWAITING_PROOF, PaymentStatus.UNDER_REVIEW]
+                status__in=[
+                    PaymentStatus.PENDING_GATEWAY,
+                    PaymentStatus.AWAITING_PROOF,
+                    PaymentStatus.UNDER_REVIEW,
+                ]
             ).select_related("wedding", "plan")[:6],
             "recent_events": selectors.events_list()[:6],
             "recent_audit": AuditLog.objects.select_related("user").order_by("-created_at")[:10],
@@ -235,7 +241,11 @@ def payments(request: HttpRequest) -> HttpResponse:
 
     if status == "abertos":
         queryset = queryset.filter(
-            status__in=[PaymentStatus.AWAITING_PROOF, PaymentStatus.UNDER_REVIEW]
+            status__in=[
+                PaymentStatus.PENDING_GATEWAY,
+                PaymentStatus.AWAITING_PROOF,
+                PaymentStatus.UNDER_REVIEW,
+            ]
         )
     elif status in dict(PaymentStatus.choices):
         queryset = queryset.filter(status=status)
@@ -261,9 +271,21 @@ def payment_review(request: HttpRequest, reference: str) -> HttpResponse:
     notes = (request.POST.get("notas") or "").strip()
 
     if decision == "confirmar":
-        subscription_services.confirm_payment(
-            payment=payment, actor=request.user, request=request, notes=notes
-        )
+        if payment.provider == PaymentProvider.PAYZENO:
+            try:
+                _payment, confirmed = subscription_services.verify_payzeno_payment(
+                    payment=payment, request=request
+                )
+            except PayzenoError as exc:
+                messages.error(request, str(exc))
+                return redirect("platform:payments")
+            if not confirmed:
+                messages.warning(request, "A Payzeno ainda não confirma este pagamento.")
+                return redirect("platform:payments")
+        else:
+            subscription_services.confirm_payment(
+                payment=payment, actor=request.user, request=request, notes=notes
+            )
         messages.success(
             request,
             f"Pagamento {payment.reference} confirmado — o pacote {payment.plan.name} "
@@ -311,17 +333,30 @@ def settings_view(request: HttpRequest) -> HttpResponse:
     else:
         form = PlatformConfigurationForm(instance=configuration)
 
-    twilio_names = PlatformConfigurationForm.SECRET_NAMES
+    twilio_names = [name for name in PlatformConfigurationForm.SECRET_NAMES if name.startswith("twilio_")]
     twilio_status = {
         name: bool(configuration.get_secret(name) or configured_value(name))
         for name in twilio_names
     }
     twilio_status["twilio_sms_from"] = bool(configured_value("twilio_sms_from"))
+    effective_payzeno = subscription_services.payzeno_configuration()
+    payzeno_status = {
+        "enabled": effective_payzeno["enabled"],
+        "api_key": bool(effective_payzeno["api_key"]),
+        "https": configuration.payzeno_base_url.startswith("https://"),
+    }
+    webhook_url = request.build_absolute_uri(reverse("payzeno_webhook"))
     return _render(
         request,
         "settings",
         "platform_admin/sections/settings.html",
-        {"form": form, "configuration": configuration, "twilio_status": twilio_status},
+        {
+            "form": form,
+            "configuration": configuration,
+            "twilio_status": twilio_status,
+            "payzeno_status": payzeno_status,
+            "payzeno_webhook_url": webhook_url,
+        },
     )
 
 

@@ -42,6 +42,12 @@ class PlatformConfiguration(TimeStampedModel):
     twilio_sms_from = models.CharField(_("remetente SMS"), max_length=40, blank=True)
     twilio_status_callback_url = models.URLField(_("URL de estados Twilio"), blank=True)
 
+    payzeno_api_key_secret = models.TextField(blank=True, editable=False)
+    payzeno_enabled = models.BooleanField(_("activar pagamentos Payzeno"), default=False)
+    payzeno_base_url = models.URLField(
+        _("URL da API Payzeno"), default="https://api.payzeno.io"
+    )
+
     mpesa_number = models.CharField(_("número M-Pesa"), max_length=40, blank=True)
     mpesa_account_name = models.CharField(_("titular M-Pesa"), max_length=100, blank=True)
     whatsapp_number = models.CharField(_("WhatsApp de pagamentos"), max_length=40, blank=True)
@@ -57,6 +63,10 @@ class PlatformConfiguration(TimeStampedModel):
             defaults={
                 "twilio_sms_from": getattr(settings, "TWILIO_SMS_FROM", ""),
                 "twilio_status_callback_url": getattr(settings, "TWILIO_STATUS_CALLBACK_URL", ""),
+                "payzeno_enabled": getattr(settings, "PAYZENO_ENABLED", False),
+                "payzeno_base_url": getattr(
+                    settings, "PAYZENO_BASE_URL", "https://api.payzeno.io"
+                ),
                 "mpesa_number": getattr(settings, "MPESA_NUMBER", ""),
                 "mpesa_account_name": getattr(settings, "MPESA_ACCOUNT_NAME", ""),
                 "whatsapp_number": getattr(settings, "WHATSAPP_NUMBER", ""),
@@ -85,6 +95,7 @@ def configured_value(name: str, fallback: str = "") -> str:
             "twilio_api_key_sid",
             "twilio_api_key_secret",
             "twilio_auth_token",
+            "payzeno_api_key",
         }:
             value = config.get_secret(name)
         else:

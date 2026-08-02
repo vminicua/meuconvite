@@ -212,22 +212,19 @@ class SubscriptionViewTests(TestCase):
         services.ensure_subscription(self.wedding)
         self.client.login(email=self.owner.email, password=DEFAULT_PASSWORD)
 
-    def test_page_shows_the_current_plan_and_the_mpesa_number(self) -> None:
+    def test_page_shows_the_current_plan_and_payzeno(self) -> None:
         response = self.client.get(reverse("subscriptions:detail", args=[self.wedding.pk]))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Gratuito")
-        self.assertContains(response, "840297715")
+        self.assertContains(response, "Payzeno")
 
-    def test_owner_can_request_an_upgrade(self) -> None:
+    def test_old_upgrade_url_returns_to_current_checkout(self) -> None:
         response = self.client.post(
             reverse("subscriptions:upgrade", args=[self.wedding.pk, self.paid.code]),
             data={"method": "mpesa", "payer_phone": "", "transaction_id": ""},
         )
-        payment = Payment.objects.get(wedding=self.wedding)
-        self.assertRedirects(
-            response,
-            reverse("subscriptions:payment", args=[self.wedding.pk, payment.reference]),
-        )
+        self.assertRedirects(response, reverse("subscriptions:detail", args=[self.wedding.pk]))
+        self.assertFalse(Payment.objects.filter(wedding=self.wedding).exists())
 
     def test_owner_can_apply_a_voucher(self) -> None:
         Voucher.objects.create(

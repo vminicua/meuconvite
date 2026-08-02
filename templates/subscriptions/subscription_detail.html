@@ -69,7 +69,12 @@
         {% for payment in open_payments %}
         <li class="list-group-item d-flex flex-wrap justify-content-between align-items-center gap-2">
             <div><strong>{{ payment.plan.name }}</strong><div class="small text-body-secondary">Referência <code>{{ payment.reference }}</code> · {{ payment.amount_mzn|floatformat:0 }} MZN · {{ payment.get_status_display }}</div></div>
-            <a href="{% url 'subscriptions:payment' wedding.pk payment.reference %}" class="btn btn-sm btn-primary">Ver instruções</a>
+            <div class="d-flex gap-2">
+                {% if payment.provider == 'payzeno' and payment.provider_checkout_url %}
+                <a href="{{ payment.provider_checkout_url }}" class="btn btn-sm btn-primary">Continuar na Payzeno</a>
+                <form method="post" action="{% url 'subscriptions:verify_payzeno' wedding.pk payment.reference %}">{% csrf_token %}<button class="btn btn-sm btn-outline-secondary">Verificar</button></form>
+                {% else %}<a href="{% url 'subscriptions:payment' wedding.pk payment.reference %}" class="btn btn-sm btn-primary">Ver detalhes</a>{% endif %}
+            </div>
         </li>
         {% endfor %}
     </ul>
@@ -79,7 +84,7 @@
 <section aria-labelledby="plans-title">
     <div class="subscription-section-head">
         <div><span class="workspace-eyebrow">ESCOLHA O SEU PACOTE</span><h2 class="h4 mb-1" id="plans-title">Planos para cada celebração</h2><p class="text-body-secondary mb-0">Todos os limites e vantagens, sem surpresas.</p></div>
-        <div class="small text-body-secondary"><i class="bi bi-phone me-1"></i>M-Pesa: <strong>{{ instructions.mpesa_number }}</strong></div>
+        <div class="small text-body-secondary"><i class="bi bi-shield-check me-1"></i>M-Pesa seguro através da <strong>Payzeno</strong></div>
     </div>
 
     <div class="subscription-plan-grid">
@@ -117,8 +122,10 @@
                     <button class="btn btn-success w-100" disabled><i class="bi bi-check2 me-1"></i>O seu pacote actual</button>
                 {% elif plan.max_guests < limits.max_guests %}
                     <button class="btn btn-outline-secondary w-100" disabled>Pacote inferior</button>
-                {% elif capabilities.can_manage_billing %}
+                {% elif capabilities.can_manage_billing and payzeno_ready %}
                     <button type="button" class="btn btn-primary w-100" data-plan-select="{{ plan.code }}">Escolher {{ plan.name }}</button>
+                {% elif capabilities.can_manage_billing %}
+                    <button class="btn btn-outline-secondary w-100" disabled>Pagamento em configuração</button>
                 {% else %}
                     <button class="btn btn-outline-secondary w-100" disabled>Sem permissão</button>
                 {% endif %}
@@ -126,15 +133,12 @@
             {% if not plan.is_free and plan.max_guests > limits.max_guests %}
             <div class="subscription-plan__checkout {% if selected_plan_code == plan.code %}is-open{% endif %}" data-plan-checkout="{{ plan.code }}">
                 <div class="subscription-plan__checkout-head"><div><span>Concluir no cartão</span><strong>{{ plan.price_display }}</strong></div><button type="button" data-plan-close aria-label="Fechar"><i class="bi bi-x-lg"></i></button></div>
-                <p>Faça o pagamento para <strong>{{ instructions.mpesa_number }}</strong>. Pode registar já o pedido e acrescentar o comprovativo agora ou depois.</p>
-                <form method="post" enctype="multipart/form-data" data-loading="A registar o seu pedido…">
+                <p>Será encaminhado para o checkout seguro da Payzeno e concluirá o pagamento por M-Pesa. O pacote é activado automaticamente após a confirmação.</p>
+                <form method="post" data-loading="A abrir o pagamento seguro…">
                     {% csrf_token %}<input type="hidden" name="plan_code" value="{{ plan.code }}">
-                    <label for="method-{{ plan.code }}">Método</label><select class="form-select form-select-sm" id="method-{{ plan.code }}" name="method"><option value="mpesa">M-Pesa</option><option value="emola">e-Mola</option><option value="bank_transfer">Transferência bancária</option><option value="other">Outro</option></select>
-                    <label for="phone-{{ plan.code }}">Número de quem paga</label><input class="form-control form-control-sm" id="phone-{{ plan.code }}" name="payer_phone" inputmode="tel" placeholder="+258 84 000 0000" {% if selected_plan_code == plan.code %}value="{{ upgrade_form.payer_phone.value|default:'' }}"{% endif %}>
-                    <label for="transaction-{{ plan.code }}">ID da transacção <span>(opcional)</span></label><input class="form-control form-control-sm" id="transaction-{{ plan.code }}" name="transaction_id" {% if selected_plan_code == plan.code %}value="{{ upgrade_form.transaction_id.value|default:'' }}"{% endif %}>
-                    <label for="proof-{{ plan.code }}">Comprovativo <span>(opcional)</span></label><input class="form-control form-control-sm" type="file" id="proof-{{ plan.code }}" name="proof" accept="image/jpeg,image/png,image/webp,application/pdf">
+                    <label for="phone-{{ plan.code }}">Número M-Pesa</label><input class="form-control form-control-sm" id="phone-{{ plan.code }}" name="payer_phone" inputmode="tel" autocomplete="tel" placeholder="+258 84 000 0000" value="{% if selected_plan_code == plan.code %}{{ upgrade_form.payer_phone.value|default:'' }}{% else %}{{ request.user.phone }}{% endif %}" required>
                     {% if selected_plan_code == plan.code and upgrade_form.errors %}<div class="alert alert-danger py-2 small mt-2 mb-0">{{ upgrade_form.errors }}</div>{% endif %}
-                    <button class="btn btn-dark w-100 mt-3" type="submit">Registar pedido de {{ plan.name }}</button>
+                    <button class="btn btn-dark w-100 mt-3" type="submit"><i class="bi bi-lock me-1"></i>Pagar {{ plan.price_display }} por M-Pesa</button>
                 </form>
             </div>
             {% endif %}

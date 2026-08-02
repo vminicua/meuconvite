@@ -1,16 +1,4 @@
-"""
-Planos, subscrições e pagamentos.
-
-O modelo de negócio desta primeira versão é simples e honesto: o plano
-gratuito suporta um número reduzido de convidados e quem precisar de mais
-paga por M-Pesa e envia o comprovativo por WhatsApp. A equipa MeuConvite
-confirma o pagamento na administração e a subscrição fica activa.
-
-Não existe aqui nenhuma integração automática de pagamentos — quando a API
-do M-Pesa estiver disponível, `Payment` já tem os campos necessários
-(referência, método, montante, estado) para ser confirmada por webhook em
-vez de à mão.
-"""
+"""Planos, subscrições e pagamentos."""
 
 from __future__ import annotations
 
@@ -257,11 +245,20 @@ class PaymentMethod(models.TextChoices):
 
 
 class PaymentStatus(models.TextChoices):
+    PENDING_GATEWAY = "pending_gateway", _("A aguardar pagamento")
     AWAITING_PROOF = "awaiting_proof", _("À espera do comprovativo")
     UNDER_REVIEW = "under_review", _("Em verificação")
     CONFIRMED = "confirmed", _("Confirmado")
     REJECTED = "rejected", _("Recusado")
     CANCELLED = "cancelled", _("Cancelado")
+    EXPIRED = "expired", _("Expirado")
+    REFUNDED = "refunded", _("Reembolsado")
+    CHARGEBACK = "chargeback", _("Contestado")
+
+
+class PaymentProvider(models.TextChoices):
+    MANUAL = "manual", _("Manual")
+    PAYZENO = "payzeno", _("Payzeno")
 
 
 class Payment(BaseModel):
@@ -322,6 +319,21 @@ class Payment(BaseModel):
         null=True,
         help_text=_("Opcional: o comprovativo também pode ser enviado por WhatsApp."),
     )
+    provider = models.CharField(
+        _("processador"), max_length=20, choices=PaymentProvider.choices,
+        default=PaymentProvider.MANUAL, db_index=True,
+    )
+    provider_checkout_id = models.CharField(
+        _("checkout do processador"), max_length=100, blank=True, null=True, unique=True
+    )
+    provider_payment_id = models.CharField(
+        _("pagamento do processador"), max_length=100, blank=True, null=True, db_index=True
+    )
+    provider_status = models.CharField(_("estado no processador"), max_length=40, blank=True)
+    provider_checkout_url = models.URLField(_("URL do checkout"), max_length=600, blank=True)
+    provider_expires_at = models.DateTimeField(_("checkout expira em"), null=True, blank=True)
+    provider_checked_at = models.DateTimeField(_("processador verificado em"), null=True, blank=True)
+    provider_payload = models.JSONField(_("metadados do processador"), default=dict, blank=True)
 
     status = models.CharField(
         _("estado"),
@@ -369,7 +381,11 @@ class Payment(BaseModel):
 
     @property
     def is_open(self) -> bool:
-        return self.status in {PaymentStatus.AWAITING_PROOF, PaymentStatus.UNDER_REVIEW}
+        return self.status in {
+            PaymentStatus.PENDING_GATEWAY,
+            PaymentStatus.AWAITING_PROOF,
+            PaymentStatus.UNDER_REVIEW,
+        }
 
     @property
     def whatsapp_message(self) -> str:
@@ -380,3 +396,21 @@ class Payment(BaseModel):
             f"Referência: {self.reference}\n"
             f"Evento: {self.wedding.display_names}"
         ).replace(",", " ")
+
+
+class PaymentWebhookEvent(BaseModel):
+    """Registo idempotente e sem dados pessoais dos webhooks recebidos."""
+
+    provider = models.CharField(max_length=20, default=PaymentProvider.PAYZENO)
+    event_key = models.CharField(max_length=64, unique=True, editable=False)
+    event_type = models.CharField(max_length=50, blank=True)
+    checkout_id = models.CharField(max_length=100, blank=True, db_index=True)
+    payment = models.ForeignKey(
+        Payment, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="webhook_events",
+    )
+    processed = models.BooleanField(default=False)
+    processing_error = models.CharField(max_length=240, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]

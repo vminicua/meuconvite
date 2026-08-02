@@ -54,7 +54,11 @@ def kpis() -> dict:
     )
 
     payments = Payment.objects.aggregate(
-        pending=Count("id", filter=Q(status__in=[PaymentStatus.AWAITING_PROOF, PaymentStatus.UNDER_REVIEW])),
+        pending=Count("id", filter=Q(status__in=[
+            PaymentStatus.PENDING_GATEWAY,
+            PaymentStatus.AWAITING_PROOF,
+            PaymentStatus.UNDER_REVIEW,
+        ])),
         confirmed=Count("id", filter=Q(status=PaymentStatus.CONFIRMED)),
         revenue=Sum("amount_mzn", filter=Q(status=PaymentStatus.CONFIRMED)),
         revenue_month=Sum(

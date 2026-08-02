@@ -6,6 +6,19 @@
 {% include "partials/wedding_nav.html" %}
 
 <div class="row justify-content-center g-4">
+    {% if is_payzeno %}
+    <div class="col-lg-7">
+        <div class="card shadow-sm"><div class="card-body p-4 text-center">
+            <i class="bi bi-shield-check display-5 text-success"></i>
+            <h1 class="h4 mt-3">Pagamento M-Pesa via Payzeno</h1>
+            <p class="text-body-secondary">{{ payment.plan.name }} · {{ payment.amount_mzn|floatformat:0 }} MZN<br>Referência <code>{{ payment.reference }}</code></p>
+            {% if payment.status == 'confirmed' %}<div class="alert alert-success">Pagamento confirmado e pacote activo.</div>
+            {% elif payment.provider_checkout_url %}<a class="btn btn-primary w-100" href="{{ payment.provider_checkout_url }}">Continuar pagamento seguro</a>
+            <form class="mt-2" method="post" action="{% url 'subscriptions:verify_payzeno' wedding.pk payment.reference %}">{% csrf_token %}<button class="btn btn-outline-secondary w-100">Verificar estado na Payzeno</button></form>
+            {% else %}<div class="alert alert-warning">O checkout ainda não está disponível.</div>{% endif %}
+        </div></div>
+    </div>
+    {% else %}
     <div class="col-lg-6">
         <div class="card shadow-sm">
             <div class="card-header bg-transparent fw-semibold">Como pagar</div>
@@ -104,5 +117,6 @@
             <a href="{% url 'subscriptions:detail' wedding.pk %}">Voltar à subscrição</a>
         </p>
     </div>
+    {% endif %}
 </div>
 {% endblock %}
