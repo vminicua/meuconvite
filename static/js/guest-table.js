@@ -24,7 +24,7 @@
         const wantedStatus = status ? status.value : "";
         const wantedProgramme = normalized(programme ? programme.value : "");
         return rows.filter(function (row) {
-            const haystack = normalized(row.dataset.name + " " + row.dataset.contact);
+            const haystack = normalized(row.dataset.name + " " + row.dataset.contact + " " + row.dataset.seating);
             return (!term || haystack.includes(term)) &&
                 (!wantedStatus || row.dataset.status === wantedStatus) &&
                 (!wantedProgramme || normalized(row.dataset.programme).includes(wantedProgramme));
@@ -71,6 +71,18 @@
             const key = button.dataset.sort;
             sortDirection = sortKey === key ? sortDirection * -1 : 1;
             sortKey = key; render();
+        });
+    });
+
+    root.querySelectorAll("[data-programme-picker]").forEach(function (picker) {
+        const boxes = Array.from(picker.querySelectorAll("input[type=checkbox]"));
+        const selectAll = picker.querySelector("[data-programme-select-all]");
+        const clear = picker.querySelector("[data-programme-clear]");
+        if (selectAll) selectAll.addEventListener("click", function () {
+            boxes.forEach(function (box) { box.checked = true; });
+        });
+        if (clear) clear.addEventListener("click", function () {
+            boxes.forEach(function (box) { box.checked = false; });
         });
     });
 

@@ -32,7 +32,7 @@
                         {% for field in form %}
                         <div class="{% if field.name == 'allowed_events' or field.name == 'notes' %}col-12{% else %}col-md-6{% endif %}">
                             <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-                            {% if field.name == 'allowed_events' %}<div class="guest-programme-options">{{ field }}</div>{% else %}{{ field }}{% endif %}
+                            {% if field.name == 'allowed_events' %}<div data-programme-picker><div class="d-flex justify-content-end gap-2 mb-2"><button class="btn btn-sm btn-outline-secondary" type="button" data-programme-select-all>Seleccionar todos</button><button class="btn btn-sm btn-link" type="button" data-programme-clear>Limpar</button></div><div class="guest-programme-options">{{ field }}</div></div>{% else %}{{ field }}{% endif %}
                             {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}{{ field.errors }}
                         </div>
                         {% endfor %}
@@ -69,6 +69,7 @@
                     <th><button type="button" data-sort="name">Convidado <i class="bi bi-arrow-down-up"></i></button></th>
                     <th><button type="button" data-sort="contact">Contacto <i class="bi bi-arrow-down-up"></i></button></th>
                     <th><button type="button" data-sort="seats">Lugares <i class="bi bi-arrow-down-up"></i></button></th>
+                    <th><button type="button" data-sort="seating">Mesa / cadeira <i class="bi bi-arrow-down-up"></i></button></th>
                     <th>Programa autorizado</th>
                     <th><button type="button" data-sort="status">Confirmação <i class="bi bi-arrow-down-up"></i></button></th>
                     <th>Plano</th>
@@ -76,13 +77,14 @@
                 </tr></thead>
                 <tbody>
                 {% for row in guest_rows %}{% with guest=row.guest %}
-                    <tr class="{% if not row.is_enabled %}guest-row--disabled{% endif %}" data-guest-row data-enabled="{% if row.is_enabled %}1{% else %}0{% endif %}" data-name="{{ guest.full_name|lower }}" data-contact="{{ guest.phone|lower }} {{ guest.email|lower }}" data-seats="{{ guest.party_size }}" data-status="{{ guest.rsvp_status }}" data-programme="{% for event in row.allowed_events %}{{ event.name|lower }} {% empty %}todos{% endfor %}">
+                    <tr class="{% if not row.is_enabled %}guest-row--disabled{% endif %}" data-guest-row data-enabled="{% if row.is_enabled %}1{% else %}0{% endif %}" data-name="{{ guest.full_name|lower }}" data-contact="{{ guest.phone|lower }} {{ guest.email|lower }}" data-seats="{{ guest.party_size }}" data-seating="{{ guest.seating_assignment|lower }}" data-status="{{ guest.rsvp_status }}" data-programme="{% if row.has_full_programme %}todos {% endif %}{% for event in row.allowed_events %}{{ event.name|lower }} {% endfor %}">
                         <td class="guest-order">{{ row.ord }}</td>
                         <td><strong>{{ guest.full_name }}</strong>{% if guest.notes %}<div class="small text-body-secondary text-truncate guest-note">{{ guest.notes }}</div>{% endif %}</td>
                         <td class="small">{{ guest.phone|default:"—" }}{% if guest.email %}<div class="text-body-secondary">{{ guest.email }}</div>{% endif %}</td>
                         <td><span class="guest-seats">{{ guest.party_size }}</span></td>
+                        <td class="small">{{ guest.seating_assignment|default:"—" }}</td>
                         <td>
-                            {% for event in row.allowed_events %}<span class="guest-programme-pill">{{ event.name }}</span>{% empty %}<span class="guest-programme-pill guest-programme-pill--all">Programa completo</span>{% endfor %}
+                            {% if row.has_full_programme %}<span class="guest-programme-pill guest-programme-pill--all">Programa completo</span>{% elif row.allowed_events %}{% for event in row.allowed_events %}<span class="guest-programme-pill">{{ event.name }}</span>{% endfor %}{% else %}<span class="small text-body-secondary">Sem acesso ao programa</span>{% endif %}
                         </td>
                         <td>
                             {% if guest.rsvp_status == 'confirmed' %}<span class="guest-status guest-status--confirmed"><i class="bi bi-check-circle-fill"></i> Confirmado</span>
@@ -189,7 +191,7 @@
                             <div class="{% if field.name == 'allowed_events' or field.name == 'notes' %}col-12{% else %}col-md-6{% endif %}">
                                 <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
                                 {% if field.name == 'allowed_events' %}
-                                    <div class="guest-programme-options">{{ field }}</div>
+                                    <div data-programme-picker><div class="d-flex justify-content-end gap-2 mb-2"><button class="btn btn-sm btn-outline-secondary" type="button" data-programme-select-all>Seleccionar todos</button><button class="btn btn-sm btn-link" type="button" data-programme-clear>Limpar</button></div><div class="guest-programme-options">{{ field }}</div></div>
                                 {% else %}{{ field }}{% endif %}
                                 {% if field.help_text %}<div class="form-text mt-2">{{ field.help_text }}</div>{% endif %}
                                 {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
@@ -213,4 +215,4 @@
 </section>
 {% endblock %}
 
-{% block extra_js %}<script src="{% static 'js/guest-table.js' %}?v=20260801.6"></script>{% endblock %}
+{% block extra_js %}<script src="{% static 'js/guest-table.js' %}?v=20260802.7"></script>{% endblock %}

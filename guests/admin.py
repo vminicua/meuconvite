@@ -5,7 +5,9 @@ from .models import Gift, GiftSelection, Guest, InvitationDelivery
 
 @admin.register(Guest)
 class GuestAdmin(admin.ModelAdmin):
-    list_display = ("full_name", "wedding", "phone", "party_size", "is_active")
+    list_display = (
+        "full_name", "wedding", "phone", "party_size", "seating_assignment", "is_active"
+    )
     list_filter = ("is_active",)
     search_fields = ("full_name", "phone", "email")
 

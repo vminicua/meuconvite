@@ -69,7 +69,7 @@ def invitation_context(
         monogram = f"{monogram}{wedding.secondary_short_name[:1].upper()}"
 
     programme_qs = WeddingEvent.objects.filter(wedding=wedding, is_active=True)
-    if guest is not None and guest.allowed_events.exists():
+    if guest is not None:
         programme_qs = programme_qs.filter(pk__in=guest.allowed_events.values("pk"))
 
     qr_events = list(
@@ -111,9 +111,15 @@ def invitation_context(
         .select_related("location", "location__wedding")
         .order_by("date", "start_time", "display_order")
     ):
-        if legacy.title.casefold() not in programme_names:
+        if guest is None and legacy.title.casefold() not in programme_names:
             programme.append(legacy)
             programme_names.add(legacy.title.casefold())
+
+    visible_first_moment = (
+        programme[0] if guest is not None and programme
+        else None if guest is not None
+        else first_moment
+    )
 
     return {
         "wedding": wedding,
@@ -131,8 +137,9 @@ def invitation_context(
         "guest": guest,
         "guest_name": guest.full_name if guest is not None else guest_name,
         "seats": guest.party_size if guest is not None else seats,
-        "first_moment": first_moment,
-        "countdown_target": _countdown_target(wedding, first_moment),
+        "seating_assignment": guest.seating_assignment if guest is not None else "",
+        "first_moment": visible_first_moment,
+        "countdown_target": _countdown_target(wedding, visible_first_moment),
         "schedule": programme,
         "locations": list(
             WeddingLocation.objects.filter(wedding=wedding)

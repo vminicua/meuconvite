@@ -85,6 +85,9 @@
         {% if seats %}
             <p class="inv-seats"><span>Lugares reservados</span><strong>{{ seats }}</strong></p>
         {% endif %}
+        {% if seating_assignment %}
+            <p class="inv-seats"><span>Mesa / cadeira</span><strong>{{ seating_assignment }}</strong></p>
+        {% endif %}
     </header>
 
     {% if wedding.welcome_message %}

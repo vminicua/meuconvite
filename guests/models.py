@@ -25,6 +25,10 @@ class Guest(BaseModel, SoftDeleteModel):
     party_size = models.PositiveSmallIntegerField(
         _("lugares"), default=1, validators=[MinValueValidator(1), MaxValueValidator(20)]
     )
+    seating_assignment = models.CharField(
+        _("mesa ou cadeira"), max_length=100, blank=True,
+        help_text=_("Ex.: Mesa dos Jacarandás, Mesa 8 ou Cadeira A12."),
+    )
     notes = models.CharField(_("observações"), max_length=500, blank=True)
     invitation_token = models.CharField(
         _("codigo do convite"), max_length=4, unique=True,
@@ -48,7 +52,7 @@ class Guest(BaseModel, SoftDeleteModel):
     allowed_events = models.ManyToManyField(
         "events.WeddingEvent", verbose_name=_("programa autorizado"),
         blank=True, related_name="invited_guests",
-        help_text=_("Sem selecção, o convidado recebe acesso a todo o programa público."),
+        help_text=_("Seleccione os momentos que este convidado pode consultar."),
     )
 
     class Meta:
@@ -75,7 +79,8 @@ class Guest(BaseModel, SoftDeleteModel):
 
     @property
     def has_programme_restrictions(self) -> bool:
-        return self.allowed_events.exists()
+        active_total = self.wedding.events.filter(is_active=True).count()
+        return self.allowed_events.count() < active_total
 
 
 class Gift(BaseModel, SoftDeleteModel):

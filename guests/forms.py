@@ -16,7 +16,10 @@ class SendInvitationForm(forms.Form):
 class GuestForm(BootstrapModelForm):
     class Meta:
         model = Guest
-        fields = ["full_name", "phone", "email", "party_size", "allowed_events", "notes"]
+        fields = [
+            "full_name", "phone", "email", "party_size", "seating_assignment",
+            "allowed_events", "notes",
+        ]
         widgets = {
             "party_size": forms.NumberInput(attrs={"min": 1, "max": 20}),
             "allowed_events": forms.CheckboxSelectMultiple(
@@ -33,8 +36,8 @@ class GuestForm(BootstrapModelForm):
         self.fields["allowed_events"].required = False
         self.fields["allowed_events"].label = "Acesso ao programa"
         self.fields["allowed_events"].help_text = (
-            "Deixe todas desmarcadas para permitir todo o programa. "
-            "Seleccione apenas quando este convite for limitado."
+            "Seleccione todos para permitir o programa completo. "
+            "Se não seleccionar nenhum, o convite não mostrará o programa."
         )
 
 

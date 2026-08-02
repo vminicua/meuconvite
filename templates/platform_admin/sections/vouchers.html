@@ -10,5 +10,5 @@
 <td class="small">{% if voucher.valid_from %}{{ voucher.valid_from|date:"d/m/Y" }}{% else %}—{% endif %} a {% if voucher.valid_until %}{{ voucher.valid_until|date:"d/m/Y" }}{% else %}sem fim{% endif %}</td>
 <td>{{ voucher.redemption_total }} / {% if voucher.max_redemptions %}{{ voucher.max_redemptions }}{% else %}∞{% endif %}</td><td>{% if voucher.is_active %}<span class="badge text-bg-success">Activo</span>{% else %}<span class="badge text-bg-secondary">Inactivo</span>{% endif %}</td>
 <td class="text-end"><a class="btn btn-sm btn-outline-secondary" href="{% url 'platform:voucher_edit' voucher.pk %}" hx-get="{% url 'platform:voucher_edit' voucher.pk %}" hx-target="#admin-content" hx-push-url="true">Editar</a></td>
-</tr>{% empty %}<tr><td colspan="7" class="text-center py-5 text-body-secondary">Ainda não existem vouchers.</td></tr>{% endfor %}</tbody>
+</tr>{% endfor %}</tbody>
 </table></div></div>

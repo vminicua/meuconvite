@@ -22,14 +22,16 @@ class GuestViewTests(TestCase):
 
     def test_owner_can_add_and_edit_a_guest(self):
         url = reverse("guests:list", args=[self.wedding.pk])
-        response = self.client.post(url, {"full_name": "Ana Mucavele", "phone": "841234567", "email": "", "party_size": 2, "notes": "Família"})
+        response = self.client.post(url, {"full_name": "Ana Mucavele", "phone": "841234567", "email": "", "party_size": 2, "seating_assignment": "Mesa 8", "notes": "Família"})
         self.assertRedirects(response, url)
         guest = Guest.objects.get(wedding=self.wedding)
         self.assertEqual(guest.party_size, 2)
-        response = self.client.post(reverse("guests:edit", args=[self.wedding.pk, guest.pk]), {"full_name": "Ana Mucavele", "phone": "841234567", "email": "ana@example.com", "party_size": 3, "notes": ""})
+        self.assertEqual(guest.seating_assignment, "Mesa 8")
+        response = self.client.post(reverse("guests:edit", args=[self.wedding.pk, guest.pk]), {"full_name": "Ana Mucavele", "phone": "841234567", "email": "ana@example.com", "party_size": 3, "seating_assignment": "Cadeira A12", "notes": ""})
         self.assertRedirects(response, url)
         guest.refresh_from_db()
         self.assertEqual(guest.party_size, 3)
+        self.assertEqual(guest.seating_assignment, "Cadeira A12")
 
     def test_guest_is_soft_removed(self):
         guest = Guest.objects.create(wedding=self.wedding, full_name="João")
@@ -70,6 +72,37 @@ class GuestViewTests(TestCase):
         response = self.client.get(reverse("guest_invitation", args=[guest.invitation_token]))
         self.assertContains(response, "Cerimónia")
         self.assertNotContains(response, "Festa")
+
+    def test_empty_selection_means_no_programme_and_all_selected_means_complete(self):
+        first = WeddingEvent.objects.create(wedding=self.wedding, name="Cerimónia")
+        second = WeddingEvent.objects.create(wedding=self.wedding, name="Festa")
+        url = reverse("guests:list", args=[self.wedding.pk])
+        self.client.post(url, {"full_name": "Sem programa", "party_size": 1})
+        self.client.post(url, {
+            "full_name": "Programa completo", "party_size": 1,
+            "allowed_events": [first.pk, second.pk],
+        })
+        no_programme = Guest.objects.get(full_name="Sem programa")
+        full_programme = Guest.objects.get(full_name="Programa completo")
+        response = self.client.get(reverse("guest_invitation", args=[no_programme.invitation_token]))
+        self.assertNotContains(response, "Cerimónia")
+        self.assertNotContains(response, "Festa")
+        response = self.client.get(reverse("guests:list", args=[self.wedding.pk]))
+        self.assertContains(response, "Sem acesso ao programa")
+        self.assertContains(response, "Programa completo")
+        self.assertEqual(full_programme.allowed_events.count(), 2)
+
+    def test_seating_assignment_appears_in_table_and_invitation(self):
+        event = WeddingEvent.objects.create(wedding=self.wedding, name="Recepção")
+        guest = Guest.objects.create(
+            wedding=self.wedding, full_name="Ana", seating_assignment="Mesa dos Jacarandás"
+        )
+        guest.allowed_events.add(event)
+        response = self.client.get(reverse("guests:list", args=[self.wedding.pk]))
+        self.assertContains(response, "Mesa / cadeira")
+        self.assertContains(response, "Mesa dos Jacarandás")
+        response = self.client.get(reverse("guest_invitation", args=[guest.invitation_token]))
+        self.assertContains(response, "Mesa dos Jacarandás")
 
     def test_guest_can_confirm_from_individual_invitation(self):
         guest = Guest.objects.create(wedding=self.wedding, full_name="Ana")

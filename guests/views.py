@@ -123,6 +123,9 @@ def guest_list(request: HttpRequest, wedding) -> HttpResponse:
         .prefetch_related("allowed_events", "invitation_deliveries")
         .order_by("full_name")
     )
+    active_programme_ids = set(
+        wedding.events.filter(is_active=True).values_list("pk", flat=True)
+    )
     current_limits = limits(wedding)
     enabled_ids = enabled_guest_ids(wedding, current_limits.max_guests)
     guest_rows = []
@@ -130,6 +133,8 @@ def guest_list(request: HttpRequest, wedding) -> HttpResponse:
         is_enabled = guest.pk in enabled_ids
         invitation_url = _guest_invitation_url(request, guest) if is_enabled else ""
         deliveries = list(guest.invitation_deliveries.all())
+        allowed_events = list(guest.allowed_events.all())
+        allowed_event_ids = {event.pk for event in allowed_events if event.is_active}
         guest_rows.append({
             "guest": guest,
             "is_enabled": is_enabled,
@@ -139,7 +144,9 @@ def guest_list(request: HttpRequest, wedding) -> HttpResponse:
                 guest, invitation_url, InvitationChannel.WHATSAPP
             ) if is_enabled else "",
             "share_cover_url": _share_cover_url(request, wedding, guest) if is_enabled else "",
-            "allowed_events": list(guest.allowed_events.all()),
+            "allowed_events": allowed_events,
+            "has_full_programme": bool(active_programme_ids)
+            and allowed_event_ids == active_programme_ids,
             "latest_delivery": deliveries[0] if deliveries else None,
             "edit_form": GuestForm(
                 instance=guest,
@@ -195,11 +202,15 @@ def guest_export_excel(request: HttpRequest, wedding) -> HttpResponse:
     enabled_ids = enabled_guest_ids(wedding)
     guests = list(queryset.distinct())
     guests.sort(key=lambda guest: (guest.pk not in enabled_ids, guest.full_name.casefold()))
+    active_ids = set(wedding.events.filter(is_active=True).values_list("pk", flat=True))
 
     workbook = Workbook()
     sheet = workbook.active
     sheet.title = "Convidados"
-    headers = ["Ord.", "Convidado", "Telefone", "Email", "Lugares", "Programa autorizado", "Confirmação", "Estado"]
+    headers = [
+        "Ord.", "Convidado", "Telefone", "Email", "Lugares", "Mesa / cadeira",
+        "Programa autorizado", "Confirmação", "Estado",
+    ]
     sheet.append(headers)
     for cell in sheet[1]:
         cell.font = Font(bold=True, color="FFFFFF")
@@ -207,18 +218,31 @@ def guest_export_excel(request: HttpRequest, wedding) -> HttpResponse:
 
     for position, guest in enumerate(guests, start=1):
         allowed_events = list(guest.allowed_events.all())
+        selected_ids = {event.pk for event in allowed_events if event.is_active}
+        if active_ids and selected_ids == active_ids:
+            programme_label = "Programa completo"
+        elif selected_ids:
+            programme_label = ", ".join(
+                event.name for event in allowed_events if event.pk in selected_ids
+            )
+        else:
+            programme_label = "Sem acesso ao programa"
         sheet.append([
             position,
             guest.full_name,
             guest.phone,
             guest.email,
             guest.party_size,
-            ", ".join(event.name for event in allowed_events) or "Programa completo",
+            guest.seating_assignment,
+            programme_label,
             guest.get_rsvp_status_display(),
             "Activo" if guest.pk in enabled_ids else "Bloqueado — requer subscrição",
         ])
 
-    widths = {"A": 8, "B": 30, "C": 20, "D": 32, "E": 10, "F": 34, "G": 20, "H": 32}
+    widths = {
+        "A": 8, "B": 30, "C": 20, "D": 32, "E": 10, "F": 24,
+        "G": 34, "H": 20, "I": 32,
+    }
     for column, width in widths.items():
         sheet.column_dimensions[column].width = width
     sheet.freeze_panes = "A2"
