@@ -30,8 +30,6 @@
 .gallery-photo-card__form textarea { width:100%; padding:.7rem .75rem; resize:vertical; border:1px solid #ddd7cd; border-radius:12px; font-size:.9rem; }
 .gallery-photo-card__form textarea:focus { outline:2px solid rgba(201,168,95,.28); border-color:#c9a85f; }
 .gallery-photo-card__toggle { margin:.75rem 0; font-size:.84rem; }
-.gallery-photo-card__credit { margin:.55rem 0; color:#8a8f96; font-size:.72rem; }
-.gallery-photo-card__credit a { color:inherit; }
 .gallery-photo-card__actions { display:flex; gap:.4rem; padding:.75rem 1rem; border-top:1px solid #eee9e0; background:#fbfaf7; }
 .gallery-photo-card__actions button { display:grid; place-items:center; width:34px; height:34px; border:1px solid #ddd6ca; border-radius:10px; background:#fff; color:#47505a; }
 .gallery-photo-card__actions button:disabled { opacity:.28; }

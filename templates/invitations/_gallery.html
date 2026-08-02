@@ -32,7 +32,6 @@
             <img src="{{ photo.source_url }}" alt="{{ photo.caption|default:'Memória do casal' }}"{% if not forloop.first %} loading="lazy"{% endif %}>
             <figcaption>
                 {% if photo.caption %}<p>{{ photo.caption }}</p>{% endif %}
-                {% if photo.credit_name %}<small>Fotografia de {% if photo.credit_url %}<a href="{{ photo.credit_url }}" target="_blank" rel="noopener">{{ photo.credit_name }}</a>{% else %}{{ photo.credit_name }}{% endif %} · Unsplash</small>{% endif %}
             </figcaption>
         </figure>
         {% endfor %}
