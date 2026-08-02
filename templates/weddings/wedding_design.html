@@ -20,8 +20,8 @@
         <div>
             <h2 class="h5 mb-1">Template do convite</h2>
             <p class="small text-body-secondary mb-0">
-                {{ templates|length }} templates disponíveis. Ao escolher um, as cores são
-                actualizadas — pode alterá-las a seguir.
+                {{ templates|length }} templates disponíveis. Cada template inclui a sua própria
+                paleta, tipografia e acabamento.
             </p>
         </div>
         <div class="d-flex gap-2">
@@ -40,11 +40,7 @@
         {% for template in templates %}
             <div class="template-choice {% if template.code == wedding.selected_template %}is-selected{% endif %}">
                 <div class="template-card {% if template.code == wedding.selected_template %}is-selected{% endif %}"
-                     data-template="{{ template.code }}"
-                     data-name="{{ template.name }}"
-                     data-description="{{ template.description }}"
-                     data-primary="{{ template.primary }}"
-                     data-secondary="{{ template.secondary }}">
+                     data-template="{{ template.code }}">
                     <label class="template-card__select">
                         <input type="radio" name="selected_template" value="{{ template.code }}"
                                {% if template.code == wedding.selected_template %}checked{% endif %}
@@ -85,80 +81,8 @@
         {% endfor %}
     </div>
 
-    <div class="row g-4">
-        <div class="col-lg-7">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-transparent fw-semibold">Cores, capa e música</div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label" for="{{ form.primary_color.id_for_label }}">Cor principal</label>
-                            {{ form.primary_color }}
-                            {{ form.primary_color.errors }}
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label" for="{{ form.secondary_color.id_for_label }}">Cor secundária</label>
-                            {{ form.secondary_color }}
-                            {{ form.secondary_color.errors }}
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label" for="{{ form.cover_image.id_for_label }}">Fotografia de capa</label>
-                            {{ form.cover_image }}
-                            <div class="form-text">JPG, PNG ou WEBP até 5 MB.</div>
-                            {{ form.cover_image.errors }}
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label" for="{{ form.invitation_music.id_for_label }}">Música do convite</label>
-                            {{ form.invitation_music }}
-                            <div class="form-text">MP3, M4A ou OGG até 8 MB.</div>
-                            {{ form.invitation_music.errors }}
-                        </div>
-                        <div class="col-12">
-                            <div class="form-check">
-                                {{ form.show_music }}
-                                <label class="form-check-label" for="{{ form.show_music.id_for_label }}">
-                                    Reproduzir música ao abrir o convite
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-5">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-transparent fw-semibold">Template escolhido</div>
-                <div class="card-body">
-                    <p class="mb-1"><strong id="selected-template-name">{{ selected_template.name }}</strong></p>
-                    <p class="small text-body-secondary" id="selected-template-description">
-                        {{ selected_template.description }}
-                    </p>
-                    <div class="colour-preview" style="--preview-primary: {{ wedding.primary_color }}; --preview-secondary: {{ wedding.secondary_color }};">
-                        <div class="colour-preview__cover">
-                            {% if wedding.cover_image %}
-                                <img src="{{ wedding.cover_image.url }}" alt="Fotografia de capa">
-                            {% else %}
-                                <span class="text-body-secondary small">Sem fotografia de capa</span>
-                            {% endif %}
-                        </div>
-                        <div class="colour-preview__body">
-                            <p class="colour-preview__names">{{ wedding.display_names }}</p>
-                            <p class="colour-preview__date">{{ wedding.main_date|date:"d F Y" }}</p>
-                            <span class="colour-preview__button">Confirmar presença</span>
-                        </div>
-                    </div>
-                    <p class="small text-body-secondary mt-3 mb-0">
-                        O template e as cores ficam guardados no evento. A página pública e o
-                        convite individual, que os aplicam, chegam nas fases seguintes.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="mt-4">
-        <button type="submit" class="btn btn-primary">Guardar alterações</button>
+    <div class="d-flex flex-wrap gap-2 mt-4">
+        <button type="submit" class="btn btn-primary">Guardar template</button>
         <a href="{% url 'weddings:detail' wedding.pk %}" class="btn btn-outline-secondary">Voltar ao painel</a>
     </div>
 </form>

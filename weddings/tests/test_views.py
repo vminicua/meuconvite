@@ -232,6 +232,10 @@ class DashboardViewTests(TestCase):
     def test_cover_and_invitation_messages_are_edited_in_event_details(self) -> None:
         url = reverse("weddings:detail", args=[self.wedding.pk])
         response = self.client.get(url)
+        self.assertContains(response, "Capa do convite")
+        self.assertContains(response, "Música do convite")
+        self.assertContains(response, 'id="id_invitation_music"', html=False)
+        self.assertContains(response, 'id="id_show_music"', html=False)
         self.assertContains(response, "Mensagem da capa")
         self.assertContains(response, "Mensagem principal do convite")
 
@@ -345,17 +349,19 @@ class DesignViewTests(TestCase):
         )
         self.assertNotContains(response, "Aplicar template")
         self.assertNotContains(response, "Guardar aspecto")
+        self.assertNotContains(response, "Cores, capa e música")
+        self.assertNotContains(response, "Template escolhido")
+        self.assertNotContains(response, "Cor principal")
+        self.assertNotContains(response, "Cor secundária")
+        self.assertNotContains(response, 'id="id_cover_image"', html=False)
+        self.assertNotContains(response, 'id="id_invitation_music"', html=False)
         self.assertEqual(
             response.content.count(b'class="template-choice '),
             len(response.context["templates"]),
         )
 
     def _payload(self, **overrides) -> dict:
-        data = {
-            "selected_template": "capulana",
-            "primary_color": "#C1502E",
-            "secondary_color": "#1B6B5A",
-        }
+        data = {"selected_template": "capulana"}
         data.update(overrides)
         return data
 
@@ -363,8 +369,23 @@ class DesignViewTests(TestCase):
         response = self.client.post(self.url, data=self._payload())
         self.assertRedirects(response, self.url)
         self.wedding.refresh_from_db()
+        from templates_manager import registry
+        template = registry.get_template("capulana")
         self.assertEqual(self.wedding.selected_template, "capulana")
-        self.assertEqual(self.wedding.primary_color, "#C1502E")
+        self.assertEqual(self.wedding.primary_color, template.primary)
+        self.assertEqual(self.wedding.secondary_color, template.secondary)
+
+    def test_manual_colours_are_ignored_when_a_template_is_applied(self) -> None:
+        response = self.client.post(self.url, data=self._payload(
+            primary_color="#FFFFFF",
+            secondary_color="#000000",
+        ))
+        self.assertRedirects(response, self.url)
+        self.wedding.refresh_from_db()
+        from templates_manager import registry
+        template = registry.get_template("capulana")
+        self.assertEqual(self.wedding.primary_color, template.primary)
+        self.assertEqual(self.wedding.secondary_color, template.secondary)
 
     def test_unknown_template_code_is_rejected(self) -> None:
         response = self.client.post(self.url, data=self._payload(selected_template="pirata"))

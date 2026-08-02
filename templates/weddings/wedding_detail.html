@@ -40,12 +40,31 @@
         </section>
 
         <section class="details-panel">
-            <div class="details-panel__heading"><span class="details-panel__number">02</span><div><h3>Informação principal</h3><p>Nomes, data e endereço público do evento.</p></div></div>
+            <div class="details-panel__heading"><span class="details-panel__number">02</span><div><h3>Música do convite</h3><p>Escolha a música que acompanha a abertura e a leitura do convite.</p></div></div>
+            <div class="row g-3 align-items-end">
+                <div class="col-lg-8">
+                    <label class="form-label" for="{{ form.invitation_music.id_for_label }}">{{ form.invitation_music.label }}</label>
+                    {{ form.invitation_music }}
+                    <div class="form-text">MP3, M4A ou OGG · até 8 MB.</div>
+                    {% for error in form.invitation_music.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="col-lg-4">
+                    <div class="form-check mb-2">
+                        {{ form.show_music }}
+                        <label class="form-check-label" for="{{ form.show_music.id_for_label }}">Reproduzir ao abrir o convite</label>
+                    </div>
+                    {% for error in form.show_music.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+            </div>
+        </section>
+
+        <section class="details-panel">
+            <div class="details-panel__heading"><span class="details-panel__number">03</span><div><h3>Informação principal</h3><p>Nomes, data e endereço público do evento.</p></div></div>
             <div class="row g-3">{% for field in form.details_identity_fields %}{% include "weddings/_detail_field.html" %}{% endfor %}</div>
         </section>
 
         <section class="details-panel">
-            <div class="details-panel__heading details-panel__heading--actions"><span class="details-panel__number">03</span><div><h3>Onde será o evento</h3><p>Os locais e mapas aparecem automaticamente no convite.</p></div><a class="btn btn-sm btn-outline-secondary ms-auto" href="{% url 'events:location_list' wedding.pk %}"><i class="bi bi-geo-alt me-1"></i>Gerir locais</a></div>
+            <div class="details-panel__heading details-panel__heading--actions"><span class="details-panel__number">04</span><div><h3>Onde será o evento</h3><p>Os locais e mapas aparecem automaticamente no convite.</p></div><a class="btn btn-sm btn-outline-secondary ms-auto" href="{% url 'events:location_list' wedding.pk %}"><i class="bi bi-geo-alt me-1"></i>Gerir locais</a></div>
             {% if locations %}
             <div class="details-location-grid">
                 {% for location in locations %}
@@ -62,12 +81,12 @@
         </section>
 
         <section class="details-panel">
-            <div class="details-panel__heading"><span class="details-panel__number">04</span><div><h3>Palavras que dão personalidade</h3><p>Textos apresentados na capa e dentro do convite.</p></div></div>
+            <div class="details-panel__heading"><span class="details-panel__number">05</span><div><h3>Palavras que dão personalidade</h3><p>Textos apresentados na capa e dentro do convite.</p></div></div>
             <div class="row g-3">{% for field in form.details_content_fields %}{% include "weddings/_detail_field.html" %}{% endfor %}{% for field in form.details_extra_fields %}{% include "weddings/_detail_field.html" %}{% endfor %}</div>
         </section>
 
         <section class="details-panel">
-            <div class="details-panel__heading"><span class="details-panel__number">05</span><div><h3>Confirmações e visibilidade</h3><p>Defina o prazo e o que os convidados podem consultar.</p></div></div>
+            <div class="details-panel__heading"><span class="details-panel__number">06</span><div><h3>Confirmações e visibilidade</h3><p>Defina o prazo e o que os convidados podem consultar.</p></div></div>
             <div class="row g-3">{% for field in form.details_planning_fields %}{% include "weddings/_detail_field.html" %}{% endfor %}</div>
         </section>
     </div>

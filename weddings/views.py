@@ -266,7 +266,7 @@ def wedding_settings(request: HttpRequest, wedding) -> HttpResponse:
 
 @require_wedding("can_manage_design")
 def wedding_design(request: HttpRequest, wedding) -> HttpResponse:
-    """Template, colours, cover photo and music."""
+    """Galeria de templates; o próprio template define a paleta."""
     if request.method == "POST":
         form = WeddingDesignForm(request.POST, request.FILES, instance=wedding)
         if form.is_valid():
@@ -292,7 +292,6 @@ def wedding_design(request: HttpRequest, wedding) -> HttpResponse:
             "wedding": wedding,
             "form": form,
             "templates": registry.all_templates(wedding.category),
-            "selected_template": registry.get_template(wedding.selected_template),
             "capabilities": capability_flags(wedding, request.user),
         },
     )

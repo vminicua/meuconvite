@@ -168,6 +168,8 @@ class WeddingSettingsForm(BootstrapModelForm):
             "slug",
             "hashtag",
             "cover_image",
+            "invitation_music",
+            "show_music",
             "cover_message",
             "invitation_message",
             "sms_invitation_message",
@@ -187,6 +189,9 @@ class WeddingSettingsForm(BootstrapModelForm):
             "cover_image": forms.ClearableFileInput(attrs={
                 "accept": "image/jpeg,image/png,image/webp",
                 "data-cover-input": "",
+            }),
+            "invitation_music": forms.ClearableFileInput(attrs={
+                "accept": "audio/mpeg,audio/mp4,audio/ogg",
             }),
         }
         help_texts = {
@@ -249,26 +254,15 @@ class WeddingSettingsForm(BootstrapModelForm):
 
 
 class WeddingDesignForm(BootstrapModelForm):
-    """Template, colours, cover photo and music."""
+    """Escolha do template; as cores pertencem sempre ao template."""
 
     class Meta:
         model = Wedding
-        fields = [
-            "selected_template",
-            "primary_color",
-            "secondary_color",
-            "cover_image",
-            "invitation_music",
-            "show_music",
-        ]
+        fields = ["selected_template"]
         widgets = {
             # O template é escolhido na galeria de cartões da página, não
             # num select: o campo fica escondido e é preenchido por lá.
             "selected_template": forms.HiddenInput(),
-            "primary_color": forms.TextInput(attrs={"type": "color", "class": "form-control form-control-color"}),
-            "secondary_color": forms.TextInput(attrs={"type": "color", "class": "form-control form-control-color"}),
-            "cover_image": forms.ClearableFileInput(attrs={"accept": "image/jpeg,image/png,image/webp"}),
-            "invitation_music": forms.ClearableFileInput(attrs={"accept": "audio/mpeg,audio/mp4,audio/ogg"}),
         }
 
     def clean_selected_template(self) -> str:
@@ -277,6 +271,17 @@ class WeddingDesignForm(BootstrapModelForm):
         if not registry.is_valid_code(code):
             raise forms.ValidationError(_("Escolha um dos templates disponíveis."))
         return code
+
+    def save(self, commit: bool = True):
+        wedding = super().save(commit=False)
+        template = registry.get_template(self.cleaned_data["selected_template"])
+        wedding.primary_color = template.primary
+        wedding.secondary_color = template.secondary
+        if commit:
+            wedding.save(update_fields=[
+                "selected_template", "primary_color", "secondary_color", "updated_at",
+            ])
+        return wedding
 
 
 class MemberInviteForm(BootstrapForm):
