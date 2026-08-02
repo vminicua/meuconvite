@@ -344,7 +344,8 @@ body.inv--embedded::-webkit-scrollbar {
 .inv-rsvp-state--confirmed { background: #eaf5ed; color: #246b37; }
 
 /* Floating guest actions shared by every invitation template. */
-.inv-floating-actions { position:fixed; right:max(1rem,env(safe-area-inset-right)); bottom:max(1rem,env(safe-area-inset-bottom)); z-index:80; display:flex; flex-direction:column; align-items:flex-end; gap:.65rem; }
+.inv-floating-actions { position:fixed; right:max(1rem,env(safe-area-inset-right)); bottom:max(1rem,env(safe-area-inset-bottom)); z-index:80; display:flex; flex-direction:column; align-items:flex-end; gap:.65rem; transition:opacity .35s ease,transform .35s ease,visibility .35s; }
+.inv--cover-pending .inv-floating-actions { opacity:0; visibility:hidden; pointer-events:none; transform:translateY(1rem); }
 .inv-fab { display:inline-flex; align-items:center; gap:.55rem; border:1px solid color-mix(in srgb,var(--inv-primary) 75%,#000); border-radius:999px; padding:.78rem 1.05rem; background:var(--inv-primary); color:#fff; box-shadow:0 .8rem 2.2rem rgba(0,0,0,.22); font:700 .86rem/1 var(--inv-body); cursor:pointer; transition:transform .18s ease,box-shadow .18s ease; }
 .inv-fab:hover { transform:translateY(-2px); box-shadow:0 1rem 2.6rem rgba(0,0,0,.28); }.inv-fab i { font-size:1.1rem; }
 .inv-fab--secondary { background:var(--inv-paper); color:var(--inv-primary-text); }
@@ -798,7 +799,7 @@ body.inv--embedded::-webkit-scrollbar {
 /* A carta selada usa agora matéria real (papel, renda e lacre) em vez de
    um rectângulo colorido. A arte é original da colecção MeuConvite. */
 .inv--carta_selada .inv-cover--sealed {
-    background: #461411 url("../img/invitations/burgundy-lace-v2.png") center/cover no-repeat;
+    background: #461411 url("../img/invitations/burgundy-lace-clean-v3.png") center/cover no-repeat;
 }
 .inv--carta_selada .inv-cover--sealed .inv-cover__paper {
     min-height: min(74vh, 39rem);
@@ -810,7 +811,509 @@ body.inv--embedded::-webkit-scrollbar {
 }
 .inv--carta_selada .inv-cover--sealed .inv-cover__paper::before,
 .inv--carta_selada .inv-cover--sealed .inv-cover__paper::after { display:none; }
-.inv--carta_selada .inv-cover__seal { margin-top:1.2rem; }
+.inv-wax-seal {
+    position: relative;
+    display: grid;
+    place-items: center;
+    isolation: isolate;
+}
+
+.inv-wax-seal img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    z-index: -1;
+}
+
+.inv-wax-seal > span {
+    color: #f1c8a5;
+    font-family: var(--inv-display);
+    line-height: 1;
+    text-shadow: 0 1px rgba(255,255,255,.18), 0 -2px 3px rgba(42,4,2,.72);
+    transform: translateY(-.03em);
+}
+
+.inv-wax-seal--cover {
+    width: 10.2rem;
+    height: 10.2rem;
+    margin: .5rem auto 1rem;
+    filter: drop-shadow(0 14px 13px rgba(13,2,1,.52));
+    animation: inv-wax-arrive 1.1s .15s cubic-bezier(.2,.8,.2,1) both,
+               inv-wax-breathe 3.6s 1.4s ease-in-out infinite;
+}
+
+.inv-wax-seal--cover > span {
+    font-size: 2.45rem;
+    letter-spacing: .035em;
+}
+
+/* A primeira impressão é uma carta física. O envelope abre sozinho e sai de
+   cena antes de revelar a capa; não bloqueia o convite nem exige interacção. */
+.inv-letter-intro {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: grid;
+    grid-template-rows: 1fr auto 1fr;
+    place-items: center;
+    overflow: hidden;
+    padding: max(1.5rem, env(safe-area-inset-top)) 1rem max(1.5rem, env(safe-area-inset-bottom));
+    perspective: 1100px;
+    background:
+        radial-gradient(circle at 50% 43%, rgba(130,55,43,.25), transparent 34%),
+        linear-gradient(145deg, #170605, #310c09 58%, #190504);
+    color: #f5e6d3;
+}
+
+.inv-letter-intro::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: .14;
+    background-image: url("../img/invitations/burgundy-lace-clean-v3.png");
+    background-position: center;
+    background-size: cover;
+    filter: saturate(.7) brightness(.55);
+}
+
+.inv-letter-intro__eyebrow,
+.inv-letter-intro__status {
+    position: relative;
+    z-index: 6;
+    margin: 0;
+    font-size: .62rem;
+    letter-spacing: .28em;
+    text-transform: uppercase;
+}
+
+.inv-letter-intro__eyebrow { align-self: end; margin-bottom: 2.25rem; opacity: 0; }
+.inv-letter-intro__status { align-self: start; margin-top: 2.1rem; color: #cda775; opacity: 0; }
+
+.inv-envelope-scene {
+    position: relative;
+    z-index: 2;
+    width: min(84vw, 31rem);
+    aspect-ratio: 1.55;
+    transform-style: preserve-3d;
+    filter: drop-shadow(0 2rem 2.1rem rgba(0,0,0,.55));
+    opacity: 0;
+}
+
+.inv-envelope-scene__back,
+.inv-envelope-scene__front,
+.inv-envelope-scene__flap {
+    position: absolute;
+    inset: 0;
+    background: #5a1814 url("../img/invitations/burgundy-lace-clean-v3.png") center 43%/140% auto no-repeat;
+}
+
+.inv-envelope-scene__back { border-radius: .25rem; box-shadow: inset 0 0 0 1px rgba(231,194,139,.18); }
+
+.inv-envelope-scene__front {
+    z-index: 4;
+    clip-path: polygon(0 25%, 50% 70%, 100% 25%, 100% 100%, 0 100%);
+    background-position: center 62%;
+    box-shadow: inset 0 -1px rgba(255,255,255,.06);
+}
+
+.inv-envelope-scene__flap {
+    z-index: 5;
+    clip-path: polygon(0 0, 100% 0, 50% 68%);
+    transform-origin: 50% 0;
+    backface-visibility: hidden;
+    background-position: center 24%;
+    filter: brightness(.82);
+}
+
+.inv-envelope-scene__letter {
+    position: absolute;
+    z-index: 3;
+    inset: 7% 7% 5%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 2rem 1rem;
+    overflow: hidden;
+    border: 1px solid rgba(151,109,53,.24);
+    background: #f1e5cc;
+    color: #581711;
+    font-size: .58rem;
+    letter-spacing: .2em;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.inv-envelope-scene__letter::before {
+    content: "";
+    position: absolute;
+    inset: .55rem;
+    border: 1px solid rgba(120,71,35,.22);
+}
+
+.inv-envelope-scene__letter strong {
+    margin-top: .35rem;
+    font-family: var(--inv-display);
+    font-size: clamp(2rem, 8vw, 3.4rem);
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: .9;
+    text-transform: none;
+}
+
+.inv-wax-seal--intro {
+    position: absolute;
+    z-index: 7;
+    top: 43%;
+    left: 50%;
+    width: clamp(5.8rem, 22vw, 7.2rem);
+    height: clamp(5.8rem, 22vw, 7.2rem);
+    filter: drop-shadow(0 .8rem .75rem rgba(15,1,1,.45));
+    transform: translate(-50%, -50%);
+}
+
+.inv-wax-seal--intro > span { font-size: clamp(1.7rem, 7vw, 2.25rem); }
+
+.inv-letter-intro.is-opening .inv-letter-intro__eyebrow { animation: inv-intro-copy .65s .1s ease both; }
+.inv-letter-intro.is-opening .inv-envelope-scene { animation: inv-envelope-arrive .85s cubic-bezier(.2,.8,.2,1) both; }
+.inv-letter-intro.is-opening .inv-wax-seal--intro { animation: inv-seal-break .52s 1.25s cubic-bezier(.4,0,.8,.3) both; }
+.inv-letter-intro.is-opening .inv-envelope-scene__flap { animation: inv-flap-open .85s 1.52s cubic-bezier(.2,.7,.2,1) both; }
+.inv-letter-intro.is-opening .inv-envelope-scene__letter { animation: inv-letter-rise 1s 1.86s cubic-bezier(.17,.84,.25,1) both; }
+.inv-letter-intro.is-opening .inv-letter-intro__status { animation: inv-intro-status 1.25s .85s ease both; }
+.inv-letter-intro.is-complete { animation: inv-intro-leave .72s cubic-bezier(.4,0,.2,1) both; pointer-events: none; }
+
+/* --- Aberturas temáticas dos cartões clássicos --------------------- */
+.inv-theme-intro {
+    --intro-art: linear-gradient(var(--intro-bg), var(--intro-bg));
+    --intro-bg: color-mix(in srgb, var(--inv-primary) 13%, var(--inv-paper));
+    --intro-envelope: color-mix(in srgb, var(--inv-primary) 72%, var(--inv-paper));
+    --intro-envelope-dark: color-mix(in srgb, var(--intro-envelope) 82%, #000);
+    --intro-line: color-mix(in srgb, var(--inv-secondary) 72%, transparent);
+    --intro-copy: var(--inv-ink);
+    --intro-seal: var(--inv-seal-bg);
+    --intro-on-seal: var(--inv-on-seal);
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: grid;
+    grid-template-rows: 1fr auto 1fr;
+    place-items: center;
+    overflow: hidden;
+    padding: max(1.5rem, env(safe-area-inset-top)) 1rem max(1.5rem, env(safe-area-inset-bottom));
+    perspective: 1100px;
+    background-image:
+        radial-gradient(circle at 50% 44%, color-mix(in srgb, var(--inv-primary) 18%, transparent), transparent 38%),
+        linear-gradient(color-mix(in srgb, var(--intro-bg) 16%, transparent), color-mix(in srgb, var(--intro-bg) 26%, transparent)),
+        var(--intro-art);
+    background-position: center;
+    background-size: cover;
+    color: var(--intro-copy);
+}
+
+.inv-theme-intro::before,
+.inv-theme-intro::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+}
+
+.inv-theme-intro::before {
+    inset: 1rem;
+    border: 1px solid var(--intro-line);
+    opacity: .42;
+}
+
+.inv-theme-intro::after {
+    inset: 0;
+    opacity: .13;
+    background-image: repeating-linear-gradient(135deg, transparent 0 9px, var(--intro-line) 9px 10px);
+    mask-image: radial-gradient(circle at 50% 45%, transparent 0 24%, #000 74%);
+}
+
+.inv-theme-intro__eyebrow,
+.inv-theme-intro__status {
+    position: relative;
+    z-index: 8;
+    margin: 0;
+    font-size: .62rem;
+    letter-spacing: .28em;
+    text-align: center;
+    text-transform: uppercase;
+    opacity: 0;
+}
+
+.inv-theme-intro__eyebrow { align-self: end; margin-bottom: 2.25rem; }
+.inv-theme-intro__status { align-self: start; margin-top: 2.1rem; color: var(--intro-copy); }
+
+.inv-theme-envelope {
+    position: relative;
+    z-index: 3;
+    width: min(84vw, 31rem);
+    aspect-ratio: 1.55;
+    opacity: 0;
+    transform-style: preserve-3d;
+    filter: drop-shadow(0 2rem 2.1rem rgba(0,0,0,.34));
+}
+
+.inv-theme-envelope__back,
+.inv-theme-envelope__front,
+.inv-theme-envelope__flap {
+    position: absolute;
+    inset: 0;
+    border: 1px solid var(--intro-line);
+    background-color: var(--intro-envelope);
+    background-image:
+        linear-gradient(145deg, color-mix(in srgb, var(--intro-envelope) 82%, transparent), color-mix(in srgb, var(--intro-envelope-dark) 86%, transparent)),
+        var(--intro-art);
+    background-position: center;
+    background-size: cover;
+}
+
+.inv-theme-envelope__back { border-radius: .25rem; }
+
+.inv-theme-envelope__front {
+    z-index: 4;
+    clip-path: polygon(0 25%, 50% 70%, 100% 25%, 100% 100%, 0 100%);
+    background-image:
+        linear-gradient(25deg, color-mix(in srgb, var(--intro-envelope) 84%, transparent), color-mix(in srgb, var(--intro-envelope-dark) 76%, transparent)),
+        var(--intro-art);
+}
+
+.inv-theme-envelope__flap {
+    z-index: 5;
+    clip-path: polygon(0 0, 100% 0, 50% 68%);
+    transform-origin: 50% 0;
+    backface-visibility: hidden;
+    background-image:
+        linear-gradient(160deg, color-mix(in srgb, var(--intro-envelope-dark) 78%, transparent), color-mix(in srgb, var(--intro-envelope) 88%, transparent)),
+        var(--intro-art);
+}
+
+.inv-theme-envelope__letter {
+    position: absolute;
+    z-index: 3;
+    inset: 7% 7% 5%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 1.75rem 1rem;
+    overflow: hidden;
+    border: 1px solid var(--intro-line);
+    background: var(--inv-paper);
+    color: var(--inv-ink);
+    font-size: .55rem;
+    letter-spacing: .18em;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.inv-theme-envelope__letter::before {
+    content: "";
+    position: absolute;
+    inset: .5rem;
+    border: 1px solid color-mix(in srgb, var(--inv-primary) 30%, transparent);
+}
+
+.inv-theme-envelope__letter strong,
+.inv-theme-envelope__letter small,
+.inv-theme-envelope__letter span { position: relative; z-index: 1; }
+
+.inv-theme-envelope__letter strong {
+    margin: .25rem 0;
+    font-family: var(--inv-display);
+    font-size: clamp(1.6rem, 7vw, 3rem);
+    font-weight: 500;
+    letter-spacing: 0;
+    line-height: 1;
+    text-transform: none;
+}
+
+.inv-theme-envelope__letter small { color: var(--inv-primary-text); letter-spacing: .14em; }
+
+.inv-theme-envelope__seal {
+    position: absolute;
+    z-index: 7;
+    top: 43%;
+    left: 50%;
+    width: clamp(7.2rem, 26vw, 8.4rem);
+    height: clamp(7.2rem, 26vw, 8.4rem);
+    filter: drop-shadow(0 .7rem .65rem rgba(0,0,0,.34));
+    transform: translate(-50%, -50%);
+}
+
+.inv-theme-envelope__seal img,
+.inv-collection-seal img {
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:contain;
+}
+
+.inv-theme-envelope__seal > span {
+    position:relative;
+    z-index:1;
+    display:grid;
+    place-items:center;
+    width:100%;
+    height:100%;
+    color:var(--collection-seal-ink, var(--intro-on-seal));
+    font-family: var(--inv-display);
+    font-size: clamp(1.65rem, 6vw, 2.1rem);
+    letter-spacing: .03em;
+    line-height:1;
+    text-shadow:0 1px rgba(255,255,255,.22),0 -1px 3px rgba(0,0,0,.28);
+}
+
+.inv-collection-seal {
+    position:relative;
+    display:grid;
+    place-items:center;
+    width:9.8rem;
+    height:9.8rem;
+    margin:.15rem auto .8rem;
+    filter:drop-shadow(0 .9rem .85rem rgba(0,0,0,.32));
+    animation:inv-wax-arrive 1.05s .15s cubic-bezier(.2,.8,.2,1) both,
+              inv-wax-breathe 3.8s 1.35s ease-in-out infinite;
+}
+
+.inv-collection-seal::before {
+    content:"";
+    position:absolute;
+    z-index:0;
+    inset:14%;
+    border-radius:50%;
+    pointer-events:none;
+}
+
+.inv-collection-seal > span {
+    position:relative;
+    z-index:1;
+    color:var(--collection-seal-ink, var(--inv-on-seal));
+    font-family:var(--inv-display);
+    font-size:2.35rem;
+    letter-spacing:.035em;
+    line-height:1;
+    text-shadow:0 1px rgba(255,255,255,.25),0 -2px 4px rgba(0,0,0,.3);
+    transform:translateY(-.02em);
+}
+
+.inv-theme-intro__atmosphere { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.inv-theme-intro__atmosphere i {
+    position: absolute;
+    width: .38rem;
+    height: .38rem;
+    border-radius: 50%;
+    background: var(--inv-secondary);
+    box-shadow: 0 0 1.2rem color-mix(in srgb, var(--inv-secondary) 74%, transparent);
+    opacity: 0;
+}
+.inv-theme-intro__atmosphere i:nth-child(1) { left:12%; top:28%; }
+.inv-theme-intro__atmosphere i:nth-child(2) { left:24%; top:68%; width:.24rem; height:.24rem; }
+.inv-theme-intro__atmosphere i:nth-child(3) { left:42%; top:18%; width:.2rem; height:.2rem; }
+.inv-theme-intro__atmosphere i:nth-child(4) { right:13%; top:34%; width:.25rem; height:.25rem; }
+.inv-theme-intro__atmosphere i:nth-child(5) { right:27%; top:73%; }
+.inv-theme-intro__atmosphere i:nth-child(6) { right:42%; top:12%; width:.18rem; height:.18rem; }
+
+.inv-theme-intro.is-opening .inv-theme-intro__eyebrow { animation:inv-intro-copy .65s .1s ease both,inv-intro-copy-away .35s 1.38s ease forwards; }
+.inv-theme-intro.is-opening .inv-theme-envelope { animation: inv-envelope-arrive .85s cubic-bezier(.2,.8,.2,1) both; }
+.inv-theme-intro.is-opening .inv-theme-envelope__seal { animation: inv-seal-break .52s 1.25s cubic-bezier(.4,0,.8,.3) both; }
+.inv-theme-intro.is-opening .inv-theme-envelope__flap { animation: inv-flap-open .85s 1.52s cubic-bezier(.2,.7,.2,1) both; }
+.inv-theme-intro.is-opening .inv-theme-envelope__letter { animation: inv-letter-rise 1s 1.86s cubic-bezier(.17,.84,.25,1) both; }
+.inv-theme-intro.is-opening .inv-theme-intro__status { animation: inv-intro-status 1.25s .85s ease both; }
+.inv-theme-intro.is-opening .inv-theme-intro__atmosphere i { animation: inv-theme-spark 2.4s ease-in-out infinite; }
+.inv-theme-intro.is-opening .inv-theme-intro__atmosphere i:nth-child(2n) { animation-delay:.45s; }
+.inv-theme-intro.is-opening .inv-theme-intro__atmosphere i:nth-child(3n) { animation-delay:.9s; }
+.inv-theme-intro.is-complete { animation: inv-intro-leave .72s cubic-bezier(.4,0,.2,1) both; pointer-events:none; }
+
+/* Cada coleção conserva a sua matéria, contraste e atmosfera. */
+.inv--template-classico-dourado .inv-theme-intro {
+    --intro-art:url("../img/invitations/classic-gold-v1.webp");
+    --intro-bg:#f8f2e5; --intro-envelope:#efe1bd; --intro-envelope-dark:#d7bb78;
+    --intro-line:rgba(160,118,42,.55); --intro-copy:#6d531f; --intro-seal:#bd9239; --intro-on-seal:#fff8e8;
+}
+.inv--template-luxo-preto .inv-theme-intro {
+    --intro-art:url("../img/invitations/black-gold-v1.webp");
+    --intro-bg:#090806; --intro-envelope:#17140e; --intro-envelope-dark:#050504;
+    --intro-line:rgba(212,175,55,.48); --intro-copy:#e4c66b; --intro-seal:#c49a27; --intro-on-seal:#100d07;
+}
+.inv--template-capulana .inv-theme-intro {
+    --intro-art:url("../img/invitations/capulana-editorial-v1.webp");
+    --intro-bg:#5f2015; --intro-envelope:#b84425; --intro-envelope-dark:#7c2c1c;
+    --intro-line:rgba(246,204,95,.62); --intro-copy:#ffe3a5; --intro-seal:#165f51; --intro-on-seal:#fff1c8;
+}
+.inv--template-floral-rosa .inv-theme-intro {
+    --intro-art:url("../img/invitations/floral-rosa-editorial-v2.webp");
+    --intro-bg:#f8ecee; --intro-envelope:#e5bfc5; --intro-envelope-dark:#c98d98;
+    --intro-line:rgba(132,70,82,.35); --intro-copy:#7d4050; --intro-seal:#9f5262; --intro-on-seal:#fff5f5;
+}
+.inv--template-azul-marinho .inv-theme-intro {
+    --intro-art:url("../img/invitations/navy-silver-v1.webp");
+    --intro-bg:#07172e; --intro-envelope:#17375c; --intro-envelope-dark:#091b34;
+    --intro-line:rgba(205,220,235,.5); --intro-copy:#dbe5ef; --intro-seal:#a8b6c4; --intro-on-seal:#10253f;
+}
+.inv--template-terracota .inv-theme-intro {
+    --intro-art:url("../img/invitations/floral-terracotta-v2.png");
+    --intro-bg:#f0d8c2; --intro-envelope:#c87b4b; --intro-envelope-dark:#9d5631;
+    --intro-line:rgba(105,62,31,.42); --intro-copy:#6f3c24; --intro-seal:#9e4f2d; --intro-on-seal:#fff0dc;
+}
+.inv--template-tropical .inv-theme-intro {
+    --intro-art:url("../img/invitations/tropical-editorial-v1.webp");
+    --intro-bg:#dff4e9; --intro-envelope:#2f8c76; --intro-envelope-dark:#176854;
+    --intro-line:rgba(228,105,63,.48); --intro-copy:#135d50; --intro-seal:#db6845; --intro-on-seal:#fff8e9;
+}
+.inv--template-lavanda .inv-theme-intro {
+    --intro-art:url("../img/invitations/lavender-editorial-v1.webp");
+    --intro-bg:#eee8f7; --intro-envelope:#b7a8d5; --intro-envelope-dark:#8c7bb8;
+    --intro-line:rgba(92,84,112,.38); --intro-copy:#5c5470; --intro-seal:#76649d; --intro-on-seal:#fffaff;
+}
+.inv--template-areia-dourada .inv-theme-intro {
+    --intro-art:url("../img/invitations/areia-dourada-editorial-v1.webp");
+    --intro-bg:#f5e4b9; --intro-envelope:#e0bb6d; --intro-envelope-dark:#c2933f;
+    --intro-line:rgba(46,110,142,.42); --intro-copy:#675026; --intro-seal:#2e6e8e; --intro-on-seal:#fff6d8;
+}
+.inv--template-noite-estrelada .inv-theme-intro {
+    --intro-art:url("../img/invitations/starry-night-v1.webp");
+    --intro-bg:#071027; --intro-envelope:#13254a; --intro-envelope-dark:#080f25;
+    --intro-line:rgba(232,200,106,.48); --intro-copy:#e8c86a; --intro-seal:#cba94e; --intro-on-seal:#101a33;
+}
+
+.inv--template-classico-dourado { --collection-seal-ink:#6d4e17; }
+.inv--template-luxo-preto { --collection-seal-ink:#e7c65e; }
+.inv--template-capulana { --collection-seal-ink:#3c2612; }
+.inv--template-floral-rosa { --collection-seal-ink:#7e3d50; }
+.inv--template-azul-marinho { --collection-seal-ink:#eef3f7; }
+.inv--template-terracota { --collection-seal-ink:#5d2f1b; }
+.inv--template-tropical { --collection-seal-ink:#f4e8c8; }
+.inv--template-lavanda { --collection-seal-ink:#59466f; }
+.inv--template-areia-dourada { --collection-seal-ink:#235778; }
+.inv--template-noite-estrelada { --collection-seal-ink:#e8c86a; }
+
+/* Nos fundos escuros, o lacre mantém volume e recorte em vez de se perder no papel. */
+.inv--template-luxo-preto .inv-collection-seal::before {
+    background:radial-gradient(circle,rgba(230,193,91,.22),rgba(230,193,91,.04) 56%,transparent 74%);
+    box-shadow:0 0 2.8rem rgba(230,193,91,.28);
+}
+.inv--template-luxo-preto .inv-collection-seal img {
+    filter:brightness(1.28) contrast(1.08) saturate(1.08);
+}
+.inv--template-azul-marinho .inv-collection-seal::before {
+    background:radial-gradient(circle,rgba(225,235,245,.25),rgba(169,190,214,.06) 58%,transparent 76%);
+    box-shadow:0 0 2.6rem rgba(206,221,237,.3);
+}
+.inv--template-azul-marinho .inv-collection-seal img {
+    filter:brightness(1.3) contrast(1.05);
+}
+.inv--template-noite-estrelada .inv-collection-seal::before {
+    background:radial-gradient(circle,rgba(232,200,106,.28),rgba(232,200,106,.05) 56%,transparent 75%);
+    box-shadow:0 0 3rem rgba(232,200,106,.32);
+}
+.inv--template-noite-estrelada .inv-collection-seal img {
+    filter:brightness(1.38) contrast(1.08) saturate(1.16);
+}
 
 .inv--carta_selada .inv-section--rsvp {
     background: color-mix(in srgb, var(--inv-primary) 7%, transparent);
@@ -911,6 +1414,21 @@ body.inv--embedded::-webkit-scrollbar {
 .inv--template-luxo-preto .inv-cover--classic .inv-cover__paper,
 .inv--template-noite-estrelada .inv-cover--classic .inv-cover__paper {
     color: var(--inv-ink);
+}
+
+/* Floral e Areia têm cenários próprios; já não reutilizam a arte terracota. */
+.inv--template-floral-rosa .inv-cover--classic {
+    background:#f5e8e4 url("../img/invitations/floral-rosa-editorial-v2.webp") center/cover no-repeat;
+}
+
+.inv--template-areia-dourada .inv-cover--classic {
+    background:#ead4a5 url("../img/invitations/areia-dourada-editorial-v1.webp") center/cover no-repeat;
+}
+
+.inv--template-floral-rosa .inv-cover--classic .inv-cover__paper,
+.inv--template-areia-dourada .inv-cover--classic .inv-cover__paper {
+    background:linear-gradient(155deg,rgba(255,253,248,.34),rgba(255,250,240,.58));
+    backdrop-filter:blur(.7px);
 }
 
 .inv--template-luxo-preto .inv-cover__names,
@@ -1118,6 +1636,62 @@ body.inv--embedded::-webkit-scrollbar {
     from { opacity: 0; transform: scale(.6) rotate(-12deg); }
 }
 
+@keyframes inv-wax-arrive {
+    from { opacity: 0; transform: scale(.55) rotate(-14deg); }
+}
+
+@keyframes inv-wax-breathe {
+    0%, 100% { transform: rotate(-1deg) scale(1); }
+    50% { transform: rotate(1deg) scale(1.025); }
+}
+
+@keyframes inv-intro-copy {
+    from { opacity: 0; transform: translateY(.6rem); }
+    to { opacity: .8; transform: translateY(0); }
+}
+
+@keyframes inv-intro-copy-away {
+    to { opacity:0; transform:translateY(-.5rem); }
+}
+
+@keyframes inv-envelope-arrive {
+    from { opacity: 0; transform: translateY(5rem) rotateX(8deg) scale(.84); }
+    to { opacity: 1; transform: translateY(0) rotateX(0) scale(1); }
+}
+
+@keyframes inv-seal-break {
+    0% { opacity: 1; transform: translate(-50%,-50%) scale(1) rotate(0); }
+    38% { transform: translate(-50%,-50%) scale(1.08) rotate(-4deg); }
+    100% { opacity: 0; transform: translate(-50%,-42%) scale(.45) rotate(18deg); }
+}
+
+@keyframes inv-flap-open {
+    from { transform: rotateX(0); z-index: 5; }
+    49% { z-index: 5; }
+    50%, to { transform: rotateX(178deg); z-index: 2; filter: brightness(.62); }
+}
+
+@keyframes inv-letter-rise {
+    0% { transform: translateY(0) scale(.97); }
+    68% { transform: translateY(-62%) scale(1); }
+    100% { transform: translateY(-48%) scale(1.02); }
+}
+
+@keyframes inv-intro-status {
+    0%, 100% { opacity: 0; }
+    25%, 70% { opacity: .78; }
+}
+
+@keyframes inv-intro-leave {
+    to { opacity: 0; visibility: hidden; transform: scale(1.025); }
+}
+
+@keyframes inv-theme-spark {
+    0%, 100% { opacity:0; transform:translateY(.8rem) scale(.6); }
+    35%, 65% { opacity:.72; }
+    50% { transform:translateY(-1rem) scale(1); }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .inv-cover__paper,
     .inv-cover__seal,
@@ -1126,10 +1700,17 @@ body.inv--embedded::-webkit-scrollbar {
     }
 
     .inv-btn:hover { transform: none; }
+
+    .inv-letter-intro { display: none; }
+    .inv-theme-intro { display: none; }
 }
 
 @media (max-width: 480px) {
     .inv-countdown { gap: .4rem; }
     .inv-countdown__cell { min-width: 3.6rem; padding: .5rem .25rem; }
     .inv-timeline__item { grid-template-columns: 1.9rem 3.4rem 1fr; }
+    .inv-wax-seal--cover { width: 9.2rem; height: 9.2rem; }
+    .inv-envelope-scene__letter { padding-top: 1.45rem; }
+    .inv-theme-envelope__letter { padding-top: 1.3rem; }
+    .inv-collection-seal { width:9rem; height:9rem; }
 }

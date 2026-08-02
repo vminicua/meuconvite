@@ -9,6 +9,23 @@
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+    /* A Carta Selada apresenta-se primeiro como um envelope físico. A cena é
+       curta, automática e removida do DOM quando termina. */
+    const openingIntro = document.querySelector("[data-opening-intro]");
+    if (openingIntro) {
+        if (reducedMotion) {
+            openingIntro.remove();
+        } else {
+            openingIntro.classList.add("is-opening");
+            window.setTimeout(function () {
+                openingIntro.classList.add("is-complete");
+            }, 3200);
+            window.setTimeout(function () {
+                openingIntro.remove();
+            }, 3950);
+        }
+    }
+
     document.querySelectorAll("[data-inv-flash]").forEach(function (flash) {
         const rawKind = (flash.dataset.kind || "info").split(" ")[0];
         const kind = rawKind === "danger" ? "error" : rawKind;
@@ -72,6 +89,7 @@
     if (main && main.hasAttribute("hidden") && !opener) {
         // Se o botão não existir por alguma razão, mostrar o convite.
         main.removeAttribute("hidden");
+        document.body.classList.remove("inv--cover-pending");
     }
 
     if (cover && main && opener) {
@@ -80,6 +98,7 @@
             main.removeAttribute("hidden");
             if (reducedMotion) {
                 cover.remove();
+                document.body.classList.remove("inv--cover-pending");
                 window.scrollTo(0, 0);
                 return;
             }
@@ -88,6 +107,7 @@
             cover.style.transform = "scale(1.03)";
             window.setTimeout(function () {
                 cover.remove();
+                document.body.classList.remove("inv--cover-pending");
                 main.scrollIntoView({ behavior: "smooth", block: "start" });
             }, 480);
         });

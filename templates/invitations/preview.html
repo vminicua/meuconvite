@@ -25,9 +25,9 @@
         <link href="{{ template.fonts_url }}" rel="stylesheet">
     {% endif %}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="{% static 'css/invitation.css' %}?v=20260801.20" rel="stylesheet">
+    <link href="{% static 'css/invitation.css' %}?v=20260802.6" rel="stylesheet">
 </head>
-<body class="inv inv--{{ template.layout }} inv--template-{{ template.code }}{% if embedded %} inv--embedded{% endif %}{% if cover_only %} inv--cover-only{% endif %}" style="{{ css_variables }}">
+<body class="inv inv--{{ template.layout }} inv--template-{{ template.code }}{% if embedded %} inv--embedded{% endif %}{% if cover_only %} inv--cover-only{% elif template.has_cover %} inv--cover-pending{% endif %}" style="{{ css_variables }}">
 
 {% for message in messages %}<div hidden data-inv-flash data-kind="{{ message.tags|default:'info' }}" data-message="{{ message|escape }}"></div>{% endfor %}
 
@@ -52,6 +52,6 @@
 
 <script src="https://unpkg.com/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 <script src="{% static 'js/dialog-fallback.js' %}?v=20260801.1"></script>
-<script src="{% static 'js/invitation.js' %}?v=20260801.5"></script>
+<script src="{% static 'js/invitation.js' %}?v=20260802.3"></script>
 </body>
 </html>

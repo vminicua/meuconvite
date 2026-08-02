@@ -208,7 +208,19 @@ class InvitationPreviewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "inv--carta_selada")
         self.assertContains(response, self.wedding.primary_short_name)
+        self.assertContains(response, "data-sealed-intro")
+        self.assertContains(response, "burgundy-wax-seal-v1.png")
+        self.assertContains(response, "inv--cover-pending")
+        self.assertNotContains(response, "Onde será")
         self.assertNotContains(response, "data-music-player")
+
+    def test_cover_only_skips_the_opening_scene(self) -> None:
+        response = self.client.get(
+            reverse("weddings:invitation_preview", args=[self.wedding.pk]),
+            {"cover_only": "1"},
+        )
+        self.assertNotContains(response, "data-sealed-intro")
+        self.assertContains(response, "burgundy-wax-seal-v1.png")
 
     def test_classic_template_respects_its_cover_setting(self) -> None:
         response = self.client.get(
@@ -218,8 +230,35 @@ class InvitationPreviewTests(TestCase):
             )
         )
         self.assertContains(response, 'id="inv-cover"')
+        self.assertContains(response, "data-themed-intro")
         self.assertContains(response, "Abrir o convite")
         self.assertContains(response, 'id="inv-main" hidden')
+
+    def test_requested_classic_templates_have_themed_openings(self) -> None:
+        animated_codes = [
+            "classico-dourado", "luxo-preto", "capulana", "floral-rosa",
+            "azul-marinho", "terracota", "tropical", "lavanda",
+            "areia-dourada", "noite-estrelada",
+        ]
+        for code in animated_codes:
+            with self.subTest(template=code):
+                response = self.client.get(
+                    reverse(
+                        "weddings:invitation_preview_template",
+                        args=[self.wedding.pk, code],
+                    )
+                )
+                self.assertContains(response, "data-themed-intro")
+                self.assertContains(response, f"{code}-seal-v1.png", count=2)
+
+    def test_minimal_template_keeps_its_quiet_opening(self) -> None:
+        response = self.client.get(
+            reverse(
+                "weddings:invitation_preview_template",
+                args=[self.wedding.pk, "minimal-branco"],
+            )
+        )
+        self.assertNotContains(response, "data-themed-intro")
 
     def test_preview_can_show_another_template(self) -> None:
         response = self.client.get(
@@ -237,22 +276,32 @@ class InvitationPreviewTests(TestCase):
         self.assertContains(response, "Corte do bolo")
         self.assertContains(response, services.DEMO_GUEST_NAME)
 
-    def test_preview_shows_the_venue_and_a_collapsed_program_map(self) -> None:
+    def test_all_layouts_show_locations_only_inside_the_program(self) -> None:
         location = create_location(
             self.wedding,
             name="Salão Acácias",
             address="Av. da Marginal, Maputo",
         )
         create_event(self.wedding, name="Recepção", location=location)
-        response = self.client.get(
-            reverse("weddings:invitation_preview", args=[self.wedding.pk])
-        )
-        self.assertContains(response, "Onde será")
-        self.assertContains(response, "inv-map__toggle")
-        self.assertContains(response, "output=embed")
-        self.assertContains(response, '<details class="inv-venue-map">', html=False)
-        self.assertNotContains(response, '<details class="inv-venue-map" open', html=False)
-        self.assertContains(response, "inv-venue__map")
+        preview_urls = [
+            reverse("weddings:invitation_preview", args=[self.wedding.pk]),
+            reverse(
+                "weddings:invitation_preview_template",
+                args=[self.wedding.pk, "classico-dourado"],
+            ),
+            reverse(
+                "weddings:invitation_preview_template",
+                args=[self.wedding.pk, "envelope-botanico"],
+            ),
+        ]
+        for preview_url in preview_urls:
+            with self.subTest(url=preview_url):
+                response = self.client.get(preview_url)
+                self.assertNotContains(response, "Onde será")
+                self.assertContains(response, "inv-map__toggle")
+                self.assertContains(response, "output=embed")
+                self.assertContains(response, '<div class="inv-map__frame">', html=False)
+                self.assertNotContains(response, "inv-venue__map")
 
     def test_rsvp_is_disabled_in_the_preview(self) -> None:
         response = self.client.get(

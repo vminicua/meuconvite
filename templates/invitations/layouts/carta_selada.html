@@ -1,16 +1,37 @@
+{% load static %}
 {% include "invitations/_ornaments.html" %}
 
 {% if template.has_cover %}
+    {% if not cover_only %}
+        <div class="inv-letter-intro" data-opening-intro data-sealed-intro aria-hidden="true">
+            <p class="inv-letter-intro__eyebrow">Um convite selado para si</p>
+            <div class="inv-envelope-scene">
+                <div class="inv-envelope-scene__back"></div>
+                <div class="inv-envelope-scene__letter">
+                    <span>{% if guest_name %}Para {{ guest_name }}{% else %}Temos algo especial para si{% endif %}</span>
+                    <strong>{{ wedding.display_names }}</strong>
+                </div>
+                <div class="inv-envelope-scene__flap"></div>
+                <div class="inv-envelope-scene__front"></div>
+                <span class="inv-wax-seal inv-wax-seal--intro">
+                    <img src="{% static 'img/invitations/burgundy-wax-seal-v1.png' %}" alt="">
+                    <span>{{ monogram }}</span>
+                </span>
+            </div>
+            <p class="inv-letter-intro__status">A romper o lacre&hellip;</p>
+        </div>
+    {% endif %}
+
     <section class="inv-cover inv-cover--sealed" id="inv-cover"{% if wedding.cover_image and not ignore_custom_cover %} style="background-image:linear-gradient(rgba(20,10,10,.3),rgba(20,10,10,.3)),url('{{ wedding.cover_image.url }}');background-size:cover;background-position:center"{% endif %}>
         <div class="inv-cover__paper">
             <span class="inv-cover__kicker">{{ wedding.cover_message|default:"Uma celebração para recordar" }}</span>
             <p class="inv-cover__eyebrow">{% if guest_name %}Para{% else %}Convite de{% endif %}</p>
             <p class="inv-cover__guest">{{ guest_name|default:wedding.display_names }}</p>
 
-            <svg class="inv-cover__seal" viewBox="0 0 120 120" aria-hidden="true">
-                <use href="#inv-seal"/>
-                <text x="60" y="70" text-anchor="middle" class="inv-cover__monogram">{{ monogram }}</text>
-            </svg>
+            <span class="inv-wax-seal inv-wax-seal--cover" aria-hidden="true">
+                <img src="{% static 'img/invitations/burgundy-wax-seal-v1.png' %}" alt="">
+                <span>{{ monogram }}</span>
+            </span>
 
             <p class="inv-cover__note">{{ wedding.category_name }} · {{ wedding.main_date|date:"d/m/Y" }}</p>
             <button type="button" class="inv-btn inv-btn--light" data-open-invitation>
@@ -76,6 +97,5 @@
     {% endif %}
 
     {% include "invitations/_schedule.html" %}
-    {% include "invitations/_venues.html" %}
     {% include "invitations/_rsvp.html" %}
 </main>
