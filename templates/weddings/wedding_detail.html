@@ -54,7 +54,7 @@
         <section class="details-panel">
             <div class="details-panel__heading"><span class="details-panel__number">03</span><div><h3>Palavras que dão personalidade</h3><p>Todas as mensagens da capa, do convite e das partilhas.</p></div></div>
             <div class="row g-4 personality-message-grid">
-                <div class="col-lg-5 personality-message-grid__channels">
+                <div class="col-lg-6 personality-message-grid__channels">
                     <div class="personality-message-box" {% if not capabilities.allows_sms %}data-upgrade-modal data-upgrade-feature="Convites por SMS"{% endif %}>
                         <label class="form-label" for="{{ form.sms_invitation_message.id_for_label }}">{{ form.sms_invitation_message.label }}{% if not capabilities.allows_sms %} <i class="bi bi-lock-fill text-primary"></i>{% endif %}</label>
                         {{ form.sms_invitation_message }}
@@ -68,13 +68,16 @@
                         {% for error in form.whatsapp_invitation_message.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
                     </div>
                 </div>
-                <div class="col-lg-7 personality-message-grid__invitation"><div class="row g-3">{% for field in form.details_content_fields %}{% include "weddings/_detail_field.html" %}{% endfor %}{% for field in form.details_extra_fields %}{% include "weddings/_detail_field.html" %}{% endfor %}</div></div>
+                <div class="col-lg-6 personality-message-grid__invitation">
+                    {% for field in form.details_content_fields %}{% include "weddings/_detail_field_full.html" %}{% endfor %}
+                    {% for field in form.details_extra_fields %}{% include "weddings/_detail_field_full.html" %}{% endfor %}
+                </div>
             </div>
         </section>
 
         <section class="details-panel">
             <div class="details-panel__heading"><span class="details-panel__number">04</span><div><h3>Confirmações e visibilidade</h3><p>Defina o prazo e o que os convidados podem consultar.</p></div></div>
-            <div class="row g-3">{% for field in form.details_planning_fields %}{% include "weddings/_detail_field.html" %}{% endfor %}</div>
+            <div class="row g-3">{% for field in form.details_planning_fields %}{% include "weddings/_detail_field.html" %}{% endfor %}{% for field in form.details_confirmation_extra_fields %}{% include "weddings/_detail_field.html" %}{% endfor %}</div>
         </section>
         {% if capabilities.can_manage_events %}<div class="d-flex justify-content-end"><button class="btn btn-primary btn-lg details-submit" type="submit"><i class="bi bi-check2 me-1"></i>Guardar alterações</button></div>{% endif %}
     </div>

@@ -167,7 +167,12 @@ class WeddingSettingsForm(BootstrapModelForm):
         ])
         self.details_extra_fields = [
             self[name] for name in self.fields
-            if name.startswith("extra__") and name != "extra__lista_presentes"
+            if name.startswith("extra__")
+            and name not in {"extra__lista_presentes", "extra__traje"}
+        ]
+        self.details_confirmation_extra_fields = [
+            self[name] for name in self.fields
+            if name == "extra__traje"
         ]
 
     def extra_data(self) -> dict:
