@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+import hashlib
+import hmac
+import json
+from unittest.mock import Mock, patch
+
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.urls import reverse
@@ -9,7 +14,8 @@ from django.urls import reverse
 from audit.models import AuditLog
 from subscriptions import services
 from subscriptions.models import (
-    Payment, PaymentStatus, Plan, SubscriptionStatus, Voucher, VoucherRedemption,
+    Payment, PaymentMethod, PaymentProvider, PaymentStatus, Plan, SubscriptionStatus,
+    Voucher, VoucherRedemption,
 )
 from weddings.models import WeddingRole
 from weddings.tests.factories import (
@@ -202,6 +208,31 @@ class PaymentFlowTests(TestCase):
         self.assertIn(payment.reference, payment.whatsapp_message)
         self.assertIn("wa.me", services.whatsapp_url(payment))
 
+    @patch("subscriptions.services.payzeno_client")
+    def test_payzeno_checkout_can_use_emola(self, mocked_client_factory) -> None:
+        client = Mock()
+        client.create_checkout.return_value = {
+            "checkout_id": "chk_emola_1",
+            "checkout_url": "https://checkout.payzeno.io/c/chk_emola_1",
+            "status": "pending",
+        }
+        mocked_client_factory.return_value = client
+
+        payment = services.initiate_payzeno_checkout(
+            wedding=self.wedding,
+            plan=self.paid,
+            actor=self.owner,
+            payer_phone="+258860000000",
+            method=PaymentMethod.EMOLA,
+            success_url="https://meuconvite.co.mz/sucesso/REFERENCE/",
+            cancel_url="https://meuconvite.co.mz/cancelado/REFERENCE/",
+        )
+
+        payload = client.create_checkout.call_args.args[0]
+        self.assertEqual(payload["payment_methods"], ["emola"])
+        self.assertEqual(payment.method, PaymentMethod.EMOLA)
+        self.assertEqual(payment.payer_phone, "+258860000000")
+
 
 class SubscriptionViewTests(TestCase):
     def setUp(self) -> None:
@@ -217,6 +248,9 @@ class SubscriptionViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Gratuito")
         self.assertContains(response, "Payzeno")
+        self.assertContains(response, "e-Mola")
+        self.assertContains(response, "img/payments/mpesa.png")
+        self.assertContains(response, "img/payments/emola.png")
 
     def test_old_upgrade_url_returns_to_current_checkout(self) -> None:
         response = self.client.post(
@@ -263,3 +297,54 @@ class SubscriptionViewTests(TestCase):
         self.client.login(email=stranger.email, password=DEFAULT_PASSWORD)
         response = self.client.get(reverse("subscriptions:detail", args=[self.wedding.pk]))
         self.assertEqual(response.status_code, 404)
+
+
+class PayzenoWebhookTests(TestCase):
+    def setUp(self) -> None:
+        from platform_admin.models import PlatformConfiguration
+
+        self.secret = "whsec_test_meuconvite"
+        configuration = PlatformConfiguration.load()
+        configuration.set_secret("payzeno_webhook_secret", self.secret)
+        configuration.save()
+
+        create_plan()
+        self.plan = create_paid_plan()
+        self.owner = create_user()
+        self.wedding = create_wedding(self.owner)
+        services.ensure_subscription(self.wedding)
+        self.payment = Payment.objects.create(
+            wedding=self.wedding,
+            plan=self.plan,
+            requested_by=self.owner,
+            amount_mzn=self.plan.price_mzn,
+            method=PaymentMethod.EMOLA,
+            provider=PaymentProvider.PAYZENO,
+            provider_checkout_id="chk_webhook_1",
+            status=PaymentStatus.PENDING_GATEWAY,
+        )
+        self.url = reverse("payzeno_webhook")
+        self.body = json.dumps({
+            "event": "payment.succeeded",
+            "checkout_id": self.payment.provider_checkout_id,
+            "reference": self.payment.reference,
+            "payment_id": "pay_1",
+            "status": "paid",
+        }, separators=(",", ":")).encode()
+
+    def test_rejects_an_invalid_signature(self) -> None:
+        response = self.client.post(
+            self.url, data=self.body, content_type="application/json",
+            HTTP_X_SIGNATURE="invalid",
+        )
+        self.assertEqual(response.status_code, 401)
+
+    @patch("subscriptions.views.services.verify_payzeno_payment")
+    def test_accepts_a_valid_signature(self, mocked_verify) -> None:
+        signature = hmac.new(self.secret.encode(), self.body, hashlib.sha256).hexdigest()
+        response = self.client.post(
+            self.url, data=self.body, content_type="application/json",
+            HTTP_X_SIGNATURE=f"sha256={signature}",
+        )
+        self.assertEqual(response.status_code, 200)
+        mocked_verify.assert_called_once()

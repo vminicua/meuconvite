@@ -24,6 +24,7 @@ from audit.services import log_action
 
 from .models import (
     Payment,
+    PaymentMethod,
     PaymentProvider,
     PaymentStatus,
     Plan,
@@ -410,6 +411,7 @@ def payzeno_configuration() -> dict:
             configuration.payzeno_enabled or getattr(settings, "PAYZENO_ENABLED", False)
         ),
         "api_key": configured_value("payzeno_api_key"),
+        "webhook_secret": configured_value("payzeno_webhook_secret"),
         "base_url": configuration.payzeno_base_url
         or getattr(settings, "PAYZENO_BASE_URL", "https://api.payzeno.io"),
         "timeout": getattr(settings, "PAYZENO_TIMEOUT_SECONDS", 20),
@@ -418,7 +420,11 @@ def payzeno_configuration() -> dict:
 
 def payzeno_is_ready() -> bool:
     configuration = payzeno_configuration()
-    return bool(configuration["enabled"] and configuration["api_key"])
+    return bool(
+        configuration["enabled"]
+        and configuration["api_key"]
+        and configuration["webhook_secret"]
+    )
 
 
 def payzeno_client() -> PayzenoClient:
@@ -445,22 +451,26 @@ def _safe_provider_payload(data: dict) -> dict:
 
 
 def initiate_payzeno_checkout(
-    *, wedding, plan: Plan, actor, payer_phone: str,
+    *, wedding, plan: Plan, actor, payer_phone: str, method: str,
     success_url: str, cancel_url: str, request=None,
 ) -> Payment:
-    """Cria (ou reutiliza) um checkout M-Pesa alojado pela Payzeno."""
+    """Cria (ou reutiliza) um checkout mobile money alojado pela Payzeno."""
     if plan.is_free:
         raise ValidationError(_("O plano gratuito não precisa de pagamento."))
     if plan.max_guests <= limits(wedding).max_guests:
         raise ValidationError(_("Escolha um pacote superior ao pacote actual."))
+    if method not in {PaymentMethod.MPESA, PaymentMethod.EMOLA}:
+        raise ValidationError(_("Escolha M-Pesa ou e-Mola."))
     if not payer_phone.startswith("+"):
-        raise ValidationError(_("Indique o número M-Pesa no formato +258 84 000 0000."))
+        raise ValidationError(_("Indique o número no formato +258 84 000 0000."))
 
     client = payzeno_client()
     payment = Payment.objects.filter(
         wedding=wedding,
         plan=plan,
         provider=PaymentProvider.PAYZENO,
+        method=method,
+        payer_phone=payer_phone,
         status=PaymentStatus.PENDING_GATEWAY,
     ).order_by("-created_at").first()
     if payment and payment.provider_checkout_url and (
@@ -474,7 +484,7 @@ def initiate_payzeno_checkout(
             plan=plan,
             requested_by=actor,
             amount_mzn=plan.price_mzn,
-            method="mpesa",
+            method=method,
             payer_phone=payer_phone,
             provider=PaymentProvider.PAYZENO,
             status=PaymentStatus.PENDING_GATEWAY,
@@ -495,7 +505,7 @@ def initiate_payzeno_checkout(
             "email": actor.email,
             "phone": payer_phone,
         },
-        "payment_methods": ["mpesa"],
+        "payment_methods": [method],
         "success_url": success_url.replace("REFERENCE", payment.reference),
         "cancel_url": cancel_url.replace("REFERENCE", payment.reference),
     }
@@ -560,7 +570,7 @@ def verify_payzeno_payment(*, payment: Payment, request=None) -> tuple[Payment, 
             "reference": payment.reference,
             "amount": amount_in_minor_units(payment.amount_mzn),
             "currency": "MZN",
-            "payment_method": "mpesa",
+            "payment_method": payment.method,
         }
         received = {
             "checkout_id": str(data.get("checkout_id") or ""),
@@ -577,9 +587,10 @@ def verify_payzeno_payment(*, payment: Payment, request=None) -> tuple[Payment, 
             raise PayzenoAPIError(
                 "A confirmação da Payzeno não corresponde ao pedido criado."
             )
+        payment.method = received["payment_method"]
         if payment.provider_payment_id:
             payment.transaction_id = payment.provider_payment_id
-            payment.save(update_fields=["transaction_id", "updated_at"])
+        payment.save(update_fields=["method", "transaction_id", "updated_at"])
         confirm_payment(
             payment=payment, actor=None, request=request,
             notes="Confirmado automaticamente pela Payzeno.",

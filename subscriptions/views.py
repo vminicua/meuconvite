@@ -3,6 +3,7 @@ from __future__ import annotations
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 import hashlib
+import hmac
 import json
 
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
@@ -60,6 +61,7 @@ def subscription_detail(request: HttpRequest, wedding) -> HttpResponse:
                     actor=request.user,
                     request=request,
                     payer_phone=upgrade_form.cleaned_data["payer_phone"],
+                    method=upgrade_form.cleaned_data["method"],
                     success_url=success_url,
                     cancel_url=cancel_url,
                 )
@@ -262,6 +264,18 @@ def payzeno_webhook(request: HttpRequest) -> HttpResponse:
     """Webhook sem confiança implícita: o estado é sempre reconfirmado na API."""
     if len(request.body) > 64 * 1024:
         return JsonResponse({"received": False}, status=413)
+    webhook_secret = services.payzeno_configuration()["webhook_secret"]
+    if webhook_secret:
+        supplied_signature = request.headers.get("X-Signature", "").strip()
+        if supplied_signature.startswith("sha256="):
+            supplied_signature = supplied_signature[7:]
+        expected_signature = hmac.new(
+            webhook_secret.encode("utf-8"), request.body, hashlib.sha256
+        ).hexdigest()
+        if not supplied_signature or not hmac.compare_digest(
+            supplied_signature.lower(), expected_signature
+        ):
+            return JsonResponse({"received": False}, status=401)
     try:
         payload = json.loads(request.body.decode("utf-8"))
     except (UnicodeDecodeError, json.JSONDecodeError):
@@ -273,7 +287,8 @@ def payzeno_webhook(request: HttpRequest) -> HttpResponse:
     reference = str(payload.get("reference") or "")[:20]
     event_type = str(payload.get("event") or "")[:50]
     if event_type not in {
-        "payment.succeeded", "payment.refunded", "payment.chargeback"
+        "payment.succeeded", "payment.refunded", "payment.chargeback",
+        "payment.cancelled", "payment.expired",
     }:
         return JsonResponse({"received": True}, status=202)
     event_key = hashlib.sha256(

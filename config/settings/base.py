@@ -321,6 +321,7 @@ SUPPORT_EMAIL = env("SUPPORT_EMAIL", default="info@meuconvite.co.mz")
 # variável de ambiente ou, cifrada, na administração da plataforma.
 PAYZENO_ENABLED = env.bool("PAYZENO_ENABLED", default=False)
 PAYZENO_API_KEY = env("PAYZENO_API_KEY", default="")
+PAYZENO_WEBHOOK_SECRET = env("PAYZENO_WEBHOOK_SECRET", default="")
 PAYZENO_BASE_URL = env("PAYZENO_BASE_URL", default="https://api.payzeno.io")
 PAYZENO_TIMEOUT_SECONDS = env.int("PAYZENO_TIMEOUT_SECONDS", default=20)
 

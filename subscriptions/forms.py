@@ -10,14 +10,23 @@ from .models import PaymentMethod
 
 
 class PayzenoCheckoutForm(BootstrapForm):
+    method = forms.ChoiceField(
+        label=_("Método de pagamento"),
+        choices=(
+            (PaymentMethod.MPESA, _("M-Pesa")),
+            (PaymentMethod.EMOLA, _("e-Mola")),
+        ),
+        initial=PaymentMethod.MPESA,
+        widget=forms.RadioSelect,
+    )
     payer_phone = forms.CharField(
-        label=_("Número M-Pesa"),
+        label=_("Número da carteira móvel"),
         max_length=20,
         widget=forms.TextInput(attrs={
             "placeholder": "+258 84 000 0000", "inputmode": "tel",
             "autocomplete": "tel",
         }),
-        help_text=_("A Payzeno usará este número para concluir o pagamento M-Pesa."),
+        help_text=_("A Payzeno usará este número para concluir o pagamento escolhido."),
     )
 
     def clean_payer_phone(self) -> str:

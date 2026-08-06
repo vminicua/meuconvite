@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Pagamento {{ payment.reference }} · {{ wedding.display_names }}{% endblock %}
 
@@ -10,7 +11,8 @@
     <div class="col-lg-7">
         <div class="card shadow-sm"><div class="card-body p-4 text-center">
             <i class="bi bi-shield-check display-5 text-success"></i>
-            <h1 class="h4 mt-3">Pagamento M-Pesa via Payzeno</h1>
+            <div class="payment-brand-row payment-brand-row--center"><span><img src="{% static 'img/payments/mpesa.png' %}" alt="M-Pesa"></span><span><img src="{% static 'img/payments/emola.png' %}" alt="e-Mola"></span></div>
+            <h1 class="h4 mt-3">Pagamento {{ payment.get_method_display }} via Payzeno</h1>
             <p class="text-body-secondary">{{ payment.plan.name }} · {{ payment.amount_mzn|floatformat:0 }} MZN<br>Referência <code>{{ payment.reference }}</code></p>
             {% if payment.status == 'confirmed' %}<div class="alert alert-success">Pagamento confirmado e pacote activo.</div>
             {% elif payment.provider_checkout_url %}<a class="btn btn-primary w-100" href="{{ payment.provider_checkout_url }}">Continuar pagamento seguro</a>

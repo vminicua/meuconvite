@@ -31,6 +31,12 @@ class PlatformConfigurationForm(BootstrapModelForm):
         widget=forms.PasswordInput(render_value=False),
         help_text=_("Chave privada pk_live_… criada em API & Webhooks na Payzeno."),
     )
+    payzeno_webhook_secret = forms.CharField(
+        label=_("Segredo de assinatura do webhook"),
+        required=False,
+        widget=forms.PasswordInput(render_value=False),
+        help_text=_("Segredo whsec_… da aplicação Payzeno, usado para validar X-Signature."),
+    )
 
     SECRET_NAMES = (
         "twilio_account_sid",
@@ -38,6 +44,7 @@ class PlatformConfigurationForm(BootstrapModelForm):
         "twilio_api_key_secret",
         "twilio_auth_token",
         "payzeno_api_key",
+        "payzeno_webhook_secret",
     )
 
     class Meta:
@@ -68,6 +75,14 @@ class PlatformConfigurationForm(BootstrapModelForm):
         )
         self.fields["payzeno_base_url"].help_text = _(
             "Mantenha https://api.payzeno.io, salvo indicação oficial da Payzeno."
+        )
+        self.fields["payzeno_base_url"].required = False
+
+    def clean_payzeno_base_url(self) -> str:
+        return (
+            self.cleaned_data.get("payzeno_base_url")
+            or getattr(self.instance, "payzeno_base_url", "")
+            or "https://api.payzeno.io"
         )
 
     def save(self, commit=True):

@@ -343,6 +343,7 @@ def settings_view(request: HttpRequest) -> HttpResponse:
     payzeno_status = {
         "enabled": effective_payzeno["enabled"],
         "api_key": bool(effective_payzeno["api_key"]),
+        "webhook_secret": bool(effective_payzeno["webhook_secret"]),
         "https": configuration.payzeno_base_url.startswith("https://"),
     }
     webhook_url = request.build_absolute_uri(reverse("payzeno_webhook"))

@@ -84,7 +84,7 @@
 <section aria-labelledby="plans-title">
     <div class="subscription-section-head">
         <div><span class="workspace-eyebrow">ESCOLHA O SEU PACOTE</span><h2 class="h4 mb-1" id="plans-title">Planos para cada celebração</h2><p class="text-body-secondary mb-0">Todos os limites e vantagens, sem surpresas.</p></div>
-        <div class="small text-body-secondary"><i class="bi bi-shield-check me-1"></i>M-Pesa seguro através da <strong>Payzeno</strong></div>
+        <div class="small text-body-secondary"><i class="bi bi-shield-check me-1"></i>M-Pesa e e-Mola seguros através da <strong>Payzeno</strong></div>
     </div>
 
     <div class="subscription-plan-grid">
@@ -118,6 +118,12 @@
             </ul>
 
             <footer class="subscription-plan__action">
+                {% if not plan.is_free %}
+                <div class="payment-brand-row" aria-label="Métodos de pagamento disponíveis">
+                    <span><img src="{% static 'img/payments/mpesa.png' %}" alt="M-Pesa"></span>
+                    <span><img src="{% static 'img/payments/emola.png' %}" alt="e-Mola"></span>
+                </div>
+                {% endif %}
                 {% if plan.max_guests == limits.max_guests %}
                     <button class="btn btn-success w-100" disabled><i class="bi bi-check2 me-1"></i>O seu pacote actual</button>
                 {% elif plan.max_guests < limits.max_guests %}
@@ -132,13 +138,17 @@
             </footer>
             {% if not plan.is_free and plan.max_guests > limits.max_guests %}
             <div class="subscription-plan__checkout {% if selected_plan_code == plan.code %}is-open{% endif %}" data-plan-checkout="{{ plan.code }}">
-                <div class="subscription-plan__checkout-head"><div><span>Concluir no cartão</span><strong>{{ plan.price_display }}</strong></div><button type="button" data-plan-close aria-label="Fechar"><i class="bi bi-x-lg"></i></button></div>
-                <p>Será encaminhado para o checkout seguro da Payzeno e concluirá o pagamento por M-Pesa. O pacote é activado automaticamente após a confirmação.</p>
+                <div class="subscription-plan__checkout-head"><div><span>Concluir pagamento</span><strong>{{ plan.price_display }}</strong></div><button type="button" data-plan-close aria-label="Fechar"><i class="bi bi-x-lg"></i></button></div>
+                <p>Escolha a carteira móvel. O pacote é activado automaticamente depois da confirmação segura da Payzeno.</p>
                 <form method="post" data-loading="A abrir o pagamento seguro…">
                     {% csrf_token %}<input type="hidden" name="plan_code" value="{{ plan.code }}">
-                    <label for="phone-{{ plan.code }}">Número M-Pesa</label><input class="form-control form-control-sm" id="phone-{{ plan.code }}" name="payer_phone" inputmode="tel" autocomplete="tel" placeholder="+258 84 000 0000" value="{% if selected_plan_code == plan.code %}{{ upgrade_form.payer_phone.value|default:'' }}{% else %}{{ request.user.phone }}{% endif %}" required>
+                    <fieldset class="payment-method-picker"><legend>Método de pagamento</legend>
+                        <label><input type="radio" name="method" value="mpesa" {% if selected_plan_code != plan.code or upgrade_form.method.value != 'emola' %}checked{% endif %}><span><img src="{% static 'img/payments/mpesa.png' %}" alt=""><strong>M-Pesa</strong></span></label>
+                        <label><input type="radio" name="method" value="emola" {% if selected_plan_code == plan.code and upgrade_form.method.value == 'emola' %}checked{% endif %}><span><img src="{% static 'img/payments/emola.png' %}" alt=""><strong>e-Mola</strong></span></label>
+                    </fieldset>
+                    <label for="phone-{{ plan.code }}">Número da carteira móvel</label><input class="form-control form-control-sm" id="phone-{{ plan.code }}" name="payer_phone" inputmode="tel" autocomplete="tel" placeholder="+258 84 000 0000" value="{% if selected_plan_code == plan.code %}{{ upgrade_form.payer_phone.value|default:'' }}{% else %}{{ request.user.phone }}{% endif %}" required>
                     {% if selected_plan_code == plan.code and upgrade_form.errors %}<div class="alert alert-danger py-2 small mt-2 mb-0">{{ upgrade_form.errors }}</div>{% endif %}
-                    <button class="btn btn-dark w-100 mt-3" type="submit"><i class="bi bi-lock me-1"></i>Pagar {{ plan.price_display }} por M-Pesa</button>
+                    <button class="btn btn-dark w-100 mt-3" type="submit"><i class="bi bi-lock me-1"></i>Continuar para a Payzeno</button>
                 </form>
             </div>
             {% endif %}

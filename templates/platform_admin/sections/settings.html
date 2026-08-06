@@ -34,12 +34,13 @@
 
             <div class="admin-card mb-4">
                 <div class="admin-card__header d-flex align-items-center justify-content-between">
-                    <div><h2 class="h6 mb-1">Payzeno · M-Pesa</h2><p class="small text-body-secondary mb-0">Checkout real e activação automática dos pacotes.</p></div>
-                    {% if payzeno_status.enabled and payzeno_status.api_key and payzeno_status.https %}<span class="badge text-bg-success">Activo</span>{% else %}<span class="badge text-bg-warning">Incompleto</span>{% endif %}
+                    <div><h2 class="h6 mb-1">Payzeno · M-Pesa e e-Mola</h2><p class="small text-body-secondary mb-0">Checkout real e activação automática dos pacotes.</p></div>
+                    {% if payzeno_status.enabled and payzeno_status.api_key and payzeno_status.webhook_secret and payzeno_status.https %}<span class="badge text-bg-success">Activo</span>{% else %}<span class="badge text-bg-warning">Incompleto</span>{% endif %}
                 </div>
                 <div class="admin-card__body">
                     <div class="row g-3">
                         <div class="col-md-6"><label class="form-label" for="{{ form.payzeno_api_key.id_for_label }}">{{ form.payzeno_api_key.label }}</label>{{ form.payzeno_api_key }}<div class="form-text">{{ form.payzeno_api_key.help_text }}</div>{{ form.payzeno_api_key.errors }}</div>
+                        <div class="col-md-6"><label class="form-label" for="{{ form.payzeno_webhook_secret.id_for_label }}">{{ form.payzeno_webhook_secret.label }}</label>{{ form.payzeno_webhook_secret }}<div class="form-text">{{ form.payzeno_webhook_secret.help_text }}</div>{{ form.payzeno_webhook_secret.errors }}</div>
                         <div class="col-md-6"><label class="form-label" for="{{ form.payzeno_base_url.id_for_label }}">{{ form.payzeno_base_url.label }}</label>{{ form.payzeno_base_url }}<div class="form-text">{{ form.payzeno_base_url.help_text }}</div>{{ form.payzeno_base_url.errors }}</div>
                         <div class="col-12"><div class="form-check">{{ form.payzeno_enabled }}<label class="form-check-label" for="{{ form.payzeno_enabled.id_for_label }}">{{ form.payzeno_enabled.label }}</label></div><div class="form-text">{{ form.payzeno_enabled.help_text }}</div>{{ form.payzeno_enabled.errors }}</div>
                         <div class="col-12"><label class="form-label">Webhook a configurar na Payzeno</label><div class="input-group"><input class="form-control font-monospace" value="{{ payzeno_webhook_url }}" readonly><button class="btn btn-outline-secondary" type="button" onclick="navigator.clipboard.writeText(this.previousElementSibling.value)"><i class="bi bi-copy"></i> Copiar</button></div><div class="form-text">Eventos de pagamento podem ser reenviados; a integração é idempotente e confirma sempre o estado directamente na API.</div></div>

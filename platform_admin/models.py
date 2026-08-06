@@ -43,6 +43,7 @@ class PlatformConfiguration(TimeStampedModel):
     twilio_status_callback_url = models.URLField(_("URL de estados Twilio"), blank=True)
 
     payzeno_api_key_secret = models.TextField(blank=True, editable=False)
+    payzeno_webhook_secret_secret = models.TextField(blank=True, editable=False)
     payzeno_enabled = models.BooleanField(_("activar pagamentos Payzeno"), default=False)
     payzeno_base_url = models.URLField(
         _("URL da API Payzeno"), default="https://api.payzeno.io"
@@ -96,6 +97,7 @@ def configured_value(name: str, fallback: str = "") -> str:
             "twilio_api_key_secret",
             "twilio_auth_token",
             "payzeno_api_key",
+            "payzeno_webhook_secret",
         }:
             value = config.get_secret(name)
         else:
