@@ -243,14 +243,37 @@ class SubscriptionViewTests(TestCase):
         services.ensure_subscription(self.wedding)
         self.client.login(email=self.owner.email, password=DEFAULT_PASSWORD)
 
-    def test_page_shows_the_current_plan_and_payzeno(self) -> None:
+    def test_page_shows_payment_methods_without_provider_brand(self) -> None:
         response = self.client.get(reverse("subscriptions:detail", args=[self.wedding.pk]))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Gratuito")
-        self.assertContains(response, "Payzeno")
+        self.assertNotContains(response, "Payzeno")
         self.assertContains(response, "e-Mola")
         self.assertContains(response, "img/payments/mpesa.png")
         self.assertContains(response, "img/payments/emola.png")
+
+    def test_checkout_prefills_account_phone_and_keeps_it_editable(self) -> None:
+        self.owner.phone = "+258841234567"
+        self.owner.save(update_fields=["phone", "updated_at"])
+
+        response = self.client.get(reverse("subscriptions:detail", args=[self.wedding.pk]))
+
+        self.assertContains(response, 'value="+258841234567"')
+        self.assertContains(response, 'name="payer_phone"')
+        self.assertNotContains(response, 'name="payer_phone" readonly')
+
+    def test_grande_evento_package_is_not_shown(self) -> None:
+        create_paid_plan(
+            code="grande-evento-500",
+            name="Grande Evento 500",
+            max_guests=500,
+            price_mzn=6000,
+        )
+
+        response = self.client.get(reverse("subscriptions:detail", args=[self.wedding.pk]))
+
+        self.assertNotContains(response, "Grande Evento 500")
+        self.assertNotContains(response, "6 000 MZN")
 
     def test_old_upgrade_url_returns_to_current_checkout(self) -> None:
         response = self.client.post(

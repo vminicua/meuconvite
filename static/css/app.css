@@ -919,27 +919,27 @@ main {
 .subscription-usage__item > div:first-child { display:flex; justify-content:space-between; gap:1rem; margin-bottom:.65rem; font-size:.86rem; }
 .subscription-usage__item .progress { height:.45rem; }
 .subscription-section-head { display:flex; justify-content:space-between; align-items:flex-end; gap:1.5rem; margin-bottom:1.5rem; }
-.subscription-plan-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); align-items:stretch; gap:.7rem; }
-.subscription-plan { position:relative; display:flex; flex-direction:column; min-width:0; overflow:hidden; border:1px solid rgba(31,41,51,.11); border-radius:.85rem; background:#fff; box-shadow:0 .6rem 1.5rem rgba(31,41,51,.05); transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease; }
+.subscription-plan-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); align-items:stretch; gap:1rem; }
+.subscription-plan { position:relative; display:flex; flex-direction:column; min-width:0; overflow:hidden; border:1px solid rgba(31,41,51,.11); border-radius:1rem; background:#fff; box-shadow:0 .7rem 1.8rem rgba(31,41,51,.06); transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease; }
 .subscription-plan:hover { transform:translateY(-3px); box-shadow:0 1.25rem 2.8rem rgba(31,41,51,.1); }
 .subscription-plan.is-current { border:2px solid #31905a; }
 .subscription-plan.is-recommended { border-color:#c8a96a; box-shadow:0 1.2rem 3rem rgba(181,144,62,.15); }
-.subscription-plan__ribbon { padding:.32rem .65rem; background:#c8a96a; color:#27303a; text-align:center; font-size:.61rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
-.subscription-plan__header { min-height:11.7rem; padding:.9rem .85rem .65rem; }
-.subscription-plan__eyebrow { color:#9a7834; font-size:.68rem; font-weight:800; letter-spacing:.11em; text-transform:uppercase; }
-.subscription-plan__header h3 { margin:.12rem 0 .55rem; font-size:1rem; }
+.subscription-plan__ribbon { padding:.4rem .8rem; background:#c8a96a; color:#27303a; text-align:center; font-size:.68rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+.subscription-plan__header { min-height:13rem; padding:1.2rem 1.1rem .8rem; }
+.subscription-plan__eyebrow { color:#9a7834; font-size:.74rem; font-weight:800; letter-spacing:.11em; text-transform:uppercase; }
+.subscription-plan__header h3 { margin:.18rem 0 .65rem; font-size:1.15rem; }
 .subscription-plan__current { display:inline-flex; align-items:center; gap:.3rem; margin-bottom:.75rem; color:#267444; font-size:.75rem; font-weight:700; }
-.subscription-plan__price { color:#1f2933; font-size:1.3rem; font-weight:800; line-height:1.15; }
-.subscription-plan__period { min-height:1.35rem; margin-top:.2rem; color:#899099; font-size:.75rem; }
-.subscription-plan__header p { margin:.55rem 0 0; color:#69727b; font-size:.72rem; line-height:1.4; }
-.subscription-plan__limits { display:grid; grid-template-columns:1fr 1fr; gap:.35rem; padding:0 .85rem .65rem; }
-.subscription-plan__limits > div { display:grid; grid-template-columns:auto 1fr; column-gap:.32rem; padding:.5rem; border-radius:.55rem; background:#f8f6f1; }
-.subscription-plan__limits i { grid-row:1 / 3; align-self:center; color:#a78238; font-size:1.05rem; }.subscription-plan__limits strong { font-size:.92rem; }.subscription-plan__limits span { color:#747d85; font-size:.67rem; }
-.subscription-plan__features { flex:1; display:grid; align-content:start; gap:.38rem; margin:0; padding:.7rem .85rem .85rem; border-top:1px solid rgba(31,41,51,.07); list-style:none; }
-.subscription-plan__features li { display:flex; align-items:flex-start; gap:.35rem; font-size:.68rem; line-height:1.3; }.subscription-plan__features i { margin-top:.08rem; }.subscription-plan__features .is-included i { color:#2c8a52; }.subscription-plan__features .is-unavailable { color:#a0a6ab; }.subscription-plan__features .is-unavailable i { color:#c3c7ca; }
-.subscription-plan__action { padding:0 .85rem .85rem; }.subscription-plan__action .btn { font-size:.75rem; }
-.subscription-plan__checkout { display:none; position:absolute; inset:0; z-index:4; overflow:auto; padding:.9rem; background:rgba(255,255,255,.985); animation:checkout-in .2s ease; }.subscription-plan__checkout.is-open { display:block; }.subscription-plan__checkout-head { display:flex; align-items:center; justify-content:space-between; gap:.5rem; }.subscription-plan__checkout-head span { display:block; color:#9a7834; font-size:.62rem; font-weight:800; text-transform:uppercase; }.subscription-plan__checkout-head strong { font-size:1.05rem; }.subscription-plan__checkout-head button { border:0; background:transparent; }.subscription-plan__checkout > p { margin:.65rem 0; color:#69727b; font-size:.7rem; line-height:1.4; }.subscription-plan__checkout label { display:block; margin:.45rem 0 .18rem; font-size:.66rem; font-weight:700; }.subscription-plan__checkout label span { color:#899099; font-weight:400; }.subscription-plan__checkout .form-control,.subscription-plan__checkout .form-select { font-size:.72rem; }@keyframes checkout-in { from { opacity:0; transform:translateY(.4rem); } }
-@media (max-width:1199.98px) { .subscription-plan-grid { overflow-x:auto; grid-template-columns:repeat(5,minmax(12.5rem,1fr)); padding-bottom:.7rem; } }
+.subscription-plan__price { color:#1f2933; font-size:1.55rem; font-weight:800; line-height:1.15; }
+.subscription-plan__period { min-height:1.4rem; margin-top:.25rem; color:#899099; font-size:.8rem; }
+.subscription-plan__header p { margin:.7rem 0 0; color:#69727b; font-size:.82rem; line-height:1.5; }
+.subscription-plan__limits { display:grid; grid-template-columns:1fr 1fr; gap:.5rem; padding:0 1.1rem .85rem; }
+.subscription-plan__limits > div { display:grid; grid-template-columns:auto 1fr; column-gap:.4rem; padding:.7rem; border-radius:.65rem; background:#f8f6f1; }
+.subscription-plan__limits i { grid-row:1 / 3; align-self:center; color:#a78238; font-size:1.2rem; }.subscription-plan__limits strong { font-size:1.05rem; }.subscription-plan__limits span { color:#747d85; font-size:.73rem; }
+.subscription-plan__features { flex:1; display:grid; align-content:start; gap:.5rem; margin:0; padding:.9rem 1.1rem 1.1rem; border-top:1px solid rgba(31,41,51,.07); list-style:none; }
+.subscription-plan__features li { display:flex; align-items:flex-start; gap:.4rem; font-size:.78rem; line-height:1.35; }.subscription-plan__features i { margin-top:.08rem; }.subscription-plan__features .is-included i { color:#2c8a52; }.subscription-plan__features .is-unavailable { color:#a0a6ab; }.subscription-plan__features .is-unavailable i { color:#c3c7ca; }
+.subscription-plan__action { padding:0 1.1rem 1.1rem; }.subscription-plan__action .btn { font-size:.82rem; padding:.62rem .75rem; }
+.subscription-plan__checkout { display:none; position:absolute; inset:0; z-index:4; overflow:auto; padding:1.15rem; background:rgba(255,255,255,.985); animation:checkout-in .2s ease; }.subscription-plan__checkout.is-open { display:block; }.subscription-plan__checkout-head { display:flex; align-items:center; justify-content:space-between; gap:.5rem; }.subscription-plan__checkout-head span { display:block; color:#9a7834; font-size:.68rem; font-weight:800; text-transform:uppercase; }.subscription-plan__checkout-head strong { font-size:1.2rem; }.subscription-plan__checkout-head button { border:0; background:transparent; }.subscription-plan__checkout > p { margin:.8rem 0; color:#69727b; font-size:.8rem; line-height:1.5; }.subscription-plan__checkout label { display:block; margin:.55rem 0 .25rem; font-size:.74rem; font-weight:700; }.subscription-plan__checkout label span { color:#899099; font-weight:400; }.subscription-plan__checkout .form-control,.subscription-plan__checkout .form-select { font-size:.82rem; }.subscription-plan__phone-help { margin-top:.35rem; color:#7a838c; font-size:.7rem; line-height:1.35; }@keyframes checkout-in { from { opacity:0; transform:translateY(.4rem); } }
+@media (max-width:1199.98px) { .subscription-plan-grid { overflow-x:auto; grid-template-columns:repeat(4,minmax(16rem,1fr)); padding-bottom:.7rem; } }
 @media (max-width:767.98px) { .subscription-current { grid-template-columns:1fr; }.subscription-usage { grid-template-columns:1fr; }.subscription-section-head { align-items:flex-start; flex-direction:column; } }
 
 /* Gift management */

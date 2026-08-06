@@ -35,7 +35,13 @@ def subscription_detail(request: HttpRequest, wedding) -> HttpResponse:
     """Pacote actual, opções de upgrade e pagamentos em curso."""
     capabilities = capability_flags(wedding, request.user)
     selected_plan_code = ""
-    upgrade_form = PayzenoCheckoutForm(initial={"payer_phone": request.user.phone})
+    billing_phone = (
+        request.user.phone
+        or wedding.notification_phone_primary
+        or wedding.notification_phone_secondary
+        or ""
+    )
+    upgrade_form = PayzenoCheckoutForm(initial={"payer_phone": billing_phone})
 
     if request.method == "POST":
         if not capabilities["can_manage_billing"]:
@@ -89,7 +95,9 @@ def subscription_detail(request: HttpRequest, wedding) -> HttpResponse:
             "sms_usage_percent": current.sms_usage_percent(sms_used),
             "guests_remaining": current.guests_remaining(used),
             "usage_percent": current.usage_percent(used),
-            "plans": Plan.objects.active().order_by("display_order", "max_guests"),
+            "plans": Plan.objects.active()
+            .exclude(code="grande-evento-500")
+            .order_by("display_order", "max_guests"),
             "upgrades": services.upgrade_options(wedding),
             "open_payments": Payment.objects.filter(
                 wedding=wedding,
@@ -110,6 +118,7 @@ def subscription_detail(request: HttpRequest, wedding) -> HttpResponse:
             "capabilities": capabilities,
             "upgrade_form": upgrade_form,
             "selected_plan_code": selected_plan_code,
+            "billing_phone": billing_phone,
             "voucher_form": VoucherApplyForm(),
             "voucher_redemption": getattr(wedding, "voucher_redemption", None),
             "payzeno_ready": services.payzeno_is_ready(),
@@ -230,7 +239,7 @@ def payzeno_success(request: HttpRequest, wedding, reference: str) -> HttpRespon
         if confirmed:
             messages.success(request, f"Pagamento confirmado. O pacote {payment.plan.name} já está activo.")
         else:
-            messages.info(request, "O pagamento ainda está a ser processado pela Payzeno.")
+            messages.info(request, "O pagamento ainda está a ser processado.")
     return redirect("subscriptions:detail", wedding_id=wedding.pk)
 
 
@@ -254,7 +263,7 @@ def verify_payzeno(request: HttpRequest, wedding, reference: str) -> HttpRespons
     except PayzenoError as exc:
         messages.error(request, str(exc))
     else:
-        messages.success(request, "Pagamento confirmado e pacote activado." if confirmed else "O pagamento continua pendente na Payzeno.")
+        messages.success(request, "Pagamento confirmado e pacote activado." if confirmed else "O pagamento continua pendente.")
     return redirect("subscriptions:detail", wedding_id=wedding.pk)
 
 

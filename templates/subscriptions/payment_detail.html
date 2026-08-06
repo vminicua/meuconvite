@@ -12,11 +12,11 @@
         <div class="card shadow-sm"><div class="card-body p-4 text-center">
             <i class="bi bi-shield-check display-5 text-success"></i>
             <div class="payment-brand-row payment-brand-row--center"><span><img src="{% static 'img/payments/mpesa.png' %}" alt="M-Pesa"></span><span><img src="{% static 'img/payments/emola.png' %}" alt="e-Mola"></span></div>
-            <h1 class="h4 mt-3">Pagamento {{ payment.get_method_display }} via Payzeno</h1>
+            <h1 class="h4 mt-3">Pagamento por {{ payment.get_method_display }}</h1>
             <p class="text-body-secondary">{{ payment.plan.name }} · {{ payment.amount_mzn|floatformat:0 }} MZN<br>Referência <code>{{ payment.reference }}</code></p>
             {% if payment.status == 'confirmed' %}<div class="alert alert-success">Pagamento confirmado e pacote activo.</div>
             {% elif payment.provider_checkout_url %}<a class="btn btn-primary w-100" href="{{ payment.provider_checkout_url }}">Continuar pagamento seguro</a>
-            <form class="mt-2" method="post" action="{% url 'subscriptions:verify_payzeno' wedding.pk payment.reference %}">{% csrf_token %}<button class="btn btn-outline-secondary w-100">Verificar estado na Payzeno</button></form>
+            <form class="mt-2" method="post" action="{% url 'subscriptions:verify_payzeno' wedding.pk payment.reference %}">{% csrf_token %}<button class="btn btn-outline-secondary w-100">Verificar estado do pagamento</button></form>
             {% else %}<div class="alert alert-warning">O checkout ainda não está disponível.</div>{% endif %}
         </div></div>
     </div>

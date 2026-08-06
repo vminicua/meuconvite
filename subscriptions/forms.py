@@ -26,7 +26,7 @@ class PayzenoCheckoutForm(BootstrapForm):
             "placeholder": "+258 84 000 0000", "inputmode": "tel",
             "autocomplete": "tel",
         }),
-        help_text=_("A Payzeno usará este número para concluir o pagamento escolhido."),
+        help_text=_("Pode usar o número da sua conta ou indicar outra carteira móvel."),
     )
 
     def clean_payer_phone(self) -> str:

@@ -100,6 +100,7 @@ PLANS: list[dict] = [
         "removes_branding": True,
         "templates_limit": 0,
         "display_order": 50,
+        "is_active": False,
     },
 ]
 

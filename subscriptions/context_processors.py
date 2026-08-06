@@ -20,12 +20,19 @@ def upgrade_modal(request):
     if wedding is None:
         return {}
     current = services.limits(wedding)
+    billing_phone = (
+        request.user.phone
+        or wedding.notification_phone_primary
+        or wedding.notification_phone_secondary
+        or ""
+    )
     return {
         "upgrade_modal_wedding": wedding,
         "upgrade_modal_limits": current,
         "upgrade_modal_plans": Plan.objects.active().filter(
             price_mzn__gt=0, max_guests__gt=current.max_guests
-        ).order_by("display_order", "max_guests"),
+        ).exclude(code="grande-evento-500").order_by("display_order", "max_guests"),
+        "upgrade_modal_billing_phone": billing_phone,
         "upgrade_modal_can_pay": capability_flags(wedding, request.user)["can_manage_billing"],
         "upgrade_modal_payzeno_ready": services.payzeno_is_ready(),
     }

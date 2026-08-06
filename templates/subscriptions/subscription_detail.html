@@ -71,7 +71,7 @@
             <div><strong>{{ payment.plan.name }}</strong><div class="small text-body-secondary">Referência <code>{{ payment.reference }}</code> · {{ payment.amount_mzn|floatformat:0 }} MZN · {{ payment.get_status_display }}</div></div>
             <div class="d-flex gap-2">
                 {% if payment.provider == 'payzeno' and payment.provider_checkout_url %}
-                <a href="{{ payment.provider_checkout_url }}" class="btn btn-sm btn-primary">Continuar na Payzeno</a>
+                <a href="{{ payment.provider_checkout_url }}" class="btn btn-sm btn-primary">Continuar pagamento</a>
                 <form method="post" action="{% url 'subscriptions:verify_payzeno' wedding.pk payment.reference %}">{% csrf_token %}<button class="btn btn-sm btn-outline-secondary">Verificar</button></form>
                 {% else %}<a href="{% url 'subscriptions:payment' wedding.pk payment.reference %}" class="btn btn-sm btn-primary">Ver detalhes</a>{% endif %}
             </div>
@@ -84,7 +84,7 @@
 <section aria-labelledby="plans-title">
     <div class="subscription-section-head">
         <div><span class="workspace-eyebrow">ESCOLHA O SEU PACOTE</span><h2 class="h4 mb-1" id="plans-title">Planos para cada celebração</h2><p class="text-body-secondary mb-0">Todos os limites e vantagens, sem surpresas.</p></div>
-        <div class="small text-body-secondary"><i class="bi bi-shield-check me-1"></i>M-Pesa e e-Mola seguros através da <strong>Payzeno</strong></div>
+        <div class="small text-body-secondary"><i class="bi bi-shield-check me-1"></i>Pagamentos móveis seguros</div>
     </div>
 
     <div class="subscription-plan-grid">
@@ -139,16 +139,17 @@
             {% if not plan.is_free and plan.max_guests > limits.max_guests %}
             <div class="subscription-plan__checkout {% if selected_plan_code == plan.code %}is-open{% endif %}" data-plan-checkout="{{ plan.code }}">
                 <div class="subscription-plan__checkout-head"><div><span>Concluir pagamento</span><strong>{{ plan.price_display }}</strong></div><button type="button" data-plan-close aria-label="Fechar"><i class="bi bi-x-lg"></i></button></div>
-                <p>Escolha a carteira móvel. O pacote é activado automaticamente depois da confirmação segura da Payzeno.</p>
+                <p>Escolha a carteira móvel. O pacote é activado automaticamente depois da confirmação do pagamento.</p>
                 <form method="post" data-loading="A abrir o pagamento seguro…">
                     {% csrf_token %}<input type="hidden" name="plan_code" value="{{ plan.code }}">
                     <fieldset class="payment-method-picker"><legend>Método de pagamento</legend>
                         <label><input type="radio" name="method" value="mpesa" {% if selected_plan_code != plan.code or upgrade_form.method.value != 'emola' %}checked{% endif %}><span><img src="{% static 'img/payments/mpesa.png' %}" alt=""><strong>M-Pesa</strong></span></label>
                         <label><input type="radio" name="method" value="emola" {% if selected_plan_code == plan.code and upgrade_form.method.value == 'emola' %}checked{% endif %}><span><img src="{% static 'img/payments/emola.png' %}" alt=""><strong>e-Mola</strong></span></label>
                     </fieldset>
-                    <label for="phone-{{ plan.code }}">Número da carteira móvel</label><input class="form-control form-control-sm" id="phone-{{ plan.code }}" name="payer_phone" inputmode="tel" autocomplete="tel" placeholder="+258 84 000 0000" value="{% if selected_plan_code == plan.code %}{{ upgrade_form.payer_phone.value|default:'' }}{% else %}{{ request.user.phone }}{% endif %}" required>
+                    <label for="phone-{{ plan.code }}">Número da carteira móvel</label><input class="form-control form-control-sm" id="phone-{{ plan.code }}" name="payer_phone" inputmode="tel" autocomplete="tel" placeholder="+258 84 000 0000" value="{% if selected_plan_code == plan.code %}{{ upgrade_form.payer_phone.value|default:'' }}{% else %}{{ billing_phone }}{% endif %}" required>
+                    <div class="subscription-plan__phone-help">{% if billing_phone %}Preenchido com o número cadastrado. Pode alterar antes de continuar.{% else %}Cadastre o telefone no seu perfil ou introduza o número da carteira.{% endif %}</div>
                     {% if selected_plan_code == plan.code and upgrade_form.errors %}<div class="alert alert-danger py-2 small mt-2 mb-0">{{ upgrade_form.errors }}</div>{% endif %}
-                    <button class="btn btn-dark w-100 mt-3" type="submit"><i class="bi bi-lock me-1"></i>Continuar para a Payzeno</button>
+                    <button class="btn btn-dark w-100 mt-3" type="submit"><i class="bi bi-lock me-1"></i>Continuar pagamento</button>
                 </form>
             </div>
             {% endif %}
