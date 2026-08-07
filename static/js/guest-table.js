@@ -1,7 +1,9 @@
 (function () {
     "use strict";
-    const root = document.querySelector("[data-guest-table]");
-    if (!root) return;
+    function initGuestTable(scope) {
+    const root = (scope || document).querySelector("[data-guest-table]");
+    if (!root || root.dataset.guestTableReady === "true") return;
+    root.dataset.guestTableReady = "true";
 
     const rows = Array.from(root.querySelectorAll("[data-guest-row]"));
     const search = root.querySelector("[data-table-search]");
@@ -168,8 +170,13 @@
     if (shareCopyButton) shareCopyButton.addEventListener("click", function () {
         copyLink(shareCopyButton.dataset.copyLink, shareCopyButton, "Mensagem do convite copiada.");
     });
+    function supportsNativeInvitationShare() {
+        return window.matchMedia("(max-width: 767.98px)").matches &&
+            typeof navigator.share === "function";
+    }
     async function shareCoverMessage(coverUrl, text, title, fallback) {
         try {
+            if (!supportsNativeInvitationShare()) throw new Error("unsupported");
             const response = await fetch(coverUrl);
             if (!response.ok) throw new Error("cover");
             const blob = await response.blob();
@@ -196,17 +203,21 @@
         await shareCoverMessage(shareWithCover.dataset.shareCover, shareWithCover.dataset.shareText, shareWithCover.dataset.shareTitle);
     });
     root.querySelectorAll("[data-invitation-send]").forEach(function (form) {
-        form.addEventListener("submit", async function (event) {
+        form.addEventListener("submit", function () {
             const selected = form.querySelector("[name=channel]:checked");
-            if (!selected || selected.value !== "whatsapp") return;
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            await shareCoverMessage(
-                form.dataset.shareCover,
-                form.dataset.shareMessage,
-                form.dataset.shareTitle,
-                function () { form.submit(); }
-            );
+            if (!selected || selected.value !== "whatsapp") {
+                form.removeAttribute("target");
+                form.removeAttribute("rel");
+                return;
+            }
+
+            // O envio individual deve abrir o destinatário no WhatsApp, não o
+            // menu genérico de partilha do Android. A partilha da capa como
+            // ficheiro continua disponível no botão próprio.
+            const isMobile = window.matchMedia("(max-width: 767.98px)").matches;
+            form.target = isMobile ? "_self" : "_blank";
+            if (isMobile) form.removeAttribute("rel");
+            else form.rel = "noopener";
         });
     });
 
@@ -220,4 +231,8 @@
         exportButton.href = url.toString();
     });
     render();
+    }
+
+    initGuestTable(document);
+    document.addEventListener("workspace:loaded", function () { initGuestTable(document); });
 })();

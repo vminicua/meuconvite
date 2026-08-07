@@ -61,9 +61,9 @@
             <select class="form-select" data-page-size aria-label="Quantidade de registos por página">
                 <option value="10">10 registos</option><option value="25">25 registos</option><option value="50">50 registos</option><option value="all">Todos</option>
             </select>
-            <a class="btn btn-outline-secondary text-nowrap" href="{% url 'guests:export_excel' wedding.pk %}" data-export-excel {% if not capabilities.allows_exports %}data-upgrade-modal data-upgrade-feature="Exportação Excel" data-upgrade-url="{% url 'subscriptions:detail' wedding.pk %}"{% endif %}><i class="bi bi-file-earmark-excel me-1"></i> Exportar Excel{% if not capabilities.allows_exports %} <i class="bi bi-lock-fill"></i>{% endif %}</a>
+            <a class="btn btn-outline-secondary text-nowrap" href="{% url 'guests:export_excel' wedding.pk %}" data-export-excel><i class="bi bi-file-earmark-excel me-1"></i> Exportar Excel</a>
         </div>
-        <div class="table-responsive">
+        <div class="table-responsive guest-table-scroll">
             <table class="table guest-table align-middle mb-0">
                 <thead><tr>
                     <th>Ord.</th>
@@ -71,7 +71,6 @@
                     <th><button type="button" data-sort="contact">Contacto <i class="bi bi-arrow-down-up"></i></button></th>
                     <th><button type="button" data-sort="seats">Lugares <i class="bi bi-arrow-down-up"></i></button></th>
                     <th><button type="button" data-sort="seating">Mesa / cadeira <i class="bi bi-arrow-down-up"></i></button></th>
-                    <th>Programa autorizado</th>
                     <th><button type="button" data-sort="status">Confirmação <i class="bi bi-arrow-down-up"></i></button></th>
                     <th>Plano</th>
                     <th class="text-end">Convite</th>
@@ -79,22 +78,19 @@
                 <tbody>
                 {% for row in guest_rows %}{% with guest=row.guest %}
                     <tr class="{% if not row.is_enabled %}guest-row--disabled{% endif %}" data-guest-row data-enabled="{% if row.is_enabled %}1{% else %}0{% endif %}" {% if not row.is_enabled %}data-upgrade-modal data-upgrade-feature="Adicionar {{ guest.full_name }} ao plano" data-upgrade-message="O limite de convidados deste plano foi atingido. Escolha abaixo o plano que acomoda a sua lista."{% endif %} data-name="{{ guest.full_name|lower }}" data-contact="{{ guest.phone|lower }} {{ guest.email|lower }}" data-seats="{{ guest.party_size }}" data-seating="{{ guest.seating_assignment|lower }}" data-status="{{ guest.rsvp_status }}" data-programme="{% if row.has_full_programme %}todos {% endif %}{% for event in row.allowed_events %}{{ event.name|lower }} {% endfor %}">
-                        <td class="guest-order">{{ row.ord }}</td>
-                        <td><strong>{{ guest.full_name }}</strong>{% if guest.notes %}<div class="small text-body-secondary text-truncate guest-note">{{ guest.notes }}</div>{% endif %}</td>
-                        <td class="small">{{ guest.phone|default:"—" }}{% if guest.email %}<div class="text-body-secondary">{{ guest.email }}</div>{% endif %}</td>
-                        <td><span class="guest-seats">{{ guest.party_size }}</span></td>
-                        <td class="small">{{ guest.seating_assignment|default:"—" }}</td>
-                        <td>
-                            {% if row.has_full_programme %}<span class="guest-programme-pill guest-programme-pill--all">Programa completo</span>{% elif row.allowed_events %}{% for event in row.allowed_events %}<span class="guest-programme-pill">{{ event.name }}</span>{% endfor %}{% else %}<span class="small text-body-secondary">Sem acesso ao programa</span>{% endif %}
-                        </td>
-                        <td>
+                        <td class="guest-order" data-label="Ordem">{{ row.ord }}</td>
+                        <td data-label="Convidado"><strong>{{ guest.full_name }}</strong>{% if guest.notes %}<div class="small text-body-secondary text-truncate guest-note">{{ guest.notes }}</div>{% endif %}</td>
+                        <td class="small" data-label="Contacto">{{ guest.phone|default:"—" }}{% if guest.email %}<div class="text-body-secondary">{{ guest.email }}</div>{% endif %}</td>
+                        <td data-label="Lugares"><span class="guest-seats">{{ guest.party_size }}</span></td>
+                        <td class="small" data-label="Mesa / cadeira">{{ guest.seating_assignment|default:"—" }}</td>
+                        <td data-label="Confirmação">
                             {% if guest.rsvp_status == 'confirmed' %}<span class="guest-status guest-status--confirmed"><i class="bi bi-check-circle-fill"></i> Confirmado</span>
                             {% elif guest.rsvp_status == 'declined' %}<span class="guest-status guest-status--declined"><i class="bi bi-x-circle-fill"></i> Não comparece</span>
                             {% else %}<span class="guest-status guest-status--pending"><i class="bi bi-clock"></i> Por responder</span>{% endif %}
                             {% if guest.responded_at %}<div class="small text-body-secondary mt-1">{{ guest.responded_at|date:"d/m/Y H:i" }}</div>{% endif %}
                             {% if row.latest_delivery %}<div class="small text-body-secondary mt-1"><i class="bi bi-send-check me-1"></i>{{ row.latest_delivery.get_channel_display }}: {{ row.latest_delivery.get_status_display }}</div>{% endif %}
                         </td>
-                        <td class="text-nowrap">
+                        <td class="text-nowrap" data-label="Plano">
                             {% if row.is_enabled %}
                             <span class="guest-plan-state guest-plan-state--enabled"><i class="bi bi-check-circle-fill"></i> No plano</span>
                             <form method="post" action="{% url 'guests:plan_access' wedding.pk guest.pk %}" class="mt-1" data-confirm="Retirar {{ guest.full_name }} do limite do plano? O convite ficará temporariamente indisponível.">{% csrf_token %}<input type="hidden" name="action" value="disable"><button class="btn btn-sm btn-outline-warning guest-plan-action" title="Retirar do limite do plano"><i class="bi bi-person-dash me-1"></i>Retirar</button></form>
@@ -103,15 +99,17 @@
                             <form method="post" action="{% url 'guests:plan_access' wedding.pk guest.pk %}" class="mt-1" data-confirm="Incluir {{ guest.full_name }} no limite deste plano?">{% csrf_token %}<input type="hidden" name="action" value="enable"><button class="btn btn-sm btn-primary guest-plan-action" title="Incluir no limite do plano"><i class="bi bi-person-check me-1"></i>Incluir</button></form>
                             {% endif %}
                         </td>
-                        <td class="text-end text-nowrap">
+                        <td class="text-end text-nowrap" data-label="Convite">
                             {% if row.is_enabled %}
-                            <div class="btn-group btn-group-sm guest-actions" role="group" aria-label="Acções de {{ guest.full_name }}">
-                                <button class="btn btn-outline-secondary" type="button" data-copy-link="{{ row.invitation_url }}" data-share-link="{{ row.invitation_url }}" data-share-name="{{ guest.full_name }}" data-share-event="{{ wedding.display_names }}" data-share-message="{{ row.share_message }}" data-share-cover="{{ row.share_cover_url }}" data-share-qr="{{ row.qr_data_uri }}" title="QR Code, copiar e partilhar"><i class="bi bi-share"></i></button>
-                                <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#send-{{ guest.pk }}" title="Enviar convite por SMS ou WhatsApp"><i class="bi bi-send"></i></button>
-                                <a class="btn btn-outline-secondary" href="{{ row.invitation_url }}" target="_blank" title="Visualizar convite"><i class="bi bi-eye"></i></a>
-                                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#edit-{{ guest.pk }}" title="Editar convidado"><i class="bi bi-pencil"></i></button>
+                            <div class="guest-actions-row">
+                                <div class="btn-group btn-group-sm guest-actions" role="group" aria-label="Acções de {{ guest.full_name }}">
+                                    <button class="btn btn-outline-secondary" type="button" data-copy-link="{{ row.invitation_url }}" data-share-link="{{ row.invitation_url }}" data-share-name="{{ guest.full_name }}" data-share-event="{{ wedding.display_names }}" data-share-message="{{ row.share_message }}" data-share-cover="{{ row.share_cover_url }}" data-share-qr="{{ row.qr_data_uri }}" title="QR Code, copiar e partilhar"><i class="bi bi-share"></i></button>
+                                    <button class="btn btn-success" type="button" data-bs-toggle="modal" data-bs-target="#send-{{ guest.pk }}" title="Enviar convite por WhatsApp ou SMS"><i class="bi bi-send"></i></button>
+                                    <a class="btn btn-outline-secondary" href="{{ row.invitation_url }}" target="_blank" title="Visualizar convite"><i class="bi bi-eye"></i></a>
+                                    <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#edit-{{ guest.pk }}" title="Editar convidado"><i class="bi bi-pencil"></i></button>
+                                </div>
+                                <form method="post" action="{% url 'guests:remove' wedding.pk guest.pk %}" data-confirm="Remover {{ guest.full_name }} da lista?">{% csrf_token %}<button class="btn btn-sm btn-outline-danger guest-delete-action" type="submit" title="Remover convidado" aria-label="Remover {{ guest.full_name }}"><i class="bi bi-trash"></i></button></form>
                             </div>
-                            <form method="post" action="{% url 'guests:remove' wedding.pk guest.pk %}" class="d-inline" data-confirm="Remover {{ guest.full_name }} da lista?">{% csrf_token %}<button class="btn btn-sm btn-link text-danger" title="Remover"><i class="bi bi-trash"></i></button></form>
                             {% else %}
                             <span class="small text-body-secondary">Active-o para usar o convite</span>
                             {% endif %}
@@ -155,8 +153,7 @@
     <div class="modal fade" id="send-{{ guest.pk }}" tabindex="-1" aria-labelledby="send-title-{{ guest.pk }}" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
             <form method="post" action="{% url 'guests:send_invitation' wedding.pk guest.pk %}"
-                  data-confirm="Enviar agora o convite de {{ guest.full_name }}?"
-                  data-confirm-title="Enviar convite" data-invitation-send
+                  data-invitation-send
                   data-share-message="{{ row.share_message }}" data-share-cover="{{ row.share_cover_url }}"
                   data-share-title="Convite de {{ wedding.display_names }}">
                 <div class="modal-header"><div><p class="workspace-eyebrow mb-1">Convite individual</p><h2 class="modal-title h5" id="send-title-{{ guest.pk }}">Enviar convite a {{ guest.full_name }}</h2></div><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button></div>
@@ -166,12 +163,12 @@
                     <fieldset><legend class="form-label fw-semibold">Escolha o canal</legend>
                         <div class="invitation-channel-options">
                             <label class="{% if limits.max_sms <= 0 or sms_used >= limits.max_sms %}text-body-secondary{% endif %}" {% if limits.max_sms <= 0 %}data-upgrade-modal data-upgrade-feature="Convites por SMS" data-upgrade-url="{% url 'subscriptions:detail' wedding.pk %}"{% endif %}><input class="form-check-input" type="radio" name="channel" value="sms" required {% if limits.max_sms <= 0 or sms_used >= limits.max_sms %}disabled{% endif %}> <i class="bi bi-chat-dots"></i> SMS{% if limits.max_sms <= 0 %} · não incluído <i class="bi bi-lock-fill"></i>{% elif sms_used >= limits.max_sms %} · limite atingido{% endif %}</label>
-                            <label><input class="form-check-input" type="radio" name="channel" value="whatsapp" required> <i class="bi bi-whatsapp"></i> WhatsApp</label>
+                            <label><input class="form-check-input" type="radio" name="channel" value="whatsapp" required checked> <i class="bi bi-whatsapp"></i> WhatsApp</label>
                         </div>
                     </fieldset>
-                    <div class="alert alert-light border small mt-3 mb-0"><i class="bi bi-info-circle me-1"></i>O SMS é enviado pela Twilio. Para WhatsApp, o dispositivo abrirá a partilha com a capa e a mensagem prontas.</div>
+                    <div class="alert alert-light border small mt-3 mb-0"><i class="bi bi-info-circle me-1"></i>O SMS é enviado pela Twilio. No telemóvel, abre diretamente a conversa no WhatsApp; no computador, abre o WhatsApp Web numa nova aba. A mensagem e o link do convite ficam prontos para enviar.</div>
                 </div>
-                <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary" type="submit"><i class="bi bi-send me-1"></i>Enviar convite</button></div>
+                <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-success" type="submit"><i class="bi bi-send me-1"></i>Enviar convite</button></div>
             </form>
         </div></div>
     </div>
@@ -216,5 +213,3 @@
     {% endif %}
 </section>
 {% endblock %}
-
-{% block extra_js %}<script src="{% static 'js/guest-table.js' %}?v=20260802.7"></script>{% endblock %}

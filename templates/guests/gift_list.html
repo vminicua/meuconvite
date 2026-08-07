@@ -16,9 +16,9 @@
     </button>
 </div>
 
-<div class="gift-grid gift-grid--wide">
+<div class="gift-grid gift-grid--wide" data-gift-list>
     {% for gift in gifts %}
-    <article class="gift-card">
+    <article class="gift-card" data-gift-card>
         <div class="gift-card__top">
             <span class="gift-card__icon"><i class="bi bi-gift"></i></span>
             <span class="badge rounded-pill {% if gift.allow_multiple %}text-bg-info{% else %}text-bg-light border{% endif %}">{% if gift.allow_multiple %}Múltiplas escolhas{% else %}Uma escolha{% endif %}</span>
@@ -47,6 +47,12 @@
     </div>
     {% endfor %}
 </div>
+{% if gifts %}
+<footer class="gift-list-footer" data-gift-footer>
+    <span class="small text-body-secondary" data-gift-summary></span>
+    <nav class="guest-pagination" aria-label="Páginas da lista de presentes" data-gift-pagination></nav>
+</footer>
+{% endif %}
 
 <div class="modal fade" id="addGiftModal" tabindex="-1" aria-labelledby="addGiftModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">

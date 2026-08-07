@@ -62,7 +62,7 @@ class Plan(BaseModel):
     allows_qr_checkin = models.BooleanField(_("check-in com QR Code"), default=False)
     allows_seating = models.BooleanField(_("gestão de mesas"), default=False)
     allows_team = models.BooleanField(_("equipa"), default=False)
-    allows_exports = models.BooleanField(_("exportações"), default=False)
+    allows_exports = models.BooleanField(_("exportações"), default=True)
     removes_branding = models.BooleanField(_("sem marca MeuConvite"), default=False)
     templates_limit = models.PositiveIntegerField(
         _("templates disponíveis"),

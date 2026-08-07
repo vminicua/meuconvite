@@ -49,14 +49,20 @@ class GuestViewTests(TestCase):
         self.assertContains(response, "data-copy-link")
         self.assertContains(response, "data-share-link")
         self.assertContains(response, 'id="shareInvitationModal"')
-        self.assertContains(response, "Partilhar no WhatsApp")
+        self.assertContains(response, "Partilhar capa e mensagem")
         self.assertContains(response, "Enviar por email")
         self.assertContains(response, "data-table-search")
+        self.assertNotContains(response, "Programa autorizado")
+        self.assertContains(response, 'value="whatsapp" required checked')
+        self.assertContains(response, 'class="btn btn-success" type="button" data-bs-toggle="modal"')
+        self.assertContains(response, "guest-delete-action")
         self.assertContains(response, f'data-bs-target="#edit-{guest.pk}"')
         self.assertContains(response, f'data-bs-target="#send-{guest.pk}"')
-        self.assertContains(response, "Enviar convite por SMS ou WhatsApp")
+        self.assertContains(response, "Enviar convite por WhatsApp ou SMS")
         self.assertContains(response, f'id="edit-{guest.pk}"')
         self.assertContains(response, 'data-action-feedback')
+        self.assertNotContains(response, 'data-confirm="Enviar agora o convite')
+        self.assertContains(response, "abre diretamente a conversa no WhatsApp")
         self.assertNotContains(response, f'href="{reverse("guests:edit", args=[self.wedding.pk, guest.pk])}"')
 
     def test_guest_can_be_limited_to_selected_programme_items(self):
@@ -88,8 +94,9 @@ class GuestViewTests(TestCase):
         self.assertNotContains(response, "Cerimónia")
         self.assertNotContains(response, "Festa")
         response = self.client.get(reverse("guests:list", args=[self.wedding.pk]))
-        self.assertContains(response, "Sem acesso ao programa")
-        self.assertContains(response, "Programa completo")
+        self.assertContains(response, 'data-programme=""')
+        self.assertContains(response, 'data-programme="todos ')
+        self.assertNotContains(response, 'data-label="Programa"')
         self.assertEqual(full_programme.allowed_events.count(), 2)
 
     def test_seating_assignment_appears_in_table_and_invitation(self):
@@ -112,6 +119,16 @@ class GuestViewTests(TestCase):
         guest.refresh_from_db()
         self.assertEqual(guest.rsvp_status, "confirmed")
         self.assertIsNotNone(guest.responded_at)
+
+    def test_public_invitation_has_desktop_iphone_shell(self):
+        guest = Guest.objects.create(wedding=self.wedding, full_name="Ana")
+        response = self.client.get(reverse("guest_invitation", args=[guest.invitation_token]))
+
+        self.assertContains(response, "inv--public-device")
+        self.assertContains(response, "inv-public-stage")
+        self.assertContains(response, "inv-public-device__screen")
+        self.assertContains(response, "data-invitation-viewport")
+        self.assertContains(response, "iPhone 15 Pro Max")
 
     def test_guests_over_subscription_limit_are_saved_but_disabled(self):
         for number in range(20):
@@ -321,6 +338,7 @@ class GuestViewTests(TestCase):
         image_response = self.client.get(image_url)
         self.assertEqual(image_response.status_code, 200)
         self.assertEqual(image_response["Content-Type"], "image/jpeg")
+        self.assertEqual(image_response["X-Share-Image-Version"], "4")
         with Image.open(BytesIO(image_response.content)) as image:
             self.assertEqual(image.size, (1200, 630))
 

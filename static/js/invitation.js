@@ -8,6 +8,15 @@
     "use strict";
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const invitationViewport = document.querySelector("[data-invitation-viewport]");
+
+    function resetInvitationScroll() {
+        if (invitationViewport && window.matchMedia("(min-width: 992px)").matches) {
+            invitationViewport.scrollTo({ top: 0, behavior: "auto" });
+            return;
+        }
+        window.scrollTo(0, 0);
+    }
 
     /* A Carta Selada apresenta-se primeiro como um envelope físico. A cena é
        curta, automática e removida do DOM quando termina. */
@@ -31,7 +40,8 @@
         const kind = rawKind === "danger" ? "error" : rawKind;
         if (window.Swal) window.Swal.fire({
             toast: true, position: "top-end", icon: kind,
-            title: flash.dataset.message, showConfirmButton: false, timer: 4200
+            title: flash.dataset.message, showConfirmButton: false, timer: 4200,
+            target: invitationViewport || document.body
         });
     });
 
@@ -119,7 +129,7 @@
             if (reducedMotion) {
                 cover.remove();
                 document.body.classList.remove("inv--cover-pending");
-                window.scrollTo(0, 0);
+                resetInvitationScroll();
                 return;
             }
             cover.style.transition = "opacity .5s ease, transform .5s ease";
@@ -140,7 +150,7 @@
         // Alguns templates animam o <main> com transform. Um elemento fixed
         // dentro desse contentor ficaria preso à largura do cartão; no body
         // a galeria ocupa sempre o ecrã inteiro, sem navegar para outra página.
-        document.body.appendChild(gallery);
+        (invitationViewport || document.body).appendChild(gallery);
         const slides = Array.from(gallery.querySelectorAll("[data-gallery-slide]"));
         const closeButton = gallery.querySelector("[data-gallery-close]");
         const previousButton = gallery.querySelector("[data-gallery-prev]");

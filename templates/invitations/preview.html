@@ -25,9 +25,9 @@
         <link href="{{ template.fonts_url }}" rel="stylesheet">
     {% endif %}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="{% static 'css/invitation.css' %}?v=20260802.8" rel="stylesheet">
+    <link href="{% static 'css/invitation.css' %}?v=20260807.2" rel="stylesheet">
 </head>
-<body class="inv inv--{{ template.layout }} inv--template-{{ template.code }}{% if embedded %} inv--embedded{% endif %}{% if cover_only %} inv--cover-only{% elif template.has_cover %} inv--cover-pending{% endif %}" style="{{ css_variables }}">
+<body class="inv inv--{{ template.layout }} inv--template-{{ template.code }}{% if embedded %} inv--embedded{% endif %}{% if not is_preview and not embedded %} inv--public-device{% endif %}{% if cover_only %} inv--cover-only{% elif template.has_cover %} inv--cover-pending{% endif %}" style="{{ css_variables }}">
 
 {% for message in messages %}<div hidden data-inv-flash data-kind="{{ message.tags|default:'info' }}" data-message="{{ message|escape }}"></div>{% endfor %}
 
@@ -40,6 +40,17 @@
     </div>
 {% endif %}
 
+{% if not is_preview and not embedded %}
+<div class="inv-public-stage">
+    <div class="inv-public-device" aria-label="Convite apresentado num iPhone 15 Pro Max">
+        <span class="inv-public-device__button inv-public-device__button--action" aria-hidden="true"></span>
+        <span class="inv-public-device__button inv-public-device__button--volume-up" aria-hidden="true"></span>
+        <span class="inv-public-device__button inv-public-device__button--volume-down" aria-hidden="true"></span>
+        <span class="inv-public-device__button inv-public-device__button--power" aria-hidden="true"></span>
+        <div class="inv-public-device__screen" data-invitation-viewport>
+            <span class="inv-public-device__island" aria-hidden="true"></span>
+{% endif %}
+
 {% include template.layout_template %}
 {% include "invitations/_floating_actions.html" %}
 
@@ -50,8 +61,15 @@
 </div>
 {% endif %}
 
+{% if not is_preview and not embedded %}
+            <span class="inv-public-device__home" aria-hidden="true"></span>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <script src="https://unpkg.com/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 <script src="{% static 'js/dialog-fallback.js' %}?v=20260801.1"></script>
-<script src="{% static 'js/invitation.js' %}?v=20260802.4"></script>
+<script src="{% static 'js/invitation.js' %}?v=20260807.1"></script>
 </body>
 </html>

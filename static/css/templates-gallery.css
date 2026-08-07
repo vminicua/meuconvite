@@ -638,27 +638,52 @@
 @media (max-width: 575.98px) {
     .event-template-picker__header {
         align-items: flex-start;
-        padding: 1.2rem 1rem .8rem;
+        padding: .9rem .8rem .55rem;
     }
+
+    .event-template-picker__header h2 { font-size: 1.2rem; }
+    .event-template-picker__header p { font-size: .76rem; line-height: 1.4; }
+    .event-template-picker__counter { padding: .2rem .5rem; font-size: .68rem; }
 
     .event-template-picker > .category-strip {
-        padding-right: 1rem;
-        padding-left: 1rem;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .4rem;
+        overflow: visible;
+        padding: .25rem .8rem .8rem;
     }
+
+    .event-template-picker .category-chip { width: 100%; min-width: 0; gap: .35rem; padding: .35rem .45rem; border-radius: .65rem; font-size: .72rem; }
+    .event-template-picker .category-chip__icon { flex: 0 0 1.55rem; width: 1.55rem; height: 1.55rem; }
+    .event-template-picker .category-chip__name { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 
     .template-carousel__controls {
-        padding-right: 1rem;
-        padding-left: 1rem;
+        padding: 0 .8rem .65rem;
     }
 
+    .template-carousel__controls h3 { font-size: .9rem; }
+    .template-carousel__arrow { width: 2rem; height: 2rem; }
+
     .template-carousel {
-        grid-auto-columns: min(78vw, 16rem);
-        padding-right: 1rem;
-        padding-left: 1rem;
+        grid-auto-columns: min(68vw, 13rem);
+        gap: .65rem;
+        padding: .15rem .8rem .7rem;
     }
 
     .market-template-card__cta {
         opacity: 1;
         transform: none;
     }
+
+    .event-template-picker__catalogue { padding: .85rem 0 1rem; }
+    .market-template-card__body { padding: .7rem; }
+
+    .template-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; }
+    .template-choice { gap: .4rem; }
+    .template-card__body { padding: .55rem .6rem .65rem; }
+    .template-card__name { font-size: .76rem; }
+    .template-card__layout { font-size: .64rem; }
+    .template-card__description, .template-card__tags { display: none; }
+    .template-choice__actions { gap: .3rem; }
+    .template-choice__actions .btn { flex: 1 1 100%; padding: .32rem .4rem; font-size: .64rem; }
 }

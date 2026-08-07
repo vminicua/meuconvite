@@ -28,6 +28,148 @@ body.inv--embedded::-webkit-scrollbar {
     height: 0;
 }
 
+/* Links públicos mantêm o convite em ecrã completo no telemóvel. Em desktop,
+   a mesma experiência vive dentro das proporções úteis do iPhone 15 Pro Max
+   (430 × 932), com o scroll e as ações presos ao ecrã do aparelho. */
+.inv-public-stage,
+.inv-public-device,
+.inv-public-device__screen {
+    display: contents;
+}
+
+.inv-public-device__button,
+.inv-public-device__island,
+.inv-public-device__home {
+    display: none;
+}
+
+@media (min-width: 992px) {
+    body.inv--public-device {
+        height: 100vh;
+        height: 100dvh;
+        overflow: hidden;
+        background:
+            radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--inv-primary) 18%, #20242a) 0, #111419 48%, #07090c 100%);
+    }
+
+    .inv-public-stage {
+        display: grid;
+        width: 100%;
+        height: 100%;
+        place-items: center;
+        padding: 1rem;
+    }
+
+    .inv-public-device {
+        position: relative;
+        display: block;
+        width: min(454px, 45.6vh, calc(100vw - 2rem));
+        aspect-ratio: 454 / 956;
+        padding: 12px;
+        border: 1px solid #4b4f56;
+        border-radius: 62px;
+        background: linear-gradient(145deg, #45484e 0%, #0b0c0f 18%, #17191d 72%, #555960 100%);
+        box-shadow:
+            0 0 0 2px #050607,
+            0 2.2rem 5.5rem rgba(0, 0, 0, .58),
+            inset 0 0 0 1px rgba(255, 255, 255, .18);
+        isolation: isolate;
+    }
+
+    .inv-public-device__screen {
+        position: relative;
+        display: block;
+        width: 100%;
+        height: 100%;
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: none;
+        border-radius: 50px;
+        background: var(--inv-paper, #fffdf8);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08);
+        transform: translateZ(0);
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .inv-public-device__screen::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+    }
+
+    .inv-public-device__screen .inv-cover {
+        min-height: 100%;
+    }
+
+    .inv-public-device__screen .inv-cover__paper {
+        max-width: calc(100% - 1rem);
+    }
+
+    .inv-public-device__island {
+        position: sticky;
+        z-index: 120;
+        top: 12px;
+        display: block;
+        width: 126px;
+        height: 35px;
+        margin: 0 auto -35px;
+        border: 2px solid #090a0c;
+        border-radius: 999px;
+        background:
+            radial-gradient(circle at 78% 50%, #19222a 0 3px, #030405 4px 8px, transparent 9px),
+            #050607;
+        box-shadow: 0 1px 2px rgba(255, 255, 255, .12), 0 2px 7px rgba(0, 0, 0, .45);
+        pointer-events: none;
+    }
+
+    .inv-public-device__home {
+        position: sticky;
+        z-index: 120;
+        bottom: 7px;
+        display: block;
+        width: 128px;
+        height: 5px;
+        margin: -12px auto 7px;
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--inv-ink, #222) 72%, transparent);
+        opacity: .78;
+        pointer-events: none;
+    }
+
+    .inv-public-device__button {
+        position: absolute;
+        z-index: -1;
+        display: block;
+        width: 4px;
+        border: 1px solid #4b4e54;
+        background: linear-gradient(#303339, #0c0d10 65%, #373a40);
+    }
+
+    .inv-public-device__button--action {
+        top: 15.5%;
+        left: -5px;
+        height: 28px;
+        border-radius: 4px 0 0 4px;
+    }
+
+    .inv-public-device__button--volume-up,
+    .inv-public-device__button--volume-down {
+        left: -6px;
+        height: 52px;
+        border-radius: 5px 0 0 5px;
+    }
+
+    .inv-public-device__button--volume-up { top: 21%; }
+    .inv-public-device__button--volume-down { top: 28%; }
+
+    .inv-public-device__button--power {
+        top: 23%;
+        right: -6px;
+        height: 80px;
+        border-radius: 0 5px 5px 0;
+    }
+}
+
 /* --- Barra de pré-visualização -------------------------------------- */
 .inv-preview-bar {
     position: sticky;
@@ -945,7 +1087,7 @@ body.inv--embedded::-webkit-scrollbar {
 .inv-envelope-scene {
     position: relative;
     z-index: 2;
-    width: min(84vw, 31rem);
+    width: min(84%, 31rem);
     aspect-ratio: 1.55;
     transform-style: preserve-3d;
     filter: drop-shadow(0 2rem 2.1rem rgba(0,0,0,.55));
@@ -1101,7 +1243,7 @@ body.inv--embedded::-webkit-scrollbar {
 .inv-theme-envelope {
     position: relative;
     z-index: 3;
-    width: min(84vw, 31rem);
+    width: min(84%, 31rem);
     aspect-ratio: 1.55;
     opacity: 0;
     transform-style: preserve-3d;

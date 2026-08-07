@@ -182,9 +182,6 @@ def guest_list(request: HttpRequest, wedding) -> HttpResponse:
 @require_wedding("can_manage_guests")
 def guest_export_excel(request: HttpRequest, wedding) -> HttpResponse:
     """Exporta a lista filtrada num ficheiro Excel real (.xlsx)."""
-    if not limits(wedding).allows_exports:
-        messages.warning(request, "A exportação Excel está disponível nos pacotes superiores.")
-        return redirect("subscriptions:detail", wedding_id=wedding.pk)
     from io import BytesIO
 
     from openpyxl import Workbook
@@ -524,7 +521,7 @@ def guest_checkin_demo(request: HttpRequest, token: str) -> HttpResponse:
 
 
 def guest_invitation_share_image(request: HttpRequest, token: str) -> HttpResponse:
-    """JPEG Open Graph estável para WhatsApp e outras redes sociais.
+    """Cartão JPEG Open Graph personalizado para WhatsApp e outras redes.
 
     Este recurso não usa o limite por IP da página do convite: os crawlers
     sociais partilham poucos endereços IP e precisam de pedir a página e a
@@ -532,7 +529,35 @@ def guest_invitation_share_image(request: HttpRequest, token: str) -> HttpRespon
     """
     from io import BytesIO
 
-    from PIL import Image, ImageOps
+    from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageOps
+
+    def load_font(size: int, *, serif: bool = False, bold: bool = False):
+        """Usa fontes presentes no cPanel e mantém fallback portátil nos testes."""
+        if serif:
+            names = (
+                "/usr/share/fonts/urw-base35/NimbusRoman-Bold.otf" if bold
+                else "/usr/share/fonts/urw-base35/NimbusRoman-Regular.otf",
+                "C:/Windows/Fonts/georgiab.ttf" if bold else "C:/Windows/Fonts/georgia.ttf",
+            )
+        else:
+            names = (
+                "/usr/share/fonts/google-droid/DroidSans-Bold.ttf" if bold
+                else "/usr/share/fonts/google-droid/DroidSans.ttf",
+                "C:/Windows/Fonts/arialbd.ttf" if bold else "C:/Windows/Fonts/arial.ttf",
+            )
+        for name in names:
+            try:
+                return ImageFont.truetype(name, size=size)
+            except OSError:
+                continue
+        return ImageFont.load_default(size=size)
+
+    def fitted_font(draw, text: str, max_width: int, start: int, minimum: int, **kwargs):
+        for size in range(start, minimum - 1, -2):
+            font = load_font(size, **kwargs)
+            if draw.textbbox((0, 0), text, font=font)[2] <= max_width:
+                return font
+        return load_font(minimum, **kwargs)
 
     guest = get_object_or_404(
         Guest.objects.select_related("wedding"), invitation_token=token, is_active=True
@@ -573,8 +598,117 @@ def guest_invitation_share_image(request: HttpRequest, token: str) -> HttpRespon
         with Image.open(source) as image:
             image = ImageOps.exif_transpose(image).convert("RGB")
             image = ImageOps.fit(image, (1200, 630), method=Image.Resampling.LANCZOS)
+            image = image.filter(ImageFilter.GaussianBlur(2.2)).convert("RGBA")
+
+            # Fundo de veludo escuro e envelope marfim inspirado em
+            # correspondência real. As formas são desenhadas no servidor para
+            # que cada convidado receba uma capa verdadeiramente personalizada.
+            image.alpha_composite(Image.new("RGBA", image.size, (20, 8, 17, 174)))
+            draw = ImageDraw.Draw(image, "RGBA")
+            draw.rounded_rectangle((58, 58, 1148, 574), radius=28, fill=(0, 0, 0, 105))
+            envelope = (70, 46, 1130, 556)
+            draw.rounded_rectangle(
+                envelope, radius=24, fill=(243, 232, 202, 255),
+                outline=(186, 139, 48, 255), width=5,
+            )
+            draw.rounded_rectangle(
+                (84, 60, 1116, 542), radius=18,
+                outline=(164, 117, 35, 190), width=2,
+            )
+
+            burgundy = (78, 18, 25, 255)
+            deep_burgundy = (53, 10, 18, 255)
+            gold = (166, 116, 28, 255)
+            pale_gold = (206, 165, 80, 255)
+
+            # Cantos ornamentais com linhas e pequenos medalhões dourados.
+            for sx, sy in ((1, 1), (-1, 1), (1, -1), (-1, -1)):
+                x = 110 if sx == 1 else 1090
+                y = 84 if sy == 1 else 518
+                draw.line((x, y, x + sx * 82, y), fill=gold, width=3)
+                draw.line((x, y, x, y + sy * 54), fill=gold, width=3)
+                draw.arc(
+                    (x - 12, y - 12, x + 12, y + 12), 0, 360,
+                    fill=pale_gold, width=3,
+                )
+                draw.ellipse(
+                    (x + sx * 88 - 4, y - 4, x + sx * 88 + 4, y + 4),
+                    fill=pale_gold,
+                )
+
+            def centered_text(y, text, font, fill):
+                box = draw.textbbox((0, 0), text, font=font)
+                x = 600 - (box[2] - box[0]) / 2
+                draw.text((x, y), text, font=font, fill=fill)
+
+            kicker_font = load_font(19, bold=True)
+            centered_text(88, "CORRESPONDÊNCIA REAL  •  CONVITE PARTICULAR", kicker_font, gold)
+
+            guest_text = (guest.full_name or "Convidado").upper()
+            guest_font = fitted_font(draw, guest_text, 720, 31, 22, bold=True)
+            centered_text(130, f"PARA  {guest_text}", guest_font, burgundy)
+
+            draw.line((310, 184, 890, 184), fill=(166, 116, 28, 175), width=2)
+            draw.ellipse((294, 179, 304, 189), fill=gold)
+            draw.ellipse((896, 179, 906, 189), fill=gold)
+
+            names = wedding.display_names
+            names_font = fitted_font(draw, names, 850, 66, 42, serif=True, bold=True)
+            centered_text(194, names, names_font, deep_burgundy)
+
+            date_text = wedding.main_date.strftime("%d.%m.%Y") if wedding.main_date else ""
+            detail_parts = [str(wedding.category_name), date_text, wedding.city]
+            detail_text = "  •  ".join(part for part in detail_parts if part)
+            detail_font = fitted_font(draw, detail_text.upper(), 720, 25, 18, bold=True)
+            centered_text(278, detail_text.upper(), detail_font, gold)
+
+            # Dobras do envelope terminam no selo central sem competir com o texto.
+            fold_y = 374
+            draw.polygon(
+                ((88, 540), (88, 330), (600, fold_y)),
+                fill=(226, 210, 174, 225), outline=(177, 135, 58, 170),
+            )
+            draw.polygon(
+                ((1112, 540), (1112, 330), (600, fold_y)),
+                fill=(234, 219, 184, 225), outline=(177, 135, 58, 170),
+            )
+            draw.polygon(
+                ((88, 540), (1112, 540), (600, fold_y)),
+                fill=(239, 225, 191, 250), outline=(177, 135, 58, 190),
+            )
+
+            seal_box = (505, 338, 695, 528)
+            seal_path = finders.find("img/invitations/burgundy-wax-seal-v1.png")
+            if seal_path:
+                with Image.open(seal_path) as seal:
+                    seal = seal.convert("RGBA").resize((190, 190), Image.Resampling.LANCZOS)
+                    image.alpha_composite(seal, (seal_box[0], seal_box[1]))
+            else:
+                draw.ellipse(seal_box, fill=(111, 24, 18, 245), outline=gold, width=4)
+
+            initials = "".join(
+                name[:1].upper()
+                for name in (wedding.primary_short_name, wedding.secondary_short_name)
+                if name
+            ) or "MC"
+            monogram_font = fitted_font(draw, initials, 105, 54, 36, serif=True, bold=True)
+            monogram_box = draw.textbbox((0, 0), initials, font=monogram_font)
+            monogram_x = 600 - (monogram_box[2] - monogram_box[0]) / 2
+            monogram_y = 433 - (monogram_box[3] - monogram_box[1]) / 2 - monogram_box[1]
+            draw.text((monogram_x, monogram_y), initials, font=monogram_font, fill=(247, 213, 169, 255))
+
+            callout_font = load_font(15, bold=True)
+            centered_text(
+                515, "ABRA O CONVITE E CONFIRME A SUA PRESENÇA",
+                callout_font, burgundy,
+            )
+            brand_font = load_font(15, bold=True)
+            centered_text(588, "MEUCONVITE.CO.MZ", brand_font, pale_gold)
+
             output = BytesIO()
-            image.save(output, format="JPEG", quality=88, optimize=True, progressive=True)
+            image.convert("RGB").save(
+                output, format="JPEG", quality=90, optimize=True, progressive=True
+            )
     finally:
         if hasattr(source, "close"):
             source.close()
@@ -582,6 +716,7 @@ def guest_invitation_share_image(request: HttpRequest, token: str) -> HttpRespon
     response = HttpResponse(output.getvalue(), content_type="image/jpeg")
     response["Cache-Control"] = "public, max-age=86400"
     response["Content-Disposition"] = 'inline; filename="capa-convite.jpg"'
+    response["X-Share-Image-Version"] = messaging.WHATSAPP_PREVIEW_REVISION
     return response
 
 

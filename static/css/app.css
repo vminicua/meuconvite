@@ -985,6 +985,7 @@ main {
 .invitation-channel-options { display:grid; grid-template-columns:1fr 1fr; gap:.75rem; }
 .invitation-channel-options label { display:flex; align-items:center; gap:.55rem; padding:1rem; border:1px solid var(--bs-border-color); border-radius:.65rem; cursor:pointer; }
 .invitation-channel-options label:has(input:checked) { border-color:var(--mc-gold); background:#fcf7ea; }
+.invitation-channel-options label:has(input[value="whatsapp"]:checked) { border-color:#198754; background:#eef8f1; color:#146c43; }
 .guest-note { max-width:14rem; }
 .guest-seats { display:inline-grid; place-items:center; min-width:2rem; height:2rem; border-radius:50%; background:#f3eee4; font-weight:700; }
 .guest-programme-pill { display:inline-block; margin:.1rem; padding:.25rem .5rem; border-radius:999px; background:#eef2f4; font-size:.72rem; }
@@ -994,6 +995,9 @@ main {
 .guest-status--declined { color:#9b3030; background:#fbeaea; }
 .guest-status--pending { color:#786231; background:#f7f0df; }
 .guest-actions .btn { width:2.25rem; }
+.guest-actions-row { display:flex; align-items:center; justify-content:flex-end; gap:.35rem; }
+.guest-actions-row form { margin:0; }
+.guest-delete-action { display:grid; place-items:center; width:2.25rem; height:2.25rem; padding:0; }
 .guest-table-footer { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:.85rem 1rem; border-top:1px solid var(--bs-border-color); }
 .guest-pagination { display:flex; gap:.3rem; }
 .guest-table-empty { display:flex; flex-direction:column; align-items:center; gap:.35rem; padding:3rem; color:#737b82; }
@@ -1024,3 +1028,120 @@ main {
 .cover-music-control{margin-top:1.25rem;padding:1rem;border:1px solid #e7ddc7;border-radius:.85rem;background:#fffaf0}.cover-music-control>div:first-child{display:flex;align-items:center;gap:.7rem;margin-bottom:.8rem}.cover-music-control>div:first-child>i{display:grid;place-items:center;width:2.2rem;height:2.2rem;border-radius:50%;background:#172333;color:#fff}.cover-music-control strong,.cover-music-control span{display:block}.cover-music-control span{color:#747c85;font-size:.78rem}.cover-music-control .form-check{display:flex;align-items:center;gap:.5rem}
 .upgrade-plans-modal .modal-content{overflow:hidden;border:0;border-radius:1.25rem;box-shadow:0 2rem 6rem rgba(15,23,32,.22)}.upgrade-plans-modal .modal-header{padding:1.35rem 1.5rem;background:linear-gradient(135deg,#fffdf8,#f5ecd8)}.upgrade-modal-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.9rem}.upgrade-modal-plan{position:relative;display:flex;flex-direction:column;gap:.8rem;padding:1.1rem;border:1px solid #e5ded1;border-radius:1rem;background:#fff}.upgrade-modal-plan.is-recommended{border:2px solid #c8a96a;box-shadow:0 1rem 2.5rem rgba(181,144,62,.14)}.upgrade-modal-plan__badge{position:absolute;top:-.65rem;right:.7rem;padding:.25rem .5rem;border-radius:999px;background:#c8a96a;color:#172333;font-size:.62rem;font-weight:800;text-transform:uppercase}.upgrade-modal-plan__name{font-weight:700}.upgrade-modal-plan__price{font-size:1.45rem;color:#172333}.upgrade-modal-plan__facts{display:grid;gap:.35rem;color:#68717a;font-size:.78rem}.upgrade-modal-plan__facts span{display:flex;align-items:center;gap:.4rem}.upgrade-modal-plan form{margin-top:auto}.upgrade-modal-plan label{display:block;margin-bottom:.25rem;font-size:.72rem;font-weight:700}@media(max-width:991.98px){.upgrade-modal-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:575.98px){.upgrade-modal-grid{grid-template-columns:1fr}}
 .personality-message-grid__channels,.personality-message-grid__invitation{display:grid;align-content:start;gap:1rem}.personality-message-grid__channels{padding-right:1.5rem;border-right:1px solid #eee7da}.personality-message-grid__invitation{padding-left:1.5rem}.personality-message-box,.personality-message-field{display:grid;align-content:start;padding:1rem;border:1px solid #e7dfd1;border-radius:.85rem;background:#fcfaf5}.personality-message-box .form-label,.personality-message-field .form-label{margin-bottom:.55rem}.personality-message-box textarea{min-height:10rem}.personality-message-field textarea{min-height:8rem}.personality-message-field:has(textarea[name="story"]){min-height:13rem}.detail-switch--toggle{align-items:center;justify-content:space-between}.detail-switch--toggle>label{flex:1;cursor:pointer}.detail-switch--toggle .form-switch{flex:0 0 auto;margin:0;padding-left:2.8rem}.detail-switch--toggle .form-check-input{width:2.45rem;height:1.25rem;margin-left:-2.8rem;cursor:pointer}@media(max-width:991.98px){.personality-message-grid__channels{padding-right:calc(var(--bs-gutter-x)*.5);border-right:0;border-bottom:1px solid #eee7da;padding-bottom:1.5rem}.personality-message-grid__invitation{padding-left:calc(var(--bs-gutter-x)*.5)}}
+
+/* --- Compact mobile experience ------------------------------------ */
+.details-disclosure > summary { list-style: none; cursor: pointer; }
+.details-disclosure > summary::-webkit-details-marker { display: none; }
+.details-disclosure__chevron { margin-left: auto; color: #8b7650; transition: transform .18s ease; }
+.details-disclosure[open] .details-disclosure__chevron { transform: rotate(180deg); }
+.gift-card[hidden], .guest-table tbody tr[hidden] { display: none !important; }
+.gift-list-footer { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 1rem; padding: .8rem 1rem; border: 1px solid rgba(31,41,51,.1); border-radius: .8rem; background: #fff; }
+
+@media (max-width: 575.98px) {
+    body.app-body { font-size: .88rem; }
+    .app-navbar .container { min-height: 3.75rem; padding-right: .75rem; padding-left: .75rem; }
+    .app-navbar .navbar-brand { font-size: 1.25rem; }
+    .app-navbar .navbar-toggler { padding: .35rem .55rem; font-size: 1rem; }
+    main.container { padding: .9rem .75rem !important; }
+    main .row { --bs-gutter-x: 1rem; }
+    .app-footer { margin-top: 2.5rem !important; }
+    .app-footer__grid { gap: 1.25rem; padding-top: 2rem; padding-bottom: 1.5rem; }
+
+    .wedding-header { margin-bottom: 1rem !important; padding: .8rem; border-radius: .7rem; }
+    .wedding-header > .d-flex { gap: .65rem !important; }
+    .wedding-header h1 { font-size: 1.12rem !important; }
+    .wedding-header .small { font-size: .72rem; }
+    .wedding-nav { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .3rem; overflow: visible !important; margin-top: .75rem !important; padding-bottom: 0 !important; }
+    .wedding-nav .nav-item { min-width: 0; }
+    .wedding-nav .nav-link { display: flex; align-items: center; justify-content: center; min-height: 2.35rem; height: 100%; padding: .3rem .2rem; border: 1px solid rgba(31,41,51,.08); border-radius: .55rem; font-size: .67rem; line-height: 1.15; text-align: center; white-space: normal; }
+    .wedding-nav .nav-link i { margin-right: .25rem !important; }
+
+    .workspace-section-heading { display: grid; align-items: start; gap: .35rem; margin-bottom: 1rem !important; }
+    .workspace-section-heading > div { min-width: 0; }
+    .workspace-section-heading h2, .guest-workspace__header h2 { font-size: 1.2rem !important; }
+    .workspace-section-heading p, .guest-workspace__header p, .details-hero p { font-size: .8rem; line-height: 1.45; }
+    .workspace-section-heading > .btn, .guest-workspace__header > .btn { justify-self: stretch; width: 100%; padding: .5rem .7rem; font-size: .8rem; }
+    .workspace-eyebrow { font-size: .61rem; letter-spacing: .1em; }
+    .card-body.p-4 { padding: 1rem !important; }
+    .form-control, .form-select { min-height: 2.35rem; padding: .42rem .65rem; font-size: .8rem; }
+    .btn { --bs-btn-font-size: .8rem; }
+
+    .invitation-preview-studio { gap: 1rem; padding: 1rem .75rem 1.5rem; }
+    .invitation-preview-studio__eyebrow { margin-bottom: .5rem; font-size: .62rem; }
+    .invitation-preview-studio__info h3 { margin-bottom: .4rem; font-size: 1.55rem; }
+    .invitation-preview-studio__info > p { margin-bottom: .5rem; font-size: .8rem; line-height: 1.45; }
+    .invitation-preview-studio__sections { gap: .3rem; margin: .75rem 0; }
+    .invitation-preview-studio__sections span { padding: .25rem .48rem; font-size: .64rem; }
+    .invitation-preview-studio__hint { padding: .45rem 0; font-size: .7rem; }
+    .invitation-device { width: min(100%, 17rem); padding: .45rem; border-radius: 2.25rem; }
+    .invitation-device__screen { border-radius: 1.9rem; }
+    .invitation-device__island { top: .5rem; width: 5rem; height: 1.25rem; }
+
+    .details-hero { margin-bottom: .8rem; }
+    .details-hero h2 { font-size: 1.35rem; }
+    .details-save-state { font-size: .67rem; }
+    .details-panel { margin-bottom: .75rem; padding: .85rem; }
+    .details-panel__heading { gap: .55rem; margin-bottom: .8rem; }
+    .details-panel__heading h3 { font-size: .9rem; }
+    .details-panel__heading p { font-size: .7rem; }
+    .details-panel__number { flex-basis: 1.8rem; min-height: 1.8rem; }
+    .details-disclosure:not([open]) > summary { margin-bottom: 0; }
+    .cover-studio--phone { gap: 1rem; }
+    .cover-phone { width: 10.5rem; padding: .4rem; border-radius: 1.85rem; }
+    .cover-phone__screen { border-radius: 1.45rem; }
+    .cover-phone__island { top: .65rem; width: 3.8rem; height: .9rem; }
+    .cover-studio__controls { gap: .5rem; }
+    .cover-upload, .cover-music-control, .personality-message-box, .personality-message-field { padding: .75rem; }
+    .personality-message-box textarea, .personality-message-field textarea, .personality-message-field:has(textarea[name="story"]) { min-height: 6.5rem; }
+
+    .program-composer { margin-bottom: 1rem !important; }
+    .program-row { grid-template-columns: 2.35rem minmax(0, 1fr); min-height: 0; }
+    .program-row__when, .program-row__content, .program-row__actions { padding: .65rem .75rem; }
+    .program-row__when { padding-bottom: .15rem; }
+    .program-row__content { padding-top: .15rem; padding-bottom: .3rem; }
+    .program-row__when strong, .program-row__content h3 { font-size: .88rem; }
+    .program-row__when span, .program-row__content p { font-size: .72rem; }
+    .program-row__actions { padding-top: .25rem; }
+
+    .guest-workspace__header { gap: .65rem; margin-bottom: .8rem; }
+    .guest-table-toolbar { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .45rem; padding: .65rem; }
+    .guest-table-search, .guest-table-toolbar [data-export-excel] { grid-column: 1 / -1; }
+    .guest-table-toolbar .form-control, .guest-table-toolbar .form-select, .guest-table-toolbar .btn { min-width: 0; min-height: 2.35rem; font-size: .73rem; }
+    .guest-table-scroll { max-height: max(30rem, calc(100vh - 11rem)); overflow-x: hidden; overflow-y: auto; background: #f7f6f3; }
+    .guest-table { display: block; font-size: .77rem; }
+    .guest-table thead { display: none; }
+    .guest-table tbody { display: block; padding: .35rem; }
+    .guest-table tbody tr { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(3.25rem, .55fr) minmax(4.75rem, .8fr); margin-bottom: .4rem; overflow: hidden; border: 1px solid rgba(31,41,51,.11); border-radius: .65rem; background: #fff; }
+    .guest-table tbody td { display: flex; min-width: 0; flex-direction: column; align-items: flex-start; justify-content: center; padding: .4rem .55rem !important; border: 0; border-bottom: 1px solid rgba(31,41,51,.06); white-space: normal !important; overflow-wrap: anywhere; }
+    .guest-table tbody td::before { content: attr(data-label); margin-bottom: .08rem; color: #8b7650; font-size: .55rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+    .guest-table tbody td[data-label="Ordem"] { grid-column: 1; }
+    .guest-table tbody td[data-label="Convidado"] { grid-column: 2 / 4; }
+    .guest-table tbody td[data-label="Contacto"] { grid-column: 1; }
+    .guest-table tbody td[data-label="Lugares"] { grid-column: 2; }
+    .guest-table tbody td[data-label="Mesa / cadeira"] { grid-column: 3; }
+    .guest-table tbody td[data-label="Confirmação"] { grid-column: 1 / 3; }
+    .guest-table tbody td[data-label="Plano"] { grid-column: 3; }
+    .guest-table tbody td[data-label="Convite"] { grid-column: 1 / 4; align-items: flex-end; }
+    .guest-order { width: auto; }
+    .guest-note { max-width: 100%; }
+    .guest-seats { min-width: 1.55rem; height: 1.55rem; }
+    .guest-programme-pill, .guest-status { font-size: .64rem; }
+    .guest-plan-action { min-width: 0; padding: .25rem .45rem; font-size: .66rem; }
+    .guest-actions .btn, .guest-delete-action { width: 2rem; height: 2rem; }
+    .guest-table-footer { flex-direction: row; align-items: center; padding: .65rem; }
+    .guest-pagination { flex-wrap: wrap; }
+    .guest-pagination .btn { min-width: 2rem; padding: .3rem .45rem; }
+
+    .gift-grid { gap: .65rem; }
+    .gift-card { min-height: 0; padding: .8rem; border-radius: .75rem; }
+    .gift-card__icon { width: 2.1rem; height: 2.1rem; border-radius: .55rem; }
+    .gift-card h3 { margin: .55rem 0 .2rem; font-size: .92rem; }
+    .gift-card > p { margin-bottom: .3rem; font-size: .75rem; }
+    .gift-card__selection { margin-top: .35rem; padding: .5rem; font-size: .72rem; }
+    .gift-card__actions { margin-top: .55rem; }
+    .gift-list-footer { position: sticky; bottom: .5rem; z-index: 4; padding: .6rem .7rem; box-shadow: 0 .5rem 1.4rem rgba(31,41,51,.12); }
+
+    .subscription-plan-grid { grid-template-columns: 1fr !important; overflow: visible; }
+    .subscription-plan__header, .subscription-plan__action { padding: .85rem; }
+    .subscription-plan__features { padding: .75rem .85rem; }
+}

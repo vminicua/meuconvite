@@ -32,6 +32,7 @@ PLANS: list[dict] = [
         "duration_days": 0,
         "templates_limit": 0,
         "allows_qr_checkin": True,
+        "allows_exports": True,
         "allows_team": True,
         "is_default": True,
         "display_order": 10,
