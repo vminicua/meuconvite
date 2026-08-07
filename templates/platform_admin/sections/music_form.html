@@ -1,0 +1,12 @@
+<div class="section-head" data-section-title="Música">
+    <div><h1>{% if track %}{{ track.title }}{% else %}Nova música{% endif %}</h1><p>Edite os dados, o ficheiro e a disponibilidade desta faixa.</p></div>
+    <a class="btn btn-outline-secondary btn-sm" href="{% url 'platform:music' %}" hx-get="{% url 'platform:music' %}" hx-target="#admin-content" hx-push-url="true"><i class="bi bi-arrow-left me-1"></i>Músicas</a>
+</div>
+<div class="admin-card"><div class="admin-card__body">
+    <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+        {% include "partials/form_fields.html" %}
+        {% if track and track.file %}<audio class="admin-music-player admin-music-player--wide mt-3" controls preload="metadata" src="{{ track.file.url }}"></audio>{% endif %}
+        <div class="d-flex gap-2 mt-4"><button type="submit" class="btn btn-primary">Guardar música</button><a class="btn btn-outline-secondary" href="{% url 'platform:music' %}">Cancelar</a></div>
+    </form>
+</div></div>

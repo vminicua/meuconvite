@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from templates_manager.models import InvitationTemplate
-from weddings.models import Wedding, WeddingGalleryPhoto, WeddingMember, WeddingRole
+from weddings.models import MusicTrack, Wedding, WeddingGalleryPhoto, WeddingMember, WeddingRole
 
 from .factories import (
     DEFAULT_PASSWORD,
@@ -236,7 +236,8 @@ class DashboardViewTests(TestCase):
         response = self.client.get(url)
         self.assertContains(response, "Capa do convite")
         self.assertContains(response, "Música do convite")
-        self.assertContains(response, 'id="id_invitation_music"', html=False)
+        self.assertContains(response, 'id="id_invitation_track"', html=False)
+        self.assertContains(response, 'id="id_music_upload"', html=False)
         self.assertContains(response, 'id="id_show_music"', html=False)
         self.assertContains(response, 'id="id_whatsapp_invitation_message"', html=False)
         self.assertContains(response, "Mensagem da capa")
@@ -272,6 +273,30 @@ class DashboardViewTests(TestCase):
         preview = self.client.get(reverse("weddings:invitation_preview", args=[self.wedding.pk]))
         self.assertContains(preview, "O nosso grande dia começa aqui")
         self.assertContains(preview, "É com muita alegria que queremos celebrar consigo.")
+
+    def test_uploaded_music_enters_the_catalogue_and_is_selected(self) -> None:
+        url = reverse("weddings:detail", args=[self.wedding.pk])
+        response = self.client.post(url, {
+            "primary_name": self.wedding.primary_name,
+            "secondary_name": self.wedding.secondary_name,
+            "main_date": self.wedding.main_date.isoformat(),
+            "country": self.wedding.country,
+            "cover_message": self.wedding.cover_message,
+            "invitation_message": self.wedding.invitation_message,
+            "sms_invitation_message": self.wedding.sms_invitation_message,
+            "whatsapp_invitation_message": self.wedding.whatsapp_invitation_message,
+            "show_seat_before_event": self.wedding.show_seat_before_event,
+            "music_upload": SimpleUploadedFile(
+                "Artista - A Nossa Música.mp3", b"ID3" + b"0" * 128,
+                content_type="audio/mpeg",
+            ),
+        })
+        self.assertRedirects(response, url)
+        track = MusicTrack.objects.get()
+        self.assertEqual(track.title, "A Nossa Música")
+        self.assertEqual(track.artist, "Artista")
+        self.wedding.refresh_from_db()
+        self.assertEqual(self.wedding.invitation_track, track)
 
     def test_short_names_are_updated_automatically_from_complete_names(self) -> None:
         url = reverse("weddings:detail", args=[self.wedding.pk])
@@ -410,7 +435,7 @@ class DesignViewTests(TestCase):
         self.assertNotContains(response, "Cor principal")
         self.assertNotContains(response, "Cor secundária")
         self.assertNotContains(response, 'id="id_cover_image"', html=False)
-        self.assertNotContains(response, 'id="id_invitation_music"', html=False)
+        self.assertNotContains(response, 'id="id_invitation_track"', html=False)
         self.assertEqual(
             response.content.count(b'class="template-choice '),
             len(response.context["templates"]),

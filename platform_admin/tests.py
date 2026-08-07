@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
 
@@ -9,7 +10,7 @@ from events.models import EventCategory
 from subscriptions import services as subscription_services
 from subscriptions.models import PaymentStatus, Plan, Voucher
 from subscriptions.tests import create_paid_plan
-from weddings.models import WeddingStatus
+from weddings.models import MusicTrack, WeddingStatus
 from weddings.tests.factories import (
     DEFAULT_PASSWORD,
     create_category,
@@ -71,6 +72,38 @@ class LayoutTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, "admin-sidebar")
         self.assertContains(response, 'data-section-title="Eventos"')
+
+
+class MusicSectionTests(TestCase):
+    def setUp(self) -> None:
+        self.staff = create_user("musica@example.com", is_staff=True)
+        self.client.login(email=self.staff.email, password=DEFAULT_PASSWORD)
+
+    def test_staff_can_create_and_manage_music(self) -> None:
+        response = self.client.post(
+            reverse("platform:music_create"),
+            {
+                "title": "Ordinary",
+                "artist": "Alex Warren",
+                "file": SimpleUploadedFile(
+                    "ordinary.mp3", b"ID3" + b"0" * 128,
+                    content_type="audio/mpeg",
+                ),
+                "is_default": "on",
+                "is_active": "on",
+                "display_order": 10,
+            },
+        )
+        self.assertRedirects(response, reverse("platform:music"))
+        track = MusicTrack.objects.get()
+        self.assertTrue(track.is_default)
+        self.assertEqual(track.uploaded_by, self.staff)
+        self.assertContains(self.client.get(reverse("platform:music")), "Ordinary")
+
+        self.client.post(reverse("platform:music_toggle", args=[track.pk]))
+        track.refresh_from_db()
+        self.assertFalse(track.is_active)
+        self.assertFalse(track.is_default)
 
 
 class ConfigurationTests(TestCase):

@@ -61,6 +61,11 @@ actualiza o URL, para a mudança de secção ser instantânea.
             <i class="bi bi-palette"></i><span>Templates</span>
         </a>
 
+        <a class="admin-nav__item {% if section == 'music' %}is-active{% endif %}"
+           href="{% url 'platform:music' %}" hx-get="{% url 'platform:music' %}">
+            <i class="bi bi-music-note-list"></i><span>Músicas</span>
+        </a>
+
         <a class="admin-nav__item {% if section == 'settings' %}is-active{% endif %}"
            href="{% url 'platform:settings' %}" hx-get="{% url 'platform:settings' %}">
             <i class="bi bi-gear"></i><span>Configurações</span>

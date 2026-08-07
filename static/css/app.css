@@ -19,6 +19,17 @@
     --bs-font-sans-serif: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
 }
 
+.music-library { display:grid; gap:.55rem; max-height:18rem; margin-top:.75rem; overflow:auto; }
+.music-library__track { display:grid; grid-template-columns:minmax(0,1fr) minmax(12rem,18rem); align-items:center; gap:.75rem; padding:.65rem .75rem; border:1px solid #eadfc8; border-radius:.7rem; background:#fff; }
+.music-library__track strong { font-size:.82rem; color:#1f2933; }
+.music-library__track span { margin-top:.1rem; font-size:.7rem; }
+.music-library__track audio { width:100%; height:2.25rem; }
+.music-upload-box { margin-top:.85rem; padding:.75rem; border:1px dashed #caaa65; border-radius:.7rem; background:rgba(255,255,255,.62); }
+@media (max-width: 575.98px) {
+    .music-library { max-height:15rem; }
+    .music-library__track { grid-template-columns:1fr; gap:.4rem; padding:.6rem; }
+}
+
 body.app-body {
     background-color: #f7f6f3;
     min-height: 100vh;

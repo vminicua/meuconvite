@@ -500,3 +500,8 @@ table.dataTable thead th {
 .admin-template-cover--generated .template-cover-art__frame small,.admin-template-cover--generated .template-cover-art__frame em,.admin-template-cover--generated .template-cover-art__frame button,.admin-template-cover--generated .template-cover-art__frame i { display:none; }
 .admin-template-cover--generated .template-cover-art__monogram { font-size:.85rem; margin:auto 0 .15rem; }
 .admin-template-cover--generated .template-cover-art__frame strong { font-size:.42rem; line-height:1.1; margin:auto 0; }
+.admin-music-player { width: min(22rem, 45vw); height: 2.5rem; vertical-align: middle; }
+.admin-music-player--wide { width: min(100%, 34rem); }
+@media (max-width: 767.98px) {
+    .admin-music-player { width: 12rem; max-width: 100%; }
+}

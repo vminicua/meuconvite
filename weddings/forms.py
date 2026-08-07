@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import re
 import string
 from datetime import timedelta
+from pathlib import Path
 
 from django import forms
 from django.conf import settings
@@ -12,7 +14,7 @@ from django.utils.translation import gettext_lazy as _
 from core.forms import BootstrapForm, BootstrapModelForm
 from core.schema import add_schema_fields, collect_schema_values
 from core.utils import strip_accents
-from core.validators import validate_image_upload
+from core.validators import validate_audio_upload, validate_image_upload
 from templates_manager import registry
 
 from .models import (
@@ -20,6 +22,7 @@ from .models import (
     DEFAULT_WHATSAPP_INVITATION_MESSAGE,
     SMS_MAX_LENGTH,
     SMS_TEMPLATE_MAX_LENGTH,
+    MusicTrack,
     Wedding,
     WeddingGalleryPhoto,
     WeddingMember,
@@ -116,9 +119,27 @@ class WeddingSettingsForm(BootstrapModelForm):
         widget=forms.Textarea(attrs={"rows": 7, "maxlength": 1000}),
         help_text=_("Pode usar {nome}, {evento} e {link}."),
     )
+    invitation_track = forms.ModelChoiceField(
+        label=_("Música escolhida"),
+        queryset=MusicTrack.objects.none(),
+        required=False,
+        empty_label=_("Música padrão do convite"),
+    )
+    music_upload = forms.FileField(
+        label=_("Adicionar uma nova música"),
+        required=False,
+        validators=[validate_audio_upload],
+        widget=forms.ClearableFileInput(
+            attrs={"accept": ".mp3,.m4a,.ogg,audio/mpeg,audio/mp4,audio/ogg"}
+        ),
+        help_text=_("MP3, M4A ou OGG · até 15 MB. A faixa ficará disponível no catálogo."),
+    )
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+        self.fields["invitation_track"].queryset = MusicTrack.objects.filter(
+            is_active=True
+        ).order_by("display_order", "artist", "title")
         category = getattr(self.instance, "category", None)
         if not self.is_bound and self.instance and self.instance.pk:
             names = self.instance.display_names
@@ -181,6 +202,23 @@ class WeddingSettingsForm(BootstrapModelForm):
             return self.instance.extra_data or {}
         return collect_schema_values(self, category.extra_fields)
 
+    def create_uploaded_track(self, *, actor) -> MusicTrack | None:
+        upload = self.cleaned_data.get("music_upload")
+        if not upload:
+            return None
+        stem = re.sub(r"[_]+", " ", Path(upload.name).stem).strip()
+        parts = [part.strip() for part in stem.split(" - ", 1)]
+        artist, title = (parts[0], parts[1]) if len(parts) == 2 else ("", stem)
+        track = MusicTrack.objects.create(
+            title=(title or _("Música personalizada"))[:180],
+            artist=artist[:180],
+            file=upload,
+            uploaded_by=actor,
+            display_order=100,
+        )
+        self.cleaned_data["invitation_track"] = track
+        return track
+
     class Meta:
         model = Wedding
         fields = [
@@ -189,7 +227,7 @@ class WeddingSettingsForm(BootstrapModelForm):
             "main_date",
             "country",
             "cover_image",
-            "invitation_music",
+            "invitation_track",
             "show_music",
             "cover_message",
             "invitation_message",
@@ -212,9 +250,6 @@ class WeddingSettingsForm(BootstrapModelForm):
             "cover_image": forms.ClearableFileInput(attrs={
                 "accept": "image/jpeg,image/png,image/webp",
                 "data-cover-input": "",
-            }),
-            "invitation_music": forms.ClearableFileInput(attrs={
-                "accept": "audio/mpeg,audio/mp4,audio/ogg",
             }),
         }
         help_texts = {

@@ -3,7 +3,16 @@ from __future__ import annotations
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 
-from .models import Wedding, WeddingGalleryPhoto, WeddingMember
+from .models import MusicTrack, Wedding, WeddingGalleryPhoto, WeddingMember
+
+
+@admin.register(MusicTrack)
+class MusicTrackAdmin(admin.ModelAdmin):
+    list_display = ("title", "artist", "is_default", "is_active", "display_order", "created_at")
+    list_filter = ("is_default", "is_active", "created_at")
+    search_fields = ("title", "artist")
+    autocomplete_fields = ("uploaded_by",)
+    ordering = ("display_order", "artist", "title")
 
 
 class WeddingMemberInline(admin.TabularInline):
@@ -59,6 +68,7 @@ class WeddingGalleryPhotoAdmin(admin.ModelAdmin):
                 "selected_template",
                 ("primary_color", "secondary_color"),
                 "invitation_music",
+                "invitation_track",
                 "show_music",
                 "show_countdown",
                 "show_seat_before_event",

@@ -180,14 +180,19 @@ def wedding_detail(request: HttpRequest, wedding) -> HttpResponse:
             raise Http404
         form = WeddingSettingsForm(request.POST, request.FILES, instance=wedding)
         if form.is_valid():
-            data = {
-                key: value for key, value in form.cleaned_data.items()
-                if not key.startswith("extra__")
-            }
-            if not capabilities["allows_sms"]:
-                data["sms_invitation_message"] = wedding.sms_invitation_message
-            data["extra_data"] = form.extra_data()
-            services.update_wedding(wedding=wedding, data=data, actor=request.user, request=request)
+            with transaction.atomic():
+                form.create_uploaded_track(actor=request.user)
+                data = {
+                    key: value for key, value in form.cleaned_data.items()
+                    if not key.startswith("extra__") and key != "music_upload"
+                }
+                if not capabilities["allows_sms"]:
+                    data["sms_invitation_message"] = wedding.sms_invitation_message
+                data["invitation_music"] = ""
+                data["extra_data"] = form.extra_data()
+                services.update_wedding(
+                    wedding=wedding, data=data, actor=request.user, request=request
+                )
             messages.success(request, "Detalhes do evento actualizados.")
             return redirect("weddings:detail", wedding_id=wedding.pk)
         messages.error(request, "Corrija os campos assinalados.")
@@ -213,6 +218,7 @@ def wedding_detail(request: HttpRequest, wedding) -> HttpResponse:
             "guests_remaining": limits.guests_remaining(guests_used),
             "usage_percent": limits.usage_percent(guests_used),
             "form": form,
+            "music_tracks": form.fields["invitation_track"].queryset,
             "capabilities": capabilities,
             "selected_template": selected_template,
             "locations": locations,
@@ -247,11 +253,19 @@ def wedding_settings(request: HttpRequest, wedding) -> HttpResponse:
     if request.method == "POST":
         form = WeddingSettingsForm(request.POST, request.FILES, instance=wedding)
         if form.is_valid():
-            data = {key: value for key, value in form.cleaned_data.items() if not key.startswith("extra__")}
-            if not capabilities["allows_sms"]:
-                data["sms_invitation_message"] = wedding.sms_invitation_message
-            data["extra_data"] = form.extra_data()
-            services.update_wedding(wedding=wedding, data=data, actor=request.user, request=request)
+            with transaction.atomic():
+                form.create_uploaded_track(actor=request.user)
+                data = {
+                    key: value for key, value in form.cleaned_data.items()
+                    if not key.startswith("extra__") and key != "music_upload"
+                }
+                if not capabilities["allows_sms"]:
+                    data["sms_invitation_message"] = wedding.sms_invitation_message
+                data["invitation_music"] = ""
+                data["extra_data"] = form.extra_data()
+                services.update_wedding(
+                    wedding=wedding, data=data, actor=request.user, request=request
+                )
             messages.success(request, "Detalhes do evento actualizados.")
             return redirect("weddings:settings", wedding_id=wedding.pk)
         messages.error(request, "Corrija os campos assinalados.")
@@ -272,6 +286,7 @@ def wedding_settings(request: HttpRequest, wedding) -> HttpResponse:
         "guests_remaining": limits.guests_remaining(guests_used),
         "usage_percent": limits.usage_percent(guests_used),
         "form": form,
+        "music_tracks": form.fields["invitation_track"].queryset,
         "capabilities": capabilities,
         "selected_template": registry.get_template(wedding.selected_template),
         "locations": locations,

@@ -30,7 +30,7 @@ from events.models import EventCategory
 from subscriptions import services as subscription_services
 from subscriptions.models import Payment, PaymentProvider, PaymentStatus, Plan, Voucher
 from subscriptions.payzeno import PayzenoError
-from weddings.models import Wedding, WeddingStatus
+from weddings.models import MusicTrack, Wedding, WeddingStatus
 
 from . import selectors
 from .forms import (
@@ -592,6 +592,73 @@ def template_preview(request: HttpRequest, template_id) -> HttpResponse:
     )
     context["embedded"] = True
     return render(request, "invitations/preview.html", context)
+
+
+# ---------------------------------------------------------------------
+# Músicas
+# ---------------------------------------------------------------------
+
+
+@staff_member_required
+def music_tracks(request: HttpRequest) -> HttpResponse:
+    return _render(
+        request,
+        "music",
+        "platform_admin/sections/music.html",
+        {"music_tracks": MusicTrack.objects.select_related("uploaded_by").all()},
+    )
+
+
+@staff_member_required
+def music_track_form(request: HttpRequest, track_id=None) -> HttpResponse:
+    from .forms import MusicTrackForm
+
+    track = get_object_or_404(MusicTrack, pk=track_id) if track_id else None
+    if request.method == "POST":
+        form = MusicTrackForm(request.POST, request.FILES, instance=track)
+        if form.is_valid():
+            old_data = model_to_dict(track) if track else {}
+            saved = form.save(commit=False)
+            if not saved.uploaded_by_id:
+                saved.uploaded_by = request.user
+            saved.save()
+            if track:
+                log_update(saved, old_data=old_data, actor=request.user, request=request)
+            else:
+                log_action(
+                    action=AuditAction.CREATE,
+                    actor=request.user,
+                    request=request,
+                    instance=saved,
+                )
+            messages.success(request, f"Música «{saved.title}» guardada.")
+            return redirect("platform:music")
+        messages.error(request, "Corrija os erros assinalados.")
+    else:
+        form = MusicTrackForm(instance=track)
+    return _render(
+        request,
+        "music",
+        "platform_admin/sections/music_form.html",
+        {"form": form, "track": track},
+    )
+
+
+@require_POST
+@staff_member_required
+def music_track_toggle(request: HttpRequest, track_id) -> HttpResponse:
+    track = get_object_or_404(MusicTrack, pk=track_id)
+    old_data = model_to_dict(track)
+    track.is_active = not track.is_active
+    if not track.is_active:
+        track.is_default = False
+    track.save(update_fields=["is_active", "is_default", "updated_at"])
+    log_update(track, old_data=old_data, actor=request.user, request=request)
+    messages.info(
+        request,
+        f"Música «{track.title}» {'ativada' if track.is_active else 'ocultada'}.",
+    )
+    return redirect("platform:music")
 
 
 # ---------------------------------------------------------------------

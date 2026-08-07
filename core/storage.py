@@ -38,6 +38,10 @@ def wedding_music_upload_to(instance, filename: str) -> str:
     return _build_path("weddings/music", instance.pk or uuid.uuid4(), filename, "mp3")
 
 
+def music_track_upload_to(instance, filename: str) -> str:
+    return _build_path("music/library", instance.pk or uuid.uuid4(), filename, "mp3")
+
+
 def user_avatar_upload_to(instance, filename: str) -> str:
     return _build_path("users/avatars", instance.pk or uuid.uuid4(), filename)
 

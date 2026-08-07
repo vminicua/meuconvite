@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import date
+from functools import cached_property
 
 from django.conf import settings
 from django.db import models
@@ -10,6 +11,7 @@ from django.utils.translation import gettext_lazy as _
 
 from core.models import BaseModel
 from core.storage import (
+    music_track_upload_to,
     wedding_cover_upload_to,
     wedding_gallery_upload_to,
     wedding_music_upload_to,
@@ -88,6 +90,41 @@ class WeddingQuerySet(models.QuerySet):
 
     def published(self) -> "WeddingQuerySet":
         return self.filter(status=WeddingStatus.PUBLISHED)
+
+
+class MusicTrack(BaseModel):
+    """Faixa reutilizável no catálogo musical dos convites."""
+
+    title = models.CharField(_("título"), max_length=180)
+    artist = models.CharField(_("artista"), max_length=180, blank=True)
+    file = models.FileField(
+        _("ficheiro"), upload_to=music_track_upload_to, validators=[validate_audio_upload]
+    )
+    uploaded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name=_("enviada por"),
+        on_delete=models.SET_NULL,
+        related_name="uploaded_music_tracks",
+        null=True,
+        blank=True,
+    )
+    is_default = models.BooleanField(_("música padrão"), default=False)
+    is_active = models.BooleanField(_("disponível"), default=True, db_index=True)
+    display_order = models.PositiveIntegerField(_("posição"), default=100)
+
+    class Meta:
+        verbose_name = _("música")
+        verbose_name_plural = _("músicas")
+        ordering = ["display_order", "artist", "title"]
+        indexes = [models.Index(fields=["is_active", "display_order"], name="music_active_order_idx")]
+
+    def __str__(self) -> str:
+        return f"{self.title} — {self.artist}" if self.artist else self.title
+
+    def save(self, *args, **kwargs) -> None:
+        super().save(*args, **kwargs)
+        if self.is_default:
+            type(self).objects.exclude(pk=self.pk).filter(is_default=True).update(is_default=False)
 
 
 class Wedding(BaseModel):
@@ -225,6 +262,14 @@ class Wedding(BaseModel):
         null=True,
         validators=[validate_audio_upload],
     )
+    invitation_track = models.ForeignKey(
+        MusicTrack,
+        verbose_name=_("música escolhida"),
+        on_delete=models.SET_NULL,
+        related_name="weddings",
+        null=True,
+        blank=True,
+    )
 
     # --- Behaviour ---
     status = models.CharField(
@@ -275,6 +320,16 @@ class Wedding(BaseModel):
         return super().save(*args, **kwargs)
 
     # --- Derived information -----------------------------------------
+    @cached_property
+    def resolved_music(self):
+        """Ficheiro escolhido, upload legado ou faixa padrão do catálogo."""
+        if self.invitation_track_id and self.invitation_track and self.invitation_track.is_active:
+            return self.invitation_track.file
+        if self.invitation_music:
+            return self.invitation_music
+        default_track = MusicTrack.objects.filter(is_active=True, is_default=True).first()
+        return default_track.file if default_track else None
+
     @property
     def names_separator(self) -> str:
         return self.category.names_separator if self.category_id else "&"

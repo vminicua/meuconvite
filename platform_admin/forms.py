@@ -11,6 +11,7 @@ from core.schema import FIELD_TYPES, MAX_FIELDS, slugify_key, validate_schema
 from events.models import EventCategory
 from subscriptions.models import Plan, Voucher
 from templates_manager.models import InvitationTemplate
+from weddings.models import MusicTrack
 from .models import PlatformConfiguration
 
 
@@ -367,6 +368,30 @@ class InvitationTemplateForm(BootstrapModelForm):
                 selected.append(parameter)
         cleaned["google_fonts"] = "|".join(selected)
         return cleaned
+
+
+class MusicTrackForm(BootstrapModelForm):
+    """Catálogo global de músicas disponíveis nos convites."""
+
+    class Meta:
+        model = MusicTrack
+        fields = [
+            "title", "artist", "file", "is_default", "is_active", "display_order"
+        ]
+        widgets = {
+            "file": forms.ClearableFileInput(
+                attrs={"accept": ".mp3,.m4a,.ogg,audio/mpeg,audio/mp4,audio/ogg"}
+            ),
+        }
+        labels = {
+            "display_order": _("Posição no catálogo"),
+            "is_default": _("Usar como música padrão"),
+            "is_active": _("Disponível para seleção"),
+        }
+        help_texts = {
+            "file": _("MP3, M4A ou OGG · até 15 MB."),
+            "is_default": _("Substitui automaticamente a faixa padrão anterior."),
+        }
 
 
 class BlockEventForm(BootstrapForm):

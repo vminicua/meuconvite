@@ -42,6 +42,11 @@ urlpatterns = [
     path("templates/novo/", views.template_form, name="template_create"),
     path("templates/<uuid:template_id>/", views.template_form, name="template_edit"),
     path("templates/<uuid:template_id>/pre-visualizar/", views.template_preview, name="template_preview"),
+    # Músicas do convite
+    path("musicas/", views.music_tracks, name="music"),
+    path("musicas/nova/", views.music_track_form, name="music_create"),
+    path("musicas/<uuid:track_id>/", views.music_track_form, name="music_edit"),
+    path("musicas/<uuid:track_id>/alternar/", views.music_track_toggle, name="music_toggle"),
     # Auditoria
     path("auditoria/", views.audit, name="audit"),
 ]

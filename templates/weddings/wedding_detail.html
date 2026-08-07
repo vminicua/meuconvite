@@ -37,10 +37,27 @@
                     {% for error in form.cover_image.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
                     <div class="cover-music-control">
                         <div><i class="bi bi-music-note-beamed"></i><div><strong>Música do convite</strong><span>Acompanha a abertura e a leitura.</span></div></div>
-                        <label class="form-label" for="{{ form.invitation_music.id_for_label }}">Escolher música</label>{{ form.invitation_music }}
-                        <div class="form-text">MP3, M4A ou OGG · até 8 MB.</div>
+                        <label class="form-label" for="{{ form.invitation_track.id_for_label }}">Escolher música</label>
+                        {{ form.invitation_track }}
+                        {% for error in form.invitation_track.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        {% if music_tracks %}
+                        <div class="music-library" aria-label="Pré-visualização das músicas disponíveis">
+                            {% for track in music_tracks %}
+                            <div class="music-library__track">
+                                <div><strong>{{ track.title }}</strong><span>{% if track.artist %}{{ track.artist }}{% else %}Música personalizada{% endif %}{% if track.is_default %} · padrão{% endif %}</span></div>
+                                <audio controls preload="none" src="{{ track.file.url }}">O seu navegador não suporta áudio.</audio>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        <div class="music-upload-box">
+                            <label class="form-label" for="{{ form.music_upload.id_for_label }}">{{ form.music_upload.label }}</label>
+                            {{ form.music_upload }}
+                            <div class="form-text">{{ form.music_upload.help_text }}</div>
+                            {% for error in form.music_upload.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        </div>
                         <label class="form-check mt-2">{{ form.show_music }}<span class="form-check-label">Reproduzir ao abrir o convite</span></label>
-                        {% for error in form.invitation_music.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}{% for error in form.show_music.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        {% for error in form.show_music.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
                     </div>
                 </div>
             </div>
