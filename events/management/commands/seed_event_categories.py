@@ -56,6 +56,37 @@ CATEGORIES: list[dict] = [
         "display_order": 10,
     },
     {
+        "code": "evento-corporativo",
+        "name": "Evento corporativo",
+        "description": "Conferências, lançamentos, jantares de empresa.",
+        "icon": "bi-briefcase",
+        "uses_two_names": False,
+        "primary_label": "Nome do evento",
+        "invitation_greeting": "tem o prazer de o convidar para",
+        "field_schema": [
+            {"key": "organizacao", "label": "Organização anfitriã", "type": "text", "required": True},
+            {"key": "tipo_evento_corporativo", "label": "Formato do evento", "type": "choice", "required": True, "choices": ["Conferência", "Seminário", "Workshop", "Lançamento", "Networking", "Gala corporativa", "Team building", "Outro"]},
+            {"key": "modalidade", "label": "Modalidade", "type": "choice", "required": True, "choices": ["Presencial", "Híbrido", "Online"]},
+            {"key": "publico_alvo", "label": "Público-alvo", "type": "text"},
+            {"key": "tema_objetivo", "label": "Tema ou objetivo", "type": "textarea"},
+            {"key": "orador", "label": "Orador principal", "type": "text"},
+            {"key": "contacto_evento", "label": "Contacto do evento", "type": "text"},
+            {"key": "link_registo", "label": "Ligação de registo ou transmissão", "type": "url"},
+            {"key": "patrocinadores", "label": "Parceiros ou patrocinadores", "type": "list"},
+            {"key": "codigo_vestuario", "label": "Código de vestuário", "type": "choice", "choices": list(DRESS_CODE_CHOICES)},
+        ],
+        "default_moments": [{"name": "Sessão de abertura", "event_type": "custom", "start_time": "09:00", "requires_rsvp": True, "requires_qr_code": True}],
+        "default_schedule": [
+            {"title": "Registo dos participantes", "start_time": "08:30", "icon": "bi-person-badge"},
+            {"title": "Sessão de abertura", "start_time": "09:00", "icon": "bi-mic"},
+            {"title": "Painel principal", "start_time": "09:30", "icon": "bi-people"},
+            {"title": "Intervalo", "start_time": "10:30", "icon": "bi-cup-hot"},
+            {"title": "Sessões e networking", "start_time": "11:00", "icon": "bi-diagram-3"},
+            {"title": "Encerramento", "start_time": "16:00", "icon": "bi-flag"},
+        ],
+        "display_order": 15,
+    },
+    {
         "code": "lobolo",
         "name": "Lobolo",
         "description": "Cerimónia tradicional entre as duas famílias.",
@@ -68,6 +99,7 @@ CATEGORIES: list[dict] = [
         "field_schema": [
             {"key": "porta_voz", "label": "Porta-voz da família", "type": "text"},
             {"key": "instrucoes_familia", "label": "Instruções às famílias", "type": "textarea"},
+            {"key": "traje_tradicional", "label": "Traje ou orientação tradicional", "type": "text"},
         ],
         "default_moments": [
             {"name": "Lobolo", "event_type": "lobolo", "start_time": "08:00",
@@ -91,6 +123,7 @@ CATEGORIES: list[dict] = [
         "field_schema": [
             {"key": "idade", "label": "Idade a celebrar", "type": "number"},
             {"key": "tema", "label": "Tema da festa", "type": "text"},
+            {"key": "traje", "label": "Traje", "type": "choice", "choices": list(DRESS_CODE_CHOICES)},
         ],
         "default_moments": [
             {"name": "Festa", "event_type": "custom", "start_time": "15:00",
@@ -114,6 +147,7 @@ CATEGORIES: list[dict] = [
         "field_schema": [
             {"key": "padrinhos", "label": "Padrinhos", "type": "text"},
             {"key": "paroquia", "label": "Paróquia", "type": "text"},
+            {"key": "celebrante", "label": "Celebrante", "type": "text"},
         ],
         "default_moments": [
             {"name": "Cerimónia Religiosa", "event_type": "religious", "start_time": "10:00",
@@ -139,6 +173,7 @@ CATEGORIES: list[dict] = [
         "field_schema": [
             {"key": "curso", "label": "Curso", "type": "text"},
             {"key": "instituicao", "label": "Instituição", "type": "text"},
+            {"key": "qualificacao", "label": "Grau ou qualificação", "type": "text"},
         ],
         "default_moments": [
             {"name": "Cerimónia de Graduação", "event_type": "custom", "start_time": "10:00",
@@ -163,6 +198,8 @@ CATEGORIES: list[dict] = [
         "invitation_greeting": "convida-o para o chá de bebé de",
         "field_schema": [
             {"key": "nome_bebe", "label": "Nome do bebé", "type": "text"},
+            {"key": "previsao_nascimento", "label": "Previsão de nascimento", "type": "date"},
+            {"key": "tema", "label": "Tema ou paleta", "type": "text"},
         ],
         "default_moments": [
             {"name": "Chá de bebé", "event_type": "custom", "start_time": "15:00",
@@ -176,57 +213,6 @@ CATEGORIES: list[dict] = [
         "display_order": 60,
     },
     {
-        "code": "evento-corporativo",
-        "name": "Evento corporativo",
-        "description": "Conferências, lançamentos, jantares de empresa.",
-        "icon": "bi-briefcase",
-        "uses_two_names": False,
-        "primary_label": "Nome do evento",
-        "invitation_greeting": "tem o prazer de o convidar para",
-        "field_schema": [
-            {"key": "organizacao", "label": "Organização anfitriã", "type": "text", "required": True},
-            {
-                "key": "tipo_evento_corporativo",
-                "label": "Formato do evento",
-                "type": "choice",
-                "required": True,
-                "choices": ["Conferência", "Seminário", "Workshop", "Lançamento", "Networking", "Gala corporativa", "Team building", "Outro"],
-            },
-            {
-                "key": "modalidade",
-                "label": "Modalidade",
-                "type": "choice",
-                "required": True,
-                "choices": ["Presencial", "Híbrido", "Online"],
-            },
-            {"key": "publico_alvo", "label": "Público-alvo", "type": "text"},
-            {"key": "tema_objetivo", "label": "Tema ou objetivo", "type": "textarea"},
-            {"key": "orador", "label": "Orador principal", "type": "text"},
-            {"key": "contacto_evento", "label": "Contacto do evento", "type": "text"},
-            {"key": "link_registo", "label": "Ligação de registo ou transmissão", "type": "url"},
-            {"key": "patrocinadores", "label": "Parceiros ou patrocinadores", "type": "list"},
-            {
-                "key": "codigo_vestuario",
-                "label": "Código de vestuário",
-                "type": "choice",
-                "choices": list(DRESS_CODE_CHOICES),
-            },
-        ],
-        "default_moments": [
-            {"name": "Sessão de abertura", "event_type": "custom", "start_time": "09:00",
-             "requires_rsvp": True, "requires_qr_code": True},
-        ],
-        "default_schedule": [
-            {"title": "Registo dos participantes", "start_time": "08:30", "icon": "bi-person-badge"},
-            {"title": "Sessão de abertura", "start_time": "09:00", "icon": "bi-mic"},
-            {"title": "Painel principal", "start_time": "09:30", "icon": "bi-people"},
-            {"title": "Intervalo", "start_time": "10:30", "icon": "bi-cup-hot"},
-            {"title": "Sessões e networking", "start_time": "11:00", "icon": "bi-diagram-3"},
-            {"title": "Encerramento", "start_time": "16:00", "icon": "bi-flag"},
-        ],
-        "display_order": 70,
-    },
-    {
         "code": "outro",
         "name": "Outro evento",
         "description": "Qualquer outra celebração, com os campos que quiser.",
@@ -234,7 +220,12 @@ CATEGORIES: list[dict] = [
         "uses_two_names": False,
         "primary_label": "Nome do evento",
         "invitation_greeting": "convida-o para",
-        "field_schema": [],
+        "field_schema": [
+            {"key": "tipo_evento", "label": "Tipo de evento", "type": "text", "required": True},
+            {"key": "anfitriao", "label": "Anfitrião ou organização", "type": "text"},
+            {"key": "tema", "label": "Tema ou objetivo", "type": "textarea"},
+            {"key": "traje", "label": "Traje", "type": "choice", "choices": list(DRESS_CODE_CHOICES)},
+        ],
         "default_moments": [
             {"name": "Evento", "event_type": "custom", "requires_rsvp": True},
         ],

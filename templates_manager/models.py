@@ -88,6 +88,7 @@ class InvitationLayout(models.TextChoices):
     BOTANICAL = "envelope_botanico", _("Envelope botânico")
     CLASSIC_CARD = "cartao_classico", _("Cartão clássico")
     CORPORATE = "corporativo", _("Evento corporativo")
+    THEMATIC = "evento_tematico", _("Evento temático")
 
 
 class InvitationTemplateQuerySet(models.QuerySet):
@@ -101,20 +102,18 @@ class InvitationTemplateQuerySet(models.QuerySet):
         """
         Templates aplicáveis a um tipo de evento.
 
-        Um template sem tipos associados serve para todos — é o caso
-        comum, e evita ter de manter listas longas na administração.
+        As coleções são explícitas: cada categoria apresenta apenas os
+        modelos concebidos para o seu contexto e respetivos campos.
         """
         queryset = self.active()
         if category is None:
             return queryset
-        # Corporate invitations have their own content structure and visual
-        # language.  Never leak a global celebration/wedding template into
-        # this category merely because its category list is empty.
-        if category.code == "evento-corporativo":
-            return queryset.filter(categories=category).distinct()
-        return queryset.filter(
-            models.Q(categories__isnull=True) | models.Q(categories=category)
-        ).distinct()
+        category_templates = queryset.filter(categories=category).distinct()
+        if category_templates.exists():
+            return category_templates
+        # Compatibility for categories created dynamically by administrators:
+        # until a curated collection is assigned, offer only legacy globals.
+        return queryset.filter(categories__isnull=True).distinct()
 
 
 class InvitationTemplate(BaseModel):

@@ -76,7 +76,7 @@
         </section>
 
         <details class="details-panel details-disclosure" data-mobile-collapsible open>
-            <summary class="details-panel__heading"><span class="details-panel__number">03</span><div><h3>Palavras que dão personalidade</h3><p>Todas as mensagens da capa, do convite e das partilhas.</p></div><i class="bi bi-chevron-down details-disclosure__chevron"></i></summary>
+            <summary class="details-panel__heading"><span class="details-panel__number">03</span><div>{% if wedding.category.code == "evento-corporativo" %}<h3>Comunicação do evento</h3><p>Mensagens institucionais da capa, do convite e das partilhas.</p>{% else %}<h3>Palavras que dão personalidade</h3><p>Todas as mensagens da capa, do convite e das partilhas.</p>{% endif %}</div><i class="bi bi-chevron-down details-disclosure__chevron"></i></summary>
             <div class="row g-4 personality-message-grid">
                 <div class="col-lg-6 personality-message-grid__channels">
                     <div class="personality-message-box" {% if not capabilities.allows_sms %}data-upgrade-modal data-upgrade-feature="Convites por SMS"{% endif %}>

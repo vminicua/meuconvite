@@ -395,6 +395,18 @@ class Wedding(BaseModel):
     def category_icon(self) -> str:
         return self.category.icon if self.category_id else "bi-calendar-heart"
 
+    @property
+    def story_heading(self) -> str:
+        headings = {
+            "lobolo": _("A história das famílias"),
+            "aniversario": _("Sobre o aniversariante"),
+            "batismo": _("Mensagem da família"),
+            "formatura": _("Percurso académico"),
+            "cha-de-bebe": _("Mensagem para o bebé"),
+            "outro": _("Sobre o evento"),
+        }
+        return headings.get(self.category.code if self.category_id else "", _("Sobre o evento"))
+
     def extra_values(self) -> list[dict]:
         """Campos próprios do tipo de evento, com etiqueta e valor preenchido."""
         if not self.category_id:

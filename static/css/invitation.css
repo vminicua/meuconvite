@@ -1909,6 +1909,19 @@ body.inv--embedded::-webkit-scrollbar {
 }
 /* Corporate collection ------------------------------------------------ */
 .inv--corporativo{background:#e9eef3;color:var(--inv-ink);font-family:var(--inv-body)}
+
+/* Coleções próprias para Lobolo, Aniversário, Batismo, Graduação, Chá de bebé e Outro. */
+.inv--evento_tematico{background:var(--inv-paper);color:var(--inv-ink);font-family:var(--inv-body)}
+.theme-cover{min-height:100svh;background-position:center;background-size:cover;display:grid;align-items:end;padding:clamp(1.5rem,6vw,5rem)}
+.theme-cover__content{width:min(620px,100%);color:#fff;text-shadow:0 2px 18px rgba(0,0,0,.35)}
+.theme-kicker{display:block;font-size:.76rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--inv-primary);margin-bottom:1rem}
+.theme-cover .theme-kicker{color:#fff}.theme-cover h1,.theme-hero h1{font-family:var(--inv-display);font-size:clamp(3rem,10vw,7rem);line-height:.98;margin:.2rem 0 1rem}
+.theme-cover p{font-size:clamp(1rem,2vw,1.25rem);max-width:42rem}.theme-cover time{display:block;margin:1.4rem 0;font-weight:700}
+.theme-button{border:0;border-radius:999px;background:var(--inv-primary);color:var(--inv-primary-ink);padding:.9rem 1.4rem;font-weight:700;cursor:pointer}
+.theme-main{width:min(900px,100%);margin:auto;background:var(--inv-paper);min-height:100svh}.theme-hero,.theme-section{padding:clamp(2rem,7vw,5rem);text-align:center}
+.theme-hero{border-bottom:1px solid color-mix(in srgb,var(--inv-primary) 24%,transparent)}.theme-hero .theme-kicker{margin-bottom:1.25rem}.theme-lead,.theme-greeting{max-width:650px;margin:1rem auto;line-height:1.8}.theme-date{font-weight:700;color:var(--inv-primary);margin:1.5rem 0}
+.theme-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;text-align:left}.theme-facts article{padding:1rem;border-radius:16px;background:color-mix(in srgb,var(--inv-primary) 8%,var(--inv-paper));border:1px solid color-mix(in srgb,var(--inv-primary) 20%,transparent)}.theme-facts span{display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;opacity:.7;margin-bottom:.35rem}.theme-facts strong{display:block}.theme-section h2{font-family:var(--inv-display);font-size:clamp(2rem,5vw,3.5rem)}.theme-section p{line-height:1.8}.theme-closing{background:color-mix(in srgb,var(--inv-primary) 9%,var(--inv-paper));font-family:var(--inv-display);font-size:1.35rem}
+@media(max-width:600px){.theme-cover{padding:1.5rem;min-height:100svh}.theme-cover h1,.theme-hero h1{font-size:clamp(2.6rem,15vw,4.6rem)}.theme-hero,.theme-section{padding:2rem 1.2rem}.theme-facts{grid-template-columns:1fr 1fr}}
 .corp-cover{min-height:100%;display:grid;align-items:end;padding:clamp(2rem,8vw,5rem);background-size:cover;background-position:center;color:#fff}
 .corp-cover__content{max-width:42rem}.corp-kicker{display:block;font-size:.72rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;margin-bottom:1rem}
 .corp-cover h1,.corp-hero h1{font-family:var(--inv-display);font-size:clamp(2.7rem,10vw,5.7rem);line-height:.98;margin:0 0 1rem}

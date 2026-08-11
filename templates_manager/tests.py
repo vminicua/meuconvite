@@ -73,6 +73,7 @@ class CatalogueTests(TestCase):
         self.assertTrue(all(not template.supports_music for template in templates))
         self.assertTrue(all(template.cover_image for template in templates))
 
+
     def test_palettes_are_also_available(self) -> None:
         self.assertGreaterEqual(InvitationTemplate.objects.active().count(), 10)
 

@@ -360,6 +360,12 @@ class DashboardViewTests(TestCase):
         self.assertContains(response, "Organização anfitriã")
         self.assertContains(response, "Formato do evento")
         self.assertContains(response, "Modalidade")
+        self.assertContains(response, "Comunicação do evento")
+        self.assertContains(response, "Mensagem do evento por SMS")
+        self.assertContains(response, "Convidamo-lo para este encontro profissional")
+        self.assertContains(response, "Mensagem do evento por WhatsApp")
+        self.assertNotContains(response, "O Nosso Casamento")
+        self.assertNotContains(response, "Palavras que dão personalidade")
         self.assertNotContains(response, 'id="id_story"', html=False)
         self.assertNotContains(response, 'id="id_invitation_track"', html=False)
         self.assertNotContains(response, "Quem apresenta o convite?")
@@ -370,6 +376,14 @@ class DashboardViewTests(TestCase):
         self.assertContains(preview, "Líderes e gestores")
         self.assertContains(preview, "Estratégia, inovação e crescimento sustentável.")
         self.assertNotContains(preview, "A nossa história")
+        self.assertContains(preview, "inv--public-device", html=False)
+        self.assertContains(preview, "inv-public-device", html=False)
+
+        embedded = self.client.get(
+            reverse("weddings:invitation_preview", args=[self.wedding.pk]),
+            {"embedded": "1"},
+        )
+        self.assertNotContains(embedded, '<div class="inv-public-stage">', html=False)
 
     def test_uploaded_music_enters_the_catalogue_and_is_selected(self) -> None:
         url = reverse("weddings:detail", args=[self.wedding.pk])

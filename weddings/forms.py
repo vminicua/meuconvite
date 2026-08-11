@@ -32,6 +32,20 @@ from .models import (
 
 User = get_user_model()
 
+CORPORATE_SMS_INVITATION_MESSAGE = (
+    "*{evento}*\n"
+    "Ola {nome}! Convidamo-lo para este encontro profissional.\n"
+    "Detalhes: {link}"
+)
+
+CORPORATE_WHATSAPP_INVITATION_MESSAGE = (
+    "Olá, {nome}!\n\n"
+    "Temos o prazer de o convidar para o evento {evento}.\n\n"
+    "Consulte o programa e confirme a sua participação através da ligação:\n"
+    "{link}\n\n"
+    "Esperamos contar com a sua presença."
+)
+
 
 class WeddingCreateForm(BootstrapModelForm):
     """
@@ -186,6 +200,12 @@ class WeddingSettingsForm(BootstrapModelForm):
             self.fields.pop("show_music", None)
             self.fields.pop("music_upload", None)
             self.fields["welcome_message"].label = _("Mensagem de encerramento")
+            self.fields["sms_invitation_message"].label = _(
+                "Mensagem do evento por SMS"
+            )
+            self.fields["whatsapp_invitation_message"].label = _(
+                "Mensagem do evento por WhatsApp"
+            )
             if not self.is_bound:
                 self.initial.update({
                     "cover_message": _("Ideias, pessoas e oportunidades no mesmo lugar"),
@@ -197,6 +217,39 @@ class WeddingSettingsForm(BootstrapModelForm):
                         "Agradecemos a sua participação e esperamos recebê-lo neste evento."
                     ),
                 })
+                if self.instance.sms_invitation_message in {
+                    "",
+                    DEFAULT_SMS_INVITATION_MESSAGE,
+                }:
+                    self.initial["sms_invitation_message"] = (
+                        CORPORATE_SMS_INVITATION_MESSAGE
+                    )
+                if self.instance.whatsapp_invitation_message in {
+                    "",
+                    DEFAULT_WHATSAPP_INVITATION_MESSAGE,
+                }:
+                    self.initial["whatsapp_invitation_message"] = (
+                        CORPORATE_WHATSAPP_INVITATION_MESSAGE
+                    )
+        else:
+            category_content = {
+                "lobolo": ("A união das nossas famílias", "Com respeito pela tradição, convidamos para partilhar connosco este encontro entre famílias.", "A história das famílias"),
+                "aniversario": ("Há motivos para celebrar", "Venha celebrar connosco mais um ano de vida, alegria e boas memórias.", "Sobre o aniversariante"),
+                "batismo": ("Um dia de fé e bênção", "Com alegria, convidamos para acompanhar este momento de fé e celebração em família.", "Mensagem da família"),
+                "formatura": ("Uma conquista para celebrar", "É com orgulho que convidamos para celebrar esta importante conquista académica.", "Percurso académico"),
+                "cha-de-bebe": ("Uma doce espera", "Venha celebrar connosco a chegada de uma nova vida, num encontro cheio de carinho.", "Mensagem para o bebé"),
+                "outro": ("Um encontro especial", "Temos o prazer de o convidar para partilhar connosco este evento.", "Sobre o evento"),
+            }
+            content = category_content.get(category.code)
+            if content:
+                self.fields["story"].label = _(content[2])
+                if not self.is_bound:
+                    if not self.instance.cover_message:
+                        self.initial["cover_message"] = _(content[0])
+                    if not self.instance.invitation_message:
+                        self.initial["invitation_message"] = _(content[1])
+                    if not self.instance.welcome_message:
+                        self.initial["welcome_message"] = _("Agradecemos a sua presença neste momento especial.")
 
         add_schema_fields(self, category.extra_fields, self.instance.extra_data or {})
 

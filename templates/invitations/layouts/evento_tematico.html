@@ -1,0 +1,32 @@
+{% if template.has_cover %}
+<section class="theme-cover" id="inv-cover" style="background-image:linear-gradient(180deg,rgba(5,10,18,.12),rgba(5,10,18,.72)),url('{% if wedding.cover_image and not ignore_custom_cover %}{{ wedding.cover_image.url }}{% else %}{{ template.cover_image.url }}{% endif %}')">
+    <div class="theme-cover__content">
+        <span class="theme-kicker"><i class="bi {{ wedding.category.icon }}"></i> {{ wedding.category_name }}</span>
+        <h1>{{ wedding.display_names }}</h1>
+        <p>{{ wedding.cover_message|default:"Um momento especial para partilhar." }}</p>
+        <time>{{ wedding.main_date|date:"d \d\e F \d\e Y" }}</time>
+        <button type="button" class="theme-button" data-open-invitation>Abrir convite</button>
+    </div>
+</section>
+{% endif %}
+
+<main class="theme-main" id="inv-main" {% if template.has_cover %}hidden{% endif %}>
+    <header class="theme-hero">
+        <span class="theme-kicker">{{ wedding.category_name }}</span>
+        <h1>{{ wedding.display_names }}</h1>
+        {% if guest_name %}<p class="theme-greeting">Caro(a) {{ guest_name }},</p>{% endif %}
+        <p class="theme-lead">{% if wedding.invitation_message %}{{ wedding.invitation_message|linebreaksbr }}{% else %}{{ invitation_greeting }}{% endif %}</p>
+        <p class="theme-date"><i class="bi bi-calendar3"></i> {{ wedding.main_date|date:"d \d\e F \d\e Y" }}</p>
+        {% include "invitations/_countdown.html" %}
+        {% if seats %}<p class="inv-seats"><span>Lugares reservados</span><strong>{{ seats }}</strong></p>{% endif %}
+    </header>
+
+    {% if wedding.extra_values %}<section class="theme-section theme-facts">
+        {% for field in wedding.extra_values %}{% if field.value %}<article><span>{{ field.label }}</span>{% if field.type == "url" %}<a href="{{ field.value }}" rel="noopener">Abrir ligação</a>{% else %}<strong>{{ field.value }}</strong>{% endif %}</article>{% endif %}{% endfor %}
+    </section>{% endif %}
+    {% if wedding.story %}<section class="theme-section"><span class="theme-kicker">Sobre</span><h2>{{ wedding.story_heading }}</h2><p>{{ wedding.story|linebreaksbr }}</p></section>{% endif %}
+    {% include "invitations/_schedule.html" %}
+    {% include "invitations/_gallery.html" %}
+    {% if wedding.welcome_message %}<section class="theme-section theme-closing"><p>{{ wedding.welcome_message|linebreaksbr }}</p></section>{% endif %}
+    {% include "invitations/_rsvp.html" %}
+</main>
