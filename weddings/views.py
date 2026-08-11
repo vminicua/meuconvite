@@ -47,12 +47,19 @@ def wedding_list(request: HttpRequest) -> HttpResponse:
     ser um clique, sem passar por um ecrã intermédio.
     """
     categories = categories_with_templates()
+    weddings = list(weddings_for_user(request.user))
+    from subscriptions.services import event_requires_upgrade
+
+    for wedding in weddings:
+        # A subscrição gratuita pendente é desbloqueada por um voucher.
+        # O template não deve decidir isto olhando apenas para o estado bruto.
+        wedding.requires_upgrade = event_requires_upgrade(wedding)
 
     return render(
         request,
         "weddings/wedding_list.html",
         {
-            "weddings": weddings_for_user(request.user),
+            "weddings": weddings,
             "archived": archived_weddings_for_user(request.user),
             "categories": categories,
         },

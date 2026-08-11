@@ -38,7 +38,7 @@
                                 </div>
                                 <h2 class="h6 mb-1">{{ wedding.display_names }}</h2>
                             </div>
-                            {% if wedding.subscription.status == 'pending' %}
+                            {% if wedding.requires_upgrade %}
                                 <span class="badge text-bg-warning"><i class="bi bi-lock-fill me-1"></i>Requer subscrição</span>
                             {% elif wedding.status == 'published' %}
                                 <span class="badge text-bg-success">Publicado</span>
@@ -62,7 +62,7 @@
                         {% endif %}
                     </div>
                     <div class="card-footer bg-transparent d-flex gap-2">
-                        {% if wedding.subscription.status == 'pending' %}
+                        {% if wedding.requires_upgrade %}
                         <a href="{% url 'subscriptions:detail' wedding.pk %}" class="btn btn-sm btn-primary flex-grow-1"><i class="bi bi-gem me-1"></i>Desbloquear</a>
                         {% else %}
                         <a href="{% url 'weddings:preview' wedding.pk %}" class="btn btn-sm btn-primary flex-grow-1">Abrir</a>

@@ -509,6 +509,25 @@ class DashboardViewTests(TestCase):
         self.assertContains(response, "template-carousel.js?v=20260731.2")
         self.assertGreater(len(response.context["categories"][0].template_options), 0)
 
+    def test_wedding_list_shows_voucher_event_as_unlocked(self) -> None:
+        from subscriptions.models import SubscriptionStatus, Voucher
+        from subscriptions.services import apply_voucher, ensure_subscription
+
+        create_plan()
+        subscription = ensure_subscription(self.wedding)
+        subscription.status = SubscriptionStatus.PENDING
+        subscription.save(update_fields=["status", "updated_at"])
+        voucher = Voucher.objects.create(
+            code="FOREXFREE", name="Evento desbloqueado", max_guests=100
+        )
+        apply_voucher(wedding=self.wedding, code=voucher.code, actor=self.owner)
+
+        response = self.client.get(reverse("weddings:list"))
+
+        self.assertContains(response, "Abrir")
+        self.assertNotContains(response, "Requer subscrição")
+        self.assertNotContains(response, ">Desbloquear</a>", html=False)
+
 
 class DesignViewTests(TestCase):
     """Galeria de templates de convite."""
