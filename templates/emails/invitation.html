@@ -1,0 +1,8 @@
+<!doctype html><html lang="pt"><body style="margin:0;background:#f6f3ed;font-family:Arial,sans-serif;color:#1f2933">
+<div style="max-width:600px;margin:0 auto;padding:32px 20px"><div style="background:#fff;border:1px solid #e6dfd3;border-radius:16px;padding:32px">
+<p style="color:#b08a45;font-weight:bold;margin-top:0">MeuConvite</p><h1 style="font-size:25px">Olá, {{ guest.full_name }}!</h1>
+<p><strong>{{ wedding.display_names }}</strong> tem o prazer de lhe enviar este convite.</p>
+<p><strong>Data:</strong> {{ wedding.main_date|date:"d/m/Y" }}{% if wedding.city %}<br><strong>Local:</strong> {{ wedding.city }}{% endif %}</p>
+<p style="margin:28px 0"><a href="{{ invitation_url }}" style="background:#1f2933;color:#fff;text-decoration:none;padding:13px 22px;border-radius:8px;display:inline-block">Abrir o meu convite</a></p>
+<p style="color:#667085;font-size:14px;margin-bottom:0">Com carinho,<br>{{ wedding.display_names }}</p>
+</div></div></body></html>

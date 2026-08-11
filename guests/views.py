@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 from django.db import transaction
 from django.db.models import Q
 from django.http import Http404, HttpRequest, HttpResponse
@@ -26,7 +27,7 @@ from subscriptions.services import (
 )
 from weddings.permissions import capability_flags, require_wedding
 
-from .forms import GiftForm, GuestForm, SendInvitationForm
+from .forms import BulkInvitationForm, GiftForm, GuestForm, GuestImportForm, SendInvitationForm
 from .models import Gift, GiftSelection, Guest, InvitationChannel, RSVPStatus
 from . import messaging
 
@@ -174,6 +175,7 @@ def guest_list(request: HttpRequest, wedding) -> HttpResponse:
             "guest_count": len(guests),
             "enabled_count": len(enabled_ids),
             "sms_used": sms_count(wedding),
+            "import_form": GuestImportForm(),
             "capabilities": capability_flags(wedding, request.user),
         },
     )
@@ -264,6 +266,218 @@ def guest_export_excel(request: HttpRequest, wedding) -> HttpResponse:
 
 
 @require_wedding("can_manage_guests")
+def guest_import_template(request: HttpRequest, wedding) -> HttpResponse:
+    """Modelo Excel simples e formatado para importação de convidados."""
+    from io import BytesIO
+    from openpyxl import Workbook
+    from openpyxl.comments import Comment
+    from openpyxl.styles import Font, PatternFill
+    from openpyxl.worksheet.datavalidation import DataValidation
+
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet.title = "Convidados"
+    headers = ["Nome completo*", "Telefone", "Email", "Lugares", "Mesa / cadeira", "Programa", "Notas"]
+    sheet.append(headers)
+    sheet.append([None, None, None, None, None, None, None])
+    sheet["A2"].comment = Comment(
+        "Exemplo: Ana Mucavele | +258840000000 | ana@exemplo.com | 2 | Mesa 4 | Todos | Família",
+        "MeuConvite",
+    )
+    for cell in sheet[1]:
+        cell.font = Font(bold=True, color="FFFFFF")
+        cell.fill = PatternFill("solid", fgColor="B5903E")
+    widths = [32, 22, 34, 12, 24, 36, 38]
+    for index, width in enumerate(widths, start=1):
+        sheet.column_dimensions[chr(64 + index)].width = width
+    seats = DataValidation(type="whole", operator="between", formula1="1", formula2="20")
+    seats.error = "Indique um número entre 1 e 20."
+    seats.errorTitle = "Lugares inválidos"
+    sheet.add_data_validation(seats)
+    seats.add("D2:D2001")
+    sheet.freeze_panes = "A2"
+    sheet.auto_filter.ref = "A1:G2001"
+    instructions = workbook.create_sheet("Instruções")
+    instructions.append(["Como importar convidados"])
+    instructions.append(["1. Não altere os nomes das colunas da folha Convidados."])
+    instructions.append(["2. Nome completo é obrigatório; telefone ou email são necessários para enviar."])
+    instructions.append(["3. Em Programa use Todos, deixe vazio, ou separe momentos por vírgulas."])
+    instructions.append(["4. Apague a linha de exemplo antes de carregar o ficheiro."])
+    instructions["A1"].font = Font(bold=True, color="FFFFFF", size=14)
+    instructions["A1"].fill = PatternFill("solid", fgColor="1F2933")
+    instructions.column_dimensions["A"].width = 95
+    output = BytesIO()
+    workbook.save(output)
+    response = HttpResponse(output.getvalue(), content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response["Content-Disposition"] = 'attachment; filename="modelo-convidados.xlsx"'
+    return response
+
+
+@require_POST
+@require_wedding("can_manage_guests")
+def guest_import_excel(request: HttpRequest, wedding) -> HttpResponse:
+    """Valida todo o Excel antes de criar convidados, evitando importações parciais."""
+    from openpyxl import load_workbook
+
+    form = GuestImportForm(request.POST, request.FILES)
+    if not form.is_valid():
+        messages.error(request, " ".join(error for errors in form.errors.values() for error in errors))
+        return redirect("guests:list", wedding_id=wedding.pk)
+    try:
+        workbook = load_workbook(form.cleaned_data["file"], read_only=True, data_only=True)
+        sheet = workbook["Convidados"] if "Convidados" in workbook.sheetnames else workbook.active
+        rows = sheet.iter_rows(values_only=True)
+        raw_headers = next(rows, None)
+    except Exception as exc:
+        messages.error(request, "Não foi possível ler este ficheiro Excel.")
+        return redirect("guests:list", wedding_id=wedding.pk)
+    if not raw_headers:
+        messages.error(request, "O ficheiro está vazio.")
+        return redirect("guests:list", wedding_id=wedding.pk)
+
+    def header_key(value):
+        import unicodedata
+        text = unicodedata.normalize("NFKD", str(value or "")).encode("ascii", "ignore").decode().lower()
+        return " ".join(text.replace("*", "").replace("_", " ").split())
+
+    aliases = {
+        "nome completo": "full_name", "nome": "full_name", "convidado": "full_name",
+        "telefone": "phone", "telemovel": "phone", "email": "email",
+        "lugares": "party_size", "mesa / cadeira": "seating_assignment",
+        "mesa": "seating_assignment", "programa": "programme", "notas": "notes",
+    }
+    columns = {index: aliases.get(header_key(value)) for index, value in enumerate(raw_headers)}
+    if "full_name" not in columns.values():
+        messages.error(request, "Falta a coluna obrigatória “Nome completo”. Use o modelo MeuConvite.")
+        return redirect("guests:list", wedding_id=wedding.pk)
+
+    active_events = list(wedding.events.filter(is_active=True))
+    events_by_name = {event.name.casefold(): event for event in active_events}
+    existing_emails = set(
+        Guest.objects.filter(wedding=wedding, is_active=True).exclude(email="")
+        .values_list("email", flat=True)
+    )
+    existing_phones = set(
+        Guest.objects.filter(wedding=wedding, is_active=True).exclude(phone="")
+        .values_list("phone", flat=True)
+    )
+    parsed, errors, seen_contacts = [], [], set()
+    for row_number, values in enumerate(rows, start=2):
+        data = {field: values[index] for index, field in columns.items() if field and index < len(values)}
+        if not any(value not in (None, "") for value in data.values()):
+            continue
+        if row_number > 2001:
+            errors.append("O ficheiro excede o limite de 2 000 convidados.")
+            break
+        name = str(data.get("full_name") or "").strip()
+        phone_value = data.get("phone")
+        phone = str(int(phone_value) if isinstance(phone_value, float) and phone_value.is_integer() else phone_value or "").strip()
+        email = str(data.get("email") or "").strip().lower()
+        try:
+            party_size = int(data.get("party_size") or 1)
+        except (TypeError, ValueError):
+            party_size = 0
+        if not name:
+            errors.append(f"Linha {row_number}: o nome completo é obrigatório.")
+        if email:
+            try: validate_email(email)
+            except ValidationError: errors.append(f"Linha {row_number}: email inválido ({email}).")
+            if email in existing_emails:
+                errors.append(f"Linha {row_number}: já existe um convidado com o email {email}.")
+        if phone and phone in existing_phones:
+            errors.append(f"Linha {row_number}: já existe um convidado com o telefone {phone}.")
+        if not 1 <= party_size <= 20:
+            errors.append(f"Linha {row_number}: lugares deve estar entre 1 e 20.")
+        contact_key = (email, phone)
+        if (email or phone) and contact_key in seen_contacts:
+            errors.append(f"Linha {row_number}: contacto repetido no ficheiro.")
+        seen_contacts.add(contact_key)
+        programme_text = str(data.get("programme") or "Todos").strip()
+        if not programme_text or programme_text.casefold() in {"todos", "programa completo"}:
+            selected_events = active_events
+        else:
+            names = [part.strip().casefold() for part in programme_text.split(",") if part.strip()]
+            unknown = [part for part in names if part not in events_by_name]
+            if unknown:
+                errors.append(f"Linha {row_number}: momentos desconhecidos: {', '.join(unknown)}.")
+            selected_events = [events_by_name[part] for part in names if part in events_by_name]
+        parsed.append({
+            "full_name": name, "phone": phone, "email": email, "party_size": party_size,
+            "seating_assignment": str(data.get("seating_assignment") or "").strip(),
+            "notes": str(data.get("notes") or "").strip(), "events": selected_events,
+        })
+    if not parsed and not errors:
+        errors.append("O ficheiro não contém convidados para importar.")
+    if errors:
+        preview = " ".join(errors[:8])
+        if len(errors) > 8: preview += f" E mais {len(errors) - 8} erro(s)."
+        messages.error(request, preview)
+        return redirect("guests:list", wedding_id=wedding.pk)
+
+    created = 0
+    with transaction.atomic():
+        for data in parsed:
+            selected_events = data.pop("events")
+            guest = Guest.objects.create(wedding=wedding, **data)
+            select_new_guest_if_capacity(wedding=wedding, guest=guest)
+            guest.allowed_events.set(selected_events)
+            created += 1
+        log_action(
+            action=AuditAction.CREATE, actor=request.user, wedding=wedding, request=request,
+            instance=wedding, new_data={"bulk_guest_import": created},
+        )
+    messages.success(request, f"{created} convidado(s) importado(s) do Excel.")
+    return redirect("guests:list", wedding_id=wedding.pk)
+
+
+@require_POST
+@require_wedding("can_manage_guests")
+def guest_bulk_send(request: HttpRequest, wedding) -> HttpResponse:
+    form = BulkInvitationForm(request.POST, wedding=wedding)
+    if not form.is_valid():
+        messages.error(request, "Seleccione convidados e um canal de envio.")
+        return redirect("guests:list", wedding_id=wedding.pk)
+    selected_ids = form.cleaned_data["guest_ids"][:500]
+    enabled = enabled_guest_ids(wedding)
+    guests = list(Guest.objects.filter(pk__in=selected_ids, wedding=wedding, is_active=True).order_by("full_name"))
+    guests = [guest for guest in guests if guest.pk in enabled]
+    channel = form.cleaned_data["channel"]
+    if channel == InvitationChannel.WHATSAPP:
+        rows = []
+        for guest in guests:
+            try:
+                url = messaging.whatsapp_invitation_url(guest=guest, invitation_url=_guest_invitation_url(request, guest))
+                rows.append({"guest": guest, "url": url})
+            except ValidationError:
+                continue
+        return render(request, "guests/bulk_whatsapp.html", {
+            "wedding": wedding, "rows": rows, "capabilities": capability_flags(wedding, request.user),
+        })
+
+    sent, failed = 0, []
+    for guest in guests:
+        try:
+            delivery = messaging.send_invitation(
+                guest=guest, channel=channel,
+                invitation_url=_guest_invitation_url(request, guest), actor=request.user,
+            )
+        except ValidationError as exc:
+            failed.append(f"{guest.full_name}: {' '.join(exc.messages)}")
+            continue
+        log_action(
+            action=AuditAction.INVITE_SENT, actor=request.user, wedding=wedding,
+            request=request, instance=delivery,
+            new_data={"channel": delivery.channel, "status": delivery.status, "bulk": True},
+        )
+        sent += 1
+    if sent:
+        messages.success(request, f"{sent} convite(s) enviado(s) por {channel}.")
+    if failed:
+        messages.warning(request, f"{len(failed)} envio(s) falharam. " + " ".join(failed[:3]))
+    return redirect("guests:list", wedding_id=wedding.pk)
+
+
+@require_wedding("can_manage_guests")
 def guest_edit(request: HttpRequest, wedding, guest_id) -> HttpResponse:
     guest = get_object_or_404(Guest, pk=guest_id, wedding=wedding, is_active=True)
     allow_seating = limits(wedding).allows_seating
@@ -295,7 +509,7 @@ def guest_send_invitation(request: HttpRequest, wedding, guest_id) -> HttpRespon
 
     form = SendInvitationForm(request.POST)
     if not form.is_valid():
-        messages.error(request, "Escolha SMS ou WhatsApp para enviar o convite.")
+        messages.error(request, "Escolha SMS, WhatsApp ou email para enviar o convite.")
         return redirect("guests:list", wedding_id=wedding.pk)
 
     invitation_url = _guest_invitation_url(request, guest)

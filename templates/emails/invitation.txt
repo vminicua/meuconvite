@@ -1,0 +1,12 @@
+Olá, {{ guest.full_name }}!
+
+{{ wedding.display_names }} tem o prazer de lhe enviar este convite.
+
+Abra o seu convite individual e confirme a sua presença:
+{{ invitation_url }}
+
+Data: {{ wedding.main_date|date:"d/m/Y" }}
+{% if wedding.city %}Local: {{ wedding.city }}
+{% endif %}
+Com carinho,
+{{ wedding.display_names }}

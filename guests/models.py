@@ -131,6 +131,7 @@ class GiftSelection(BaseModel):
 class InvitationChannel(models.TextChoices):
     SMS = "sms", _("SMS")
     WHATSAPP = "whatsapp", _("WhatsApp")
+    EMAIL = "email", _("Email")
 
 
 class DeliveryStatus(models.TextChoices):
@@ -157,7 +158,7 @@ class InvitationDelivery(BaseModel):
     status = models.CharField(
         max_length=20, choices=DeliveryStatus.choices, default=DeliveryStatus.PENDING, db_index=True
     )
-    destination = models.CharField(max_length=40)
+    destination = models.CharField(max_length=254)
     message_body = models.TextField(max_length=1600)
     provider = models.CharField(max_length=30, default="twilio")
     provider_sid = models.CharField(max_length=64, blank=True, db_index=True)

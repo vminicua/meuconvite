@@ -126,6 +126,74 @@ class GuestViewTests(TestCase):
         self.assertContains(response, "Cerimónia")
         self.assertNotContains(response, "Festa")
 
+    def test_excel_template_and_bulk_import(self):
+        from openpyxl import Workbook, load_workbook
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        template_response = self.client.get(
+            reverse("guests:import_template", args=[self.wedding.pk])
+        )
+        self.assertEqual(template_response.status_code, 200)
+        template = load_workbook(BytesIO(template_response.content))
+        self.assertEqual(template["Convidados"]["A1"].value, "Nome completo*")
+
+        workbook = Workbook()
+        sheet = workbook.active
+        sheet.title = "Convidados"
+        sheet.append(["Nome completo*", "Telefone", "Email", "Lugares", "Mesa / cadeira", "Programa", "Notas"])
+        sheet.append(["Ana Mucavele", "+258840000001", "ana@example.com", 2, "Mesa 2", "Todos", "Família"])
+        sheet.append(["Paulo Cossa", "+258840000002", "paulo@example.com", 1, "", "Todos", ""])
+        content = BytesIO()
+        workbook.save(content)
+        upload = SimpleUploadedFile(
+            "convidados.xlsx", content.getvalue(),
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+        response = self.client.post(
+            reverse("guests:import_excel", args=[self.wedding.pk]), {"file": upload}
+        )
+        self.assertRedirects(response, reverse("guests:list", args=[self.wedding.pk]))
+        self.assertTrue(Guest.objects.filter(wedding=self.wedding, full_name="Ana Mucavele", party_size=2).exists())
+        self.assertTrue(Guest.objects.filter(wedding=self.wedding, full_name="Paulo Cossa").exists())
+
+    @override_settings(
+        EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+        DEFAULT_FROM_EMAIL="MeuConvite <noreply@meuconvite.co.mz>",
+    )
+    def test_email_invitation_uses_event_name_as_sender(self):
+        self.wedding.primary_short_name = "FOREX"
+        self.wedding.secondary_short_name = ""
+        self.wedding.save(update_fields=["primary_short_name", "secondary_short_name", "updated_at"])
+        guest = Guest.objects.create(
+            wedding=self.wedding, full_name="Ana", email="ana@example.com"
+        )
+        response = self.client.post(
+            reverse("guests:send_invitation", args=[self.wedding.pk, guest.pk]),
+            {"channel": "email"},
+        )
+        self.assertRedirects(response, reverse("guests:list", args=[self.wedding.pk]))
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].from_email, "FOREX <noreply@meuconvite.co.mz>")
+        self.assertIn(guest.invitation_token, mail.outbox[0].body)
+        self.assertEqual(InvitationDelivery.objects.get(guest=guest).channel, "email")
+
+    @override_settings(
+        EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+        DEFAULT_FROM_EMAIL="MeuConvite <noreply@meuconvite.co.mz>",
+    )
+    def test_bulk_email_sends_personalised_invitation_to_selected_guests(self):
+        first = Guest.objects.create(wedding=self.wedding, full_name="Ana", email="ana@example.com")
+        second = Guest.objects.create(wedding=self.wedding, full_name="Paulo", email="paulo@example.com")
+        response = self.client.post(
+            reverse("guests:bulk_send", args=[self.wedding.pk]),
+            {"channel": "email", "guest_ids": [str(first.pk), str(second.pk)]},
+        )
+        self.assertRedirects(response, reverse("guests:list", args=[self.wedding.pk]))
+        self.assertEqual(len(mail.outbox), 2)
+        self.assertEqual(InvitationDelivery.objects.filter(channel="email").count(), 2)
+        self.assertTrue(any(first.invitation_token in item.body for item in mail.outbox))
+        self.assertTrue(any(second.invitation_token in item.body for item in mail.outbox))
+
     def test_empty_selection_means_no_programme_and_all_selected_means_complete(self):
         first = WeddingEvent.objects.create(wedding=self.wedding, name="Cerimónia")
         second = WeddingEvent.objects.create(wedding=self.wedding, name="Festa")

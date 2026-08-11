@@ -13,6 +13,33 @@ class SendInvitationForm(forms.Form):
     )
 
 
+class GuestImportForm(forms.Form):
+    file = forms.FileField(
+        label="Ficheiro Excel",
+        help_text="Use o modelo MeuConvite em formato .xlsx (máximo 5 MB).",
+        widget=forms.ClearableFileInput(attrs={"accept": ".xlsx"}),
+    )
+
+    def clean_file(self):
+        upload = self.cleaned_data["file"]
+        if not upload.name.lower().endswith(".xlsx"):
+            raise forms.ValidationError("Envie um ficheiro Excel no formato .xlsx.")
+        if upload.size > 5 * 1024 * 1024:
+            raise forms.ValidationError("O ficheiro não pode exceder 5 MB.")
+        return upload
+
+
+class BulkInvitationForm(SendInvitationForm):
+    guest_ids = forms.MultipleChoiceField(widget=forms.MultipleHiddenInput)
+
+    def __init__(self, *args, wedding=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["guest_ids"].choices = [
+            (str(pk), str(pk))
+            for pk in Guest.objects.filter(wedding=wedding, is_active=True).values_list("pk", flat=True)
+        ] if wedding is not None else []
+
+
 class GuestForm(BootstrapModelForm):
     class Meta:
         model = Guest

@@ -17,6 +17,25 @@
     let sortKey = "name";
     let sortDirection = 1;
 
+    const guestSelections = Array.from(root.querySelectorAll("[data-guest-select]"));
+    const selectVisible = root.querySelector("[data-select-visible]");
+    const bulkToolbar = root.querySelector("[data-bulk-toolbar]");
+    const selectedCount = root.querySelector("[data-selected-count]");
+    const bulkModalCount = root.querySelector("[data-bulk-modal-count]");
+    const bulkForm = root.querySelector("[data-bulk-send-form]");
+
+    function updateBulkSelection() {
+        const selected = guestSelections.filter(function (box) { return box.checked; });
+        if (bulkToolbar) bulkToolbar.hidden = selected.length === 0;
+        if (selectedCount) selectedCount.textContent = String(selected.length);
+        if (bulkModalCount) bulkModalCount.textContent = String(selected.length);
+        if (selectVisible) {
+            const visible = guestSelections.filter(function (box) { return !box.closest("[data-guest-row]").hidden; });
+            selectVisible.checked = visible.length > 0 && visible.every(function (box) { return box.checked; });
+            selectVisible.indeterminate = visible.some(function (box) { return box.checked; }) && !selectVisible.checked;
+        }
+    }
+
     function normalized(value) {
         return (value || "").toLocaleLowerCase("pt").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     }
@@ -63,7 +82,36 @@
             for (let i = 1; i <= pages; i += 1) if (pages <= 7 || i === 1 || i === pages || Math.abs(i - page) <= 1) makeButton(String(i), i, false, i === page);
             makeButton("›", page + 1, page === pages, false);
         }
+        updateBulkSelection();
     }
+
+    guestSelections.forEach(function (box) { box.addEventListener("change", updateBulkSelection); });
+    if (selectVisible) selectVisible.addEventListener("change", function () {
+        guestSelections.forEach(function (box) {
+            if (!box.closest("[data-guest-row]").hidden) box.checked = selectVisible.checked;
+        });
+        updateBulkSelection();
+    });
+    const clearSelection = root.querySelector("[data-clear-selection]");
+    if (clearSelection) clearSelection.addEventListener("click", function () {
+        guestSelections.forEach(function (box) { box.checked = false; });
+        updateBulkSelection();
+    });
+    if (bulkForm) bulkForm.addEventListener("submit", function (event) {
+        bulkForm.querySelectorAll('input[data-generated-guest-id]').forEach(function (input) { input.remove(); });
+        const selected = guestSelections.filter(function (box) { return box.checked; });
+        if (!selected.length) {
+            event.preventDefault();
+            showFeedback("Seleccione pelo menos um convidado.", "warning");
+            return;
+        }
+        selected.forEach(function (box) {
+            const input = document.createElement("input");
+            input.type = "hidden"; input.name = "guest_ids"; input.value = box.value;
+            input.dataset.generatedGuestId = "true";
+            bulkForm.appendChild(input);
+        });
+    });
 
     [search, status, programme, size].forEach(function (control) {
         if (control) control.addEventListener(control === search ? "input" : "change", function () { page = 1; render(); });

@@ -4,9 +4,13 @@ from __future__ import annotations
 
 import hashlib
 import re
+from email.utils import formataddr, parseaddr
 from urllib.parse import urlencode
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
 from django.utils import timezone
 
 from core.utils import strip_accents
@@ -128,11 +132,45 @@ def status_callback_url() -> str:
 
 def send_invitation(*, guest, channel: str, invitation_url: str, actor) -> InvitationDelivery:
     if channel not in InvitationChannel.values:
-        raise ValidationError("Escolha SMS ou WhatsApp.")
+        raise ValidationError("Escolha SMS, WhatsApp ou email.")
     if channel == InvitationChannel.WHATSAPP:
         raise ValidationError(
             "O WhatsApp é aberto directamente no seu dispositivo e não é enviado pela Twilio."
         )
+    if channel == InvitationChannel.EMAIL:
+        if not guest.email:
+            raise ValidationError("Este convidado não tem um endereço de email.")
+        subject = f"Convite de {guest.wedding.display_names}"
+        context = {"guest": guest, "wedding": guest.wedding, "invitation_url": invitation_url}
+        body = render_to_string("emails/invitation.txt", context)
+        html_body = render_to_string("emails/invitation.html", context)
+        _configured_name, address = parseaddr(settings.DEFAULT_FROM_EMAIL)
+        address = address or settings.DEFAULT_FROM_EMAIL
+        sender_name = re.sub(r"[\r\n]+", " ", guest.wedding.display_names).strip()
+        sender = formataddr((sender_name, address))
+        delivery = InvitationDelivery.objects.create(
+            wedding=guest.wedding,
+            guest=guest,
+            channel=channel,
+            destination=guest.email,
+            message_body=body,
+            provider="smtp",
+            sent_by=actor,
+            counts_toward_limit=False,
+        )
+        message = EmailMultiAlternatives(subject, body, sender, [guest.email])
+        message.attach_alternative(html_body, "text/html")
+        try:
+            message.send(fail_silently=False)
+        except Exception as exc:
+            delivery.status = DeliveryStatus.FAILED
+            delivery.error_message = str(exc)[:500]
+            delivery.save(update_fields=["status", "error_message", "updated_at"])
+            raise ValidationError("Não foi possível enviar o email. Tente novamente.") from exc
+        delivery.status = DeliveryStatus.SENT
+        delivery.sent_at = timezone.now()
+        delivery.save(update_fields=["status", "sent_at", "updated_at"])
+        return delivery
     from subscriptions.services import check_can_send_sms
 
     check_can_send_sms(guest.wedding)
