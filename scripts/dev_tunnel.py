@@ -232,8 +232,14 @@ def main() -> int:
     try:
         connection.get_transport()
     except Exception as exc:  # noqa: BLE001
-        log(f"falha na ligação SSH: {type(exc).__name__}: {exc}")
-        return 1
+        # O alojamento pode bloquear temporariamente a porta SSH (por exemplo,
+        # após várias ligações pelo cPanel). O encaminhador deve continuar
+        # disponível: cada ligação local volta a tentar estabelecer o SSH,
+        # sem obrigar o programador a reiniciar este processo.
+        log(
+            f"SSH temporariamente indisponível: {type(exc).__name__}: {exc}\n"
+            "       o túnel continuará ativo e tentará restabelecer-se sozinho."
+        )
 
     handler = type(
         "Handler",
