@@ -116,12 +116,14 @@ def ensure_subscription(wedding, *, allow_free: bool = True) -> Subscription | N
 
 
 def event_requires_upgrade(wedding) -> bool:
-    """Eventos adicionais começam bloqueados: cada conta recebe um único evento grátis."""
+    """Eventos adicionais ficam bloqueados até receberem um plano ou voucher."""
     subscription = get_subscription(wedding)
+    redemption = getattr(wedding, "voucher_redemption", None)
     return bool(
         subscription
         and subscription.plan.is_free
         and subscription.status == SubscriptionStatus.PENDING
+        and redemption is None
     )
 
 

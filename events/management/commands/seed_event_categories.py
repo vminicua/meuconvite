@@ -184,8 +184,27 @@ CATEGORIES: list[dict] = [
         "primary_label": "Nome do evento",
         "invitation_greeting": "tem o prazer de o convidar para",
         "field_schema": [
-            {"key": "organizacao", "label": "Organização", "type": "text"},
+            {"key": "organizacao", "label": "Organização anfitriã", "type": "text", "required": True},
+            {
+                "key": "tipo_evento_corporativo",
+                "label": "Formato do evento",
+                "type": "choice",
+                "required": True,
+                "choices": ["Conferência", "Seminário", "Workshop", "Lançamento", "Networking", "Gala corporativa", "Team building", "Outro"],
+            },
+            {
+                "key": "modalidade",
+                "label": "Modalidade",
+                "type": "choice",
+                "required": True,
+                "choices": ["Presencial", "Híbrido", "Online"],
+            },
+            {"key": "publico_alvo", "label": "Público-alvo", "type": "text"},
+            {"key": "tema_objetivo", "label": "Tema ou objetivo", "type": "textarea"},
             {"key": "orador", "label": "Orador principal", "type": "text"},
+            {"key": "contacto_evento", "label": "Contacto do evento", "type": "text"},
+            {"key": "link_registo", "label": "Ligação de registo ou transmissão", "type": "url"},
+            {"key": "patrocinadores", "label": "Parceiros ou patrocinadores", "type": "list"},
             {
                 "key": "codigo_vestuario",
                 "label": "Código de vestuário",
@@ -200,7 +219,9 @@ CATEGORIES: list[dict] = [
         "default_schedule": [
             {"title": "Registo dos participantes", "start_time": "08:30", "icon": "bi-person-badge"},
             {"title": "Sessão de abertura", "start_time": "09:00", "icon": "bi-mic"},
+            {"title": "Painel principal", "start_time": "09:30", "icon": "bi-people"},
             {"title": "Intervalo", "start_time": "10:30", "icon": "bi-cup-hot"},
+            {"title": "Sessões e networking", "start_time": "11:00", "icon": "bi-diagram-3"},
             {"title": "Encerramento", "start_time": "16:00", "icon": "bi-flag"},
         ],
         "display_order": 70,

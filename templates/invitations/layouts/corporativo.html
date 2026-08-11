@@ -1,0 +1,38 @@
+{% if template.has_cover %}
+<section class="corp-cover" id="inv-cover" style="background-image:linear-gradient(180deg,rgba(4,12,24,.18),rgba(4,12,24,.82)),url('{% if wedding.cover_image and not ignore_custom_cover %}{{ wedding.cover_image.url }}{% else %}{{ template.cover_image.url }}{% endif %}')">
+    <div class="corp-cover__content">
+        <span class="corp-kicker">{{ wedding.extra_data.organizacao|default:"Convite corporativo" }}</span>
+        <h1>{{ wedding.primary_name }}</h1>
+        <p>{{ wedding.cover_message|default:"Ideias, pessoas e oportunidades no mesmo lugar." }}</p>
+        <div class="corp-cover__meta"><span>{{ wedding.main_date|date:"d M Y" }}</span>{% if wedding.extra_data.modalidade %}<span>{{ wedding.extra_data.modalidade }}</span>{% endif %}</div>
+        <button type="button" class="corp-button" data-open-invitation>Abrir convite</button>
+    </div>
+</section>
+{% endif %}
+
+<main class="corp-main" id="inv-main" {% if template.has_cover %}hidden{% endif %}>
+    <header class="corp-hero">
+        <span class="corp-kicker">{{ wedding.extra_data.tipo_evento_corporativo|default:wedding.category_name }}</span>
+        <h1>{{ wedding.primary_name }}</h1>
+        {% if wedding.extra_data.organizacao %}<p class="corp-host">Uma iniciativa de <strong>{{ wedding.extra_data.organizacao }}</strong></p>{% endif %}
+        {% if guest_name %}<p class="corp-greeting">Caro(a) {{ guest_name }},</p>{% endif %}
+        <p class="corp-lead">{% if wedding.invitation_message %}{{ wedding.invitation_message|linebreaksbr }}{% else %}Temos o prazer de o convidar para este encontro profissional.{% endif %}</p>
+        <div class="corp-date"><i class="bi bi-calendar3"></i><strong>{{ wedding.main_date|date:"d \d\e F \d\e Y" }}</strong>{% if first_moment.start_time %}<span>{{ first_moment.start_time|time:"H:i" }}</span>{% endif %}</div>
+        {% include "invitations/_countdown.html" %}
+    </header>
+
+    <section class="corp-section corp-facts">
+        {% for field in wedding.extra_values %}
+            {% if field.value and field.key != "tema_objetivo" and field.key != "patrocinadores" %}
+            <article><span>{{ field.label }}</span>{% if field.type == "url" %}<a href="{{ field.value }}" rel="noopener">Aceder à ligação <i class="bi bi-box-arrow-up-right"></i></a>{% else %}<strong>{{ field.value }}</strong>{% endif %}</article>
+            {% endif %}
+        {% endfor %}
+    </section>
+
+    {% if wedding.extra_data.tema_objetivo %}<section class="corp-section"><span class="corp-section__eyebrow">Sobre o evento</span><h2>O encontro</h2><p>{{ wedding.extra_data.tema_objetivo|linebreaksbr }}</p></section>{% endif %}
+    {% include "invitations/_schedule.html" %}
+    {% include "invitations/_gallery.html" %}
+    {% if wedding.extra_data.patrocinadores %}<section class="corp-section"><span class="corp-section__eyebrow">Parceiros</span><h2>Organizações participantes</h2><ul class="corp-partners">{% for partner in wedding.extra_data.patrocinadores %}<li>{{ partner }}</li>{% endfor %}</ul></section>{% endif %}
+    {% if wedding.welcome_message %}<section class="corp-section corp-closing"><p>{{ wedding.welcome_message|linebreaksbr }}</p></section>{% endif %}
+    {% include "invitations/_rsvp.html" %}
+</main>

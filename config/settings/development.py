@@ -59,8 +59,22 @@ if DATABASES["default"]["ENGINE"].endswith("mysql"):  # noqa: F405
             file=sys.stderr,
         )
 
-# Emails are printed to the console instead of being sent.
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+# Keep console email as the safe development default, but honour an explicit
+# SMTP configuration in ``.env``.  This lets local password-reset flows work
+# end to end when the developer intentionally supplies the real mailbox.
+EMAIL_BACKEND = env(
+    "EMAIL_BACKEND",
+    default="django.core.mail.backends.console.EmailBackend",
+)
+EMAIL_HOST = env("EMAIL_HOST", default="")
+EMAIL_PORT = env.int("EMAIL_PORT", default=587)
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
+EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
+EMAIL_USE_SSL = env.bool("EMAIL_USE_SSL", default=False)
+EMAIL_TIMEOUT = 20
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="webmaster@localhost")
+SERVER_EMAIL = env("SERVER_EMAIL", default=DEFAULT_FROM_EMAIL)
 
 # Relaxed cookie flags so the site works over plain HTTP locally.
 SESSION_COOKIE_SECURE = False

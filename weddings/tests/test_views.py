@@ -9,7 +9,14 @@ from django.urls import reverse
 from django.utils import timezone
 
 from templates_manager.models import InvitationTemplate
-from weddings.models import MusicTrack, Wedding, WeddingGalleryPhoto, WeddingMember, WeddingRole
+from weddings.models import (
+    InvitationHost,
+    MusicTrack,
+    Wedding,
+    WeddingGalleryPhoto,
+    WeddingMember,
+    WeddingRole,
+)
 
 from .factories import (
     DEFAULT_PASSWORD,
@@ -273,6 +280,96 @@ class DashboardViewTests(TestCase):
         preview = self.client.get(reverse("weddings:invitation_preview", args=[self.wedding.pk]))
         self.assertContains(preview, "O nosso grande dia começa aqui")
         self.assertContains(preview, "É com muita alegria que queremos celebrar consigo.")
+
+    def test_parents_can_be_selected_as_formal_invitation_hosts(self) -> None:
+        self.wedding.category = create_category()
+        self.wedding.save(update_fields=["category"])
+        url = reverse("weddings:detail", args=[self.wedding.pk])
+
+        response = self.client.get(url)
+        self.assertContains(response, "Quem apresenta o convite?")
+        self.assertContains(response, "Os pais de ambos convidam")
+
+        response = self.client.post(url, {
+            "primary_name": "Jessica Elisa Mate",
+            "secondary_name": "Antonio Manuel Cossa",
+            "main_date": self.wedding.main_date.isoformat(),
+            "country": self.wedding.country,
+            "invitation_host": InvitationHost.PARENTS,
+            "primary_parents_names": "Maria e Joaquim Mate",
+            "secondary_parents_names": "Ana e Manuel Cossa",
+            "invitation_message": "Com muita alegria, convidamos para celebrar connosco.",
+            "sms_invitation_message": self.wedding.sms_invitation_message,
+            "whatsapp_invitation_message": self.wedding.whatsapp_invitation_message,
+            "show_seat_before_event": self.wedding.show_seat_before_event,
+        })
+        self.assertRedirects(response, url)
+        self.wedding.refresh_from_db()
+        self.assertEqual(self.wedding.invitation_host, InvitationHost.PARENTS)
+        self.assertEqual(
+            self.wedding.parents_invitation_text,
+            "Maria e Joaquim Mate e Ana e Manuel Cossa convidam para o casamento dos seus filhos.",
+        )
+
+        preview = self.client.get(reverse("weddings:invitation_preview", args=[self.wedding.pk]))
+        self.assertContains(
+            preview,
+            "Maria e Joaquim Mate e Ana e Manuel Cossa convidam para o casamento dos seus filhos.",
+        )
+
+    def test_parent_hosts_require_both_families_names(self) -> None:
+        self.wedding.category = create_category()
+        self.wedding.save(update_fields=["category"])
+        response = self.client.post(reverse("weddings:detail", args=[self.wedding.pk]), {
+            "primary_name": self.wedding.primary_name,
+            "secondary_name": self.wedding.secondary_name,
+            "main_date": self.wedding.main_date.isoformat(),
+            "country": self.wedding.country,
+            "invitation_host": InvitationHost.PARENTS,
+            "primary_parents_names": "",
+            "secondary_parents_names": "",
+            "sms_invitation_message": self.wedding.sms_invitation_message,
+            "whatsapp_invitation_message": self.wedding.whatsapp_invitation_message,
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertFormError(response.context["form"], "primary_parents_names", "Indique os nomes dos pais da noiva.")
+        self.assertFormError(response.context["form"], "secondary_parents_names", "Indique os nomes dos pais do noivo.")
+
+    def test_corporate_event_uses_business_fields_and_layout(self) -> None:
+        from events.models import EventCategory
+
+        corporate = EventCategory.objects.get(code="evento-corporativo")
+        self.wedding.category = corporate
+        self.wedding.primary_name = "Fórum de Liderança Moçambique"
+        self.wedding.primary_short_name = "Fórum"
+        self.wedding.secondary_name = ""
+        self.wedding.secondary_short_name = ""
+        self.wedding.selected_template = "corporate-executive-summit"
+        self.wedding.extra_data = {
+            "organizacao": "True North",
+            "tipo_evento_corporativo": "Conferência",
+            "modalidade": "Presencial",
+            "publico_alvo": "Líderes e gestores",
+            "tema_objetivo": "Estratégia, inovação e crescimento sustentável.",
+            "orador": "Direção Executiva",
+        }
+        self.wedding.save()
+
+        response = self.client.get(reverse("weddings:detail", args=[self.wedding.pk]))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Organização anfitriã")
+        self.assertContains(response, "Formato do evento")
+        self.assertContains(response, "Modalidade")
+        self.assertNotContains(response, 'id="id_story"', html=False)
+        self.assertNotContains(response, 'id="id_invitation_track"', html=False)
+        self.assertNotContains(response, "Quem apresenta o convite?")
+
+        preview = self.client.get(reverse("weddings:invitation_preview", args=[self.wedding.pk]))
+        self.assertEqual(preview.status_code, 200)
+        self.assertContains(preview, "True North")
+        self.assertContains(preview, "Líderes e gestores")
+        self.assertContains(preview, "Estratégia, inovação e crescimento sustentável.")
+        self.assertNotContains(preview, "A nossa história")
 
     def test_uploaded_music_enters_the_catalogue_and_is_selected(self) -> None:
         url = reverse("weddings:detail", args=[self.wedding.pk])

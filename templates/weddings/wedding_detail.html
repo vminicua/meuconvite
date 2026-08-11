@@ -35,7 +35,7 @@
                     <div class="visually-hidden">{{ form.cover_image }}</div>
                     <button class="btn btn-outline-secondary w-100" type="button" data-cover-reset {% if not wedding.cover_image %}disabled{% endif %}><i class="bi bi-arrow-counterclockwise me-1"></i>Voltar à capa original</button>
                     {% for error in form.cover_image.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-                    <div class="cover-music-control">
+                    {% if wedding.category.code != "evento-corporativo" %}<div class="cover-music-control">
                         <div><i class="bi bi-music-note-beamed"></i><div><strong>Música do convite</strong><span>Acompanha a abertura e a leitura.</span></div></div>
                         <label class="form-label" for="{{ form.invitation_track.id_for_label }}">Escolher música</label>
                         {{ form.invitation_track }}
@@ -58,7 +58,7 @@
                         </div>
                         <label class="form-check mt-2">{{ form.show_music }}<span class="form-check-label">Reproduzir ao abrir o convite</span></label>
                         {% for error in form.show_music.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-                    </div>
+                    </div>{% endif %}
                 </div>
             </div>
         </section>
@@ -66,6 +66,13 @@
         <section class="details-panel">
             <div class="details-panel__heading"><span class="details-panel__number">02</span><div><h3>Informação principal</h3><p>Os nomes completos e a data principal do evento.</p></div></div>
             <div class="row g-3">{% for field in form.details_identity_fields %}{% include "weddings/_detail_field.html" %}{% endfor %}</div>
+            {% if wedding.category.code == "casamento" %}
+            <div class="mt-4 pt-3 border-top" data-invitation-host>
+                <h4 class="h6 mb-1">Quem apresenta o convite?</h4>
+                <p class="text-muted small mb-3">Escolha a forma tradicional que será apresentada aos convidados.</p>
+                <div class="row g-3">{% for field in form.details_host_fields %}{% include "weddings/_detail_field.html" %}{% endfor %}</div>
+            </div>
+            {% endif %}
         </section>
 
         <details class="details-panel details-disclosure" data-mobile-collapsible open>
@@ -101,4 +108,26 @@
 </div>
 </form>
 {% if capabilities.is_owner %}<form method="post" action="{% url 'weddings:archive' wedding.pk %}" class="text-end" data-confirm="Arquivar este evento? Poderá continuar a consultar os dados.">{% csrf_token %}<button class="btn btn-link text-danger mt-2" type="submit">Arquivar evento</button></form>{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(() => {
+    const section = document.querySelector("[data-invitation-host]");
+    if (!section) return;
+    const radios = section.querySelectorAll('input[name="invitation_host"]');
+    const parentInputs = [
+        section.querySelector('[name="primary_parents_names"]'),
+        section.querySelector('[name="secondary_parents_names"]'),
+    ].filter(Boolean);
+    const refresh = () => {
+        const parents = section.querySelector('input[name="invitation_host"]:checked')?.value === "parents";
+        parentInputs.forEach((input) => {
+            input.closest(".col-md-6, .col-12")?.toggleAttribute("hidden", !parents);
+        });
+    };
+    radios.forEach((radio) => radio.addEventListener("change", refresh));
+    refresh();
+})();
+</script>
 {% endblock %}

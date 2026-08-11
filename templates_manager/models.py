@@ -87,6 +87,7 @@ class InvitationLayout(models.TextChoices):
     SEALED_LETTER = "carta_selada", _("Carta selada (abertura animada)")
     BOTANICAL = "envelope_botanico", _("Envelope botânico")
     CLASSIC_CARD = "cartao_classico", _("Cartão clássico")
+    CORPORATE = "corporativo", _("Evento corporativo")
 
 
 class InvitationTemplateQuerySet(models.QuerySet):
@@ -106,6 +107,11 @@ class InvitationTemplateQuerySet(models.QuerySet):
         queryset = self.active()
         if category is None:
             return queryset
+        # Corporate invitations have their own content structure and visual
+        # language.  Never leak a global celebration/wedding template into
+        # this category merely because its category list is empty.
+        if category.code == "evento-corporativo":
+            return queryset.filter(categories=category).distinct()
         return queryset.filter(
             models.Q(categories__isnull=True) | models.Q(categories=category)
         ).distinct()

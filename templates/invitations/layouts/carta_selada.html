@@ -60,6 +60,9 @@
         {% if guest_name %}
             <p class="inv-hero__greeting">Caro(a) {{ guest_name }},</p>
         {% endif %}
+        {% if wedding.parents_invitation_text %}
+            <p class="inv-hero__text">{{ wedding.parents_invitation_text }}</p>
+        {% endif %}
         <p class="inv-hero__text">
             {% if wedding.invitation_message %}{{ wedding.invitation_message|linebreaksbr }}{% else %}{{ wedding.full_names }} {{ invitation_greeting }}{% endif %}
         </p>

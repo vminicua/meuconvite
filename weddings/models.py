@@ -51,6 +51,11 @@ class WeddingStatus(models.TextChoices):
     BLOCKED = "blocked", _("Bloqueado")
 
 
+class InvitationHost(models.TextChoices):
+    COUPLE = "couple", _("Os noivos convidam")
+    PARENTS = "parents", _("Os pais de ambos convidam")
+
+
 class SeatVisibility(models.TextChoices):
     """When the guest is allowed to see their table."""
 
@@ -161,6 +166,25 @@ class Wedding(BaseModel):
     secondary_name = models.CharField(_("nome completo (2)"), max_length=150, blank=True)
     primary_short_name = models.CharField(_("nome curto (1)"), max_length=60)
     secondary_short_name = models.CharField(_("nome curto (2)"), max_length=60, blank=True)
+
+    invitation_host = models.CharField(
+        _("quem convida"),
+        max_length=20,
+        choices=InvitationHost.choices,
+        default=InvitationHost.COUPLE,
+    )
+    primary_parents_names = models.CharField(
+        _("pais da noiva"),
+        max_length=250,
+        blank=True,
+        help_text=_("Ex.: Maria e Joaquim Mate"),
+    )
+    secondary_parents_names = models.CharField(
+        _("pais do noivo"),
+        max_length=250,
+        blank=True,
+        help_text=_("Ex.: Ana e Manuel Cossa"),
+    )
 
     # Valores dos campos próprios do tipo de evento (EventCategory.field_schema).
     extra_data = models.JSONField(_("dados específicos"), default=dict, blank=True)
@@ -346,6 +370,22 @@ class Wedding(BaseModel):
         if self.secondary_name:
             return f"{self.primary_name} e {self.secondary_name}"
         return self.primary_name
+
+    @property
+    def parents_invitation_text(self) -> str:
+        """Formal host line used when both families issue the invitation."""
+        if self.invitation_host != InvitationHost.PARENTS:
+            return ""
+        hosts = " e ".join(
+            name.strip()
+            for name in (self.primary_parents_names, self.secondary_parents_names)
+            if name.strip()
+        )
+        if not hosts:
+            return ""
+        return _("%(hosts)s convidam para o casamento dos seus filhos.") % {
+            "hosts": hosts,
+        }
 
     @property
     def category_name(self) -> str:

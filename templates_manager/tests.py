@@ -34,18 +34,44 @@ from weddings.tests.factories import (
 class CatalogueTests(TestCase):
     """O catálogo é semeado pela migração de dados."""
 
-    def test_the_two_featured_templates_exist(self) -> None:
+    def test_featured_templates_include_social_and_corporate_collections(self) -> None:
         featured = InvitationTemplate.objects.featured().order_by("display_order")
         codes = [template.code for template in featured]
-        self.assertEqual(codes, ["carta-selada", "envelope-botanico"])
+        self.assertIn("carta-selada", codes)
+        self.assertIn("envelope-botanico", codes)
+        self.assertIn("corporate-executive-summit", codes)
+        self.assertIn("corporate-innovation-forum", codes)
+        self.assertIn("corporate-gala", codes)
 
-    def test_each_featured_template_has_its_own_layout(self) -> None:
+    def test_featured_templates_use_the_supported_layouts(self) -> None:
         layouts = set(
             InvitationTemplate.objects.featured().values_list("layout", flat=True)
         )
         self.assertEqual(
-            layouts, {InvitationLayout.SEALED_LETTER, InvitationLayout.BOTANICAL}
+            layouts,
+            {
+                InvitationLayout.SEALED_LETTER,
+                InvitationLayout.BOTANICAL,
+                InvitationLayout.CORPORATE,
+            },
         )
+
+    def test_corporate_category_only_receives_corporate_templates(self) -> None:
+        from events.models import EventCategory
+
+        corporate = EventCategory.objects.get(code="evento-corporativo")
+        templates = list(registry.all_templates(corporate))
+        self.assertEqual(
+            {template.code for template in templates},
+            {
+                "corporate-executive-summit",
+                "corporate-innovation-forum",
+                "corporate-gala",
+            },
+        )
+        self.assertTrue(all(template.layout == InvitationLayout.CORPORATE for template in templates))
+        self.assertTrue(all(not template.supports_music for template in templates))
+        self.assertTrue(all(template.cover_image for template in templates))
 
     def test_palettes_are_also_available(self) -> None:
         self.assertGreaterEqual(InvitationTemplate.objects.active().count(), 10)

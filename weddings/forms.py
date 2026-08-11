@@ -24,6 +24,7 @@ from .models import (
     SMS_TEMPLATE_MAX_LENGTH,
     MusicTrack,
     Wedding,
+    InvitationHost,
     WeddingGalleryPhoto,
     WeddingMember,
     WeddingRole,
@@ -172,6 +173,31 @@ class WeddingSettingsForm(BootstrapModelForm):
         else:
             del self.fields["secondary_name"]
 
+        if category.code != "casamento":
+            for field_name in (
+                "invitation_host",
+                "primary_parents_names",
+                "secondary_parents_names",
+            ):
+                self.fields.pop(field_name, None)
+        if category.code == "evento-corporativo":
+            self.fields.pop("story", None)
+            self.fields.pop("invitation_track", None)
+            self.fields.pop("show_music", None)
+            self.fields.pop("music_upload", None)
+            self.fields["welcome_message"].label = _("Mensagem de encerramento")
+            if not self.is_bound:
+                self.initial.update({
+                    "cover_message": _("Ideias, pessoas e oportunidades no mesmo lugar"),
+                    "invitation_message": _(
+                        "Temos o prazer de o convidar para um encontro de conhecimento, "
+                        "colaboração e novas oportunidades."
+                    ),
+                    "welcome_message": _(
+                        "Agradecemos a sua participação e esperamos recebê-lo neste evento."
+                    ),
+                })
+
         add_schema_fields(self, category.extra_fields, self.instance.extra_data or {})
 
         def bound(names):
@@ -179,6 +205,9 @@ class WeddingSettingsForm(BootstrapModelForm):
 
         self.details_identity_fields = bound([
             "primary_name", "secondary_name", "main_date", "country",
+        ])
+        self.details_host_fields = bound([
+            "invitation_host", "primary_parents_names", "secondary_parents_names",
         ])
         self.details_content_fields = bound([
             "cover_message", "invitation_message", "welcome_message", "story",
@@ -226,6 +255,9 @@ class WeddingSettingsForm(BootstrapModelForm):
             "secondary_name",
             "main_date",
             "country",
+            "invitation_host",
+            "primary_parents_names",
+            "secondary_parents_names",
             "cover_image",
             "invitation_track",
             "show_music",
@@ -251,6 +283,7 @@ class WeddingSettingsForm(BootstrapModelForm):
                 "accept": "image/jpeg,image/png,image/webp",
                 "data-cover-input": "",
             }),
+            "invitation_host": forms.RadioSelect(),
         }
         help_texts = {
             "rsvp_deadline": _("Depois desta data deixam de ser aceites confirmações."),
@@ -326,6 +359,17 @@ class WeddingSettingsForm(BootstrapModelForm):
                 "rsvp_deadline",
                 _("O prazo de confirmação tem de ser anterior à data do evento."),
             )
+        if cleaned.get("invitation_host") == InvitationHost.PARENTS:
+            if not (cleaned.get("primary_parents_names") or "").strip():
+                self.add_error(
+                    "primary_parents_names",
+                    _("Indique os nomes dos pais da noiva."),
+                )
+            if not (cleaned.get("secondary_parents_names") or "").strip():
+                self.add_error(
+                    "secondary_parents_names",
+                    _("Indique os nomes dos pais do noivo."),
+                )
         return cleaned
 
 

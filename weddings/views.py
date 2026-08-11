@@ -205,6 +205,7 @@ def wedding_detail(request: HttpRequest, wedding) -> HttpResponse:
     from templates_manager import registry
     selected_template = registry.get_template(wedding.selected_template)
     locations = wedding.locations.select_related("wedding").order_by("display_order", "name")
+    invitation_track_field = form.fields.get("invitation_track")
     return render(
         request,
         "weddings/wedding_detail.html",
@@ -218,7 +219,9 @@ def wedding_detail(request: HttpRequest, wedding) -> HttpResponse:
             "guests_remaining": limits.guests_remaining(guests_used),
             "usage_percent": limits.usage_percent(guests_used),
             "form": form,
-            "music_tracks": form.fields["invitation_track"].queryset,
+            "music_tracks": (
+                invitation_track_field.queryset if invitation_track_field else []
+            ),
             "capabilities": capabilities,
             "selected_template": selected_template,
             "locations": locations,

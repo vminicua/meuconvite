@@ -114,6 +114,30 @@ class LimitTests(TestCase):
         with self.assertRaisesMessage(ValidationError, "já utilizou um voucher"):
             services.apply_voucher(wedding=self.wedding, code="UNICO", actor=self.wedding.owner)
 
+    def test_voucher_unlocks_an_additional_event(self) -> None:
+        from weddings.permissions import capability_flags, user_can
+
+        self.wedding.subscription.status = SubscriptionStatus.PENDING
+        self.wedding.subscription.save(update_fields=["status"])
+        voucher = Voucher.objects.create(
+            code="FREETEST001", name="Teste gratuito", max_guests=250,
+        )
+
+        self.assertTrue(services.event_requires_upgrade(self.wedding))
+        services.apply_voucher(
+            wedding=self.wedding,
+            code=voucher.code,
+            actor=self.wedding.owner,
+        )
+        self.wedding.refresh_from_db()
+
+        self.assertFalse(services.event_requires_upgrade(self.wedding))
+        allowed = services.limits(self.wedding)
+        self.assertEqual(allowed.max_guests, 250)
+        self.assertIn("Voucher FREETEST001", allowed.plan_name)
+        self.assertTrue(user_can(self.wedding, self.wedding.owner, "can_manage_events"))
+        self.assertFalse(capability_flags(self.wedding, self.wedding.owner)["event_locked"])
+
 
 class PaymentFlowTests(TestCase):
     def setUp(self) -> None:
