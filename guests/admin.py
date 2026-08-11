@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Gift, GiftSelection, Guest, InvitationDelivery
+from .models import EventReminderDelivery, Gift, GiftSelection, Guest, InvitationDelivery
 
 
 @admin.register(Guest)
@@ -22,6 +22,14 @@ class InvitationDeliveryAdmin(admin.ModelAdmin):
         "provider", "provider_sid", "error_code", "error_message", "sent_by",
         "sent_at", "counts_toward_limit", "created_at", "updated_at",
     )
+
+
+@admin.register(EventReminderDelivery)
+class EventReminderDeliveryAdmin(admin.ModelAdmin):
+    list_display = ("guest", "wedding", "days_before", "event_date", "destination", "status", "sent_at")
+    list_filter = ("status", "days_before", "event_date")
+    search_fields = ("guest__full_name", "destination", "wedding__primary_name")
+    readonly_fields = [field.name for field in EventReminderDelivery._meta.fields]
 
 
 @admin.register(Gift)

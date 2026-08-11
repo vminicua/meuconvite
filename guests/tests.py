@@ -3,15 +3,62 @@ from unittest.mock import patch
 from io import BytesIO
 from urllib.parse import parse_qs, urlparse
 
+from django.core import mail
+from django.core.management import call_command
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 from PIL import Image
 from events.models import WeddingEvent
 
+from weddings.models import WeddingStatus
 from weddings.tests.factories import DEFAULT_PASSWORD, create_plan, create_user, create_wedding
 
-from .models import DeliveryStatus, Guest, InvitationDelivery
+from .models import DeliveryStatus, EventReminderDelivery, Guest, InvitationDelivery
+
+
+@override_settings(
+    EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+    SITE_BASE_URL="https://meuconvite.example",
+)
+class EventReminderCommandTests(TestCase):
+    def setUp(self):
+        self.wedding = create_wedding(
+            main_date=timezone.localdate() + timedelta(days=7),
+            status=WeddingStatus.PUBLISHED,
+        )
+        self.guest = Guest.objects.create(
+            wedding=self.wedding, full_name="Ana Mucavele", email="ana@example.com"
+        )
+
+    def test_sends_personalised_email_and_records_delivery(self):
+        call_command("send_event_reminders")
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn("Ana Mucavele", mail.outbox[0].body)
+        self.assertIn(self.guest.invitation_token, mail.outbox[0].body)
+        delivery = EventReminderDelivery.objects.get()
+        self.assertEqual(delivery.status, DeliveryStatus.SENT)
+        self.assertEqual(delivery.days_before, 7)
+        self.assertIsNotNone(delivery.sent_at)
+
+    def test_does_not_send_the_same_reminder_twice(self):
+        call_command("send_event_reminders")
+        call_command("send_event_reminders")
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(EventReminderDelivery.objects.count(), 1)
+
+    def test_ignores_drafts_inactive_guests_and_guests_without_email(self):
+        self.wedding.status = WeddingStatus.DRAFT
+        self.wedding.save(update_fields=["status", "updated_at"])
+        Guest.objects.create(wedding=self.wedding, full_name="Sem email")
+        inactive = Guest.objects.create(
+            wedding=self.wedding, full_name="Inactivo", email="off@example.com"
+        )
+        inactive.is_active = False
+        inactive.save(update_fields=["is_active", "updated_at"])
+        call_command("send_event_reminders")
+        self.assertEqual(mail.outbox, [])
+        self.assertFalse(EventReminderDelivery.objects.exists())
 
 
 class GuestViewTests(TestCase):

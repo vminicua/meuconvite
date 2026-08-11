@@ -334,11 +334,15 @@ source /home/UTILIZADOR/virtualenv/meuconvite/3.12/bin/activate && cd /home/UTIL
 
 Backup da base de dados — diariamente às 02h00 (ver passo 12).
 
-Fila de emails e lembretes (fase 4):
+Lembretes de evento por email — executar diariamente (por exemplo, às 08h00):
 
 ```bash
-source /home/UTILIZADOR/virtualenv/meuconvite/3.12/bin/activate && cd /home/UTILIZADOR/meuconvite && python manage.py send_pending_notifications >> logs/cron.log 2>&1
+source /home/salacsth/virtualenv/meuconvite/3.12/bin/activate && cd /home/salacsth/meuconvite && python manage.py send_event_reminders >> logs/cron.log 2>&1
 ```
+
+O comando envia aos convidados activos com email lembretes 7 dias e 1 dia antes,
+apenas para eventos publicados. Cada marco fica registado na base de dados para
+impedir duplicados; envios falhados são tentados novamente no mesmo dia.
 
 ---
 

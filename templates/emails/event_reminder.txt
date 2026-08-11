@@ -1,0 +1,13 @@
+Olá, {{ guest.full_name }}!
+
+{% if days_before == 1 %}É já amanhã!{% else %}Faltam {{ days_before }} dias para o evento.{% endif %}
+
+{{ wedding.display_names }}
+Data: {{ wedding.main_date|date:"d/m/Y" }}
+{% if wedding.city %}Local: {{ wedding.city }}
+{% endif %}
+Consulte o seu convite e todos os detalhes aqui:
+{{ invitation_url }}
+
+Até breve,
+Equipa MeuConvite

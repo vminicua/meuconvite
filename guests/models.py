@@ -188,3 +188,42 @@ class InvitationDelivery(BaseModel):
 
     def __str__(self) -> str:
         return f"{self.guest} — {self.get_channel_display()} ({self.get_status_display()})"
+
+
+class EventReminderDelivery(BaseModel):
+    """Registo idempotente de um lembrete de evento enviado por email."""
+
+    wedding = models.ForeignKey(
+        "weddings.Wedding", on_delete=models.CASCADE, related_name="reminder_deliveries"
+    )
+    guest = models.ForeignKey(
+        Guest, on_delete=models.CASCADE, related_name="reminder_deliveries"
+    )
+    event_date = models.DateField(_("data do evento"))
+    days_before = models.PositiveSmallIntegerField(_("dias de antecedência"))
+    destination = models.EmailField(_("destino"))
+    subject = models.CharField(_("assunto"), max_length=255)
+    status = models.CharField(
+        max_length=20, choices=DeliveryStatus.choices, default=DeliveryStatus.PENDING,
+        db_index=True,
+    )
+    sent_at = models.DateTimeField(null=True, blank=True)
+    error_message = models.CharField(max_length=500, blank=True)
+
+    class Meta:
+        verbose_name = _("lembrete de evento")
+        verbose_name_plural = _("lembretes de eventos")
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["guest", "event_date", "days_before"],
+                name="unique_guest_event_reminder",
+            )
+        ]
+        indexes = [
+            models.Index(fields=["wedding", "event_date"], name="reminder_wedding_date_idx"),
+            models.Index(fields=["status", "created_at"], name="reminder_status_date_idx"),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.guest} — {self.days_before} dia(s) antes ({self.get_status_display()})"
