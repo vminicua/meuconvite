@@ -32,6 +32,15 @@ from .models import (
 
 User = get_user_model()
 
+
+class SMSInvitationMessageField(forms.CharField):
+    """Conta quebras de linha como o contador do navegador: um carácter."""
+
+    def to_python(self, value):
+        if isinstance(value, str):
+            value = value.replace("\r\n", "\n").replace("\r", "\n")
+        return super().to_python(value)
+
 CORPORATE_SMS_INVITATION_MESSAGE = (
     "*{evento}*\n"
     "Ola {nome}! Convidamo-lo para este encontro profissional.\n"
@@ -116,7 +125,7 @@ class WeddingCreateForm(BootstrapModelForm):
 class WeddingSettingsForm(BootstrapModelForm):
     """Definições gerais de um evento já criado."""
 
-    sms_invitation_message = forms.CharField(
+    sms_invitation_message = SMSInvitationMessageField(
         label=_("Mensagem do convite por SMS"),
         required=False,
         max_length=SMS_TEMPLATE_MAX_LENGTH,

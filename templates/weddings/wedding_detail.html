@@ -79,10 +79,10 @@
             <summary class="details-panel__heading"><span class="details-panel__number">03</span><div>{% if wedding.category.code == "evento-corporativo" %}<h3>Comunicação do evento</h3><p>Mensagens institucionais da capa, do convite e das partilhas.</p>{% else %}<h3>Palavras que dão personalidade</h3><p>Todas as mensagens da capa, do convite e das partilhas.</p>{% endif %}</div><i class="bi bi-chevron-down details-disclosure__chevron"></i></summary>
             <div class="row g-4 personality-message-grid">
                 <div class="col-lg-6 personality-message-grid__channels">
-                    <div class="personality-message-box" {% if not capabilities.allows_sms %}data-upgrade-modal data-upgrade-feature="Convites por SMS"{% endif %}>
-                        <label class="form-label" for="{{ form.sms_invitation_message.id_for_label }}">{{ form.sms_invitation_message.label }}{% if not capabilities.allows_sms %} <i class="bi bi-lock-fill text-primary"></i>{% endif %}</label>
+                    <div class="personality-message-box">
+                        <label class="form-label" for="{{ form.sms_invitation_message.id_for_label }}">{{ form.sms_invitation_message.label }}</label>
                         {{ form.sms_invitation_message }}
-                        <div class="d-flex justify-content-between gap-2"><div class="form-text">Sem acentos ou emojis. Use {nome}, {evento} e {link}.</div><div class="form-text text-nowrap"><span data-sms-count>0</span>/160</div></div>
+                        <div class="d-flex justify-content-between gap-2"><div class="form-text">Sem acentos ou emojis. Use {nome}, {evento} e {link}.</div><div class="form-text text-nowrap"><span data-sms-count>0</span>/100</div></div>
                         {% for error in form.sms_invitation_message.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
                     </div>
                     <div class="personality-message-box">

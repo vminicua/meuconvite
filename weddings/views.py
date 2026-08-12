@@ -193,8 +193,6 @@ def wedding_detail(request: HttpRequest, wedding) -> HttpResponse:
                     key: value for key, value in form.cleaned_data.items()
                     if not key.startswith("extra__") and key != "music_upload"
                 }
-                if not capabilities["allows_sms"]:
-                    data["sms_invitation_message"] = wedding.sms_invitation_message
                 data["invitation_music"] = ""
                 data["extra_data"] = form.extra_data()
                 services.update_wedding(
@@ -269,8 +267,6 @@ def wedding_settings(request: HttpRequest, wedding) -> HttpResponse:
                     key: value for key, value in form.cleaned_data.items()
                     if not key.startswith("extra__") and key != "music_upload"
                 }
-                if not capabilities["allows_sms"]:
-                    data["sms_invitation_message"] = wedding.sms_invitation_message
                 data["invitation_music"] = ""
                 data["extra_data"] = form.extra_data()
                 services.update_wedding(

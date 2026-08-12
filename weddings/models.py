@@ -40,10 +40,7 @@ DEFAULT_WHATSAPP_INVITATION_MESSAGE = (
     "Com carinho,\n{evento}"
 )
 
-# O texto editável pode chegar ao limite de um SMS. A validação do formulário
-# continua a verificar separadamente o tamanho final depois de substituir
-# {nome}, {evento} e {link}.
-SMS_TEMPLATE_MAX_LENGTH = 160
+SMS_TEMPLATE_MAX_LENGTH = 100
 SMS_MAX_LENGTH = 160
 
 
