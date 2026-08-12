@@ -519,16 +519,21 @@ def team_list(request: HttpRequest, wedding) -> HttpResponse:
     if request.method == "POST":
         form = MemberInviteForm(request.POST, wedding=wedding)
         if form.is_valid():
-            services.add_member(
-                wedding=wedding,
-                user=form.user,
-                role=form.cleaned_data["role"],
-                actor=request.user,
-                request=request,
-                notes=form.cleaned_data.get("notes", ""),
-            )
-            messages.success(request, "Membro adicionado à equipa.")
-            return redirect("weddings:team", wedding_id=wedding.pk)
+            from subscriptions.services import limits
+            active_members = wedding.members.filter(is_active=True).count()
+            if active_members >= limits(wedding).max_team:
+                form.add_error(None, "O plano actual atingiu o limite de membros da equipa.")
+            else:
+                services.add_member(
+                    wedding=wedding,
+                    user=form.user,
+                    role=form.cleaned_data["role"],
+                    actor=request.user,
+                    request=request,
+                    notes=form.cleaned_data.get("notes", ""),
+                )
+                messages.success(request, "Membro adicionado à equipa.")
+                return redirect("weddings:team", wedding_id=wedding.pk)
         messages.error(request, "Não foi possível adicionar o membro.")
 
     return render(

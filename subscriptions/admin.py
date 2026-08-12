@@ -31,22 +31,24 @@ class PlanAdmin(admin.ModelAdmin):
     list_display = (
         "name",
         "code",
+        "event_family",
         "max_guests",
         "max_sms",
+        "max_team",
         "price_display",
         "duration_days",
         "is_default",
         "is_active",
         "display_order",
     )
-    list_filter = ("is_active", "is_default")
+    list_filter = ("event_family", "is_active", "is_default")
     search_fields = ("name", "code")
     ordering = ("display_order", "max_guests")
     list_editable = ("display_order", "is_active")
 
     fieldsets = (
-        (None, {"fields": ("code", "name", "description", "display_order")}),
-        (_("Limites"), {"fields": ("max_guests", "max_sms")}),
+        (None, {"fields": ("code", "name", "description", "event_family", "display_order")}),
+        (_("Limites"), {"fields": ("max_guests", "max_sms", "max_team")}),
         (_("Preço"), {"fields": ("price_mzn", "duration_days")}),
         (
             _("Funcionalidades"),

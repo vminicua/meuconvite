@@ -54,6 +54,7 @@ class Limits:
     max_guests: int
     max_events: int
     max_sms: int
+    max_team: int
     allows_qr_checkin: bool
     allows_seating: bool
     allows_team: bool
@@ -78,10 +79,26 @@ class Limits:
         return min(int(current / self.max_sms * 100), 100)
 
 
-def default_plan() -> Plan | None:
+def event_family(wedding) -> str:
+    code = getattr(getattr(wedding, "category", None), "code", "")
+    if code in {"casamento", "lobolo"}:
+        return Plan.EventFamily.WEDDING
+    if code == "noivado":
+        return Plan.EventFamily.ENGAGEMENT
+    if code == "evento-corporativo":
+        return Plan.EventFamily.CORPORATE
+    return Plan.EventFamily.CELEBRATION
+
+
+def plans_for(wedding):
+    return Plan.objects.active().filter(event_family=event_family(wedding))
+
+
+def default_plan(wedding=None) -> Plan | None:
+    plans = plans_for(wedding) if wedding is not None else Plan.objects.active()
     return (
-        Plan.objects.active().filter(is_default=True).first()
-        or Plan.objects.active().order_by("max_guests").first()
+        plans.filter(is_default=True).first()
+        or plans.order_by("max_guests").first()
     )
 
 
@@ -102,7 +119,7 @@ def ensure_subscription(wedding, *, allow_free: bool = True) -> Subscription | N
     if existing is not None:
         return existing
 
-    plan = default_plan()
+    plan = default_plan(wedding)
     if plan is None:
         return None
 
@@ -138,6 +155,7 @@ def limits(wedding) -> Limits:
             max_guests=0,
             max_events=1,
             max_sms=0,
+            max_team=0,
             allows_qr_checkin=True,
             allows_seating=False,
             allows_team=False,
@@ -157,6 +175,7 @@ def limits(wedding) -> Limits:
             max_guests=max(resolved.max_guests, redemption.guest_allowance),
             max_events=resolved.max_events,
             max_sms=max(resolved.max_sms, redemption.sms_allowance),
+            max_team=resolved.max_team,
             allows_qr_checkin=resolved.allows_qr_checkin,
             allows_seating=resolved.allows_seating,
             allows_team=resolved.allows_team,
@@ -169,13 +188,14 @@ def limits(wedding) -> Limits:
         )
 
     if subscription is None or not subscription.is_active:
-        plan = subscription.plan if subscription else default_plan()
+        plan = subscription.plan if subscription else default_plan(wedding)
         if plan is None:
             return with_voucher(Limits(
                 plan_name=str(_("Gratuito")),
                 max_guests=FALLBACK_GUEST_LIMIT,
                 max_events=1,
                 max_sms=FALLBACK_SMS_LIMIT,
+                max_team=1,
                 allows_qr_checkin=True,
                 allows_seating=False,
                 allows_team=True,
@@ -187,12 +207,13 @@ def limits(wedding) -> Limits:
                 days_remaining=None,
             ))
         # Subscrição expirada: volta-se ao plano inicial, sem perder dados.
-        fallback = default_plan() or plan
+        fallback = default_plan(wedding) or plan
         return with_voucher(Limits(
             plan_name=fallback.name,
             max_guests=fallback.max_guests,
             max_events=fallback.max_events,
             max_sms=0 if fallback.is_free else fallback.max_sms,
+            max_team=fallback.max_team,
             allows_qr_checkin=True,
             allows_seating=fallback.allows_seating,
             allows_team=True,
@@ -213,6 +234,7 @@ def limits(wedding) -> Limits:
         # O plano gratuito nunca envia SMS, mesmo que uma subscrição antiga
         # ainda guarde uma quota anterior no respectivo snapshot.
         max_sms=0 if plan.is_free else subscription.sms_allowance,
+        max_team=plan.max_team,
         allows_qr_checkin=True,
         allows_seating=plan.allows_seating,
         allows_team=True,
@@ -380,7 +402,7 @@ def upgrade_options(wedding) -> list[Plan]:
     """Planos que representam de facto um upgrade face ao actual."""
     current = limits(wedding)
     return list(
-        Plan.objects.active()
+        plans_for(wedding)
         .filter(max_guests__gt=current.max_guests)
         .order_by("max_guests")
     )
@@ -459,6 +481,8 @@ def initiate_payzeno_checkout(
     """Cria (ou reutiliza) um checkout mobile money alojado pela Payzeno."""
     if plan.is_free:
         raise ValidationError(_("O plano gratuito não precisa de pagamento."))
+    if plan.event_family != event_family(wedding):
+        raise ValidationError(_("Este pacote não está disponível para este tipo de evento."))
     if plan.max_guests <= limits(wedding).max_guests:
         raise ValidationError(_("Escolha um pacote superior ao pacote actual."))
     if method not in {PaymentMethod.MPESA, PaymentMethod.EMOLA}:

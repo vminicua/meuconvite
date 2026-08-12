@@ -47,7 +47,7 @@ def subscription_detail(request: HttpRequest, wedding) -> HttpResponse:
         if not capabilities["can_manage_billing"]:
             raise Http404
         selected_plan_code = request.POST.get("plan_code", "")
-        plan = get_object_or_404(Plan.objects.active(), code=selected_plan_code)
+        plan = get_object_or_404(services.plans_for(wedding), code=selected_plan_code)
         upgrade_form = PayzenoCheckoutForm(request.POST)
         if upgrade_form.is_valid():
             try:
@@ -95,8 +95,7 @@ def subscription_detail(request: HttpRequest, wedding) -> HttpResponse:
             "sms_usage_percent": current.sms_usage_percent(sms_used),
             "guests_remaining": current.guests_remaining(used),
             "usage_percent": current.usage_percent(used),
-            "plans": Plan.objects.active()
-            .exclude(code="grande-evento-500")
+            "plans": services.plans_for(wedding)
             .order_by("display_order", "max_guests"),
             "upgrades": services.upgrade_options(wedding),
             "open_payments": Payment.objects.filter(
@@ -154,7 +153,7 @@ def apply_voucher(request: HttpRequest, wedding) -> HttpResponse:
 @require_wedding("can_manage_billing")
 def upgrade(request: HttpRequest, wedding, plan_code: str) -> HttpResponse:
     """Compatibilidade: o checkout actual é iniciado na página de subscrição."""
-    get_object_or_404(Plan.objects.active(), code=plan_code)
+    get_object_or_404(services.plans_for(wedding), code=plan_code)
     return redirect("subscriptions:detail", wedding_id=wedding.pk)
 
 

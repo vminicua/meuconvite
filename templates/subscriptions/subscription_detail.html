@@ -103,8 +103,9 @@
             </header>
 
             <div class="subscription-plan__limits">
-                <div><i class="bi bi-people"></i><strong>{{ plan.max_guests }}</strong><span>convidados</span></div>
+                <div><i class="bi bi-people"></i><strong>{{ plan.max_guests }}</strong><span>{% if plan.event_family == 'corporate' %}participantes{% else %}convidados{% endif %}</span></div>
                 <div><i class="bi bi-chat-dots"></i><strong>{% if plan.is_free %}Sem{% else %}{{ plan.max_sms|intcomma }}{% endif %}</strong><span>SMS</span></div>
+                <div><i class="bi bi-people-fill"></i><strong>{{ plan.max_team }}</strong><span>na equipa</span></div>
             </div>
 
             <ul class="subscription-plan__features">

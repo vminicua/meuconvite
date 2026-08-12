@@ -117,8 +117,10 @@ class PlanForm(BootstrapModelForm):
             "name",
             "code",
             "description",
+            "event_family",
             "max_guests",
             "max_sms",
+            "max_team",
             "price_mzn",
             "duration_days",
             "allows_seating",
@@ -146,9 +148,11 @@ class PlanForm(BootstrapModelForm):
 
     def save(self, commit: bool = True) -> Plan:
         plan = super().save(commit=commit)
-        # Só pode haver um pacote inicial.
+        # Só pode haver um pacote inicial por família de evento.
         if commit and plan.is_default:
-            Plan.objects.exclude(pk=plan.pk).filter(is_default=True).update(is_default=False)
+            Plan.objects.exclude(pk=plan.pk).filter(
+                is_default=True, event_family=plan.event_family
+            ).update(is_default=False)
         return plan
 
 

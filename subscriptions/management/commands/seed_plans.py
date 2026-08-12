@@ -105,6 +105,43 @@ PLANS: list[dict] = [
     },
 ]
 
+# Catálogo oficial por tipo de evento (Preços.xlsx, 12/08/2026).
+_MATRIX = {
+    "wedding": [
+        ("free", "Free", 0, 10, 0, 1), ("classic", "Classic", 9500, 100, 100, 4),
+        ("premium", "Premium", 14500, 150, 200, 8), ("prestige", "Prestige", 23500, 200, 300, 10),
+        ("royal", "Royal", 36500, 300, 600, 15),
+    ],
+    "celebration": [
+        ("free", "Free", 0, 5, 0, 1), ("graduate", "Graduate", 4500, 50, 50, 4),
+        ("celebration", "Celebration", 8500, 100, 100, 8), ("class", "Class", 13500, 150, 200, 10),
+        ("grand-class", "Grand Class", 21500, 200, 300, 15),
+    ],
+    "engagement": [
+        ("free", "Free", 0, 5, 0, 1), ("elegant", "Elegant", 5000, 50, 50, 4),
+        ("premium", "Premium", 8000, 100, 100, 8), ("exclusive", "Exclusive", 13000, 150, 200, 10),
+    ],
+    "corporate": [
+        ("free", "Free", 0, 5, 0, 1), ("business", "Business", 11500, 50, 100, 5),
+        ("professional", "Professional", 19500, 100, 200, 8),
+        ("plus", "Corporate Plus", 41500, 250, 500, 10), ("enterprise", "Enterprise", 68500, 500, 1000, 15),
+    ],
+}
+PLANS = [
+    {
+        "code": f"{family}-{slug}", "name": name,
+        "description": f"Plano {name} para esta categoria de evento.",
+        "event_family": family, "max_guests": guests, "max_events": 1,
+        "max_sms": sms, "max_team": team, "price_mzn": Decimal(price),
+        "duration_days": 0 if price == 0 else 365, "templates_limit": 0,
+        "allows_qr_checkin": True, "allows_seating": price > 0,
+        "allows_exports": True, "allows_team": True, "is_default": price == 0,
+        "display_order": order * 10,
+    }
+    for family, rows in _MATRIX.items()
+    for order, (slug, name, price, guests, sms, team) in enumerate(rows, 1)
+]
+
 
 class Command(BaseCommand):
     help = "Cria ou actualiza os pacotes de subscrição."
@@ -150,8 +187,8 @@ class Command(BaseCommand):
                 updated_count += 1
                 self.stdout.write(f"  actualizado: {plan.name} ({', '.join(changed)})")
 
-        # Só um pacote pode ser o inicial.
-        Plan.objects.exclude(code="gratuito").filter(is_default=True).update(is_default=False)
+        current_codes = {definition["code"] for definition in PLANS}
+        Plan.objects.exclude(code__in=current_codes).update(is_active=False, is_default=False)
 
         self.stdout.write(
             self.style.SUCCESS(

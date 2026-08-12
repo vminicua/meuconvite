@@ -31,9 +31,19 @@ class Plan(BaseModel):
     software.
     """
 
+    class EventFamily(models.TextChoices):
+        WEDDING = "wedding", _("Casamento / Lobolo")
+        CELEBRATION = "celebration", _("Aniversário / Graduação / Batismo")
+        ENGAGEMENT = "engagement", _("Noivado")
+        CORPORATE = "corporate", _("Eventos corporativos")
+
     code = models.SlugField(_("código"), max_length=40, unique=True)
     name = models.CharField(_("nome"), max_length=80)
     description = models.CharField(_("descrição"), max_length=200, blank=True)
+    event_family = models.CharField(
+        _("família de eventos"), max_length=20,
+        choices=EventFamily.choices, default=EventFamily.CELEBRATION, db_index=True,
+    )
 
     max_guests = models.PositiveIntegerField(
         _("convidados incluídos"),
@@ -49,6 +59,7 @@ class Plan(BaseModel):
         default=0,
         help_text=_("Número máximo de convites por SMS em cada evento."),
     )
+    max_team = models.PositiveIntegerField(_("membros da equipa"), default=1)
     price_mzn = models.DecimalField(
         _("preço (MZN)"), max_digits=10, decimal_places=2, default=0
     )
