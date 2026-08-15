@@ -911,6 +911,62 @@ main {
 .modal .guest-programme-options { max-height:15rem; overflow:auto; padding:.15rem .25rem .15rem 0; }
 .modal .guest-programme-options .guest-programme-list { padding-right:.2rem; }
 @media (max-width:575.98px) { .guest-programme-list,.guest-programme-options ul { grid-template-columns:1fr; } }
+
+/* Every Bootstrap modal must remain usable when its content is taller than
+   the viewport. Forms are often the direct child of .modal-content, so they
+   need to participate in the flex height chain for .modal-body to scroll. */
+.modal-dialog {
+    max-height: calc(100vh - 2rem);
+    max-height: calc(100dvh - 2rem);
+}
+.modal-content {
+    max-height: calc(100vh - 2rem);
+    max-height: calc(100dvh - 2rem);
+}
+.modal-content > form {
+    display: flex;
+    min-height: 0;
+    max-height: inherit;
+    flex: 1 1 auto;
+    flex-direction: column;
+}
+.modal-header,
+.modal-footer {
+    flex: 0 0 auto;
+}
+.modal-body {
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    -webkit-overflow-scrolling: touch;
+}
+@media (max-width:575.98px) {
+    .modal-dialog {
+        width: auto;
+        max-height: calc(100vh - 1rem);
+        max-height: calc(100dvh - 1rem);
+        margin: .5rem;
+    }
+    .modal-content {
+        max-height: calc(100vh - 1rem);
+        max-height: calc(100dvh - 1rem);
+        border-radius: .85rem;
+    }
+    .modal-header,
+    .modal-body,
+    .modal-footer {
+        padding: .85rem;
+    }
+    .modal-footer {
+        flex-wrap: nowrap;
+    }
+    .modal-footer > .btn {
+        min-width: 0;
+        flex: 1 1 0;
+    }
+}
 .swal2-container,.swal2-container.meuconvite-swal { z-index:2000 !important; }
 .mc-swal-container { position:fixed; inset:0; z-index:2000; display:grid; place-items:center; padding:1rem; background:rgba(15,23,42,.48); backdrop-filter:blur(2px); }
 .mc-swal-popup { width:min(30rem,calc(100vw - 2rem)); padding:1.75rem; border-radius:1rem; background:#fff; color:#1f2933; text-align:center; box-shadow:0 1.5rem 4rem rgba(15,23,42,.3); animation:mc-swal-in .18s ease-out; }
