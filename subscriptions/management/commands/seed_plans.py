@@ -32,6 +32,7 @@ PLANS: list[dict] = [
         "duration_days": 0,
         "templates_limit": 0,
         "allows_qr_checkin": True,
+        "allows_seating": True,
         "allows_exports": True,
         "allows_team": True,
         "is_default": True,
@@ -134,7 +135,7 @@ PLANS = [
         "event_family": family, "max_guests": guests, "max_events": 1,
         "max_sms": sms, "max_team": team, "price_mzn": Decimal(price),
         "duration_days": 0 if price == 0 else 365, "templates_limit": 0,
-        "allows_qr_checkin": True, "allows_seating": price > 0,
+        "allows_qr_checkin": True, "allows_seating": True,
         "allows_exports": True, "allows_team": True, "is_default": price == 0,
         "display_order": order * 10,
     }

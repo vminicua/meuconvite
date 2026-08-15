@@ -162,6 +162,7 @@ class PaymentFlowTests(TestCase):
         self.assertEqual(Payment.objects.count(), 1)
 
     def test_the_free_plan_cannot_be_paid(self) -> None:
+        self.assertTrue(services.limits(self.wedding).allows_seating)
         with self.assertRaises(ValidationError):
             services.request_upgrade(wedding=self.wedding, plan=self.free, actor=self.owner)
 
