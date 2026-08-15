@@ -481,7 +481,7 @@ class DashboardViewTests(TestCase):
         create_event(self.wedding, location=create_location(self.wedding))
         after = self.client.get(reverse("weddings:setup", args=[self.wedding.pk]))
         self.assertGreater(after.context["progress"], before.context["progress"])
-        self.assertTrue(after.context["can_publish"])
+        self.assertContains(after, "publicado automaticamente")
 
     def test_publish_flow_reports_missing_requirements(self) -> None:
         response = self.client.post(
@@ -489,7 +489,7 @@ class DashboardViewTests(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.wedding.refresh_from_db()
-        self.assertEqual(self.wedding.status, "draft")
+        self.assertEqual(self.wedding.status, "published")
         self.assertContains(response, "Falta completar")
 
     def test_wedding_list_only_shows_accessible_weddings(self) -> None:

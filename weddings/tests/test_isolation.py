@@ -100,7 +100,7 @@ class CrossWeddingAccessTests(TestCase):
         response = self.client.post(reverse("weddings:publish", args=[self.wedding_a.pk]))
         self.assertEqual(response.status_code, 404)
         self.wedding_a.refresh_from_db()
-        self.assertEqual(self.wedding_a.status, "draft")
+        self.assertEqual(self.wedding_a.status, "published")
 
     def test_outsider_cannot_archive(self) -> None:
         response = self.client.post(reverse("weddings:archive", args=[self.wedding_a.pk]))

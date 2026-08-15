@@ -41,7 +41,6 @@ urlpatterns = [
         name="invitation_preview_template",
     ),
     path("<uuid:wedding_id>/publicar/", views.wedding_publish, name="publish"),
-    path("<uuid:wedding_id>/despublicar/", views.wedding_unpublish, name="unpublish"),
     path("<uuid:wedding_id>/arquivar/", views.wedding_archive, name="archive"),
     path("<uuid:wedding_id>/equipa/", views.team_list, name="team"),
     path("<uuid:wedding_id>/equipa/<uuid:member_id>/", views.team_edit, name="team_edit"),

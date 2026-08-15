@@ -209,7 +209,7 @@ class EventSectionTests(TestCase):
 
         self.client.post(reverse("platform:event_block", args=[self.wedding.pk]))
         self.wedding.refresh_from_db()
-        self.assertEqual(self.wedding.status, WeddingStatus.DRAFT)
+        self.assertEqual(self.wedding.status, WeddingStatus.PUBLISHED)
         self.assertEqual(self.wedding.blocked_reason, "")
 
     def test_a_blocked_event_is_hidden_from_its_owner(self) -> None:

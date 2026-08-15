@@ -21,6 +21,7 @@ from django.db import models
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils import timezone
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.views.decorators.http import require_POST
 
@@ -258,9 +259,10 @@ def event_block(request: HttpRequest, wedding_id) -> HttpResponse:
     old_data = model_to_dict(wedding, fields=["status", "blocked_reason"])
 
     if wedding.status == WeddingStatus.BLOCKED:
-        wedding.status = WeddingStatus.DRAFT
+        wedding.status = WeddingStatus.PUBLISHED
+        wedding.published_at = wedding.published_at or timezone.now()
         wedding.blocked_reason = ""
-        wedding.save(update_fields=["status", "blocked_reason", "updated_at"])
+        wedding.save(update_fields=["status", "published_at", "blocked_reason", "updated_at"])
         messages.success(request, f"Evento «{wedding.display_names}» desbloqueado.")
     else:
         form = BlockEventForm(request.POST)

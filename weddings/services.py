@@ -48,6 +48,8 @@ def create_wedding(
     feito, em vez de um ecrã vazio.
     """
     wedding = Wedding(owner=owner, category=category, extra_data=extra_data or {}, **data)
+    wedding.status = WeddingStatus.PUBLISHED
+    wedding.published_at = timezone.now()
     wedding.full_clean(exclude=["public_token", "slug"] if not data.get("slug") else ["public_token"])
     wedding.save()
 
@@ -247,24 +249,6 @@ def publish_wedding(*, wedding: Wedding, actor, request=None) -> Wedding:
         wedding=wedding,
         request=request,
         instance=wedding,
-        new_data={"status": wedding.status},
-    )
-    return wedding
-
-
-@transaction.atomic
-def unpublish_wedding(*, wedding: Wedding, actor, request=None) -> Wedding:
-    """Return a published wedding to draft (public pages stop responding)."""
-    old_status = wedding.status
-    wedding.status = WeddingStatus.DRAFT
-    wedding.save(update_fields=["status", "updated_at"])
-    log_action(
-        action=AuditAction.UPDATE,
-        actor=actor,
-        wedding=wedding,
-        request=request,
-        instance=wedding,
-        old_data={"status": old_status},
         new_data={"status": wedding.status},
     )
     return wedding

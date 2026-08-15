@@ -39,7 +39,6 @@ def kpis() -> dict:
     events = Wedding.objects.aggregate(
         total=Count("id"),
         published=Count("id", filter=Q(status=WeddingStatus.PUBLISHED)),
-        draft=Count("id", filter=Q(status=WeddingStatus.DRAFT)),
         blocked=Count("id", filter=Q(status=WeddingStatus.BLOCKED)),
         upcoming=Count("id", filter=Q(main_date__gte=today)),
         new_this_month=Count("id", filter=Q(created_at__date__gte=month_start)),

@@ -246,7 +246,6 @@ def wedding_setup(request: HttpRequest, wedding) -> HttpResponse:
             "wedding": wedding,
             "checklist": checklist,
             "progress": int(done / len(checklist) * 100) if checklist else 0,
-            "can_publish": not services.missing_requirements(wedding),
             "capabilities": capability_flags(wedding, request.user),
         },
     )
@@ -477,16 +476,6 @@ def wedding_publish(request: HttpRequest, wedding) -> HttpResponse:
         return redirect("weddings:detail", wedding_id=wedding.pk)
 
     messages.success(request, "Evento publicado. A página pública já está disponível.")
-    return redirect("weddings:detail", wedding_id=wedding.pk)
-
-
-@require_POST
-@require_wedding()
-def wedding_unpublish(request: HttpRequest, wedding) -> HttpResponse:
-    if not user_can(wedding, request.user, "can_manage_events"):
-        raise Http404
-    services.unpublish_wedding(wedding=wedding, actor=request.user, request=request)
-    messages.info(request, "Evento despublicado. As páginas públicas deixaram de responder.")
     return redirect("weddings:detail", wedding_id=wedding.pk)
 
 

@@ -45,7 +45,6 @@ SMS_MAX_LENGTH = 160
 
 
 class WeddingStatus(models.TextChoices):
-    DRAFT = "draft", _("Rascunho")
     PUBLISHED = "published", _("Publicado")
     ARCHIVED = "archived", _("Arquivado")
     BLOCKED = "blocked", _("Bloqueado")
@@ -300,7 +299,7 @@ class Wedding(BaseModel):
         _("estado"),
         max_length=20,
         choices=WeddingStatus.choices,
-        default=WeddingStatus.DRAFT,
+        default=WeddingStatus.PUBLISHED,
         db_index=True,
     )
     show_music = models.BooleanField(_("reproduzir música"), default=True)
@@ -341,6 +340,11 @@ class Wedding(BaseModel):
             self.slug = unique_slugify(self, self.display_names.replace("&", "e"))
         if not self.public_token:
             self.public_token = generate_secure_token()
+        if self.status == WeddingStatus.PUBLISHED and not self.published_at:
+            self.published_at = timezone.now()
+            update_fields = kwargs.get("update_fields")
+            if update_fields is not None:
+                kwargs["update_fields"] = set(update_fields) | {"published_at"}
         return super().save(*args, **kwargs)
 
     # --- Derived information -----------------------------------------
@@ -430,7 +434,7 @@ class Wedding(BaseModel):
 
     @property
     def is_editable(self) -> bool:
-        return self.status in {WeddingStatus.DRAFT, WeddingStatus.PUBLISHED}
+        return self.status == WeddingStatus.PUBLISHED
 
     @property
     def days_until(self) -> int | None:

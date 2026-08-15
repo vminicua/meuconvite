@@ -47,23 +47,9 @@
     <div class="col-lg-4">
         <div class="card shadow-sm">
             <div class="card-body">
-                <h2 class="h6">Publicação</h2>
-                {% if wedding.status == 'published' %}
-                    <p class="small text-body-secondary">Este evento já está publicado.</p>
-                    <a href="{% url 'weddings:detail' wedding.pk %}" class="btn btn-outline-secondary btn-sm w-100">Ir para o painel</a>
-                {% elif can_publish %}
-                    <p class="small text-body-secondary">
-                        Está tudo pronto. Ao publicar, a página do evento e os convites passam a estar acessíveis.
-                    </p>
-                    <form method="post" action="{% url 'weddings:publish' wedding.pk %}">
-                        {% csrf_token %}
-                        <button class="btn btn-primary w-100">Publicar evento</button>
-                    </form>
-                {% else %}
-                    <p class="small text-body-secondary mb-0">
-                        Complete os passos marcados como necessários para poder publicar.
-                    </p>
-                {% endif %}
+                <h2 class="h6">Disponibilidade</h2>
+                <p class="small text-body-secondary">O evento fica publicado automaticamente desde a criação.</p>
+                <a href="{% url 'weddings:detail' wedding.pk %}" class="btn btn-outline-secondary btn-sm w-100">Ir para o painel</a>
             </div>
         </div>
 

@@ -30,7 +30,8 @@ class CreateWeddingTests(TestCase):
         )
 
         self.assertEqual(wedding.owner, owner)
-        self.assertEqual(wedding.status, WeddingStatus.DRAFT)
+        self.assertEqual(wedding.status, WeddingStatus.PUBLISHED)
+        self.assertIsNotNone(wedding.published_at)
         membership = WeddingMember.objects.get(wedding=wedding, user=owner)
         self.assertEqual(membership.role, WeddingRole.OWNER)
         self.assertIsNotNone(membership.accepted_at)
@@ -62,7 +63,7 @@ class PublishWeddingTests(TestCase):
         with self.assertRaises(ValidationError):
             services.publish_wedding(wedding=self.wedding, actor=self.wedding.owner)
         self.wedding.refresh_from_db()
-        self.assertEqual(self.wedding.status, WeddingStatus.DRAFT)
+        self.assertEqual(self.wedding.status, WeddingStatus.PUBLISHED)
 
     def test_publishes_once_the_required_items_are_done(self) -> None:
         location = create_location(self.wedding)
@@ -82,13 +83,6 @@ class PublishWeddingTests(TestCase):
     def test_checklist_reports_what_is_missing(self) -> None:
         codes = {item.code for item in services.missing_requirements(self.wedding)}
         self.assertEqual(codes, {"events", "locations"})
-
-    def test_unpublish_returns_to_draft(self) -> None:
-        create_event(self.wedding, location=create_location(self.wedding))
-        services.publish_wedding(wedding=self.wedding, actor=self.wedding.owner)
-        services.unpublish_wedding(wedding=self.wedding, actor=self.wedding.owner)
-        self.wedding.refresh_from_db()
-        self.assertEqual(self.wedding.status, WeddingStatus.DRAFT)
 
     def test_archiving_keeps_all_data(self) -> None:
         create_event(self.wedding, location=create_location(self.wedding))

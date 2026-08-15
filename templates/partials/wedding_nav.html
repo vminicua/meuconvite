@@ -13,7 +13,6 @@
         </div>
         <div class="text-end">
             {% if wedding.status == 'published' %}<span class="badge text-bg-success">Publicado</span>
-            {% elif wedding.status == 'draft' %}<span class="badge text-bg-secondary">Rascunho</span>
             {% elif wedding.status == 'archived' %}<span class="badge text-bg-secondary">Arquivado</span>
             {% else %}<span class="badge text-bg-danger">Bloqueado</span>{% endif %}
         </div>
