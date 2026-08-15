@@ -120,14 +120,16 @@ def main() -> int:
 
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh_key_file = env("SSH_KEY_FILE", default="")
     client.connect(
         hostname=env("SSH_HOST"),
         port=env.int("SSH_PORT", default=22),
         username=env("SSH_USER"),
         password=env("SSH_PASSWORD", default="") or None,
+        key_filename=ssh_key_file or None,
         timeout=30,
         allow_agent=False,
-        look_for_keys=False,
+        look_for_keys=bool(ssh_key_file),
     )
 
     sftp = client.open_sftp()
@@ -153,6 +155,7 @@ def main() -> int:
     sftp.close()
     print(f"\n{sent} ficheiro(s) enviado(s) + .env (600)")
 
+    run(client, f"{VENV_BIN}/pip install -r {APP_ROOT}/requirements.txt 2>&1 | tail -8", "dependências")
     run(client, f"cd {APP_ROOT} && {VENV_BIN}/python manage.py check --deploy 2>&1 | tail -8", "check --deploy")
     run(client, f"cd {APP_ROOT} && {VENV_BIN}/python manage.py collectstatic --noinput 2>&1 | tail -3", "collectstatic")
     run(
