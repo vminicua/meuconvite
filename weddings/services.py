@@ -310,7 +310,9 @@ def add_member(
     Permissions default to the role template and can then be overridden
     field by field.
     """
-    if user.pk == wedding.owner_id:
+    if WeddingMember.objects.filter(
+        wedding=wedding, user=user, role=WeddingRole.OWNER, is_active=True
+    ).exists():
         raise ValidationError(_("O proprietário já faz parte da equipa."))
 
     membership, created = WeddingMember.objects.get_or_create(

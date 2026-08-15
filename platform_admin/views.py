@@ -18,7 +18,7 @@ from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.http import HttpRequest, HttpResponse
+from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.clickjacking import xframe_options_sameorigin
@@ -30,11 +30,13 @@ from events.models import EventCategory
 from subscriptions import services as subscription_services
 from subscriptions.models import Payment, PaymentProvider, PaymentStatus, Plan, Voucher
 from subscriptions.payzeno import PayzenoError
-from weddings.models import MusicTrack, Wedding, WeddingStatus
+from weddings.models import MusicTrack, Wedding, WeddingMember, WeddingRole, WeddingStatus
 
 from . import selectors
 from .forms import (
     BlockEventForm,
+    AdminEventForm,
+    AdminOwnerForm,
     CategoryFieldForm,
     EventCategoryForm,
     PlanForm,
@@ -131,8 +133,116 @@ def event_detail(request: HttpRequest, wedding_id) -> HttpResponse:
             "payments": wedding.payments.select_related("plan").order_by("-created_at"),
             "audit": AuditLog.objects.filter(wedding=wedding).order_by("-created_at")[:20],
             "block_form": BlockEventForm(),
+            "owner_form": AdminOwnerForm(),
         },
     )
+
+
+def _require_superuser(request: HttpRequest) -> None:
+    if not request.user.is_superuser:
+        raise Http404
+
+
+@staff_member_required
+def event_edit(request: HttpRequest, wedding_id) -> HttpResponse:
+    _require_superuser(request)
+    wedding = get_object_or_404(Wedding.objects.select_related("category"), pk=wedding_id)
+    form = AdminEventForm(request.POST or None, instance=wedding)
+    if request.method == "POST" and form.is_valid():
+        old_data = model_to_dict(wedding)
+        form.save()
+        log_update(wedding, old_data=old_data, actor=request.user, wedding=wedding, request=request)
+        messages.success(request, f"Evento «{wedding.display_names}» actualizado.")
+        return redirect("platform:event_detail", wedding_id=wedding.pk)
+    return _render(
+        request,
+        "events",
+        "platform_admin/sections/event_form.html",
+        {"event": wedding, "form": form},
+    )
+
+
+@require_POST
+@staff_member_required
+def event_owner_add(request: HttpRequest, wedding_id) -> HttpResponse:
+    _require_superuser(request)
+    wedding = get_object_or_404(Wedding, pk=wedding_id)
+    form = AdminOwnerForm(request.POST)
+    if form.is_valid():
+        membership, _ = WeddingMember.objects.get_or_create(wedding=wedding, user=form.user)
+        old_data = model_to_dict(membership) if membership.pk else {}
+        membership.role = WeddingRole.OWNER
+        membership.is_active = True
+        membership.apply_role_defaults()
+        membership.save()
+        log_action(
+            action=AuditAction.ADMIN_ACTION, actor=request.user, wedding=wedding,
+            request=request, instance=membership, old_data=old_data,
+            new_data={"role": WeddingRole.OWNER, "user": form.user.email},
+        )
+        messages.success(request, f"{form.user.email} é agora proprietário do evento.")
+    else:
+        error = " ".join(form.errors.get("email", []))
+        messages.error(request, f"Não foi possível adicionar o proprietário: {error}")
+    return redirect("platform:event_detail", wedding_id=wedding.pk)
+
+
+@require_POST
+@staff_member_required
+def event_owner_primary(request: HttpRequest, wedding_id, member_id) -> HttpResponse:
+    _require_superuser(request)
+    wedding = get_object_or_404(Wedding, pk=wedding_id)
+    membership = get_object_or_404(
+        WeddingMember, pk=member_id, wedding=wedding, role=WeddingRole.OWNER, is_active=True
+    )
+    old_owner = wedding.owner
+    wedding.owner = membership.user
+    wedding.save(update_fields=["owner", "updated_at"])
+    log_action(
+        action=AuditAction.ADMIN_ACTION, actor=request.user, wedding=wedding, request=request,
+        instance=wedding, old_data={"owner": old_owner.email},
+        new_data={"owner": membership.user.email},
+    )
+    messages.success(request, f"{membership.user.email} definido como proprietário principal.")
+    return redirect("platform:event_detail", wedding_id=wedding.pk)
+
+
+@require_POST
+@staff_member_required
+def event_owner_remove(request: HttpRequest, wedding_id, member_id) -> HttpResponse:
+    _require_superuser(request)
+    wedding = get_object_or_404(Wedding, pk=wedding_id)
+    membership = get_object_or_404(
+        WeddingMember, pk=member_id, wedding=wedding, role=WeddingRole.OWNER, is_active=True
+    )
+    if membership.user_id == wedding.owner_id:
+        messages.error(request, "Defina primeiro outro proprietário principal.")
+    else:
+        membership.is_active = False
+        membership.save(update_fields=["is_active", "updated_at"])
+        log_action(
+            action=AuditAction.ADMIN_ACTION, actor=request.user, wedding=wedding,
+            request=request, instance=membership,
+            old_data={"role": WeddingRole.OWNER, "active": True},
+            new_data={"active": False},
+        )
+        messages.success(request, "Proprietário removido do evento.")
+    return redirect("platform:event_detail", wedding_id=wedding.pk)
+
+
+@require_POST
+@staff_member_required
+def event_delete(request: HttpRequest, wedding_id) -> HttpResponse:
+    _require_superuser(request)
+    wedding = get_object_or_404(Wedding, pk=wedding_id)
+    label = wedding.display_names
+    log_action(
+        action=AuditAction.DELETE, actor=request.user, wedding=wedding, request=request,
+        instance=wedding, old_data=model_to_dict(wedding),
+    )
+    wedding.delete()
+    messages.success(request, f"Evento «{label}» eliminado definitivamente.")
+    return redirect("platform:events")
 
 
 @require_POST

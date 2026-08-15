@@ -254,8 +254,14 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10 MB
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 2000
 MAX_IMAGE_UPLOAD_SIZE = 5 * 1024 * 1024  # 5 MB per image
-ALLOWED_IMAGE_EXTENSIONS = ["jpg", "jpeg", "png", "webp"]
-ALLOWED_IMAGE_CONTENT_TYPES = ["image/jpeg", "image/png", "image/webp"]
+ALLOWED_IMAGE_EXTENSIONS = [
+    "jpg", "jpeg", "png", "webp", "heic", "heif", "avif", "tif", "tiff", "bmp", "gif",
+]
+ALLOWED_IMAGE_CONTENT_TYPES = [
+    "image/jpeg", "image/png", "image/webp", "image/heic", "image/heif",
+    "image/heic-sequence", "image/heif-sequence",
+    "image/avif", "image/tiff", "image/bmp", "image/gif",
+]
 ALLOWED_AUDIO_EXTENSIONS = ["mp3", "m4a", "ogg"]
 MAX_AUDIO_UPLOAD_SIZE = 15 * 1024 * 1024
 ALLOWED_SPREADSHEET_EXTENSIONS = ["xlsx"]

@@ -1,0 +1,13 @@
+<div class="section-head" data-section-title="Editar evento">
+    <div><div class="small text-body-secondary text-uppercase">Superadmin</div><h1>Editar {{ event.display_names }}</h1></div>
+    <a class="btn btn-outline-secondary btn-sm" href="{% url 'platform:event_detail' event.pk %}">Voltar</a>
+</div>
+<div class="admin-card">
+    <div class="admin-card__body">
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {% include "partials/bootstrap_fields.html" with form=form %}
+            <button class="btn btn-primary" type="submit"><i class="bi bi-check2 me-1"></i>Guardar alterações</button>
+        </form>
+    </div>
+</div>

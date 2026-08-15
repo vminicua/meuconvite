@@ -46,7 +46,16 @@ def get_membership(wedding: Wedding, user) -> WeddingMember | None:
 
 
 def is_owner(wedding: Wedding, user) -> bool:
-    return bool(user and user.is_authenticated and wedding.owner_id == user.pk)
+    if not user or not user.is_authenticated:
+        return False
+    if wedding.owner_id == user.pk:
+        return True
+    return WeddingMember.objects.filter(
+        wedding=wedding,
+        user=user,
+        role=WeddingRole.OWNER,
+        is_active=True,
+    ).exists()
 
 
 def user_can(wedding: Wedding, user, capability: str) -> bool:
@@ -74,7 +83,7 @@ def user_can(wedding: Wedding, user, capability: str) -> bool:
         return False
 
     if capability in OWNER_ONLY_ACTIONS:
-        return membership.role == WeddingRole.SPOUSE
+        return membership.role in {WeddingRole.OWNER, WeddingRole.SPOUSE}
     if capability not in CAPABILITIES:
         raise ValueError(f"Capacidade desconhecida: {capability}")
     return bool(getattr(membership, capability, False))
@@ -136,8 +145,10 @@ def capability_flags(wedding: Wedding, user) -> dict[str, bool]:
         if locked:
             flags = {capability: False for capability in CAPABILITIES}
         flags["can_manage_seating"] = flags["can_manage_seating"] and plan_limits.allows_seating
-        flags["is_owner"] = False
-        flags["manage_members"] = bool(membership and membership.role == WeddingRole.SPOUSE)
+        flags["is_owner"] = bool(membership and membership.role == WeddingRole.OWNER)
+        flags["manage_members"] = bool(
+            membership and membership.role in {WeddingRole.OWNER, WeddingRole.SPOUSE}
+        )
 
     flags["event_locked"] = locked
     flags["allows_seating"] = plan_limits.allows_seating and not locked

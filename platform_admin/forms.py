@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 
 from django import forms
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
@@ -11,8 +12,10 @@ from core.schema import FIELD_TYPES, MAX_FIELDS, slugify_key, validate_schema
 from events.models import EventCategory
 from subscriptions.models import Plan, Voucher
 from templates_manager.models import InvitationTemplate
-from weddings.models import MusicTrack
+from weddings.models import MusicTrack, Wedding
 from .models import PlatformConfiguration
+
+User = get_user_model()
 
 
 class PlatformConfigurationForm(BootstrapModelForm):
@@ -412,3 +415,30 @@ class BlockEventForm(BootstrapForm):
         if len(reason) < 5:
             raise ValidationError(_("Escreva um motivo claro — será consultado mais tarde."))
         return reason
+
+
+class AdminEventForm(BootstrapModelForm):
+    """Fields a superadmin may correct without impersonating the customer."""
+
+    class Meta:
+        model = Wedding
+        fields = [
+            "category", "primary_name", "secondary_name", "primary_short_name",
+            "secondary_short_name", "main_date", "city", "status",
+        ]
+        widgets = {"main_date": forms.DateInput(attrs={"type": "date"})}
+
+
+class AdminOwnerForm(BootstrapForm):
+    email = forms.EmailField(
+        label=_("Email do novo proprietário"),
+        help_text=_("A pessoa deve ter uma conta MeuConvite."),
+    )
+
+    def clean_email(self) -> str:
+        email = self.cleaned_data["email"].strip().lower()
+        try:
+            self.user = User.objects.get(email__iexact=email)
+        except User.DoesNotExist:
+            raise ValidationError(_("Não existe uma conta com este email.")) from None
+        return email

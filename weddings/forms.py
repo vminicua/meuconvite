@@ -484,8 +484,11 @@ class MultipleImageField(forms.ImageField):
 class GalleryUploadForm(forms.Form):
     photos = MultipleImageField(
         label=_("Escolher fotografias"),
-        help_text=_("JPG, PNG ou WEBP até 5 MB cada. Pode seleccionar várias de uma vez."),
-        widget=MultipleImageInput(attrs={"accept": "image/jpeg,image/png,image/webp"}),
+        help_text=_(
+            "JPG, PNG, WEBP, HEIC/HEIF, AVIF, TIFF, BMP ou GIF até 5 MB cada. "
+            "Pode seleccionar várias de uma vez."
+        ),
+        widget=MultipleImageInput(attrs={"accept": "image/*,.heic,.heif,.avif,.tif,.tiff"}),
         validators=[validate_image_upload],
     )
 
@@ -508,7 +511,7 @@ class MemberInviteForm(BootstrapForm):
     )
     role = forms.ChoiceField(
         label=_("Função"),
-        choices=[(value, label) for value, label in WeddingRole.choices if value != WeddingRole.OWNER],
+        choices=WeddingRole.choices,
         initial=WeddingRole.COMMITTEE,
     )
     notes = forms.CharField(label=_("Notas"), max_length=200, required=False)
@@ -532,6 +535,13 @@ class MemberInviteForm(BootstrapForm):
 
         if self.wedding and self.user.pk == self.wedding.owner_id:
             raise forms.ValidationError(_("O proprietário já faz parte da equipa."))
+        if self.wedding and WeddingMember.objects.filter(
+            wedding=self.wedding,
+            user=self.user,
+            role=WeddingRole.OWNER,
+            is_active=True,
+        ).exists():
+            raise forms.ValidationError(_("Esta pessoa já é proprietária do evento."))
         return email
 
 
@@ -554,6 +564,4 @@ class MemberPermissionsForm(BootstrapModelForm):
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.fields["role"].choices = [
-            (value, label) for value, label in WeddingRole.choices if value != WeddingRole.OWNER
-        ]
+        self.fields["role"].choices = WeddingRole.choices

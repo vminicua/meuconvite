@@ -22,7 +22,7 @@ from .forms import (
     WeddingDesignForm,
     WeddingSettingsForm,
 )
-from .models import WeddingGalleryPhoto, WeddingMember
+from .models import WeddingGalleryPhoto, WeddingMember, WeddingRole
 from .permissions import capability_flags, require_wedding, user_can
 from .selectors import (
     archived_weddings_for_user,
@@ -340,7 +340,9 @@ def wedding_gallery(request: HttpRequest, wedding) -> HttpResponse:
     form = GalleryUploadForm(request.POST or None, request.FILES or None)
     if request.method == "POST":
         if form.is_valid():
-            photos = form.cleaned_data["photos"]
+            from core.images import normalise_gallery_image
+
+            photos = [normalise_gallery_image(photo) for photo in form.cleaned_data["photos"]]
             if wedding.gallery_photos.count() + len(photos) > 50:
                 messages.error(request, "A galeria pode ter até 50 fotografias.")
             else:
@@ -497,7 +499,7 @@ def wedding_archive(request: HttpRequest, wedding) -> HttpResponse:
     There is no destructive delete in the interface on purpose: guest and
     check-in history must remain available to the couple.
     """
-    if wedding.owner_id != request.user.pk:
+    if not user_can(wedding, request.user, "delete_wedding"):
         raise Http404
     services.archive_wedding(wedding=wedding, actor=request.user, request=request)
     messages.info(request, "Evento arquivado. Nenhum dado foi eliminado.")
@@ -521,7 +523,8 @@ def team_list(request: HttpRequest, wedding) -> HttpResponse:
         if form.is_valid():
             from subscriptions.services import limits
             active_members = wedding.members.filter(is_active=True).count()
-            if active_members >= limits(wedding).max_team:
+            adding_owner = form.cleaned_data["role"] == WeddingRole.OWNER
+            if not adding_owner and active_members >= limits(wedding).max_team:
                 form.add_error(None, "O plano actual atingiu o limite de membros da equipa.")
             else:
                 services.add_member(

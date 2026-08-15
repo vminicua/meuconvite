@@ -11,6 +11,11 @@ urlpatterns = [
     # Eventos
     path("eventos/", views.events, name="events"),
     path("eventos/<uuid:wedding_id>/", views.event_detail, name="event_detail"),
+    path("eventos/<uuid:wedding_id>/editar/", views.event_edit, name="event_edit"),
+    path("eventos/<uuid:wedding_id>/proprietarios/adicionar/", views.event_owner_add, name="event_owner_add"),
+    path("eventos/<uuid:wedding_id>/proprietarios/<uuid:member_id>/principal/", views.event_owner_primary, name="event_owner_primary"),
+    path("eventos/<uuid:wedding_id>/proprietarios/<uuid:member_id>/remover/", views.event_owner_remove, name="event_owner_remove"),
+    path("eventos/<uuid:wedding_id>/eliminar/", views.event_delete, name="event_delete"),
     path("eventos/<uuid:wedding_id>/bloquear/", views.event_block, name="event_block"),
     # Utilizadores
     path("utilizadores/", views.users, name="users"),
