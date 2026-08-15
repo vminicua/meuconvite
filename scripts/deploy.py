@@ -44,7 +44,15 @@ APP_NAME = env("DEPLOY_APP_NAME", default="meuconvite")
 
 # Variáveis que só fazem sentido na máquina de desenvolvimento e que não
 # devem existir no servidor (nomeadamente as credenciais de SSH).
-LOCAL_ONLY_PREFIXES = ("SSH_", "DEV_DB_", "DEMO_USER_PASSWORD")
+LOCAL_ONLY_PREFIXES = (
+    "SSH_",
+    "DEV_DB_",
+    "DEMO_USER_PASSWORD",
+    # Local absolute paths are Windows paths and must never override the
+    # Linux defaults derived from BASE_DIR on the production server.
+    "STATIC_ROOT",
+    "MEDIA_ROOT",
+)
 
 
 def build_server_env(local_env_text: str) -> str:
