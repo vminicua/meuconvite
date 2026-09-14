@@ -138,6 +138,33 @@ class LimitTests(TestCase):
         self.assertTrue(user_can(self.wedding, self.wedding.owner, "can_manage_events"))
         self.assertFalse(capability_flags(self.wedding, self.wedding.owner)["event_locked"])
 
+    def test_free_plan_keeps_its_team_limit(self) -> None:
+        self.assertEqual(
+            services.team_member_limit(self.wedding),
+            self.free.max_team,
+        )
+
+    def test_active_paid_plan_has_no_team_limit(self) -> None:
+        paid = create_paid_plan(max_team=1)
+        subscription = self.wedding.subscription
+        subscription.plan = paid
+        subscription.status = SubscriptionStatus.ACTIVE
+        subscription.save(update_fields=["plan", "status"])
+
+        self.assertIsNone(services.team_member_limit(self.wedding))
+
+    def test_voucher_has_no_team_limit(self) -> None:
+        voucher = Voucher.objects.create(
+            code="EQUIPA-LIVRE", name="Equipa livre", max_guests=50,
+        )
+        services.apply_voucher(
+            wedding=self.wedding,
+            code=voucher.code,
+            actor=self.wedding.owner,
+        )
+
+        self.assertIsNone(services.team_member_limit(self.wedding))
+
 
 class PaymentFlowTests(TestCase):
     def setUp(self) -> None:

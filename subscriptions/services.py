@@ -247,6 +247,19 @@ def limits(wedding) -> Limits:
     ))
 
 
+def team_member_limit(wedding) -> int | None:
+    """Maximum active team members, or ``None`` when the team is unlimited."""
+    current = limits(wedding)
+    has_voucher = getattr(wedding, "voucher_redemption", None) is not None
+    subscription = get_subscription(wedding)
+    has_active_paid_plan = bool(
+        subscription and subscription.is_active and not subscription.plan.is_free
+    )
+    if has_voucher or has_active_paid_plan:
+        return None
+    return current.max_team
+
+
 @transaction.atomic
 def apply_voucher(*, wedding, code: str, actor=None, request=None) -> VoucherRedemption:
     """Valida e consome um voucher sem permitir reutilização no mesmo evento."""

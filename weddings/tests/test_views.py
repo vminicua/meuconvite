@@ -614,9 +614,13 @@ class DesignViewTests(TestCase):
 
 class TeamViewTests(TestCase):
     def setUp(self) -> None:
+        from subscriptions.services import ensure_subscription
+
         self.owner = create_user()
         self.helper = create_user("comissao@example.com")
+        self.free_plan = create_plan(max_team=2)
         self.wedding = create_wedding(self.owner)
+        ensure_subscription(self.wedding)
         self.client.login(email=self.owner.email, password=DEFAULT_PASSWORD)
 
     def test_owner_adds_a_member_by_email(self) -> None:
@@ -636,6 +640,64 @@ class TeamViewTests(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Não existe nenhuma conta com este email")
+
+    def test_free_plan_still_enforces_its_team_limit(self) -> None:
+        add_member(self.wedding, self.helper, role=WeddingRole.COMMITTEE)
+        extra = create_user("extra@example.com")
+
+        response = self.client.post(
+            reverse("weddings:team", args=[self.wedding.pk]),
+            data={"email": extra.email, "role": WeddingRole.COMMITTEE, "notes": ""},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "atingiu o limite de membros da equipa")
+        self.assertFalse(
+            WeddingMember.objects.filter(wedding=self.wedding, user=extra).exists()
+        )
+
+    def test_active_paid_plan_does_not_enforce_the_team_limit(self) -> None:
+        paid_plan = create_plan(
+            code="pago-equipa",
+            name="Pago",
+            price_mzn=500,
+            is_default=False,
+            max_team=1,
+        )
+        subscription = self.wedding.subscription
+        subscription.plan = paid_plan
+        subscription.save(update_fields=["plan"])
+
+        response = self.client.post(
+            reverse("weddings:team", args=[self.wedding.pk]),
+            data={"email": self.helper.email, "role": WeddingRole.COMMITTEE, "notes": ""},
+        )
+
+        self.assertRedirects(response, reverse("weddings:team", args=[self.wedding.pk]))
+        self.assertTrue(
+            WeddingMember.objects.filter(wedding=self.wedding, user=self.helper).exists()
+        )
+
+    def test_voucher_does_not_enforce_the_team_limit(self) -> None:
+        from subscriptions.models import Voucher
+        from subscriptions.services import apply_voucher
+
+        self.free_plan.max_team = 1
+        self.free_plan.save(update_fields=["max_team"])
+        voucher = Voucher.objects.create(
+            code="EQUIPA-SEM-LIMITE", name="Equipa sem limite", max_guests=50,
+        )
+        apply_voucher(wedding=self.wedding, code=voucher.code, actor=self.owner)
+
+        response = self.client.post(
+            reverse("weddings:team", args=[self.wedding.pk]),
+            data={"email": self.helper.email, "role": WeddingRole.COMMITTEE, "notes": ""},
+        )
+
+        self.assertRedirects(response, reverse("weddings:team", args=[self.wedding.pk]))
+        self.assertTrue(
+            WeddingMember.objects.filter(wedding=self.wedding, user=self.helper).exists()
+        )
 
     def test_owner_membership_cannot_be_removed(self) -> None:
         membership = WeddingMember.objects.get(wedding=self.wedding, user=self.owner)

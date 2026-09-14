@@ -510,10 +510,15 @@ def team_list(request: HttpRequest, wedding) -> HttpResponse:
     if request.method == "POST":
         form = MemberInviteForm(request.POST, wedding=wedding)
         if form.is_valid():
-            from subscriptions.services import limits
+            from subscriptions.services import team_member_limit
             active_members = wedding.members.filter(is_active=True).count()
             adding_owner = form.cleaned_data["role"] == WeddingRole.OWNER
-            if not adding_owner and active_members >= limits(wedding).max_team:
+            maximum_members = team_member_limit(wedding)
+            if (
+                not adding_owner
+                and maximum_members is not None
+                and active_members >= maximum_members
+            ):
                 form.add_error(None, "O plano actual atingiu o limite de membros da equipa.")
             else:
                 services.add_member(
