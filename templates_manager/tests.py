@@ -317,6 +317,18 @@ class InvitationPreviewTests(TestCase):
                 self.assertContains(response, "data-themed-intro")
                 self.assertContains(response, f"{code}-seal-v1.png", count=2)
 
+    def test_engagement_templates_have_a_cinematic_opening(self) -> None:
+        response = self.client.get(
+            reverse(
+                "weddings:invitation_preview_template",
+                args=[self.wedding.pk, "noivado-jardim-promessas"],
+            )
+        )
+        self.assertContains(response, "data-engagement-scene")
+        self.assertContains(response, "inv-engagement-petal", count=14)
+        self.assertContains(response, "inv-engagement-curtain--left")
+        self.assertContains(response, "inv-engagement-ring")
+
     def test_minimal_template_keeps_its_quiet_opening(self) -> None:
         response = self.client.get(
             reverse(

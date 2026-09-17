@@ -1939,3 +1939,134 @@ body.inv--embedded::-webkit-scrollbar {
 
 /* Engagement collection ------------------------------------------------ */
 .inv--noivado_elegante .inv-cover--engagement{min-height:100svh;display:grid;place-items:end center;padding:1.5rem;background-position:center;background-size:cover;position:relative}.inv--noivado_elegante .inv-cover--engagement::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,8,6,.04) 25%,rgba(10,8,6,.78) 100%)}.inv-engagement-card{position:relative;z-index:1;width:min(100%,29rem);padding:1.5rem 1.2rem;text-align:center;color:#fff;border:1px solid rgba(255,255,255,.38);border-radius:1.25rem;background:rgba(15,12,10,.38);backdrop-filter:blur(13px);box-shadow:0 1.5rem 4rem rgba(0,0,0,.32)}.inv-engagement-card__kicker{font-size:.68rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase}.inv-engagement-card h1{margin:.65rem 0 .45rem;font:400 clamp(2.4rem,10vw,4.3rem)/.95 var(--inv-display)}.inv-engagement-card__date{margin:.8rem 0 1rem;letter-spacing:.12em}.inv--noivado_elegante .inv-main{background:linear-gradient(180deg,var(--inv-paper),color-mix(in srgb,var(--inv-paper) 92%,var(--inv-primary)))}
+
+/* Noivado cinematográfico: cada capa herda a mesma cena e muda de matéria. */
+.inv--noivado_elegante .inv-cover--engagement {
+    isolation:isolate;
+    overflow:hidden;
+    animation:engagement-background-breathe 14s ease-in-out infinite alternate;
+}
+.inv--noivado_elegante .inv-cover--engagement::after {
+    content:"";
+    position:absolute;
+    inset:-20%;
+    z-index:0;
+    background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.24) 47%,transparent 64%);
+    transform:translateX(-75%) rotate(4deg);
+    animation:engagement-shimmer 7.5s ease-in-out infinite;
+    mix-blend-mode:screen;
+    pointer-events:none;
+}
+.inv-engagement-scene { position:absolute; inset:0; z-index:1; overflow:hidden; pointer-events:none; }
+.inv-engagement-aura {
+    position:absolute;
+    width:min(82vw,34rem); aspect-ratio:1; left:50%; top:42%;
+    border-radius:50%;
+    background:conic-gradient(from 20deg,transparent,rgba(255,231,172,.22),transparent 32%,rgba(255,255,255,.14),transparent 66%,rgba(255,218,143,.2),transparent);
+    filter:blur(9px);
+    transform:translate(-50%,-50%);
+    animation:engagement-aura-turn 18s linear infinite;
+}
+.inv-engagement-ring {
+    position:absolute; left:50%; top:39%; width:7.5rem; aspect-ratio:1;
+    border:1px solid rgba(255,242,202,.72); border-radius:50%;
+    box-shadow:0 0 0 .65rem rgba(255,231,173,.08),0 0 3rem rgba(255,220,137,.42),inset 0 0 1.2rem rgba(255,255,255,.26);
+    transform:translate(-50%,-50%);
+    animation:engagement-ring-pulse 3.8s ease-in-out infinite;
+}
+.inv-engagement-ring::before,.inv-engagement-ring::after {
+    content:""; position:absolute; inset:13%; border:1px solid rgba(255,255,255,.38); border-radius:50%;
+}
+.inv-engagement-ring::after { inset:34%; background:radial-gradient(circle,#fff 0 4%,rgba(255,236,183,.48) 8%,transparent 68%); filter:blur(1px); }
+.inv-engagement-ring i { position:absolute; inset:-14%; border:1px dashed rgba(255,255,255,.2); border-radius:50%; animation:engagement-aura-turn 12s linear infinite reverse; }
+.inv-engagement-light { position:absolute; border-radius:50%; background:#fff8d9; box-shadow:0 0 1.1rem .3rem rgba(255,231,163,.65); animation:engagement-light-dance 5s ease-in-out infinite; }
+.inv-engagement-light--one { width:.36rem; height:.36rem; left:17%; top:27%; }
+.inv-engagement-light--two { width:.24rem; height:.24rem; right:16%; top:19%; animation-delay:-2.2s; }
+.inv-engagement-petal {
+    position:absolute; left:var(--x); top:-12%; width:var(--size); height:calc(var(--size) * 1.45);
+    border-radius:80% 10% 75% 12%;
+    background:linear-gradient(145deg,#fffdf5,#e7c886 62%,#a77728);
+    box-shadow:0 0 .75rem rgba(255,225,155,.42);
+    opacity:.78;
+    animation:engagement-petal-fall var(--duration) linear var(--delay) infinite;
+}
+.inv-engagement-card {
+    animation:engagement-card-arrive 1.15s cubic-bezier(.17,.84,.32,1) both;
+}
+.inv-engagement-card::before {
+    content:""; position:absolute; inset:.45rem; border:1px solid rgba(255,255,255,.16); border-radius:.95rem; pointer-events:none;
+}
+.inv-engagement-card .inv-btn { position:relative; overflow:hidden; box-shadow:0 0 0 0 rgba(255,255,255,.28); animation:engagement-button-pulse 2.8s ease-in-out infinite; }
+.inv-engagement-card .inv-btn::after { content:""; position:absolute; inset:-40% -80%; background:linear-gradient(100deg,transparent 42%,rgba(255,255,255,.65),transparent 58%); transform:translateX(-45%); animation:engagement-button-glint 3.8s ease-in-out infinite; }
+.inv-engagement-curtain { position:absolute; inset:0 auto 0 0; z-index:20; width:51%; opacity:0; background:linear-gradient(105deg,rgba(10,7,5,.96),rgba(102,70,29,.8)); }
+.inv-engagement-curtain--right { left:auto; right:0; transform-origin:right center; background:linear-gradient(255deg,rgba(10,7,5,.96),rgba(102,70,29,.8)); }
+
+/* Pétalas verdadeiras nos modelos botânicos e rosé. */
+.inv--template-noivado-jardim-promessas .inv-engagement-petal,
+.inv--template-noivado-rose-contemporaneo .inv-engagement-petal {
+    border-radius:90% 12% 85% 18%;
+    background:linear-gradient(145deg,#fff,#f7dfe3 58%,#c98f87);
+    box-shadow:0 0 1rem rgba(255,239,242,.55);
+}
+.inv--template-noivado-jardim-promessas .inv-engagement-scene::before,
+.inv--template-noivado-jardim-promessas .inv-engagement-scene::after,
+.inv--template-noivado-rose-contemporaneo .inv-engagement-scene::before,
+.inv--template-noivado-rose-contemporaneo .inv-engagement-scene::after {
+    content:""; position:absolute; width:13rem; height:22rem; top:-7rem;
+    background:radial-gradient(ellipse at 45% 85%,rgba(255,255,255,.72) 0 8%,transparent 9%),radial-gradient(ellipse at 68% 64%,rgba(121,151,108,.72) 0 9%,transparent 10%),radial-gradient(ellipse at 33% 47%,rgba(157,179,143,.65) 0 8%,transparent 9%);
+    filter:drop-shadow(0 .5rem 1rem rgba(15,50,25,.2)); opacity:.72;
+    transform:rotate(-24deg); transform-origin:50% 0; animation:engagement-bough-sway 7s ease-in-out infinite alternate;
+}
+.inv--template-noivado-jardim-promessas .inv-engagement-scene::before,
+.inv--template-noivado-rose-contemporaneo .inv-engagement-scene::before { left:-5rem; }
+.inv--template-noivado-jardim-promessas .inv-engagement-scene::after,
+.inv--template-noivado-rose-contemporaneo .inv-engagement-scene::after { right:-5rem; transform:rotate(24deg) scaleX(-1); animation-delay:-3s; }
+
+/* Safira e veludo transformam as pétalas em pontos de luz. */
+.inv--template-noivado-safira-eterna .inv-engagement-petal,
+.inv--template-noivado-noite-veludo .inv-engagement-petal,
+.inv--template-noivado-pedido-de-ouro .inv-engagement-petal {
+    height:var(--size); border-radius:50%; clip-path:polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%);
+    background:#ffe7a4; box-shadow:0 0 1.2rem .15rem rgba(255,211,104,.8);
+}
+.inv--template-noivado-safira-eterna .inv-engagement-petal { background:#eaf6ff; box-shadow:0 0 1.25rem .2rem rgba(151,206,255,.9); }
+.inv--template-noivado-safira-eterna .inv-engagement-aura { filter:hue-rotate(155deg) blur(8px); }
+.inv--template-noivado-noite-veludo .inv-engagement-aura { filter:hue-rotate(320deg) blur(10px); }
+.inv--template-noivado-marfim-minimalista .inv-engagement-petal { background:linear-gradient(145deg,#fff,#eadfc9); opacity:.5; box-shadow:none; }
+.inv--template-noivado-capulana-amor .inv-engagement-petal { border-radius:0; background:linear-gradient(135deg,#e6a25b 50%,#0e7770 51%); transform:rotate(45deg); box-shadow:0 0 .7rem rgba(230,162,91,.38); }
+
+.inv-cover--engagement.is-opening { animation:engagement-cover-leave 1.5s cubic-bezier(.72,0,.2,1) both; }
+.inv-cover--engagement.is-opening .inv-engagement-card { animation:engagement-card-open 1.05s cubic-bezier(.4,0,.1,1) both; }
+.inv-cover--engagement.is-opening .inv-engagement-ring { animation:engagement-ring-open 1.2s cubic-bezier(.2,.8,.2,1) both; }
+.inv-cover--engagement.is-opening .inv-engagement-petal { animation:engagement-petal-burst 1.25s cubic-bezier(.1,.7,.2,1) both; animation-delay:calc(var(--size) * 7ms); }
+.inv-cover--engagement.is-opening .inv-engagement-curtain--left { animation:engagement-curtain-left 1.35s ease-in-out both; }
+.inv-cover--engagement.is-opening .inv-engagement-curtain--right { animation:engagement-curtain-right 1.35s ease-in-out both; }
+.inv-main--engagement-enter { animation:engagement-main-enter 1s 1.05s cubic-bezier(.16,.8,.25,1) both; }
+
+@keyframes engagement-background-breathe { from{background-position:50% 50%} to{background-position:52% 47%} }
+@keyframes engagement-shimmer { 0%,25%{transform:translateX(-78%) rotate(4deg);opacity:0} 48%{opacity:.75} 72%,100%{transform:translateX(78%) rotate(4deg);opacity:0} }
+@keyframes engagement-aura-turn { to{transform:translate(-50%,-50%) rotate(360deg)} }
+@keyframes engagement-ring-pulse { 0%,100%{transform:translate(-50%,-50%) scale(.94);opacity:.48} 50%{transform:translate(-50%,-50%) scale(1.08);opacity:.92} }
+@keyframes engagement-light-dance { 0%,100%{transform:translate(0,0) scale(.6);opacity:.25} 45%{transform:translate(1.5rem,-2rem) scale(1.35);opacity:1} }
+@keyframes engagement-petal-fall { 0%{transform:translate3d(0,-10vh,0) rotate(0deg);opacity:0} 10%{opacity:.8} 88%{opacity:.65} 100%{transform:translate3d(var(--drift),120vh,0) rotate(620deg);opacity:0} }
+@keyframes engagement-card-arrive { from{opacity:0;transform:translateY(3.5rem) scale(.9);filter:blur(8px)} to{opacity:1;transform:none;filter:none} }
+@keyframes engagement-button-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,.24)} 50%{box-shadow:0 0 0 .55rem rgba(255,255,255,0)} }
+@keyframes engagement-button-glint { 0%,40%{transform:translateX(-45%)} 70%,100%{transform:translateX(45%)} }
+@keyframes engagement-bough-sway { from{rotate:-3deg} to{rotate:4deg} }
+@keyframes engagement-card-open { 0%{opacity:1;transform:none} 38%{transform:translateY(-.8rem) scale(1.035)} 100%{opacity:0;transform:translateY(-7rem) scale(.78);filter:blur(10px)} }
+@keyframes engagement-ring-open { 0%{opacity:.7;transform:translate(-50%,-50%) scale(1)} 62%{opacity:1} 100%{opacity:0;transform:translate(-50%,-50%) scale(7)} }
+@keyframes engagement-petal-burst { 0%{opacity:.7} 100%{opacity:0;transform:translate3d(var(--drift),-45vh,0) rotate(540deg) scale(1.8)} }
+@keyframes engagement-curtain-left { 0%{opacity:0;transform:translateX(-100%)} 18%{opacity:.88;transform:translateX(0)} 48%{opacity:.94;transform:translateX(0)} 100%{opacity:0;transform:translateX(-110%)} }
+@keyframes engagement-curtain-right { 0%{opacity:0;transform:translateX(100%)} 18%{opacity:.88;transform:translateX(0)} 48%{opacity:.94;transform:translateX(0)} 100%{opacity:0;transform:translateX(110%)} }
+@keyframes engagement-cover-leave { 0%,72%{opacity:1} 100%{opacity:0;transform:scale(1.08);filter:brightness(1.35)} }
+@keyframes engagement-main-enter { from{opacity:0;transform:translateY(2rem);filter:blur(8px)} to{opacity:1;transform:none;filter:none} }
+
+@media (prefers-reduced-motion:reduce) {
+    .inv--noivado_elegante .inv-cover--engagement,
+    .inv--noivado_elegante .inv-cover--engagement::after,
+    .inv-engagement-card,.inv-engagement-card .inv-btn,.inv-engagement-card .inv-btn::after,
+    .inv-engagement-aura,.inv-engagement-ring,.inv-engagement-ring i,
+    .inv-engagement-light,.inv-engagement-petal,.inv-engagement-scene::before,.inv-engagement-scene::after,
+    .inv-main--engagement-enter { animation:none!important; }
+    .inv-engagement-petal,.inv-engagement-aura,.inv-engagement-ring,.inv-engagement-light { display:none; }
+}

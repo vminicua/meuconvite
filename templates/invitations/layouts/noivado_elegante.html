@@ -3,6 +3,28 @@
 {% if template.has_cover %}
 <section class="inv-cover inv-cover--engagement" id="inv-cover"
          style="background-image:url('{% if wedding.cover_image and not ignore_custom_cover %}{{ wedding.cover_image.url }}{% else %}{{ template.cover_image.url }}{% endif %}')">
+    <div class="inv-engagement-scene" data-engagement-scene aria-hidden="true">
+        <span class="inv-engagement-curtain inv-engagement-curtain--left"></span>
+        <span class="inv-engagement-curtain inv-engagement-curtain--right"></span>
+        <span class="inv-engagement-aura"></span>
+        <span class="inv-engagement-ring"><i></i></span>
+        <span class="inv-engagement-petal" style="--x:5%;--delay:-8s;--duration:12s;--drift:42px;--size:12px"></span>
+        <span class="inv-engagement-petal" style="--x:12%;--delay:-2s;--duration:15s;--drift:-34px;--size:18px"></span>
+        <span class="inv-engagement-petal" style="--x:19%;--delay:-11s;--duration:14s;--drift:55px;--size:10px"></span>
+        <span class="inv-engagement-petal" style="--x:27%;--delay:-5s;--duration:17s;--drift:-48px;--size:16px"></span>
+        <span class="inv-engagement-petal" style="--x:35%;--delay:-13s;--duration:16s;--drift:38px;--size:9px"></span>
+        <span class="inv-engagement-petal" style="--x:43%;--delay:-7s;--duration:13s;--drift:-56px;--size:14px"></span>
+        <span class="inv-engagement-petal" style="--x:51%;--delay:-1s;--duration:18s;--drift:45px;--size:19px"></span>
+        <span class="inv-engagement-petal" style="--x:59%;--delay:-10s;--duration:14s;--drift:-39px;--size:11px"></span>
+        <span class="inv-engagement-petal" style="--x:66%;--delay:-4s;--duration:16s;--drift:58px;--size:15px"></span>
+        <span class="inv-engagement-petal" style="--x:73%;--delay:-12s;--duration:13s;--drift:-44px;--size:8px"></span>
+        <span class="inv-engagement-petal" style="--x:80%;--delay:-6s;--duration:17s;--drift:34px;--size:17px"></span>
+        <span class="inv-engagement-petal" style="--x:87%;--delay:-9s;--duration:15s;--drift:-52px;--size:12px"></span>
+        <span class="inv-engagement-petal" style="--x:93%;--delay:-3s;--duration:12s;--drift:41px;--size:9px"></span>
+        <span class="inv-engagement-petal" style="--x:97%;--delay:-14s;--duration:18s;--drift:-36px;--size:15px"></span>
+        <span class="inv-engagement-light inv-engagement-light--one"></span>
+        <span class="inv-engagement-light inv-engagement-light--two"></span>
+    </div>
     <div class="inv-engagement-card">
         <span class="inv-engagement-card__kicker">{{ wedding.cover_message|default:"Uma promessa para toda a vida" }}</span>
         <h1>{{ wedding.display_names }}</h1>

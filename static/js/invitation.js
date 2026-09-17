@@ -132,6 +132,17 @@
                 resetInvitationScroll();
                 return;
             }
+            if (cover.classList.contains("inv-cover--engagement")) {
+                opener.disabled = true;
+                cover.classList.add("is-opening");
+                main.classList.add("inv-main--engagement-enter");
+                window.setTimeout(function () {
+                    cover.remove();
+                    document.body.classList.remove("inv--cover-pending");
+                    main.scrollIntoView({ behavior: "smooth", block: "start" });
+                }, 1480);
+                return;
+            }
             cover.style.transition = "opacity .5s ease, transform .5s ease";
             cover.style.opacity = "0";
             cover.style.transform = "scale(1.03)";
