@@ -34,6 +34,14 @@ from weddings.tests.factories import (
 class CatalogueTests(TestCase):
     """O catálogo é semeado pela migração de dados."""
 
+    def test_engagement_collection_uses_script_typography(self) -> None:
+        templates = InvitationTemplate.objects.filter(code__startswith="noivado-")
+        self.assertEqual(templates.count(), 7)
+        for template in templates:
+            with self.subTest(template=template.code):
+                self.assertIn("Great Vibes", template.display_font)
+                self.assertIn("Great+Vibes", template.google_fonts)
+
     def test_featured_templates_include_social_and_corporate_collections(self) -> None:
         featured = InvitationTemplate.objects.featured().order_by("display_order")
         codes = [template.code for template in featured]
@@ -328,6 +336,37 @@ class InvitationPreviewTests(TestCase):
         self.assertContains(response, "inv-engagement-petal", count=14)
         self.assertContains(response, "inv-engagement-curtain--left")
         self.assertContains(response, "inv-engagement-ring")
+
+    def test_thematic_collections_have_category_aware_cinematic_openings(self) -> None:
+        templates = [
+            ("lobolo", "lobolo-heranca-dourada"),
+            ("aniversario", "aniversario-festa-vibrante"),
+            ("batismo", "batismo-luz-serena"),
+            ("formatura", "graduacao-conquista-academica"),
+            ("cha-de-bebe", "cha-bebe-nuvem-doce"),
+            ("outro", "outro-celebracao-livre"),
+        ]
+        for category_code, code in templates:
+            with self.subTest(template=code):
+                category = create_category(code=category_code, name=category_code.title())
+                invitation_template = InvitationTemplate.objects.create(
+                    code=code,
+                    name=code,
+                    layout=InvitationLayout.THEMATIC,
+                    cover_image=f"templates/covers/tests/{code}.png",
+                )
+                invitation_template.categories.add(category)
+                self.wedding.category = category
+                self.wedding.save(update_fields=["category", "updated_at"])
+                response = self.client.get(
+                    reverse(
+                        "weddings:invitation_preview_template",
+                        args=[self.wedding.pk, code],
+                    )
+                )
+                self.assertContains(response, "data-theme-cinematic")
+                self.assertContains(response, "theme-cinematic-particle", count=8)
+                self.assertContains(response, "theme-cinematic-curtain--left")
 
     def test_minimal_template_keeps_its_quiet_opening(self) -> None:
         response = self.client.get(

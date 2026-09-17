@@ -1922,6 +1922,37 @@ body.inv--embedded::-webkit-scrollbar {
 .theme-hero{border-bottom:1px solid color-mix(in srgb,var(--inv-primary) 24%,transparent)}.theme-hero .theme-kicker{margin-bottom:1.25rem}.theme-lead,.theme-greeting{max-width:650px;margin:1rem auto;line-height:1.8}.theme-date{font-weight:700;color:var(--inv-primary);margin:1.5rem 0}
 .theme-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;text-align:left}.theme-facts article{padding:1rem;border-radius:16px;background:color-mix(in srgb,var(--inv-primary) 8%,var(--inv-paper));border:1px solid color-mix(in srgb,var(--inv-primary) 20%,transparent)}.theme-facts span{display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;opacity:.7;margin-bottom:.35rem}.theme-facts strong{display:block}.theme-section h2{font-family:var(--inv-display);font-size:clamp(2rem,5vw,3.5rem)}.theme-section p{line-height:1.8}.theme-closing{background:color-mix(in srgb,var(--inv-primary) 9%,var(--inv-paper));font-family:var(--inv-display);font-size:1.35rem}
 @media(max-width:600px){.theme-cover{padding:1.5rem;min-height:100svh}.theme-cover h1,.theme-hero h1{font-size:clamp(2.6rem,15vw,4.6rem)}.theme-hero,.theme-section{padding:2rem 1.2rem}.theme-facts{grid-template-columns:1fr 1fr}}
+
+/* Aberturas cinematográficas das coleções temáticas. */
+.theme-cover{position:relative;isolation:isolate;overflow:hidden;animation:theme-cover-breathe 15s ease-in-out infinite alternate}
+.theme-cover::before{content:"";position:absolute;inset:0;z-index:0;background:radial-gradient(circle at 50% 38%,transparent 0 12%,rgba(0,0,0,.2) 68%,rgba(0,0,0,.55) 100%);pointer-events:none}
+.theme-cover__content{position:relative;z-index:4;animation:theme-card-arrive 1.05s cubic-bezier(.18,.82,.25,1) both}
+.theme-cinematic-scene{position:absolute;inset:0;z-index:2;overflow:hidden;pointer-events:none}
+.theme-cinematic-glow{position:absolute;left:50%;top:42%;width:min(80vw,34rem);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.2),transparent 64%);filter:blur(8px);transform:translate(-50%,-50%);animation:theme-glow 5s ease-in-out infinite}
+.theme-cinematic-orbit{position:absolute;left:50%;top:40%;width:min(68vw,27rem);aspect-ratio:1;border:1px solid rgba(255,255,255,.34);border-radius:50%;box-shadow:0 0 2.5rem color-mix(in srgb,var(--inv-primary) 72%,transparent),inset 0 0 2rem rgba(255,255,255,.14);transform:translate(-50%,-50%);animation:theme-orbit 16s linear infinite}
+.theme-cinematic-orbit::before,.theme-cinematic-orbit::after{content:"";position:absolute;inset:12%;border:1px dashed rgba(255,255,255,.24);border-radius:inherit}.theme-cinematic-orbit::after{inset:35%;border-style:solid;background:radial-gradient(circle,rgba(255,255,255,.65),transparent 18%)}
+.theme-cinematic-particle{position:absolute;left:var(--x);top:-10%;width:.65rem;height:.95rem;border-radius:75% 10% 75% 15%;background:color-mix(in srgb,var(--inv-primary) 78%,white);box-shadow:0 0 1rem color-mix(in srgb,var(--inv-primary) 65%,transparent);opacity:.78;animation:theme-particle-fall var(--duration) linear var(--delay) infinite}
+.theme-cinematic-curtain{position:absolute;z-index:8;inset:0 auto 0 0;width:51%;opacity:0;background:linear-gradient(105deg,color-mix(in srgb,var(--inv-secondary) 90%,black),color-mix(in srgb,var(--inv-primary) 78%,black))}.theme-cinematic-curtain--right{left:auto;right:0;background:linear-gradient(255deg,color-mix(in srgb,var(--inv-secondary) 90%,black),color-mix(in srgb,var(--inv-primary) 78%,black))}
+.inv[class*="inv--template-lobolo-"] .theme-cinematic-particle{border-radius:0;background:linear-gradient(135deg,var(--inv-primary) 49%,var(--inv-secondary) 51%);transform:rotate(45deg)}
+.inv[class*="inv--template-lobolo-"] .theme-cinematic-orbit{border-radius:18%;outline:1px solid rgba(255,255,255,.18);outline-offset:1.2rem}
+.inv[class*="inv--template-aniversario-"] .theme-cinematic-particle{width:.42rem;height:1.25rem;border-radius:.15rem;background:#fff}.inv[class*="inv--template-aniversario-"] .theme-cinematic-particle:nth-child(3n){background:var(--inv-primary)}.inv[class*="inv--template-aniversario-"] .theme-cinematic-particle:nth-child(3n+1){background:#f9d65c}.inv[class*="inv--template-aniversario-"] .theme-cinematic-orbit{border-style:dashed;box-shadow:0 0 4rem var(--inv-primary)}
+.inv[class*="inv--template-batismo-"] .theme-cinematic-particle{width:.7rem;height:.7rem;border-radius:50%;background:rgba(255,255,255,.75);border:1px solid rgba(255,255,255,.9)}.inv[class*="inv--template-batismo-"] .theme-cinematic-orbit{border-color:rgba(255,255,255,.64);box-shadow:0 0 0 1.2rem rgba(255,255,255,.06),0 0 4rem rgba(180,230,255,.38)}
+.inv[class*="inv--template-graduacao-"] .theme-cinematic-particle{border-radius:0;clip-path:polygon(50% 0,61% 38%,100% 50%,61% 62%,50% 100%,39% 62%,0 50%,39% 38%);background:#ffe29a}.inv[class*="inv--template-graduacao-"] .theme-cinematic-orbit{border-width:2px;border-color:color-mix(in srgb,var(--inv-primary) 82%,white)}
+.inv[class*="inv--template-cha-bebe-"] .theme-cinematic-particle{width:1.05rem;height:1.05rem;border-radius:50%;background:rgba(255,255,255,.72);box-shadow:.65rem .15rem 0 -.18rem rgba(255,255,255,.55),-.55rem .28rem 0 -.25rem rgba(255,255,255,.48)}.inv[class*="inv--template-cha-bebe-"] .theme-cinematic-orbit{border-style:dotted}
+.inv[class*="inv--template-outro-"] .theme-cinematic-particle{border-radius:0;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);background:linear-gradient(135deg,#fff,var(--inv-primary));mix-blend-mode:screen}
+.theme-cover.is-opening{animation:theme-cover-open 1.32s cubic-bezier(.72,0,.2,1) both}.theme-cover.is-opening .theme-cover__content{animation:theme-card-open .9s ease-in both}.theme-cover.is-opening .theme-cinematic-orbit{animation:theme-orbit-open 1.15s cubic-bezier(.15,.75,.2,1) both}.theme-cover.is-opening .theme-cinematic-particle{animation:theme-particle-burst 1.05s ease-out both}.theme-cover.is-opening .theme-cinematic-curtain--left{animation:theme-curtain-left 1.2s ease-in-out both}.theme-cover.is-opening .theme-cinematic-curtain--right{animation:theme-curtain-right 1.2s ease-in-out both}.theme-main--cinematic-enter{animation:theme-main-enter .9s .82s cubic-bezier(.16,.8,.25,1) both}
+@keyframes theme-cover-breathe{from{background-position:50% 50%}to{background-position:52% 47%}}
+@keyframes theme-card-arrive{from{opacity:0;transform:translateY(3rem);filter:blur(7px)}to{opacity:1;transform:none;filter:none}}
+@keyframes theme-glow{0%,100%{opacity:.45;transform:translate(-50%,-50%) scale(.88)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}}
+@keyframes theme-orbit{to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes theme-particle-fall{0%{opacity:0;transform:translate3d(0,-8vh,0) rotate(0)}12%{opacity:.82}88%{opacity:.65}100%{opacity:0;transform:translate3d(3rem,118vh,0) rotate(540deg)}}
+@keyframes theme-card-open{to{opacity:0;transform:translateY(-5rem) scale(.86);filter:blur(9px)}}
+@keyframes theme-orbit-open{to{opacity:0;transform:translate(-50%,-50%) scale(5) rotate(150deg)}}
+@keyframes theme-particle-burst{to{opacity:0;transform:translate3d(0,-45vh,0) rotate(480deg) scale(1.7)}}
+@keyframes theme-curtain-left{0%{opacity:0;transform:translateX(-100%)}20%,52%{opacity:.94;transform:none}100%{opacity:0;transform:translateX(-110%)}}
+@keyframes theme-curtain-right{0%{opacity:0;transform:translateX(100%)}20%,52%{opacity:.94;transform:none}100%{opacity:0;transform:translateX(110%)}}
+@keyframes theme-cover-open{0%,72%{opacity:1}100%{opacity:0;transform:scale(1.07);filter:brightness(1.25)}}
+@keyframes theme-main-enter{from{opacity:0;transform:translateY(2rem);filter:blur(8px)}to{opacity:1;transform:none;filter:none}}
 .corp-cover{min-height:100%;display:grid;align-items:end;padding:clamp(2rem,8vw,5rem);background-size:cover;background-position:center;color:#fff}
 .corp-cover__content{max-width:42rem}.corp-kicker{display:block;font-size:.72rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;margin-bottom:1rem}
 .corp-cover h1,.corp-hero h1{font-family:var(--inv-display);font-size:clamp(2.7rem,10vw,5.7rem);line-height:.98;margin:0 0 1rem}
@@ -1939,6 +1970,7 @@ body.inv--embedded::-webkit-scrollbar {
 
 /* Engagement collection ------------------------------------------------ */
 .inv--noivado_elegante .inv-cover--engagement{min-height:100svh;display:grid;place-items:end center;padding:1.5rem;background-position:center;background-size:cover;position:relative}.inv--noivado_elegante .inv-cover--engagement::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,8,6,.04) 25%,rgba(10,8,6,.78) 100%)}.inv-engagement-card{position:relative;z-index:1;width:min(100%,29rem);padding:1.5rem 1.2rem;text-align:center;color:#fff;border:1px solid rgba(255,255,255,.38);border-radius:1.25rem;background:rgba(15,12,10,.38);backdrop-filter:blur(13px);box-shadow:0 1.5rem 4rem rgba(0,0,0,.32)}.inv-engagement-card__kicker{font-size:.68rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase}.inv-engagement-card h1{margin:.65rem 0 .45rem;font:400 clamp(2.4rem,10vw,4.3rem)/.95 var(--inv-display)}.inv-engagement-card__date{margin:.8rem 0 1rem;letter-spacing:.12em}.inv--noivado_elegante .inv-main{background:linear-gradient(180deg,var(--inv-paper),color-mix(in srgb,var(--inv-paper) 92%,var(--inv-primary)))}
+.inv--noivado_elegante .inv-hero__names{font-family:var(--inv-display);font-size:clamp(3.8rem,14vw,6.8rem);font-weight:400;line-height:.84;letter-spacing:0}.inv--noivado_elegante .inv-hero__amp{font-family:var(--inv-display);font-size:.72em;font-weight:400}
 
 /* Noivado cinematográfico: cada capa herda a mesma cena e muda de matéria. */
 .inv--noivado_elegante .inv-cover--engagement {
@@ -2069,4 +2101,7 @@ body.inv--embedded::-webkit-scrollbar {
     .inv-engagement-light,.inv-engagement-petal,.inv-engagement-scene::before,.inv-engagement-scene::after,
     .inv-main--engagement-enter { animation:none!important; }
     .inv-engagement-petal,.inv-engagement-aura,.inv-engagement-ring,.inv-engagement-light { display:none; }
+    .theme-cover,.theme-cover__content,.theme-cinematic-glow,.theme-cinematic-orbit,
+    .theme-cinematic-particle,.theme-main--cinematic-enter { animation:none!important; }
+    .theme-cinematic-particle,.theme-cinematic-orbit,.theme-cinematic-glow { display:none; }
 }

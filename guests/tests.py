@@ -453,7 +453,8 @@ class GuestViewTests(TestCase):
         image_response = self.client.get(image_url)
         self.assertEqual(image_response.status_code, 200)
         self.assertEqual(image_response["Content-Type"], "image/jpeg")
-        self.assertEqual(image_response["X-Share-Image-Version"], "4")
+        self.assertEqual(image_response["X-Share-Image-Version"], "5")
+        self.assertEqual(image_response["X-Share-Template"], self.wedding.selected_template)
         with Image.open(BytesIO(image_response.content)) as image:
             self.assertEqual(image.size, (1200, 630))
 
@@ -464,6 +465,19 @@ class GuestViewTests(TestCase):
         self.assertEqual(audio_response["Content-Type"], "audio/mpeg")
         self.assertEqual(audio_response["Content-Length"], "1024")
         self.assertTrue(audio_response["Content-Range"].startswith("bytes 0-1023/"))
+
+    def test_whatsapp_cover_follows_the_selected_template(self):
+        self.wedding.selected_template = "noivado-jardim-promessas"
+        self.wedding.save(update_fields=["selected_template"])
+        guest = Guest.objects.create(wedding=self.wedding, full_name="Ana")
+
+        response = self.client.get(
+            reverse("guest_invitation_share_image", args=[guest.invitation_token])
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["X-Share-Template"], "noivado-jardim-promessas")
+        self.assertEqual(response["X-Share-Image-Version"], "5")
 
     def test_sms_settings_reject_unicode(self):
         from weddings.forms import WeddingSettingsForm

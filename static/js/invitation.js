@@ -143,6 +143,17 @@
                 }, 1480);
                 return;
             }
+            if (cover.classList.contains("theme-cover")) {
+                opener.disabled = true;
+                cover.classList.add("is-opening");
+                main.classList.add("theme-main--cinematic-enter");
+                window.setTimeout(function () {
+                    cover.remove();
+                    document.body.classList.remove("inv--cover-pending");
+                    main.scrollIntoView({ behavior: "smooth", block: "start" });
+                }, 1280);
+                return;
+            }
             cover.style.transition = "opacity .5s ease, transform .5s ease";
             cover.style.opacity = "0";
             cover.style.transform = "scale(1.03)";

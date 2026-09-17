@@ -22,7 +22,7 @@ from weddings.models import (
 )
 
 
-WHATSAPP_PREVIEW_REVISION = "4"
+WHATSAPP_PREVIEW_REVISION = "5"
 
 
 def _sms_ascii(value: str, limit: int) -> str:

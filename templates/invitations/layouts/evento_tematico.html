@@ -1,5 +1,19 @@
 {% if template.has_cover %}
 <section class="theme-cover" id="inv-cover" style="background-image:linear-gradient(180deg,rgba(5,10,18,.12),rgba(5,10,18,.72)),url('{% if wedding.cover_image and not ignore_custom_cover %}{{ wedding.cover_image.url }}{% else %}{{ template.cover_image.url }}{% endif %}')">
+    <div class="theme-cinematic-scene" data-theme-cinematic aria-hidden="true">
+        <span class="theme-cinematic-orbit"></span>
+        <span class="theme-cinematic-glow"></span>
+        <span class="theme-cinematic-particle" style="--x:8%;--delay:-1s;--duration:8s"></span>
+        <span class="theme-cinematic-particle" style="--x:18%;--delay:-5s;--duration:11s"></span>
+        <span class="theme-cinematic-particle" style="--x:29%;--delay:-3s;--duration:9s"></span>
+        <span class="theme-cinematic-particle" style="--x:43%;--delay:-7s;--duration:12s"></span>
+        <span class="theme-cinematic-particle" style="--x:57%;--delay:-2s;--duration:10s"></span>
+        <span class="theme-cinematic-particle" style="--x:69%;--delay:-8s;--duration:13s"></span>
+        <span class="theme-cinematic-particle" style="--x:81%;--delay:-4s;--duration:9.5s"></span>
+        <span class="theme-cinematic-particle" style="--x:92%;--delay:-6s;--duration:11.5s"></span>
+        <span class="theme-cinematic-curtain theme-cinematic-curtain--left"></span>
+        <span class="theme-cinematic-curtain theme-cinematic-curtain--right"></span>
+    </div>
     <div class="theme-cover__content">
         <span class="theme-kicker"><i class="bi {{ wedding.category.icon }}"></i> {{ wedding.category_name }}</span>
         <h1>{{ wedding.display_names }}</h1>
