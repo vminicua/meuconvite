@@ -18,6 +18,7 @@ from .forms import (
     MemberPermissionsForm,
     GalleryPhotoForm,
     GalleryUploadForm,
+    WeddingCategoryForm,
     WeddingCreateForm,
     WeddingDesignForm,
     WeddingSettingsForm,
@@ -275,6 +276,48 @@ def wedding_story(request: HttpRequest, wedding) -> HttpResponse:
             "form": form,
             "capabilities": capabilities,
         },
+    )
+
+
+@require_wedding("can_manage_events")
+def wedding_category(request: HttpRequest, wedding) -> HttpResponse:
+    """Permite corrigir o tipo de evento sem recriar a organização."""
+    capabilities = capability_flags(wedding, request.user)
+    if capabilities["event_locked"]:
+        return render(
+            request,
+            "weddings/event_locked.html",
+            {"wedding": wedding, "capabilities": capabilities},
+        )
+
+    form = WeddingCategoryForm(request.POST or None, wedding=wedding)
+    if request.method == "POST" and form.is_valid():
+        new_category = form.cleaned_data["category"]
+        try:
+            services.change_category(
+                wedding=wedding,
+                category=new_category,
+                actor=request.user,
+                request=request,
+            )
+        except ValidationError as exc:
+            form.add_error("category", exc)
+        else:
+            messages.success(
+                request,
+                f"Categoria alterada para {new_category.name}. Reveja agora o template do convite.",
+            )
+            destination = (
+                "weddings:design"
+                if capabilities["can_manage_design"]
+                else "weddings:detail"
+            )
+            return redirect(destination, wedding_id=wedding.pk)
+
+    return render(
+        request,
+        "weddings/wedding_category.html",
+        {"wedding": wedding, "form": form, "capabilities": capabilities},
     )
 
 

@@ -8,6 +8,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 from django.utils import timezone
 
+from events.models import EventCategory
 from templates_manager.models import InvitationTemplate
 from weddings.models import (
     InvitationHost,
@@ -818,3 +819,55 @@ class WeddingStoryViewTests(TestCase):
         )
         self.assertContains(response, "A nossa promessa")
         self.assertContains(response, "O amor jamais acaba.")
+
+
+class WeddingCategoryViewTests(TestCase):
+    def setUp(self) -> None:
+        self.owner = create_user(email="categoria@example.com")
+        self.wedding_category = create_category(
+            field_schema=[
+                {"key": "traje", "label": "Traje", "type": "text"},
+                {"key": "lista_antiga", "label": "Lista antiga", "type": "text"},
+            ]
+        )
+        self.engagement = EventCategory.objects.get(code="noivado")
+        self.wedding = create_wedding(
+            owner=self.owner,
+            category=self.wedding_category,
+            extra_data={"traje": "Formal", "lista_antiga": "Valor antigo"},
+            selected_template="carta-selada",
+        )
+        self.event = create_event(self.wedding)
+        self.client.login(email=self.owner.email, password=DEFAULT_PASSWORD)
+        self.url = reverse("weddings:category", args=[self.wedding.pk])
+
+    def test_change_page_explains_what_is_preserved(self) -> None:
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "O trabalho importante será preservado")
+        self.assertContains(response, self.engagement.name)
+
+    def test_confirmation_is_required(self) -> None:
+        response = self.client.post(self.url, {"category": self.engagement.pk})
+        self.assertEqual(response.status_code, 200)
+        self.wedding.refresh_from_db()
+        self.assertEqual(self.wedding.category, self.wedding_category)
+
+    def test_category_change_preserves_programme_and_chooses_valid_template(self) -> None:
+        response = self.client.post(
+            self.url,
+            {"category": self.engagement.pk, "confirm": "on"},
+        )
+        self.assertRedirects(
+            response, reverse("weddings:design", args=[self.wedding.pk])
+        )
+        self.wedding.refresh_from_db()
+        self.assertEqual(self.wedding.category, self.engagement)
+        self.assertEqual(self.wedding.extra_data, {"traje": "Formal"})
+        self.assertTrue(self.wedding.events.filter(pk=self.event.pk).exists())
+        self.assertTrue(
+            InvitationTemplate.objects.for_category(self.engagement)
+            .filter(code=self.wedding.selected_template)
+            .exists()
+        )
+        self.assertTrue(self.wedding.show_story)

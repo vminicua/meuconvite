@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Alterar categoria · {{ wedding.display_names }}{% endblock %}
+
+{% block content %}
+{% include "partials/wedding_nav.html" %}
+
+<div class="mx-auto" style="max-width: 760px">
+    <a class="btn btn-link px-0 mb-2" href="{% url 'weddings:detail' wedding.pk %}"><i class="bi bi-arrow-left me-1"></i>Voltar aos detalhes</a>
+    <section class="details-panel p-4 p-lg-5">
+        <span class="workspace-eyebrow">CORRIGIR TIPO DE EVENTO</span>
+        <h2 class="h3 mt-2">Alterar categoria</h2>
+        <p class="text-body-secondary">Actualmente este evento está definido como <strong>{{ wedding.category_name }}</strong>.</p>
+
+        <div class="alert alert-warning d-flex gap-3 align-items-start my-4">
+            <i class="bi bi-shield-exclamation fs-4"></i>
+            <div>
+                <strong>O trabalho importante será preservado.</strong>
+                <p class="mb-0 mt-1">Convidados, programa, locais, galeria, presentes e equipa não serão apagados. Apenas campos exclusivos da categoria actual deixam de ser usados, e o convite recebe um template compatível.</p>
+            </div>
+        </div>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="mb-4">
+                <label class="form-label" for="{{ form.category.id_for_label }}">{{ form.category.label }}</label>
+                {{ form.category }}
+                {% for error in form.category.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+            </div>
+            <label class="form-check border rounded-3 p-3 ps-5 mb-4">
+                {{ form.confirm }}
+                <span class="form-check-label">{{ form.confirm.label }}</span>
+            </label>
+            {% for error in form.confirm.errors %}<div class="invalid-feedback d-block mb-3">{{ error }}</div>{% endfor %}
+            <div class="d-flex flex-wrap justify-content-end gap-2">
+                <a class="btn btn-outline-secondary" href="{% url 'weddings:detail' wedding.pk %}">Cancelar</a>
+                <button class="btn btn-primary" type="submit"><i class="bi bi-arrow-left-right me-1"></i>Alterar e escolher template</button>
+            </div>
+        </form>
+    </section>
+</div>
+{% endblock %}

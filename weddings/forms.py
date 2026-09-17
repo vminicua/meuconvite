@@ -15,6 +15,7 @@ from core.forms import BootstrapForm, BootstrapModelForm
 from core.schema import add_schema_fields, collect_schema_values
 from core.utils import strip_accents
 from core.validators import validate_audio_upload, validate_image_upload
+from events.models import EventCategory
 from templates_manager import registry
 
 from .models import (
@@ -495,6 +496,30 @@ class WeddingStoryForm(BootstrapModelForm):
                 _("Escreva primeiro o versículo ou a citação."),
             )
         return cleaned
+
+
+class WeddingCategoryForm(forms.Form):
+    """Troca explícita do tipo de evento, sem tocar no conteúdo comum."""
+
+    category = forms.ModelChoiceField(
+        label=_("Nova categoria"),
+        queryset=EventCategory.objects.none(),
+        empty_label=_("Escolha a categoria correcta"),
+    )
+    confirm = forms.BooleanField(
+        label=_("Compreendo que os campos exclusivos da categoria actual serão removidos."),
+    )
+
+    def __init__(self, *args, wedding: Wedding, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.wedding = wedding
+        self.fields["category"].queryset = (
+            EventCategory.objects.active()
+            .exclude(pk=wedding.category_id)
+            .order_by("display_order", "name")
+        )
+        self.fields["category"].widget.attrs["class"] = "form-select form-select-lg"
+        self.fields["confirm"].widget.attrs["class"] = "form-check-input"
 
 
 class WeddingDesignForm(BootstrapModelForm):

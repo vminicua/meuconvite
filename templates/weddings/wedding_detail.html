@@ -8,7 +8,10 @@
 
 <div class="details-hero">
     <div><span class="workspace-eyebrow">DETALHES DO EVENTO</span><h2>O coração do seu convite</h2><p>Edite a informação, a fotografia e as mensagens enquanto vê o resultado.</p></div>
-    <div class="details-save-state"><i class="bi bi-cloud-check"></i><span>As alterações ficam activas depois de guardar</span></div>
+    <div class="d-flex flex-column align-items-end gap-2">
+        <div class="details-save-state"><i class="bi bi-cloud-check"></i><span>As alterações ficam activas depois de guardar</span></div>
+        {% if capabilities.can_manage_events %}<a class="btn btn-outline-secondary btn-sm" href="{% url 'weddings:category' wedding.pk %}"><i class="bi bi-arrow-left-right me-1"></i>Alterar categoria</a>{% endif %}
+    </div>
 </div>
 
 <form method="post" enctype="multipart/form-data" novalidate data-event-details>

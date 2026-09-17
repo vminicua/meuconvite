@@ -170,6 +170,65 @@ def update_wedding(*, wedding: Wedding, data: dict, actor, request=None) -> Wedd
     return wedding
 
 
+@transaction.atomic
+def change_category(*, wedding: Wedding, category, actor, request=None) -> Wedding:
+    """Muda a categoria preservando a organização e normalizando o convite."""
+    from templates_manager import registry
+
+    if wedding.category_id == category.pk:
+        return wedding
+
+    old_category_code = wedding.category.code if wedding.category_id else ""
+    old_data = model_to_dict(wedding)
+    compatible_keys = {
+        str(field.get("key"))
+        for field in category.extra_fields
+        if isinstance(field, dict) and field.get("key")
+    }
+    wedding.extra_data = {
+        key: value
+        for key, value in (wedding.extra_data or {}).items()
+        if key in compatible_keys
+    }
+    wedding.category = category
+
+    templates = registry.all_templates(category)
+    if not templates.filter(code=wedding.selected_template).exists():
+        replacement = templates.order_by("-is_featured", "display_order", "name").first()
+        if replacement is None:
+            raise ValidationError(_("A nova categoria ainda não tem templates disponíveis."))
+        wedding.selected_template = replacement.code
+
+    if category.code == "evento-corporativo":
+        wedding.show_story = False
+        wedding.show_music = False
+        wedding.invitation_track = None
+    elif old_category_code == "evento-corporativo":
+        wedding.show_music = True
+
+    if category.code in {"casamento", "noivado"} and not (
+        wedding.story.strip() or wedding.story_verse.strip()
+    ):
+        wedding.show_story = True
+        wedding.story_title = (
+            _("A nossa promessa") if category.code == "noivado" else _("A nossa história")
+        )
+        wedding.story = _(
+            "Entre encontros, conversas e sonhos partilhados, descobrimos que a vida "
+            "fica mais bonita quando caminhamos lado a lado. Hoje celebramos a escolha "
+            "de continuar a escrever esta história juntos."
+        )
+        wedding.story_verse = _(
+            "Acima de tudo, porém, revistam-se do amor, que é o elo perfeito."
+        )
+        wedding.story_verse_reference = _("Colossenses 3:14")
+
+    wedding.full_clean(exclude=["public_token"])
+    wedding.save()
+    log_update(wedding, old_data=old_data, actor=actor, wedding=wedding, request=request)
+    return wedding
+
+
 def build_checklist(wedding: Wedding) -> list[ChecklistItem]:
     """
     What still has to be done before the wedding can be published.
