@@ -773,3 +773,48 @@ class WeddingGalleryViewTests(TestCase):
         )
         self.assertEqual(response.status_code, 404)
         self.assertTrue(WeddingGalleryPhoto.objects.filter(pk=photo.pk).exists())
+
+
+class WeddingStoryViewTests(TestCase):
+    def setUp(self) -> None:
+        self.owner = create_user(email="historia@example.com")
+        self.category = create_category()
+        self.wedding = create_wedding(owner=self.owner, category=self.category)
+        self.client.login(email=self.owner.email, password=DEFAULT_PASSWORD)
+        self.url = reverse("weddings:story", args=[self.wedding.pk])
+
+    def test_story_tab_has_presets_and_visibility_control(self) -> None:
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "INSPIRAÇÃO INTELIGENTE", html=False)
+        self.assertContains(response, 'name="show_story"', html=False)
+        self.assertContains(response, "Colossenses 3:14")
+
+    def test_story_content_and_verse_are_saved(self) -> None:
+        response = self.client.post(
+            self.url,
+            {
+                "show_story": "on",
+                "story_title": "Como tudo começou",
+                "story": "Um encontro que mudou tudo.",
+                "story_verse": "O amor jamais acaba.",
+                "story_verse_reference": "1 Coríntios 13:8",
+            },
+        )
+        self.assertRedirects(response, self.url)
+        self.wedding.refresh_from_db()
+        self.assertTrue(self.wedding.show_story)
+        self.assertEqual(self.wedding.story_title, "Como tudo começou")
+        self.assertEqual(self.wedding.story_verse_reference, "1 Coríntios 13:8")
+
+    def test_story_section_is_rendered_in_the_invitation(self) -> None:
+        self.wedding.show_story = True
+        self.wedding.story_title = "A nossa promessa"
+        self.wedding.story = "Um encontro que mudou tudo."
+        self.wedding.story_verse = "O amor jamais acaba."
+        self.wedding.save()
+        response = self.client.get(
+            reverse("weddings:invitation_preview", args=[self.wedding.pk])
+        )
+        self.assertContains(response, "A nossa promessa")
+        self.assertContains(response, "O amor jamais acaba.")

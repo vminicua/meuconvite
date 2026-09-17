@@ -53,6 +53,7 @@ class CatalogueTests(TestCase):
                 InvitationLayout.SEALED_LETTER,
                 InvitationLayout.BOTANICAL,
                 InvitationLayout.CORPORATE,
+                InvitationLayout.ENGAGEMENT,
             },
         )
 
@@ -71,6 +72,17 @@ class CatalogueTests(TestCase):
         )
         self.assertTrue(all(template.layout == InvitationLayout.CORPORATE for template in templates))
         self.assertTrue(all(not template.supports_music for template in templates))
+        self.assertTrue(all(template.cover_image for template in templates))
+
+    def test_engagement_category_has_its_seven_curated_templates(self) -> None:
+        from events.models import EventCategory
+
+        engagement = EventCategory.objects.get(code="noivado")
+        templates = list(registry.all_templates(engagement))
+        self.assertEqual(len(templates), 7)
+        self.assertTrue(
+            all(template.layout == InvitationLayout.ENGAGEMENT for template in templates)
+        )
         self.assertTrue(all(template.cover_image for template in templates))
 
 

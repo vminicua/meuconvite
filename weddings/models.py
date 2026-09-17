@@ -261,6 +261,20 @@ class Wedding(BaseModel):
     )
     welcome_message = models.TextField(_("mensagem de boas-vindas"), blank=True, max_length=1000)
     story = models.TextField(_("a nossa história"), blank=True, max_length=5000)
+    show_story = models.BooleanField(
+        _("mostrar a nossa história"),
+        default=False,
+        help_text=_("Apresenta esta secção no convite público."),
+    )
+    story_title = models.CharField(
+        _("título da história"), max_length=120, blank=True, default=""
+    )
+    story_verse = models.TextField(
+        _("versículo ou citação"), blank=True, max_length=700
+    )
+    story_verse_reference = models.CharField(
+        _("referência do versículo"), max_length=120, blank=True, default=""
+    )
     hashtag = models.CharField(_("hashtag"), max_length=60, blank=True)
 
     # --- Design ---
@@ -401,7 +415,11 @@ class Wedding(BaseModel):
 
     @property
     def story_heading(self) -> str:
+        if self.story_title.strip():
+            return self.story_title.strip()
         headings = {
+            "casamento": _("A nossa história"),
+            "noivado": _("A nossa promessa"),
             "lobolo": _("A história das famílias"),
             "aniversario": _("Sobre o aniversariante"),
             "batismo": _("Mensagem da família"),

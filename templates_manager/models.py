@@ -89,6 +89,7 @@ class InvitationLayout(models.TextChoices):
     CLASSIC_CARD = "cartao_classico", _("Cartão clássico")
     CORPORATE = "corporativo", _("Evento corporativo")
     THEMATIC = "evento_tematico", _("Evento temático")
+    ENGAGEMENT = "noivado_elegante", _("Noivado elegante")
 
 
 class InvitationTemplateQuerySet(models.QuerySet):

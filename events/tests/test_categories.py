@@ -86,7 +86,14 @@ class EventCategoryTests(TestCase):
         call_command("seed_event_categories", verbosity=0)
         self.assertGreaterEqual(EventCategory.objects.count(), 8)
         self.assertTrue(EventCategory.objects.filter(code="casamento").exists())
+        self.assertTrue(EventCategory.objects.filter(code="noivado").exists())
         self.assertTrue(EventCategory.objects.filter(code="lobolo").exists())
+        ordered = list(
+            EventCategory.objects.order_by("display_order", "name")
+            .values_list("code", flat=True)
+        )
+        self.assertLess(ordered.index("casamento"), ordered.index("noivado"))
+        self.assertLess(ordered.index("noivado"), ordered.index("evento-corporativo"))
 
         # Correr outra vez não duplica nada.
         total = EventCategory.objects.count()

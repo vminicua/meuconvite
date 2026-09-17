@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}A nossa história · {{ wedding.display_names }}{% endblock %}
+
+{% block content %}
+{% include "partials/wedding_nav.html" %}
+
+<div class="story-editor-hero">
+    <div>
+        <span class="workspace-eyebrow">UM CAPÍTULO SÓ VOSSO</span>
+        <h2>A nossa história</h2>
+        <p>Partilhe o essencial da vossa caminhada ou deixe que um versículo diga aquilo que sentem.</p>
+    </div>
+    <a class="btn btn-outline-secondary" target="_blank" rel="noopener" href="{% url 'weddings:invitation_preview' wedding.pk %}">
+        <i class="bi bi-eye me-1"></i>Ver no convite
+    </a>
+</div>
+
+<form method="post" novalidate data-story-editor>
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+
+    <div class="story-editor-grid">
+        <section class="story-editor-panel">
+            <div class="story-visibility-card">
+                <div><i class="bi bi-stars"></i><div><strong>Mostrar no convite</strong><span>Pode desactivar sem perder o texto.</span></div></div>
+                <label class="form-check form-switch mb-0">{{ form.show_story }}<span class="visually-hidden">{{ form.show_story.label }}</span></label>
+            </div>
+
+            <div class="story-presets">
+                <div class="story-presets__heading"><span class="workspace-eyebrow">INSPIRAÇÃO INTELIGENTE</span><p>Escolha um ponto de partida; depois torne-o verdadeiramente vosso.</p></div>
+                <div class="story-preset-list">
+                    <button type="button" data-story-preset="journey"><i class="bi bi-signpost-split"></i><strong>A nossa caminhada</strong><span>Romântico e natural</span></button>
+                    <button type="button" data-story-preset="promise"><i class="bi bi-gem"></i><strong>A nossa promessa</strong><span>Elegante e emotivo</span></button>
+                    <button type="button" data-story-preset="faith"><i class="bi bi-book-half"></i><strong>Amor e fé</strong><span>Com versículo bíblico</span></button>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-1">
+                <div class="col-12">
+                    <label class="form-label" for="{{ form.story_title.id_for_label }}">{{ form.story_title.label }}</label>
+                    {{ form.story_title }}
+                    <div class="form-text">{{ form.story_title.help_text }}</div>
+                    {% for error in form.story_title.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="col-12">
+                    <label class="form-label" for="{{ form.story.id_for_label }}">{{ form.story.label }}</label>
+                    {{ form.story }}
+                    <div class="form-text d-flex justify-content-between"><span>{{ form.story.help_text }}</span><span><b data-story-count>0</b>/5000</span></div>
+                    {% for error in form.story.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="col-12">
+                    <label class="form-label" for="{{ form.story_verse.id_for_label }}">{{ form.story_verse.label }}</label>
+                    {{ form.story_verse }}
+                    <div class="form-text">{{ form.story_verse.help_text }}</div>
+                    {% for error in form.story_verse.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="col-12">
+                    <label class="form-label" for="{{ form.story_verse_reference.id_for_label }}">{{ form.story_verse_reference.label }}</label>
+                    {{ form.story_verse_reference }}
+                    <div class="form-text">{{ form.story_verse_reference.help_text }}</div>
+                    {% for error in form.story_verse_reference.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+            </div>
+        </section>
+
+        <aside class="story-live-preview" aria-live="polite">
+            <span class="story-live-preview__eyebrow">COMO OS CONVIDADOS VÃO LER</span>
+            <div class="story-live-preview__ornament">✦</div>
+            <h3 data-story-preview-title>{{ form.story_title.value|default:wedding.story_heading }}</h3>
+            <p data-story-preview-body>{{ form.story.value|default:"A vossa história aparecerá aqui, com uma leitura leve e elegante." }}</p>
+            <blockquote data-story-preview-quote {% if not form.story_verse.value %}hidden{% endif %}>
+                <p data-story-preview-verse>{{ form.story_verse.value }}</p>
+                <cite data-story-preview-reference>{{ form.story_verse_reference.value }}</cite>
+            </blockquote>
+        </aside>
+    </div>
+
+    {% if capabilities.can_manage_events %}<div class="d-flex justify-content-end mt-4"><button class="btn btn-primary btn-lg" type="submit"><i class="bi bi-check2 me-1"></i>Guardar história</button></div>{% endif %}
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(() => {
+    const root = document.querySelector('[data-story-editor]');
+    if (!root) return;
+    const title = root.querySelector('[name="story_title"]');
+    const story = root.querySelector('[name="story"]');
+    const verse = root.querySelector('[name="story_verse"]');
+    const reference = root.querySelector('[name="story_verse_reference"]');
+    const count = root.querySelector('[data-story-count]');
+    const previewTitle = root.querySelector('[data-story-preview-title]');
+    const previewBody = root.querySelector('[data-story-preview-body]');
+    const previewQuote = root.querySelector('[data-story-preview-quote]');
+    const previewVerse = root.querySelector('[data-story-preview-verse]');
+    const previewReference = root.querySelector('[data-story-preview-reference]');
+    const presets = {
+        journey: {
+            title: 'A nossa história',
+            story: 'Entre encontros, conversas e sonhos partilhados, descobrimos que a vida fica mais bonita quando caminhamos lado a lado. Hoje celebramos a escolha de continuar a escrever esta história juntos.',
+            verse: '', reference: ''
+        },
+        promise: {
+            title: 'A nossa promessa',
+            story: 'O amor encontrou-nos no tempo certo e transformou os pequenos momentos em memórias inesquecíveis. Este é o início de uma nova etapa: uma promessa feita com amizade, cumplicidade e o coração inteiro.',
+            verse: 'Encontrei aquele a quem o meu coração ama.', reference: 'Cânticos 3:4'
+        },
+        faith: {
+            title: 'Um amor abençoado',
+            story: 'A nossa caminhada ensinou-nos que amar é escolher, cuidar e crescer juntos. Com gratidão a Deus, celebramos esta união e tudo o que ainda construiremos lado a lado.',
+            verse: 'Acima de tudo, porém, revistam-se do amor, que é o elo perfeito.', reference: 'Colossenses 3:14'
+        }
+    };
+    const refresh = () => {
+        count.textContent = story.value.length;
+        previewTitle.textContent = title.value || 'A nossa história';
+        previewBody.textContent = story.value || 'A vossa história aparecerá aqui, com uma leitura leve e elegante.';
+        previewVerse.textContent = verse.value;
+        previewReference.textContent = reference.value;
+        previewQuote.hidden = !verse.value.trim();
+    };
+    [title, story, verse, reference].forEach((field) => field.addEventListener('input', refresh));
+    root.querySelectorAll('[data-story-preset]').forEach((button) => button.addEventListener('click', () => {
+        const preset = presets[button.dataset.storyPreset];
+        if (!preset) return;
+        title.value = preset.title; story.value = preset.story;
+        verse.value = preset.verse; reference.value = preset.reference;
+        refresh(); story.focus();
+    }));
+    refresh();
+})();
+</script>
+{% endblock %}

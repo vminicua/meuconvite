@@ -64,13 +64,7 @@
 
     {% include "invitations/_schedule.html" %}
 
-    {% if wedding.story %}
-        <section class="inv-section inv-section--story">
-            <h2 class="inv-section__title">A nossa história</h2>
-            <svg class="inv-divider" viewBox="0 0 200 24" aria-hidden="true"><use href="#inv-divider"/></svg>
-            <p class="inv-text">{{ wedding.story|linebreaksbr }}</p>
-        </section>
-    {% endif %}
+    {% include "invitations/_story.html" %}
 
     {% include "invitations/_gallery.html" %}
 

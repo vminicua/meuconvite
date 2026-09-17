@@ -56,6 +56,31 @@ CATEGORIES: list[dict] = [
         "display_order": 10,
     },
     {
+        "code": "noivado",
+        "name": "Noivado",
+        "description": "Celebração do pedido e da promessa de uma vida a dois.",
+        "icon": "bi-gem",
+        "uses_two_names": True,
+        "primary_label": "Nome da noiva",
+        "secondary_label": "Nome do noivo",
+        "names_separator": "&",
+        "invitation_greeting": "têm o prazer de o convidar para celebrar o seu noivado",
+        "field_schema": [
+            {"key": "traje", "label": "Traje", "type": "choice", "choices": list(DRESS_CODE_CHOICES)},
+            {"key": "surpresa", "label": "O pedido é surpresa?", "type": "boolean"},
+        ],
+        "default_moments": [
+            {"name": "Celebração do Noivado", "event_type": "reception", "start_time": "17:00", "requires_rsvp": True},
+        ],
+        "default_schedule": [
+            {"title": "Recepção dos convidados", "start_time": "17:00", "icon": "bi-stars"},
+            {"title": "O pedido e o brinde", "start_time": "18:00", "icon": "bi-gem"},
+            {"title": "Jantar e celebração", "start_time": "19:00", "icon": "bi-cup-straw"},
+            {"title": "Fotografias", "start_time": "20:00", "icon": "bi-camera"},
+        ],
+        "display_order": 12,
+    },
+    {
         "code": "evento-corporativo",
         "name": "Evento corporativo",
         "description": "Conferências, lançamentos, jantares de empresa.",

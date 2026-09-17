@@ -30,11 +30,13 @@ def categories_with_templates():
         for template in catalogue
     }
     for category in categories:
-        category.template_options = [
+        curated = [
             template
             for template in catalogue
-            if not category_ids_by_template[template.pk]
-            or category.pk in category_ids_by_template[template.pk]
+            if category.pk in category_ids_by_template[template.pk]
+        ]
+        category.template_options = curated or [
+            template for template in catalogue if not category_ids_by_template[template.pk]
         ]
     return categories
 

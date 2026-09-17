@@ -48,6 +48,20 @@ def create_wedding(
     feito, em vez de um ecrã vazio.
     """
     wedding = Wedding(owner=owner, category=category, extra_data=extra_data or {}, **data)
+    if category is not None and category.code in {"casamento", "noivado"}:
+        wedding.show_story = True
+        wedding.story_title = (
+            _("A nossa promessa") if category.code == "noivado" else _("A nossa história")
+        )
+        wedding.story = _(
+            "Entre encontros, conversas e sonhos partilhados, descobrimos que a vida "
+            "fica mais bonita quando caminhamos lado a lado. Hoje celebramos a escolha "
+            "de continuar a escrever esta história juntos."
+        )
+        wedding.story_verse = _(
+            "Acima de tudo, porém, revistam-se do amor, que é o elo perfeito."
+        )
+        wedding.story_verse_reference = _("Colossenses 3:14")
     wedding.status = WeddingStatus.PUBLISHED
     wedding.published_at = timezone.now()
     wedding.full_clean(exclude=["public_token", "slug"] if not data.get("slug") else ["public_token"])

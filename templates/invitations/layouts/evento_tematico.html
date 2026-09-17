@@ -24,7 +24,7 @@
     {% if wedding.extra_values %}<section class="theme-section theme-facts">
         {% for field in wedding.extra_values %}{% if field.value %}<article><span>{{ field.label }}</span>{% if field.type == "url" %}<a href="{{ field.value }}" rel="noopener">Abrir ligação</a>{% else %}<strong>{{ field.value }}</strong>{% endif %}</article>{% endif %}{% endfor %}
     </section>{% endif %}
-    {% if wedding.story %}<section class="theme-section"><span class="theme-kicker">Sobre</span><h2>{{ wedding.story_heading }}</h2><p>{{ wedding.story|linebreaksbr }}</p></section>{% endif %}
+    {% include "invitations/_story.html" %}
     {% include "invitations/_schedule.html" %}
     {% include "invitations/_gallery.html" %}
     {% if wedding.welcome_message %}<section class="theme-section theme-closing"><p>{{ wedding.welcome_message|linebreaksbr }}</p></section>{% endif %}

@@ -242,6 +242,7 @@ class WeddingSettingsForm(BootstrapModelForm):
                     )
         else:
             category_content = {
+                "noivado": ("O início de uma nova promessa", "É com o coração cheio de alegria que convidamos para celebrar o nosso noivado.", "A nossa promessa"),
                 "lobolo": ("A união das nossas famílias", "Com respeito pela tradição, convidamos para partilhar connosco este encontro entre famílias.", "A história das famílias"),
                 "aniversario": ("Há motivos para celebrar", "Venha celebrar connosco mais um ano de vida, alegria e boas memórias.", "Sobre o aniversariante"),
                 "batismo": ("Um dia de fé e bênção", "Com alegria, convidamos para acompanhar este momento de fé e celebração em família.", "Mensagem da família"),
@@ -251,7 +252,6 @@ class WeddingSettingsForm(BootstrapModelForm):
             }
             content = category_content.get(category.code)
             if content:
-                self.fields["story"].label = _(content[2])
                 if not self.is_bound:
                     if not self.instance.cover_message:
                         self.initial["cover_message"] = _(content[0])
@@ -272,7 +272,7 @@ class WeddingSettingsForm(BootstrapModelForm):
             "invitation_host", "primary_parents_names", "secondary_parents_names",
         ])
         self.details_content_fields = bound([
-            "cover_message", "invitation_message", "welcome_message", "story",
+            "cover_message", "invitation_message", "welcome_message",
         ])
         self.details_planning_fields = bound([
             "rsvp_deadline", "show_countdown", "show_seat_before_event",
@@ -328,7 +328,6 @@ class WeddingSettingsForm(BootstrapModelForm):
             "sms_invitation_message",
             "whatsapp_invitation_message",
             "welcome_message",
-            "story",
             "rsvp_deadline",
             "show_countdown",
             "show_seat_before_event",
@@ -340,7 +339,6 @@ class WeddingSettingsForm(BootstrapModelForm):
             "sms_invitation_message": forms.Textarea(attrs={"rows": 3}),
             "whatsapp_invitation_message": forms.Textarea(attrs={"rows": 7}),
             "welcome_message": forms.Textarea(attrs={"rows": 3}),
-            "story": forms.Textarea(attrs={"rows": 6}),
             "cover_image": forms.ClearableFileInput(attrs={
                 "accept": "image/jpeg,image/png,image/webp",
                 "data-cover-input": "",
@@ -432,6 +430,70 @@ class WeddingSettingsForm(BootstrapModelForm):
                     "secondary_parents_names",
                     _("Indique os nomes dos pais do noivo."),
                 )
+        return cleaned
+
+
+class WeddingStoryForm(BootstrapModelForm):
+    """Narrativa opcional mostrada como um capítulo próprio do convite."""
+
+    class Meta:
+        model = Wedding
+        fields = [
+            "show_story",
+            "story_title",
+            "story",
+            "story_verse",
+            "story_verse_reference",
+        ]
+        widgets = {
+            "story": forms.Textarea(attrs={"rows": 8, "maxlength": 5000}),
+            "story_verse": forms.Textarea(attrs={"rows": 3, "maxlength": 700}),
+        }
+        help_texts = {
+            "story_title": _("Ex.: A nossa história, A nossa promessa ou Como tudo começou."),
+            "story": _("Conte apenas os momentos que fazem sentido partilhar com os convidados."),
+            "story_verse": _("Opcional. Pode ser um versículo bíblico ou uma citação especial."),
+            "story_verse_reference": _("Ex.: Colossenses 3:14."),
+        }
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.fields["show_story"].label = _("Mostrar esta secção no convite")
+        if self.is_bound or not self.instance or not self.instance.pk:
+            return
+        is_engagement = getattr(self.instance.category, "code", "") == "noivado"
+        if not self.instance.story_title:
+            self.initial["story_title"] = _(
+                "A nossa promessa" if is_engagement else "A nossa história"
+            )
+        if not self.instance.story:
+            self.initial["story"] = _(
+                "Entre encontros, conversas e sonhos partilhados, descobrimos que a vida "
+                "fica mais bonita quando caminhamos lado a lado. Hoje celebramos a escolha "
+                "de continuar a escrever esta história juntos."
+            )
+        if not self.instance.story_verse:
+            self.initial["story_verse"] = _(
+                "Acima de tudo, porém, revistam-se do amor, que é o elo perfeito."
+            )
+            self.initial["story_verse_reference"] = _("Colossenses 3:14")
+
+    def clean(self):
+        cleaned = super().clean()
+        if cleaned.get("show_story") and not (
+            (cleaned.get("story") or "").strip()
+            or (cleaned.get("story_verse") or "").strip()
+        ):
+            raise forms.ValidationError(
+                _("Escreva a história ou um versículo antes de activar esta secção.")
+            )
+        if (cleaned.get("story_verse_reference") or "").strip() and not (
+            cleaned.get("story_verse") or ""
+        ).strip():
+            self.add_error(
+                "story_verse_reference",
+                _("Escreva primeiro o versículo ou a citação."),
+            )
         return cleaned
 
 

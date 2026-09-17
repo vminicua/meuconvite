@@ -21,6 +21,7 @@ from .forms import (
     WeddingCreateForm,
     WeddingDesignForm,
     WeddingSettingsForm,
+    WeddingStoryForm,
 )
 from .models import WeddingGalleryPhoto, WeddingMember, WeddingRole
 from .permissions import capability_flags, require_wedding, user_can
@@ -156,6 +157,8 @@ def wedding_preview(request: HttpRequest, wedding) -> HttpResponse:
     if selected_template and selected_template.has_cover:
         preview_sections.append("Capa")
     preview_sections.append("Convite")
+    if wedding.show_story and (wedding.story or wedding.story_verse):
+        preview_sections.append("A nossa história")
     if wedding.gallery_photos.filter(is_visible=True).exists():
         preview_sections.append("Galeria")
     if wedding.events.filter(is_active=True).exists():
@@ -230,6 +233,47 @@ def wedding_detail(request: HttpRequest, wedding) -> HttpResponse:
             "capabilities": capabilities,
             "selected_template": selected_template,
             "locations": locations,
+        },
+    )
+
+
+@require_wedding()
+def wedding_story(request: HttpRequest, wedding) -> HttpResponse:
+    """Editor dedicado à narrativa opcional do convite."""
+    capabilities = capability_flags(wedding, request.user)
+    if capabilities["event_locked"]:
+        return render(
+            request,
+            "weddings/event_locked.html",
+            {"wedding": wedding, "capabilities": capabilities},
+        )
+    if getattr(wedding.category, "code", "") == "evento-corporativo":
+        raise Http404
+
+    if request.method == "POST":
+        if not capabilities["can_manage_events"]:
+            raise Http404
+        form = WeddingStoryForm(request.POST, instance=wedding)
+        if form.is_valid():
+            services.update_wedding(
+                wedding=wedding,
+                data=form.cleaned_data,
+                actor=request.user,
+                request=request,
+            )
+            messages.success(request, "A nossa história foi actualizada.")
+            return redirect("weddings:story", wedding_id=wedding.pk)
+        messages.error(request, "Corrija os campos assinalados.")
+    else:
+        form = WeddingStoryForm(instance=wedding)
+
+    return render(
+        request,
+        "weddings/wedding_story.html",
+        {
+            "wedding": wedding,
+            "form": form,
+            "capabilities": capabilities,
         },
     )
 

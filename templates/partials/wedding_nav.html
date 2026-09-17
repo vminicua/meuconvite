@@ -35,6 +35,12 @@
             <a class="nav-link {% if request.resolver_match.url_name == 'detail' or request.resolver_match.url_name == 'settings' %}active{% endif %}"
                {% if capabilities.event_locked %}data-upgrade-modal data-upgrade-feature="Detalhes do evento" data-upgrade-url="{% url 'subscriptions:detail' wedding.pk %}"{% else %}data-workspace-nav{% endif %} href="{% url 'weddings:detail' wedding.pk %}"><i class="bi bi-card-checklist me-1"></i>Detalhes do evento</a>
         </li>
+        {% if wedding.category.code != "evento-corporativo" %}
+        <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'story' %}active{% endif %}"
+               {% if capabilities.event_locked %}data-upgrade-modal data-upgrade-feature="A nossa história" data-upgrade-url="{% url 'subscriptions:detail' wedding.pk %}"{% else %}data-workspace-nav{% endif %} href="{% url 'weddings:story' wedding.pk %}"><i class="bi bi-book me-1"></i>A nossa história</a>
+        </li>
+        {% endif %}
         <li class="nav-item">
             <a class="nav-link {% if request.resolver_match.namespace == 'events' %}active{% endif %}"
                {% if capabilities.event_locked %}data-upgrade-modal data-upgrade-feature="Programa" data-upgrade-url="{% url 'subscriptions:detail' wedding.pk %}"{% else %}data-workspace-nav{% endif %} href="{% url 'events:organisation' wedding.pk %}"><i class="bi bi-calendar3 me-1"></i>Programa</a>
