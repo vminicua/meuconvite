@@ -276,6 +276,15 @@ class Wedding(BaseModel):
         _("referência do versículo"), max_length=120, blank=True, default=""
     )
     hashtag = models.CharField(_("hashtag"), max_length=60, blank=True)
+    invitation_texts = models.JSONField(
+        _("textos do convite"),
+        default=dict,
+        blank=True,
+        help_text=_(
+            "Textos personalizados do convite ({chave: texto}). Chaves e textos "
+            "originais em weddings/invitation_texts.py; em branco usa-se o original."
+        ),
+    )
 
     # --- Design ---
     primary_color = models.CharField(
@@ -390,15 +399,20 @@ class Wedding(BaseModel):
         return self.primary_name
 
     @property
-    def parents_invitation_text(self) -> str:
-        """Formal host line used when both families issue the invitation."""
+    def parents_hosts(self) -> str:
+        """Nomes dos pais anfitriões, quando são eles a apresentar o convite."""
         if self.invitation_host != InvitationHost.PARENTS:
             return ""
-        hosts = " e ".join(
+        return " e ".join(
             name.strip()
             for name in (self.primary_parents_names, self.secondary_parents_names)
             if name.strip()
         )
+
+    @property
+    def parents_invitation_text(self) -> str:
+        """Formal host line used when both families issue the invitation."""
+        hosts = self.parents_hosts
         if not hosts:
             return ""
         return _("%(hosts)s convidam para o casamento dos seus filhos.") % {

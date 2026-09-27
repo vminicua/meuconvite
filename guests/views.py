@@ -25,6 +25,7 @@ from subscriptions.services import (
     set_guest_plan_access,
     sms_count,
 )
+from weddings.invitation_texts import InvitationTexts
 from weddings.permissions import capability_flags, require_wedding
 
 from .forms import BulkInvitationForm, GiftForm, GuestForm, GuestImportForm, SendInvitationForm
@@ -670,7 +671,10 @@ def guest_invitation(request: HttpRequest, token: str) -> HttpResponse:
             guest.rsvp_status = response
             guest.responded_at = timezone.now()
             guest.save(update_fields=["rsvp_status", "responded_at", "updated_at"])
-            messages.success(request, "A sua resposta foi registada. Obrigado!")
+            messages.success(
+                request,
+                InvitationTexts(wedding, guest_name=guest.full_name).plain("rsvp_thanks_toast"),
+            )
             return redirect("guest_invitation", token=guest.invitation_token)
 
     template = registry.get_template(wedding.selected_template)
@@ -867,9 +871,13 @@ def guest_invitation_share_image(request: HttpRequest, token: str) -> HttpRespon
             kicker_font = load_font(18, bold=True)
             panel_text(87, str(wedding.category_name).upper(), kicker_font, (*primary, 255))
 
-            guest_text = (guest.full_name or "Convidado").upper()
+            share_texts = InvitationTexts(
+                wedding, getattr(selected_template, "layout", ""),
+                guest_name=guest.full_name or "Convidado",
+            )
+            guest_text = share_texts.plain("share_image_to_guest").upper()
             guest_font = fitted_font(draw, guest_text, 450, 24, 17, bold=True)
-            panel_text(153, f"PARA  {guest_text}", guest_font, (*ink, 205))
+            panel_text(153, guest_text, guest_font, (*ink, 205))
 
             names = wedding.display_names
             names_font = fitted_font(draw, names, 455, 60, 34, serif=True, bold=False)
@@ -885,8 +893,9 @@ def guest_invitation_share_image(request: HttpRequest, token: str) -> HttpRespon
             template_font = fitted_font(draw, template_name, 430, 22, 16, serif=True)
             panel_text(390, template_name, template_font, (*ink, 205))
 
-            callout_font = load_font(15, bold=True)
-            panel_text(462, "ABRA O CONVITE E CONFIRME A SUA PRESENÇA", callout_font, (*ink, 255))
+            callout_text = share_texts.plain("share_image_callout").upper()
+            callout_font = fitted_font(draw, callout_text, 450, 15, 11, bold=True)
+            panel_text(462, callout_text, callout_font, (*ink, 255))
             brand_font = load_font(15, bold=True)
             panel_text(526, "MEUCONVITE.CO.MZ", brand_font, (*primary, 255))
 
@@ -914,6 +923,7 @@ def guest_gift_select(request: HttpRequest, token: str, gift_id) -> HttpResponse
     if wedding.status in {"archived", "blocked"} or guest.pk not in enabled_guest_ids(wedding):
         raise Http404
 
+    texts = InvitationTexts(wedding, guest_name=guest.full_name)
     with transaction.atomic():
         gift = get_object_or_404(
             Gift.objects.select_for_update(), pk=gift_id, wedding=wedding, is_active=True
@@ -921,12 +931,12 @@ def guest_gift_select(request: HttpRequest, token: str, gift_id) -> HttpResponse
         own_selection = GiftSelection.objects.filter(gift=gift, guest=guest).first()
         if own_selection:
             own_selection.delete()
-            messages.info(request, f"Deixou de levar “{gift.name}”.")
+            messages.info(request, texts.plain("gift_removed_toast", presente=gift.name))
         elif not gift.allow_multiple and GiftSelection.objects.filter(gift=gift).exists():
-            messages.error(request, "Este presente já foi escolhido por outro convidado.")
+            messages.error(request, texts.plain("gift_unavailable_toast"))
         else:
             GiftSelection.objects.create(gift=gift, guest=guest)
-            messages.success(request, f"Obrigado! Ficou registado que vai levar “{gift.name}”.")
+            messages.success(request, texts.plain("gift_selected_toast", presente=gift.name))
 
     return redirect("guest_invitation", token=guest.invitation_token)
 

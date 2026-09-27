@@ -465,12 +465,13 @@ class DashboardViewTests(TestCase):
         self.assertContains(response, "invitation-device")
         self.assertContains(response, "O scroll fica dentro do telemóvel")
         self.assertEqual(response.context["preview_sections"], ["Capa", "Convite", "RSVP"])
-        self.assertContains(response, ">Convite</a>", html=False)
-        self.assertContains(response, ">Detalhes do evento</a>", html=False)
-        self.assertContains(response, ">Convidados</a>", html=False)
-        self.assertNotContains(response, ">Momentos</a>", html=False)
-        self.assertContains(response, ">Programa</a>", html=False)
-        self.assertNotContains(response, ">Locais</a>", html=False)
+        self.assertContains(response, '<span class="workspace-area__label">O convite</span>', html=False)
+        self.assertContains(response, '<span class="workspace-area__label">Informações</span>', html=False)
+        self.assertContains(response, '<span class="workspace-area__label">Convidados</span>', html=False)
+        self.assertContains(response, 'class="workspace-area is-active"', html=False)
+        self.assertContains(response, 'data-workspace-area="invitation"', html=False)
+        self.assertNotContains(response, ">Momentos<", html=False)
+        self.assertNotContains(response, ">Locais<", html=False)
         self.assertContains(
             response,
             f'href="{reverse("subscriptions:detail", args=[self.wedding.pk])}"',

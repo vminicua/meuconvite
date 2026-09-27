@@ -34,6 +34,7 @@ from .selectors import (
     upcoming_events,
     weddings_for_user,
 )
+from .workspace import build_next_steps
 
 # ---------------------------------------------------------------------
 # Wedding list & creation
@@ -176,6 +177,7 @@ def wedding_preview(request: HttpRequest, wedding) -> HttpResponse:
             "selected_template": selected_template,
             "preview_sections": preview_sections,
             "capabilities": capabilities,
+            "next_steps": build_next_steps(wedding, capabilities),
         },
     )
 
@@ -193,12 +195,7 @@ def wedding_detail(request: HttpRequest, wedding) -> HttpResponse:
         if form.is_valid():
             with transaction.atomic():
                 form.create_uploaded_track(actor=request.user)
-                data = {
-                    key: value for key, value in form.cleaned_data.items()
-                    if not key.startswith("extra__") and key != "music_upload"
-                }
-                data["invitation_music"] = ""
-                data["extra_data"] = form.extra_data()
+                data = form.wedding_data()
                 services.update_wedding(
                     wedding=wedding, data=data, actor=request.user, request=request
                 )
@@ -349,12 +346,7 @@ def wedding_settings(request: HttpRequest, wedding) -> HttpResponse:
         if form.is_valid():
             with transaction.atomic():
                 form.create_uploaded_track(actor=request.user)
-                data = {
-                    key: value for key, value in form.cleaned_data.items()
-                    if not key.startswith("extra__") and key != "music_upload"
-                }
-                data["invitation_music"] = ""
-                data["extra_data"] = form.extra_data()
+                data = form.wedding_data()
                 services.update_wedding(
                     wedding=wedding, data=data, actor=request.user, request=request
                 )

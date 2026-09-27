@@ -15,6 +15,8 @@ from django.utils import timezone
 
 import segno
 
+from weddings.invitation_texts import InvitationTexts
+
 from .models import InvitationTemplate, _relative_luminance
 
 # Nome usado quando ainda não há um convidado real (pré-visualização).
@@ -121,21 +123,28 @@ def invitation_context(
         else first_moment
     )
 
+    guest_name = guest.full_name if guest is not None else guest_name
+    texts = InvitationTexts(wedding, template.layout, guest_name=guest_name or "")
+
     return {
         "wedding": wedding,
         "template": template,
+        # Todas as frases do convite, personalizáveis pelos anfitriões.
+        # Use {% invtext "chave" %} (ver weddings/invitation_texts.py).
+        "texts": texts,
         "css_variables": (
             template.css_variables(wedding.primary_color, wedding.secondary_color)
             if use_event_colours
             else template.css_variables()
         ),
-        "invitation_eyebrow": category.name if category else "Convite",
+        # Mantidos por compatibilidade; os layouts usam texts/invtext.
+        "invitation_eyebrow": texts.plain("hero_eyebrow"),
         "invitation_greeting": (
             category.invitation_greeting if category else "convida-o para"
         ),
         "monogram": monogram,
         "guest": guest,
-        "guest_name": guest.full_name if guest is not None else guest_name,
+        "guest_name": guest_name,
         "seats": guest.party_size if guest is not None else seats,
         "seating_assignment": guest.seating_assignment if guest is not None else "",
         "first_moment": visible_first_moment,

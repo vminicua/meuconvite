@@ -1,0 +1,46 @@
+{% comment %}Progress of the event and the single most useful next action (weddings.workspace.build_next_steps).{% endcomment %}
+{% if next_steps %}{% with next=next_steps.next_step %}
+<section class="next-steps{% if next_steps.complete %} is-complete{% endif %}" aria-labelledby="nextStepsTitle" data-next-steps>
+    <div class="next-steps__head">
+        <div class="next-steps__summary">
+            <p class="workspace-eyebrow mb-1">O seu progresso</p>
+            <h2 class="next-steps__title" id="nextStepsTitle">
+                {% if next_steps.complete %}Está tudo pronto. Acompanhe as respostas dos convidados.
+                {% else %}Falta{{ next_steps.remaining|pluralize:"m" }} {{ next_steps.remaining }} passo{{ next_steps.remaining|pluralize }} para o convite chegar aos convidados{% endif %}
+            </h2>
+            <div class="next-steps__progress">
+                <div class="next-steps__bar" role="progressbar" aria-label="Progresso do evento"
+                     aria-valuemin="0" aria-valuemax="{{ next_steps.total }}" aria-valuenow="{{ next_steps.done_count }}">
+                    <span style="width: {{ next_steps.percent }}%"></span>
+                </div>
+                <span class="next-steps__count">{{ next_steps.done_count }} de {{ next_steps.total }} concluídos</span>
+            </div>
+        </div>
+        {% if next_steps.complete %}
+            {% if capabilities.can_manage_guests %}
+            <a class="btn btn-primary next-steps__cta" href="{% url 'guests:list' wedding.pk %}" data-workspace-nav>
+                <i class="bi bi-check2-all me-2"></i>Ver respostas · {{ next_steps.confirmed_count }} confirmado{{ next_steps.confirmed_count|pluralize }}
+            </a>
+            {% endif %}
+        {% elif next %}
+            <a class="btn btn-primary next-steps__cta" href="{{ next.url }}" data-workspace-nav>
+                <i class="bi {{ next.icon }} me-2"></i>{{ next.action_label }}<i class="bi bi-arrow-right ms-2"></i>
+            </a>
+        {% endif %}
+    </div>
+    <ol class="next-steps__list">
+        {% for step in next_steps.steps %}
+        <li>
+            {% if step.url %}<a class="next-step{% if step.done %} is-done{% elif next and step.code == next.code and not next_steps.complete %} is-next{% endif %}" href="{{ step.url }}" data-workspace-nav data-step="{{ step.code }}">
+            {% else %}<div class="next-step{% if step.done %} is-done{% endif %}" data-step="{{ step.code }}">{% endif %}
+                <span class="next-step__mark" aria-hidden="true"><i class="bi {% if step.done %}bi-check-lg{% else %}{{ step.icon }}{% endif %}"></i></span>
+                <span class="next-step__text">
+                    <span class="next-step__label">{{ step.label }}{% if step.optional and not step.done %} <span class="next-step__tag">opcional</span>{% endif %}<span class="visually-hidden"> — {% if step.done %}concluído{% else %}por fazer{% endif %}</span></span>
+                    <span class="next-step__hint">{{ step.hint }}</span>
+                </span>
+            {% if step.url %}</a>{% else %}</div>{% endif %}
+        </li>
+        {% endfor %}
+    </ol>
+</section>
+{% endwith %}{% endif %}

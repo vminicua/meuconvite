@@ -1,4 +1,11 @@
-{% comment %}Workspace navigation for one event. Tabs are swapped client-side by workspace-tabs.js.{% endcomment %}
+{% load workspace_tags %}
+{% comment %}
+Workspace navigation for one event: four areas (O convite, Informações,
+Convidados, Definições) and, inside the active area, its sub-sections.
+Built by weddings.workspace.build_workspace_nav; links are swapped
+client-side by workspace-tabs.js (data-workspace-nav).
+{% endcomment %}
+{% workspace_nav as nav_groups %}
 <div class="wedding-header mb-4" data-wedding-workspace>
     <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
         <div>
@@ -26,58 +33,39 @@
     </div>
     {% endif %}
 
-    <ul class="nav nav-pills wedding-nav mt-3 flex-nowrap overflow-auto pb-1" aria-label="Área do evento">
-        <li class="nav-item">
-            <a class="nav-link {% if request.resolver_match.url_name == 'preview' %}active{% endif %}"
-               {% if capabilities.event_locked %}data-upgrade-modal data-upgrade-feature="Convite" data-upgrade-url="{% url 'subscriptions:detail' wedding.pk %}"{% else %}data-workspace-nav{% endif %} href="{% url 'weddings:preview' wedding.pk %}"><i class="bi bi-eye me-1"></i>Convite</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link {% if request.resolver_match.url_name == 'detail' or request.resolver_match.url_name == 'settings' %}active{% endif %}"
-               {% if capabilities.event_locked %}data-upgrade-modal data-upgrade-feature="Detalhes do evento" data-upgrade-url="{% url 'subscriptions:detail' wedding.pk %}"{% else %}data-workspace-nav{% endif %} href="{% url 'weddings:detail' wedding.pk %}"><i class="bi bi-card-checklist me-1"></i>Detalhes do evento</a>
-        </li>
-        {% if wedding.category.code != "evento-corporativo" %}
-        <li class="nav-item">
-            <a class="nav-link {% if request.resolver_match.url_name == 'story' %}active{% endif %}"
-               {% if capabilities.event_locked %}data-upgrade-modal data-upgrade-feature="A nossa história" data-upgrade-url="{% url 'subscriptions:detail' wedding.pk %}"{% else %}data-workspace-nav{% endif %} href="{% url 'weddings:story' wedding.pk %}"><i class="bi bi-book me-1"></i>A nossa história</a>
-        </li>
-        {% endif %}
-        <li class="nav-item">
-            <a class="nav-link {% if request.resolver_match.namespace == 'events' %}active{% endif %}"
-               {% if capabilities.event_locked %}data-upgrade-modal data-upgrade-feature="Programa" data-upgrade-url="{% url 'subscriptions:detail' wedding.pk %}"{% else %}data-workspace-nav{% endif %} href="{% url 'events:organisation' wedding.pk %}"><i class="bi bi-calendar3 me-1"></i>Programa</a>
-        </li>
-        {% if capabilities.can_manage_design or capabilities.event_locked and capabilities.is_owner %}
-            <li class="nav-item">
-                <a class="nav-link {% if 'gallery' in request.resolver_match.url_name %}active{% endif %}"
-                   {% if capabilities.event_locked %}data-upgrade-modal data-upgrade-feature="Galeria" data-upgrade-url="{% url 'subscriptions:detail' wedding.pk %}"{% else %}data-workspace-nav{% endif %} href="{% url 'weddings:gallery' wedding.pk %}"><i class="bi bi-images me-1"></i>Galeria</a>
+    <nav class="workspace-nav" aria-label="Área do evento">
+        <ul class="workspace-areas" style="--workspace-areas: {{ nav_groups|length }}">
+            {% for group in nav_groups %}{% with item=group.entry %}
+            <li>
+                <a class="workspace-area{% if group.active %} is-active{% endif %}{% if item.locked %} is-locked{% endif %}"
+                   {% if group.active %}aria-current="page"{% endif %} data-workspace-area="{{ group.code }}"
+                   {% include "partials/_workspace_link_attrs.html" %}>
+                    <span class="workspace-area__icon" aria-hidden="true"><i class="bi {{ group.icon }}"></i></span>
+                    <span class="workspace-area__text">
+                        <span class="workspace-area__label">{{ group.label }}</span>
+                        <span class="workspace-area__hint">{{ group.hint }}</span>
+                    </span>
+                </a>
             </li>
-        {% endif %}
-        {% if capabilities.can_manage_guests or capabilities.event_locked and capabilities.is_owner %}
-            <li class="nav-item">
-                <a class="nav-link {% if request.resolver_match.url_name == 'list' or request.resolver_match.url_name == 'edit' %}active{% endif %}"
-                   {% if capabilities.event_locked %}data-upgrade-modal data-upgrade-feature="Convidados" data-upgrade-url="{% url 'subscriptions:detail' wedding.pk %}"{% else %}data-workspace-nav{% endif %} href="{% url 'guests:list' wedding.pk %}"><i class="bi bi-people me-1"></i>Convidados</a>
+            {% endwith %}{% endfor %}
+        </ul>
+
+        {% for group in nav_groups %}{% if group.active and group.has_subnav %}
+        <ul class="workspace-subnav" aria-label="Secções de {{ group.label }}" style="--workspace-subnav: {{ group.items|length }}">
+            {% for item in group.items %}
+            <li>
+                <a class="workspace-subnav__link{% if item.active %} is-active{% endif %}"
+                   {% if item.active %}aria-current="page"{% endif %} data-workspace-section="{{ item.code }}"
+                   aria-label="{{ item.label }}{% if item.locked %} (bloqueado){% endif %}"
+                   {% include "partials/_workspace_link_attrs.html" %}>
+                    <i class="bi {{ item.icon }}" aria-hidden="true"></i>
+                    <span class="workspace-subnav__label">{{ item.label }}</span>
+                    <span class="workspace-subnav__short" aria-hidden="true">{{ item.short_label }}</span>
+                    {% if item.locked %}<i class="bi bi-lock-fill workspace-subnav__lock" aria-hidden="true"></i>{% endif %}
+                </a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link {% if 'gift' in request.resolver_match.url_name %}active{% endif %}"
-                   {% if capabilities.event_locked %}data-upgrade-modal data-upgrade-feature="Presentes" data-upgrade-url="{% url 'subscriptions:detail' wedding.pk %}"{% else %}data-workspace-nav{% endif %} href="{% url 'guests:gifts' wedding.pk %}"><i class="bi bi-gift me-1"></i>Presentes</a>
-            </li>
-        {% endif %}
-        {% if capabilities.can_manage_design or capabilities.event_locked and capabilities.is_owner %}
-            <li class="nav-item">
-                <a class="nav-link {% if request.resolver_match.url_name == 'design' %}active{% endif %}"
-                   {% if capabilities.event_locked %}data-upgrade-modal data-upgrade-feature="Aspecto do convite" data-upgrade-url="{% url 'subscriptions:detail' wedding.pk %}"{% else %}data-workspace-nav{% endif %} href="{% url 'weddings:design' wedding.pk %}"><i class="bi bi-palette me-1"></i>Aspecto</a>
-            </li>
-        {% endif %}
-        {% if capabilities.is_owner or capabilities.manage_members %}
-            <li class="nav-item">
-                <a class="nav-link {% if 'team' in request.resolver_match.url_name %}active{% endif %}"
-                   {% if capabilities.event_locked %}data-upgrade-modal data-upgrade-feature="Este evento"{% else %}data-workspace-nav{% endif %} href="{% url 'weddings:team' wedding.pk %}"><i class="bi bi-person-gear me-1"></i>Equipa</a>
-            </li>
-        {% endif %}
-        {% if capabilities.can_manage_billing %}
-            <li class="nav-item">
-                <a class="nav-link {% if request.resolver_match.namespace == 'subscriptions' %}active{% endif %}"
-                   data-workspace-nav href="{% url 'subscriptions:detail' wedding.pk %}"><i class="bi bi-gem me-1"></i>Subscrição</a>
-            </li>
-        {% endif %}
-    </ul>
+            {% endfor %}
+        </ul>
+        {% endif %}{% endfor %}
+    </nav>
 </div>

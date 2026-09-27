@@ -1,4 +1,4 @@
-{% if gallery %}
+{% load invitation_texts %}{% if gallery %}
 <section class="inv-section inv-gallery-teaser" data-reveal>
     <div class="inv-gallery-teaser__stack" aria-hidden="true">
         {% for photo in gallery|slice:":3" %}
@@ -6,11 +6,11 @@
         {% endfor %}
     </div>
     <div class="inv-gallery-teaser__copy">
-        <p class="inv-gallery-teaser__eyebrow">A nossa história em imagens</p>
-        <h2 class="inv-section__title">Memórias de nós</h2>
-        <p>{{ gallery|length }} momento{{ gallery|length|pluralize }} escolhido{{ gallery|length|pluralize }} para partilhar consigo.</p>
+        <p class="inv-gallery-teaser__eyebrow">{% invtext "gallery_eyebrow" %}</p>
+        <h2 class="inv-section__title">{% invtext "gallery_title" %}</h2>
+        <p>{% if gallery|length == 1 %}{% invtext "gallery_intro_one" %}{% else %}{% invtext "gallery_intro" total=gallery|length %}{% endif %}</p>
         <button class="inv-btn inv-gallery-teaser__button" type="button" data-gallery-open>
-            <i class="bi bi-images"></i> Ver a nossa galeria
+            <i class="bi bi-images"></i> {% invtext "gallery_button" %}
         </button>
     </div>
 </section>
@@ -19,7 +19,7 @@
     <div class="inv-gallery__ambient" aria-hidden="true"></div>
     <header class="inv-gallery__header">
         <div>
-            <span>A nossa galeria</span>
+            <span>{% invtext "gallery_overlay_label" %}</span>
             <strong>{{ wedding.display_names }}</strong>
         </div>
         <button type="button" data-gallery-close aria-label="Fechar galeria"><i class="bi bi-x-lg"></i></button>

@@ -18,6 +18,7 @@ from core.validators import validate_audio_upload, validate_image_upload
 from events.models import EventCategory
 from templates_manager import registry
 
+from . import invitation_texts as invtexts
 from .models import (
     DEFAULT_SMS_INVITATION_MESSAGE,
     DEFAULT_WHATSAPP_INVITATION_MESSAGE,
@@ -188,6 +189,7 @@ class WeddingSettingsForm(BootstrapModelForm):
                     self.initial["rsvp_deadline"] = timezone.localdate() + timedelta(
                         days=max(days_until_event // 2, 1)
                     )
+        self._setup_invitation_texts()
         if category is None:
             return
 
@@ -293,6 +295,137 @@ class WeddingSettingsForm(BootstrapModelForm):
         if category is None:
             return self.instance.extra_data or {}
         return collect_schema_values(self, category.extra_fields)
+
+    # --- Textos do convite ------------------------------------------------
+    INVITATION_TEXT_PREFIX = "invtext__"
+
+    def _setup_invitation_texts(self) -> None:
+        """Um campo por frase do convite relevante para este layout/categoria."""
+        from templates_manager import registry as template_registry
+
+        template = (
+            template_registry.get_template(self.instance.selected_template)
+            if self.instance.pk else None
+        )
+        self.invitation_layout = getattr(template, "layout", "")
+        self.invitation_template_name = getattr(template, "name", "")
+        texts = invtexts.InvitationTexts(self.instance, self.invitation_layout)
+        self.invitation_texts_resolver = texts
+
+        # Mensagens com campo próprio: o texto original passa a placeholder.
+        for entry in invtexts.keys_for(
+            layout=self.invitation_layout, include_model_fields=True
+        ):
+            if entry.model_field and entry.model_field in self.fields:
+                preview = texts.preview_default(entry.key)
+                if preview:
+                    widget = self.fields[entry.model_field].widget
+                    widget.attrs["placeholder"] = preview
+                    widget.attrs["data-invtext-default"] = preview
+
+        self.invitation_text_groups = []
+        for block in invtexts.editor_groups(self.instance, self.invitation_layout):
+            rows = []
+            for entry in block["entries"]:
+                name = self.INVITATION_TEXT_PREFIX + entry.key
+                preview = texts.preview_default(entry.key)
+                attrs = {
+                    "class": "form-control form-control-sm",
+                    "placeholder": preview,
+                    "maxlength": entry.max_length,
+                    "data-invtext-input": "",
+                    "data-invtext-default": preview,
+                }
+                widget = (
+                    forms.Textarea(attrs={**attrs, "rows": 2})
+                    if entry.multiline or entry.max_length > 200
+                    else forms.TextInput(attrs=attrs)
+                )
+                self.fields[name] = forms.CharField(
+                    label=entry.label,
+                    required=False,
+                    # O limite real é aplicado em clean(), depois de
+                    # normalizar espaços; aqui só evitamos abusos.
+                    max_length=entry.max_length * 2,
+                    widget=widget,
+                    help_text=entry.help,
+                )
+                self.initial[name] = texts.custom.get(entry.key, "")
+                tokens = [token for token in entry.tokens]
+                rows.append({
+                    "entry": entry,
+                    "field": self[name],
+                    "tokens": ["{%s}" % token for token in tokens],
+                    "is_custom": bool(texts.custom.get(entry.key)),
+                })
+            self.invitation_text_groups.append({
+                "group": block["group"],
+                "label": (
+                    self.instance.story_heading
+                    if block["group"].code == "historia" and self.instance.pk
+                    else block["group"].label
+                ),
+                "rows": rows,
+                "custom_count": sum(1 for row in rows if row["is_custom"]),
+            })
+
+    def _clean_invitation_texts(self, cleaned: dict) -> None:
+        result = invtexts.sanitise_stored(self.instance.invitation_texts)
+        for name in list(self.fields):
+            if not name.startswith(self.INVITATION_TEXT_PREFIX):
+                continue
+            key = name[len(self.INVITATION_TEXT_PREFIX):]
+            entry = invtexts.REGISTRY.get(key)
+            if entry is None or entry.model_field:
+                continue
+            # Campo ausente do pedido (ex.: formulário antigo): mantém-se.
+            if self.add_prefix(name) not in self.data:
+                continue
+            raw = cleaned.get(name) or ""
+            value = raw.replace("\r\n", "\n").replace("\r", "\n").strip()
+            if not entry.multiline:
+                value = " ".join(value.split())
+            if len(value) > entry.max_length:
+                self.add_error(name, _("Use no máximo %(limit)s caracteres (tem %(length)s).") % {
+                    "limit": entry.max_length, "length": len(value),
+                })
+                continue
+            unknown = invtexts.unknown_tokens(entry, value)
+            if unknown:
+                allowed = ", ".join("{%s}" % token for token in sorted(entry.allowed_tokens))
+                self.add_error(name, _("Marcador desconhecido: %(tokens)s. Pode usar %(allowed)s.") % {
+                    "tokens": ", ".join("{%s}" % token for token in sorted(unknown)),
+                    "allowed": allowed,
+                })
+                continue
+            # Igual ao original = sem personalização (continua a acompanhar
+            # futuras melhorias do texto padrão).
+            if not value or value in {
+                self.invitation_texts_resolver.default(key),
+                self.invitation_texts_resolver.preview_default(key),
+            }:
+                result.pop(key, None)
+            else:
+                result[key] = value
+        cleaned["invitation_texts"] = result
+
+    def invitation_texts(self) -> dict:
+        """Textos personalizados a guardar em ``Wedding.invitation_texts``."""
+        return self.cleaned_data.get(
+            "invitation_texts", invtexts.sanitise_stored(self.instance.invitation_texts)
+        )
+
+    def wedding_data(self) -> dict:
+        """Dados validados prontos para ``services.update_wedding``."""
+        data = {
+            key: value for key, value in self.cleaned_data.items()
+            if not key.startswith(("extra__", self.INVITATION_TEXT_PREFIX))
+            and key not in {"music_upload", "invitation_texts"}
+        }
+        data["invitation_music"] = ""
+        data["extra_data"] = self.extra_data()
+        data["invitation_texts"] = self.invitation_texts()
+        return data
 
     def create_uploaded_track(self, *, actor) -> MusicTrack | None:
         upload = self.cleaned_data.get("music_upload")
@@ -408,6 +541,7 @@ class WeddingSettingsForm(BootstrapModelForm):
 
     def clean(self):
         cleaned = super().clean()
+        self._clean_invitation_texts(cleaned)
         if cleaned.get("primary_name"):
             cleaned["primary_short_name"] = cleaned["primary_name"].split()[0][:60]
         if "secondary_name" in self.fields:
