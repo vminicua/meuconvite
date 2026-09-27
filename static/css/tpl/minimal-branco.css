@@ -805,6 +805,7 @@ body.inv--template-minimal-branco .inv-dialog[open] { animation: tpl-dialog-in .
 }
 body.inv--template-minimal-branco .inv-dialog h2 { font-family: var(--t-names); font-weight: 400; color: var(--t-accent); letter-spacing: var(--t-names-track, 0); }
 body.inv--template-minimal-branco .inv-dialog > p { font-size: 1.05rem; }
+body.inv--template-minimal-branco .inv-dialog .inv-btn { padding: .9rem 1.3rem; letter-spacing: .14em; }
 body.inv--template-minimal-branco .inv-dialog__icon { background: var(--t-tile); border: 1px solid var(--t-line); border-radius: 50%; color: var(--t-accent); }
 body.inv--template-minimal-branco .inv-dialog__close { z-index: 1; color: var(--t-accent); }
 body.inv--template-minimal-branco .inv-gift { border-color: var(--t-line); background: var(--t-tile); }

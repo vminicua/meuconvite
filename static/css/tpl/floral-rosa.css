@@ -798,6 +798,7 @@ body.inv--template-floral-rosa .inv-dialog[open] { animation: tpl-dialog-in .55s
 }
 body.inv--template-floral-rosa .inv-dialog h2 { font-family: var(--t-names); font-weight: 400; color: var(--t-accent); letter-spacing: var(--t-names-track, 0); }
 body.inv--template-floral-rosa .inv-dialog > p { font-size: 1.05rem; }
+body.inv--template-floral-rosa .inv-dialog .inv-btn { padding: .9rem 1.3rem; letter-spacing: .14em; }
 body.inv--template-floral-rosa .inv-dialog__icon { background: var(--t-tile); border: 1px solid var(--t-line); border-radius: 50%; color: var(--t-accent); }
 body.inv--template-floral-rosa .inv-dialog__close { z-index: 1; color: var(--t-accent); }
 body.inv--template-floral-rosa .inv-gift { border-color: var(--t-line); background: var(--t-tile); }
