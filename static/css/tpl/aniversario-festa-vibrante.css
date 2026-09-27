@@ -1,0 +1,789 @@
+/* =====================================================================
+   Festa Vibrante (aniversario-festa-vibrante) — tema completo do convite
+   Creme luminoso com balões coral, azul-real e amarelo, fitas e confetti.
+   Tudo está limitado a body.inv.inv--template-aniversario-festa-vibrante.
+   ===================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap');
+
+body.inv.inv--template-aniversario-festa-vibrante {
+--t-bg: #fff3e4;
+    --t-surface: #ffffff;
+    --t-ink: #1e2742;
+    --t-muted: #4a5270;
+    --t-accent: #ff6b5f;
+    --t-accent-text: #1f45b0;
+    --t-line: rgba(31, 69, 176, .16);
+    --t-line-strong: rgba(31, 69, 176, .4);
+    --t-ornament: #ff6b5f;
+    --t-display: "Fredoka", "Nunito", Arial, sans-serif;
+    --t-display-weight: 600;
+    --t-names-weight: 700;
+    --t-body: "Nunito", Arial, sans-serif;
+    --t-backdrop: linear-gradient(180deg, rgba(255, 243, 228, .72), rgba(255, 243, 228, .86)), url("../../img/tpl/aniversario-festa-vibrante/backdrop.webp") center / cover no-repeat, #fff3e4;
+    --t-texture: radial-gradient(circle at 20% 30%, rgba(255, 107, 95, .22) 0 3px, transparent 4px), radial-gradient(circle at 70% 70%, rgba(33, 75, 184, .18) 0 3px, transparent 4px), radial-gradient(circle at 45% 85%, rgba(247, 185, 40, .28) 0 3px, transparent 4px);
+    --t-backdrop-glow: none;
+    --t-cover-veil: radial-gradient(48% 34% at 50% 50%, rgba(255, 246, 234, .85), rgba(255, 246, 234, .35) 70%, transparent 100%);
+    --t-cover-ink: #1e2742;
+    --t-cover-kicker: #e2463a;
+    --t-cover-names: #1f45b0;
+    --t-cover-shadow: 0 1px 0 rgba(255, 255, 255, .8);
+    --t-glow: rgba(255, 255, 255, .6);
+    --t-glow-y: 50%;
+    --t-frame: 0;
+    --t-hero-veil: linear-gradient(180deg, rgba(255, 243, 228, 0) 70%, #fff3e4 99%);
+    --t-card-bg: rgba(255, 255, 255, .74);
+    --t-card-radius: 2rem;
+    --t-card-shadow: 0 30px 60px -30px rgba(31, 45, 100, .35);
+    --t-card-inset: 4.2rem 2.4rem 2rem;
+    --t-hero-pad: 5.8rem 3rem 3.6rem;
+    --t-panel: #ffffff;
+    --t-panel-shadow: 0 26px 50px -30px rgba(31, 45, 100, .35);
+    --t-panel-border: 0;
+    --t-radius: 1.8rem;
+    --t-band: repeating-linear-gradient(-45deg, #ff6b5f 0 12px, #fff 12px 18px, #214bb8 18px 30px, #fff 30px 36px, #f7b928 36px 48px, #fff 48px 54px);
+    --t-band-h: .55rem;
+    --t-chip-bg: #fff3e4;
+    --t-chip-radius: 1.1rem;
+    --t-btn-bg: #214bb8;
+    --t-btn-ink: #ffffff;
+    --t-btn-shadow: 0 .45rem 0 #f7b928, 0 1.1rem 2rem -0.6rem rgba(33, 75, 184, .55);
+    --t-fab-bg: #ff6b5f;
+    --t-fab-ink: #1e2742;
+    --t-fab-border: #e2463a;
+    --t-fab2-bg: #ffffff;
+    --t-fab2-ink: #1f45b0;
+    --t-title-color: #1f45b0;
+    --t-names-color: #1f45b0;
+    --t-rail: repeating-linear-gradient(180deg, #ff6b5f 0 10px, #214bb8 10px 20px, #f7b928 20px 30px);
+    --t-dot-bg: #ffffff;
+    --t-photo-border: 6px solid #ffffff;
+    --t-photo-radius: 1rem;
+    --t-qr-border: 3px solid #f7b928;
+    --t-qr-ink: #1f45b0;
+}
+
+/* ---------------------------------------------------------------------
+   Estrutura comum aos temas (gerada por template; tudo sob body.inv.inv--template-aniversario-festa-vibrante).
+   Os tokens --t-* acima definem o mundo visual deste template.
+   --------------------------------------------------------------------- */
+
+/* Fundo: telemóvel pinta o body; no desktop o ecrã do aparelho. */
+@media (max-width: 991.98px) {
+    body.inv.inv--template-aniversario-festa-vibrante { background: var(--t-bg); }
+}
+@media (min-width: 992px) {
+    body.inv.inv--template-aniversario-festa-vibrante .inv-public-device__screen { background: var(--t-bg); }
+    body.inv.inv--template-aniversario-festa-vibrante { --tpl-screen-h: calc(min(454px, 45.6vh, 100vw - 2rem) * 956 / 454 - 24px); }
+}
+
+body.inv.inv--template-aniversario-festa-vibrante :where(.theme-cover, .theme-main, .inv-dialog, .inv-floating-actions, .inv-music, .inv-gallery, .tpl-decor) {
+    --inv-paper: var(--t-surface);
+    --inv-ink: var(--t-ink);
+    --inv-primary-text: var(--t-accent-text);
+    --inv-muted: var(--t-muted);
+    --inv-display: var(--t-display);
+    --inv-body: var(--t-body);
+    --inv-heading-font: var(--t-display);
+    font-family: var(--t-body);
+}
+
+/* --- Camada decorativa fixa (sticky: funciona na janela e no aparelho) --- */
+body.inv.inv--template-aniversario-festa-vibrante .tpl-decor {
+    position: sticky;
+    top: 0;
+    z-index: 0;
+    display: block;
+    height: 0;
+    pointer-events: none;
+}
+body.inv.inv--template-aniversario-festa-vibrante .tpl-backdrop,
+body.inv.inv--template-aniversario-festa-vibrante .tpl-ambient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    height: 100lvh;
+    overflow: hidden;
+}
+@media (min-width: 992px) {
+    body.inv.inv--template-aniversario-festa-vibrante .tpl-backdrop, body.inv.inv--template-aniversario-festa-vibrante .tpl-ambient { height: var(--tpl-screen-h); }
+}
+body.inv.inv--template-aniversario-festa-vibrante .tpl-backdrop {
+    background: var(--t-backdrop);
+}
+body.inv.inv--template-aniversario-festa-vibrante .tpl-backdrop::before,
+body.inv.inv--template-aniversario-festa-vibrante .tpl-backdrop::after { content: ""; position: absolute; inset: 0; }
+body.inv.inv--template-aniversario-festa-vibrante .tpl-backdrop::before { background: var(--t-texture, none); opacity: var(--t-texture-opacity, 1); }
+body.inv.inv--template-aniversario-festa-vibrante .tpl-backdrop::after { background: var(--t-backdrop-glow, none); }
+body.inv.inv--template-aniversario-festa-vibrante.inv--cover-pending .tpl-ambient { visibility: hidden; }
+
+/* --- Capa ---------------------------------------------------------- */
+body.inv.inv--template-aniversario-festa-vibrante .theme-cover {
+    display: grid;
+    align-items: var(--t-cover-align, center);
+    justify-items: center;
+    min-height: 100svh;
+    padding: calc(env(safe-area-inset-top) + 4rem) 1.4rem calc(env(safe-area-inset-bottom) + 6.75rem);
+    text-align: center;
+    animation: none;
+    background-color: var(--t-bg);
+}
+@media (min-width: 992px) {
+    body.inv.inv--template-aniversario-festa-vibrante .theme-cover { min-height: var(--tpl-screen-h); }
+}
+body.inv.inv--template-aniversario-festa-vibrante .theme-cover::before {
+    background: var(--t-cover-veil), var(--tpl-cover-art, none) var(--t-cover-pos, center) / cover no-repeat;
+    transform-origin: var(--t-cover-origin, 50% 45%);
+}
+body.inv.inv--template-aniversario-festa-vibrante .theme-cover::after {
+    content: "";
+    position: absolute;
+    z-index: 3;
+    inset: var(--t-frame-inset, .8rem);
+    border: var(--t-frame, 0);
+    border-radius: var(--t-frame-radius, 0);
+    box-shadow: var(--t-frame-shadow, none);
+    pointer-events: none;
+}
+body.inv.inv--template-aniversario-festa-vibrante .theme-cover__content {
+    width: min(100%, 22.5rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--t-cover-ink);
+    text-shadow: var(--t-cover-shadow, none);
+    animation: none;
+}
+body.inv.inv--template-aniversario-festa-vibrante .theme-cover .theme-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: .55rem;
+    margin: 0 0 1.1rem;
+    color: var(--t-cover-kicker);
+    font: 600 .68rem/1.3 var(--t-body);
+    letter-spacing: .3em;
+}
+body.inv.inv--template-aniversario-festa-vibrante .theme-cover .theme-kicker::before,
+body.inv.inv--template-aniversario-festa-vibrante .theme-cover .theme-kicker::after {
+    content: "";
+    width: 1.6rem;
+    height: 1px;
+    background: currentColor;
+    opacity: .7;
+}
+body.inv.inv--template-aniversario-festa-vibrante .theme-cover .theme-kicker i { display: none; }
+body.inv.inv--template-aniversario-festa-vibrante .theme-cover h1 {
+    margin: 0 0 .9rem;
+    font-family: var(--t-names, var(--t-display));
+    font-weight: var(--t-names-weight, 600);
+    font-size: var(--t-names-size, clamp(2.9rem, 14vw, 4.3rem));
+    line-height: 1.02;
+    letter-spacing: var(--t-names-track, 0);
+    text-wrap: balance;
+    color: var(--t-cover-names, inherit);
+}
+body.inv.inv--template-aniversario-festa-vibrante .theme-cover p {
+    margin: 0 auto;
+    max-width: 19rem;
+    font-size: 1rem;
+    line-height: 1.6;
+    opacity: .95;
+}
+body.inv.inv--template-aniversario-festa-vibrante .theme-cover time {
+    display: block;
+    margin: 1.2rem 0 1.6rem;
+    font: 600 .82rem/1.3 var(--t-body);
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--t-cover-kicker);
+}
+body.inv.inv--template-aniversario-festa-vibrante .theme-button {
+    position: relative;
+    overflow: hidden;
+    min-height: 3.1rem;
+    padding: .95rem 2rem;
+    border: var(--t-btn-border, 0);
+    border-radius: var(--t-btn-radius, 999px);
+    background: var(--t-btn-bg);
+    color: var(--t-btn-ink);
+    font: 700 .82rem/1 var(--t-body);
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    text-shadow: none;
+    box-shadow: var(--t-btn-shadow, 0 .9rem 2rem rgba(0,0,0,.25));
+    cursor: pointer;
+    transition: transform .25s ease, box-shadow .25s ease;
+}
+body.inv.inv--template-aniversario-festa-vibrante .theme-button::after {
+    content: "";
+    position: absolute;
+    inset: -20% -60%;
+    background: linear-gradient(100deg, transparent 40%, rgba(255,255,255,.55) 50%, transparent 60%);
+    transform: translateX(-60%);
+    pointer-events: none;
+}
+body.inv.inv--template-aniversario-festa-vibrante .theme-button:hover { transform: translateY(-2px); }
+body.inv.inv--template-aniversario-festa-vibrante .theme-button:focus-visible { outline: 2px solid var(--t-cover-ink); outline-offset: 4px; }
+
+/* cena cinematográfica partilhada: por omissão só a luz */
+body.inv.inv--template-aniversario-festa-vibrante .theme-cinematic-orbit,
+body.inv.inv--template-aniversario-festa-vibrante .theme-cinematic-curtain { display: none; }
+body.inv.inv--template-aniversario-festa-vibrante .theme-cinematic-glow {
+    top: var(--t-glow-y, 45%);
+    width: min(95vw, 30rem);
+    background: radial-gradient(circle, var(--t-glow, rgba(255,255,255,.22)), transparent 62%);
+    filter: none;
+}
+
+/* --- Convite -------------------------------------------------------- */
+body.inv.inv--template-aniversario-festa-vibrante .theme-main {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 34rem;
+    margin: 0 auto;
+    min-height: 100svh;
+    padding: 0 0 7.5rem;
+    background: transparent;
+    color: var(--t-ink);
+    overflow-x: hidden;
+    overflow-x: clip;
+}
+
+/* Abertura: o convite sobe quando a capa se dissolve no fundo. */
+body.inv.inv--template-aniversario-festa-vibrante .theme-main--cinematic-enter { animation: tpl-main-in 1.1s 1.1s cubic-bezier(.16,.8,.25,1) both; }
+
+/* Hero com a arte do template */
+body.inv.inv--template-aniversario-festa-vibrante .theme-hero {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100svh;
+    padding: var(--t-hero-pad, 5.25rem 2.1rem 3.6rem);
+    border: 0;
+    text-align: center;
+    overflow: hidden;
+}
+@media (min-width: 992px) {
+    body.inv.inv--template-aniversario-festa-vibrante .theme-hero { min-height: var(--tpl-screen-h); }
+}
+body.inv.inv--template-aniversario-festa-vibrante .theme-hero::before {
+    content: "";
+    position: absolute;
+    z-index: -2;
+    inset: -8% 0 0;
+    background: var(--t-hero-veil), var(--tpl-art, none) var(--t-hero-pos, center top) / cover no-repeat;
+    transform: translate3d(0, var(--tpl-par, 0px), 0);
+    will-change: transform;
+}
+body.inv.inv--template-aniversario-festa-vibrante .theme-hero::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: var(--t-card-inset, 3.3rem .85rem 1.6rem);
+    border: var(--t-card-border, 0);
+    border-radius: var(--t-card-radius, 1.5rem);
+    background: var(--t-card-bg, transparent);
+    box-shadow: var(--t-card-shadow, none);
+}
+body.inv.inv--template-aniversario-festa-vibrante .theme-hero > * { position: relative; }
+body.inv.inv--template-aniversario-festa-vibrante .theme-hero .theme-kicker {
+    margin: 0 0 .9rem;
+    color: var(--t-accent-text);
+    font: 600 .68rem/1.4 var(--t-body);
+    letter-spacing: .3em;
+}
+body.inv.inv--template-aniversario-festa-vibrante .theme-hero h1 {
+    margin: 0 0 .6rem;
+    font-family: var(--t-names, var(--t-display));
+    font-weight: var(--t-names-weight, 600);
+    font-size: var(--t-hero-names-size, clamp(2.7rem, 13vw, 3.9rem));
+    line-height: 1.04;
+    letter-spacing: var(--t-names-track, 0);
+    color: var(--t-names-color, var(--t-ink));
+    text-wrap: balance;
+}
+body.inv.inv--template-aniversario-festa-vibrante .theme-greeting {
+    margin: .4rem auto 0;
+    font-family: var(--t-display);
+    font-size: 1.2rem;
+    font-style: var(--t-greeting-style, italic);
+    color: var(--t-accent-text);
+}
+body.inv.inv--template-aniversario-festa-vibrante .theme-lead {
+    max-width: 19rem;
+    margin: .6rem auto 0;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--t-ink);
+}
+body.inv.inv--template-aniversario-festa-vibrante .theme-date {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    margin: 1.3rem 0 .2rem;
+    padding: .55rem 1.1rem;
+    border-block: 1px solid var(--t-line);
+    color: var(--t-accent-text);
+    font: 700 .8rem/1.3 var(--t-body);
+    letter-spacing: .2em;
+    text-transform: uppercase;
+}
+body.inv.inv--template-aniversario-festa-vibrante .theme-date i { font-size: .95rem; }
+
+body.inv.inv--template-aniversario-festa-vibrante .inv-countdown { gap: .5rem; margin: 1.3rem 0 1.2rem; flex-wrap: nowrap; }
+body.inv.inv--template-aniversario-festa-vibrante .inv-countdown__cell {
+    min-width: 0;
+    width: 4.1rem;
+    padding: .7rem .2rem .55rem;
+    border: 1px solid var(--t-line);
+    border-radius: var(--t-chip-radius, .9rem);
+    background: var(--t-chip-bg);
+    box-shadow: var(--t-chip-shadow, none);
+}
+body.inv.inv--template-aniversario-festa-vibrante .inv-countdown__cell span {
+    font-family: var(--t-display);
+    font-size: 1.7rem;
+    font-weight: var(--t-display-weight, 600);
+    color: var(--t-count-color, var(--t-accent-text));
+    font-variant-numeric: tabular-nums;
+}
+body.inv.inv--template-aniversario-festa-vibrante .inv-countdown__cell small { font-size: .56rem; letter-spacing: .18em; color: var(--t-muted); opacity: 1; }
+body.inv.inv--template-aniversario-festa-vibrante .inv-seats {
+    border-color: var(--t-line);
+    background: var(--t-chip-bg);
+    color: var(--t-ink);
+}
+body.inv.inv--template-aniversario-festa-vibrante .inv-seats span { font-size: .64rem; letter-spacing: .18em; }
+body.inv.inv--template-aniversario-festa-vibrante .inv-seats strong { color: var(--t-accent-text); font-family: var(--t-display); }
+
+/* Painéis das secções */
+body.inv.inv--template-aniversario-festa-vibrante .theme-main > .theme-section,
+body.inv.inv--template-aniversario-festa-vibrante .theme-main > .inv-section {
+    position: relative;
+    isolation: isolate;
+    margin: 1.1rem .85rem;
+    padding: var(--t-panel-pad, 2.8rem 1.35rem 2.5rem);
+    border: var(--t-panel-border, 1px solid var(--t-line));
+    border-radius: var(--t-radius, 1.4rem);
+    background: var(--t-panel);
+    box-shadow: var(--t-panel-shadow, none);
+    color: var(--t-ink);
+    text-align: center;
+    overflow: hidden;
+}
+body.inv.inv--template-aniversario-festa-vibrante .theme-main > .theme-section::before,
+body.inv.inv--template-aniversario-festa-vibrante .theme-main > .inv-section::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--t-band-h, 0);
+    background: var(--t-band, none);
+}
+body.inv.inv--template-aniversario-festa-vibrante .theme-main > .theme-section::after,
+body.inv.inv--template-aniversario-festa-vibrante .theme-main > .inv-section::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: var(--t-inner-inset, .45rem);
+    border: var(--t-inner-border, 0);
+    border-radius: calc(var(--t-radius, 1.4rem) - .35rem);
+    background: var(--t-panel-ornament, none);
+    pointer-events: none;
+}
+body.inv.inv--template-aniversario-festa-vibrante .theme-main .inv-section__title,
+body.inv.inv--template-aniversario-festa-vibrante .theme-main .theme-section h2 {
+    margin: .2rem 0 0;
+    font-family: var(--t-title-font, var(--t-display));
+    font-size: var(--t-title-size, clamp(1.95rem, 9vw, 2.45rem));
+    font-weight: var(--t-display-weight, 600);
+    font-style: var(--t-title-style, normal);
+    line-height: 1.12;
+    letter-spacing: var(--t-title-track, 0);
+    text-transform: var(--t-title-case, none);
+    color: var(--t-title-color, var(--t-ink));
+    text-wrap: balance;
+}
+body.inv.inv--template-aniversario-festa-vibrante .inv-story__kicker,
+body.inv.inv--template-aniversario-festa-vibrante .inv-gallery-teaser__eyebrow,
+body.inv.inv--template-aniversario-festa-vibrante .inv-qr__eyebrow {
+    display: block;
+    margin: 0 0 .55rem;
+    color: var(--t-accent-text);
+    font: 700 .64rem/1.4 var(--t-body);
+    letter-spacing: .28em;
+    text-transform: uppercase;
+}
+body.inv.inv--template-aniversario-festa-vibrante .inv-divider {
+    width: 11rem;
+    height: 1.7rem;
+    margin: .9rem auto 1.3rem;
+    color: var(--t-ornament);
+    opacity: 1;
+    overflow: visible;
+}
+body.inv.inv--template-aniversario-festa-vibrante .inv-text,
+body.inv.inv--template-aniversario-festa-vibrante .theme-section p { line-height: 1.75; }
+body.inv.inv--template-aniversario-festa-vibrante .inv-story__body { max-width: 21rem; margin: 0 auto; }
+body.inv.inv--template-aniversario-festa-vibrante .inv-story__quote {
+    margin-top: 1.6rem;
+    border-color: var(--t-line);
+    font-family: var(--t-display);
+    font-size: 1.2rem;
+    color: var(--t-ink);
+}
+body.inv.inv--template-aniversario-festa-vibrante .inv-story__quote cite { color: var(--t-accent-text); }
+
+/* Factos do evento */
+body.inv.inv--template-aniversario-festa-vibrante .theme-facts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .6rem;
+    text-align: left;
+}
+body.inv.inv--template-aniversario-festa-vibrante .theme-facts article {
+    padding: .95rem .9rem;
+    border: 1px solid var(--t-line);
+    border-radius: calc(var(--t-radius, 1.4rem) - .5rem);
+    background: var(--t-chip-bg);
+    min-width: 0;
+}
+body.inv.inv--template-aniversario-festa-vibrante .theme-facts article:nth-child(odd):last-child { grid-column: 1 / -1; }
+body.inv.inv--template-aniversario-festa-vibrante .theme-facts span { color: var(--t-accent-text); font-size: .6rem; font-weight: 700; letter-spacing: .18em; opacity: 1; }
+body.inv.inv--template-aniversario-festa-vibrante .theme-facts strong { font-family: var(--t-fact-font, var(--t-body)); font-size: 1rem; font-weight: 600; line-height: 1.35; overflow-wrap: break-word; hyphens: auto; }
+body.inv.inv--template-aniversario-festa-vibrante .theme-facts a { color: var(--t-accent-text); font-weight: 700; }
+
+/* Programa */
+body.inv.inv--template-aniversario-festa-vibrante .inv-timeline { position: relative; max-width: 21.5rem; margin-top: .4rem; }
+body.inv.inv--template-aniversario-festa-vibrante .inv-timeline::before {
+    content: "";
+    position: absolute;
+    left: 1.05rem;
+    top: 1.4rem;
+    bottom: 1.4rem;
+    width: 2px;
+    border-radius: 2px;
+    background: var(--t-rail, var(--t-line));
+    transform-origin: top;
+}
+body.inv.inv--template-aniversario-festa-vibrante .inv-timeline__item {
+    grid-template-columns: 2.15rem minmax(0, 1fr);
+    grid-template-areas: "dot time" "dot body";
+    column-gap: .95rem;
+    row-gap: .05rem;
+    padding: .9rem 0;
+    border-bottom: 0;
+}
+body.inv.inv--template-aniversario-festa-vibrante .inv-timeline__dot {
+    grid-area: dot;
+    position: relative;
+    z-index: 1;
+    width: 2.15rem;
+    height: 2.15rem;
+    border: 1px solid var(--t-line-strong, var(--t-line));
+    background: var(--t-dot-bg, var(--t-surface));
+    box-shadow: var(--t-dot-shadow, none);
+}
+body.inv.inv--template-aniversario-festa-vibrante .inv-timeline__dot i { display: none; }
+body.inv.inv--template-aniversario-festa-vibrante .inv-timeline__dot::before {
+    content: "";
+    width: .72rem;
+    height: .72rem;
+    background: var(--t-dot, var(--t-accent));
+    clip-path: var(--t-dot-shape, polygon(50% 0, 100% 50%, 50% 100%, 0 50%));
+}
+body.inv.inv--template-aniversario-festa-vibrante .inv-timeline__time {
+    grid-area: time;
+    padding-top: .15rem;
+    font-family: var(--t-display);
+    font-size: 1.35rem;
+    font-weight: var(--t-display-weight, 600);
+    color: var(--t-accent-text);
+    line-height: 1.2;
+}
+body.inv.inv--template-aniversario-festa-vibrante .inv-timeline__body { grid-area: body; min-width: 0; }
+body.inv.inv--template-aniversario-festa-vibrante .inv-timeline__label { font-size: 1.02rem; line-height: 1.35; color: var(--t-ink); }
+body.inv.inv--template-aniversario-festa-vibrante .inv-timeline__note { color: var(--t-muted); opacity: 1; font-size: .84rem; line-height: 1.5; margin-top: .15rem; }
+body.inv.inv--template-aniversario-festa-vibrante .inv-map summary { align-items: flex-start; }
+body.inv.inv--template-aniversario-festa-vibrante .inv-map__toggle {
+    flex: none;
+    border-color: var(--t-line);
+    background: var(--t-chip-bg);
+    color: var(--t-accent-text);
+}
+body.inv.inv--template-aniversario-festa-vibrante .inv-map__external { color: var(--t-accent-text); }
+
+/* Galeria */
+body.inv.inv--template-aniversario-festa-vibrante .inv-gallery-teaser { gap: 1.1rem; }
+body.inv.inv--template-aniversario-festa-vibrante .inv-gallery-teaser__stack span {
+    border: var(--t-photo-border, 5px solid #fff);
+    border-radius: var(--t-photo-radius, .6rem);
+    box-shadow: 0 18px 40px -12px rgba(0,0,0,.45);
+}
+body.inv.inv--template-aniversario-festa-vibrante .inv-gallery-teaser__copy > p:not(.inv-gallery-teaser__eyebrow) { color: var(--t-muted); }
+
+/* Botões */
+body.inv.inv--template-aniversario-festa-vibrante .inv-btn {
+    border: var(--t-btn-border, 0);
+    border-radius: var(--t-btn-radius, 999px);
+    background: var(--t-btn-bg);
+    color: var(--t-btn-ink);
+    font-family: var(--t-body);
+    font-weight: 700;
+    letter-spacing: .06em;
+    box-shadow: var(--t-btn-shadow, none);
+}
+body.inv.inv--template-aniversario-festa-vibrante .inv-btn--outline {
+    background: transparent;
+    color: var(--t-accent-text);
+    border: 1px solid var(--t-line-strong, var(--t-line));
+    box-shadow: none;
+}
+body.inv.inv--template-aniversario-festa-vibrante .inv-btn--disabled { background: var(--t-chip-bg); color: var(--t-muted); box-shadow: none; }
+
+/* Mensagem final */
+body.inv.inv--template-aniversario-festa-vibrante .theme-main > .theme-closing {
+    font-family: var(--t-display);
+    font-size: 1.4rem;
+    line-height: 1.5;
+    padding-top: 3.4rem;
+}
+body.inv.inv--template-aniversario-festa-vibrante .theme-closing p { margin: 0; line-height: 1.55; font-style: var(--t-closing-style, normal); }
+body.inv.inv--template-aniversario-festa-vibrante .theme-closing p::before {
+    content: "\201C";
+    display: block;
+    height: 2.2rem;
+    margin-bottom: .2rem;
+    font: 400 4.2rem/1 var(--t-display);
+    color: var(--t-ornament);
+}
+
+/* QR */
+body.inv.inv--template-aniversario-festa-vibrante .theme-main > .inv-section--qr { background: var(--t-panel); }
+body.inv.inv--template-aniversario-festa-vibrante .inv-qr__card {
+    border: var(--t-qr-border, 1px solid var(--t-line));
+    border-radius: 1rem;
+    background: #fff;
+    box-shadow: 0 24px 48px -26px rgba(0,0,0,.6);
+}
+body.inv.inv--template-aniversario-festa-vibrante .inv-qr__guest { font-family: var(--t-display); color: var(--t-qr-ink, #2b2b2b); }
+body.inv.inv--template-aniversario-festa-vibrante .inv-qr__seats { color: #3b3b3b; }
+body.inv.inv--template-aniversario-festa-vibrante .inv-qr__events li { background: var(--t-chip-bg); color: var(--t-accent-text); border: 1px solid var(--t-line); }
+body.inv.inv--template-aniversario-festa-vibrante .inv-qr__instructions { color: var(--t-muted); }
+body.inv.inv--template-aniversario-festa-vibrante .inv-note { color: var(--t-muted); opacity: 1; }
+
+/* Rodapé */
+body.inv.inv--template-aniversario-festa-vibrante .inv-footer {
+    position: relative;
+    margin: 1.4rem .85rem 0;
+    padding: 2.6rem 1rem 1rem;
+    border: 0;
+    color: var(--t-ink);
+}
+body.inv.inv--template-aniversario-festa-vibrante .inv-hearts { width: 9rem; height: 1.6rem; color: var(--t-ornament); opacity: 1; overflow: visible; }
+body.inv.inv--template-aniversario-festa-vibrante .inv-footer__names {
+    font-family: var(--t-names, var(--t-display));
+    font-weight: var(--t-names-weight, 600);
+    font-size: 2.2rem;
+    line-height: 1.1;
+    color: var(--t-names-color, var(--t-ink));
+}
+body.inv.inv--template-aniversario-festa-vibrante .inv-footer__date { color: var(--t-accent-text); letter-spacing: .24em; font-weight: 700; font-size: .78rem; opacity: 1; margin-top: .5rem; }
+body.inv.inv--template-aniversario-festa-vibrante .inv-footer__brand { color: var(--t-muted); opacity: .9; }
+
+/* Acções flutuantes, música e diálogos */
+body.inv.inv--template-aniversario-festa-vibrante .inv-fab {
+    border: 1px solid var(--t-fab-border, transparent);
+    background: var(--t-fab-bg);
+    color: var(--t-fab-ink);
+    font-family: var(--t-body);
+    letter-spacing: .02em;
+    box-shadow: var(--t-fab-shadow, 0 .8rem 2rem rgba(0,0,0,.28));
+}
+body.inv.inv--template-aniversario-festa-vibrante .inv-fab--secondary {
+    background: var(--t-fab2-bg);
+    color: var(--t-fab2-ink);
+    border-color: var(--t-line);
+}
+body.inv.inv--template-aniversario-festa-vibrante .inv-music button {
+    border-color: var(--t-line);
+    background: var(--t-fab2-bg);
+    color: var(--t-fab2-ink);
+    font-family: var(--t-body);
+}
+body.inv.inv--template-aniversario-festa-vibrante .inv-dialog {
+    border: 1px solid var(--t-line);
+    background: var(--t-dialog-bg, var(--t-surface));
+    color: var(--t-ink);
+}
+body.inv.inv--template-aniversario-festa-vibrante .inv-dialog h2 { font-family: var(--t-display); font-weight: var(--t-display-weight, 600); color: var(--t-title-color, var(--t-ink)); }
+body.inv.inv--template-aniversario-festa-vibrante .inv-dialog__icon { background: var(--t-chip-bg); color: var(--t-accent-text); border: 1px solid var(--t-line); }
+body.inv.inv--template-aniversario-festa-vibrante .inv-dialog__close { background: var(--t-chip-bg); color: var(--t-ink); }
+body.inv.inv--template-aniversario-festa-vibrante .inv-dialog strong { color: var(--t-accent-text); }
+body.inv.inv--template-aniversario-festa-vibrante .inv-gift { border-color: var(--t-line); }
+body.inv.inv--template-aniversario-festa-vibrante .inv-gallery__slide figcaption p { font-family: var(--t-display); }
+
+/* --- Movimento ----------------------------------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+    body.inv.inv--template-aniversario-festa-vibrante .theme-cover::before { animation: tpl-kenburns 22s ease-in-out infinite alternate; }
+    body.inv.inv--template-aniversario-festa-vibrante .theme-cover__content > * { animation: tpl-rise 1.1s cubic-bezier(.2,.8,.2,1) both; }
+    body.inv.inv--template-aniversario-festa-vibrante .theme-cover__content > :nth-child(1) { animation-delay: .35s; }
+    body.inv.inv--template-aniversario-festa-vibrante .theme-cover__content > :nth-child(2) { animation: tpl-name-in 1.5s .5s cubic-bezier(.2,.8,.2,1) both; }
+    body.inv.inv--template-aniversario-festa-vibrante .theme-cover__content > :nth-child(3) { animation-delay: .95s; }
+    body.inv.inv--template-aniversario-festa-vibrante .theme-cover__content > :nth-child(4) { animation-delay: 1.1s; }
+    body.inv.inv--template-aniversario-festa-vibrante .theme-cover__content > :nth-child(5) { animation-delay: 1.3s; }
+    body.inv.inv--template-aniversario-festa-vibrante .theme-button::after { animation: tpl-glint 4.5s 2.4s ease-in-out infinite; }
+    body.inv.inv--template-aniversario-festa-vibrante .theme-cover::after { animation: tpl-frame-in 1.6s .1s cubic-bezier(.2,.8,.2,1) both; }
+
+    body.inv.inv--template-aniversario-festa-vibrante .theme-cover.is-opening { animation: tpl-cover-out 1.28s cubic-bezier(.7,0,.2,1) both; }
+    body.inv.inv--template-aniversario-festa-vibrante .theme-cover.is-opening::before { animation: tpl-art-dive 1.28s cubic-bezier(.6,0,.2,1) both; }
+    body.inv.inv--template-aniversario-festa-vibrante .theme-cover.is-opening .theme-cover__content { animation: tpl-content-out .7s cubic-bezier(.5,0,.75,0) both; }
+    body.inv.inv--template-aniversario-festa-vibrante .theme-cover.is-opening .theme-cover__content > * { animation: none; }
+    body.inv.inv--template-aniversario-festa-vibrante .theme-cover.is-opening .theme-cinematic-glow { animation: tpl-bloom 1.25s ease-out both; }
+    body.inv.inv--template-aniversario-festa-vibrante .theme-cover.is-opening::after { animation: tpl-frame-out .8s ease-in both; }
+
+    body.inv.inv--template-aniversario-festa-vibrante.tpl-motion [data-tpl-reveal] {
+        opacity: 0;
+        transform: translate3d(0, 1.8rem, 0);
+        transition: opacity .9s cubic-bezier(.2,.8,.2,1) var(--tpl-d, 0s), transform 1.1s cubic-bezier(.2,.8,.2,1) var(--tpl-d, 0s);
+    }
+    body.inv.inv--template-aniversario-festa-vibrante.tpl-motion [data-tpl-reveal="zoom"] { transform: scale(.94); }
+    body.inv.inv--template-aniversario-festa-vibrante.tpl-motion [data-tpl-reveal="left"] { transform: translate3d(-1.6rem, 0, 0); }
+    body.inv.inv--template-aniversario-festa-vibrante.tpl-motion [data-tpl-reveal="right"] { transform: translate3d(1.6rem, 0, 0); }
+    body.inv.inv--template-aniversario-festa-vibrante.tpl-motion [data-tpl-reveal].is-in { opacity: 1; transform: none; }
+    body.inv.inv--template-aniversario-festa-vibrante.tpl-motion .inv-timeline::before { transform: scaleY(0); transition: transform 1.6s cubic-bezier(.3,.7,.2,1) .2s; }
+    body.inv.inv--template-aniversario-festa-vibrante.tpl-motion .inv-timeline.is-in::before { transform: none; }
+    body.inv.inv--template-aniversario-festa-vibrante .tpl-tick { animation: tpl-tick .5s cubic-bezier(.2,.8,.2,1); }
+}
+@keyframes tpl-kenburns { from { transform: scale(1.02); } to { transform: scale(1.1) translate3d(0, -1.5%, 0); } }
+@keyframes tpl-rise { from { opacity: 0; transform: translate3d(0, 1.4rem, 0); } to { opacity: 1; transform: none; } }
+@keyframes tpl-name-in { from { opacity: 0; transform: translate3d(0, 1rem, 0) scale(.96); letter-spacing: .08em; } to { opacity: 1; transform: none; } }
+@keyframes tpl-glint { 0%, 72% { transform: translateX(-60%); } 100% { transform: translateX(60%); } }
+@keyframes tpl-frame-in { from { opacity: 0; transform: scale(1.04); } to { opacity: 1; transform: none; } }
+@keyframes tpl-frame-out { to { opacity: 0; transform: scale(.94); } }
+@keyframes tpl-cover-out { 0%, 70% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes tpl-art-dive { from { transform: scale(1.06); } to { transform: scale(1.32); } }
+@keyframes tpl-content-out { to { opacity: 0; transform: translate3d(0, -2.2rem, 0) scale(.95); } }
+@keyframes tpl-bloom { 0% { opacity: 0; transform: translate(-50%, -50%) scale(.4); } 45% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -50%) scale(3.6); } }
+@keyframes tpl-main-in { from { opacity: 0; transform: translate3d(0, 2.4rem, 0); } to { opacity: 1; transform: none; } }
+@keyframes tpl-tick { 0% { transform: translateY(-.35rem); opacity: .2; } 100% { transform: none; opacity: 1; } }
+
+/* Partículas criadas pelo script (ambiente e explosão de abertura) */
+body.inv.inv--template-aniversario-festa-vibrante .tpl-p {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: var(--s);
+    height: var(--s);
+    pointer-events: none;
+    will-change: transform, opacity;
+}
+body.inv.inv--template-aniversario-festa-vibrante .tpl-burst {
+    position: absolute;
+    z-index: 9;
+    left: 50%;
+    top: var(--by, 70%);
+    width: var(--s);
+    height: var(--s);
+    pointer-events: none;
+    animation: tpl-burst 1.15s cubic-bezier(.15,.7,.3,1) var(--d, 0s) both;
+}
+@keyframes tpl-burst {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(.3) rotate(0); }
+    12% { opacity: 1; }
+    100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1) rotate(var(--r, 360deg)); }
+}
+
+/* Movimento reduzido: tudo parado, nada escondido. */
+@media (prefers-reduced-motion: reduce) {
+    body.inv.inv--template-aniversario-festa-vibrante .tpl-ambient, body.inv.inv--template-aniversario-festa-vibrante .tpl-burst, body.inv.inv--template-aniversario-festa-vibrante .theme-cinematic-scene { display: none !important; }
+    body.inv.inv--template-aniversario-festa-vibrante .theme-cover::before, body.inv.inv--template-aniversario-festa-vibrante .theme-cover::after, body.inv.inv--template-aniversario-festa-vibrante .theme-cover__content, body.inv.inv--template-aniversario-festa-vibrante .theme-cover__content > *,
+    body.inv.inv--template-aniversario-festa-vibrante .theme-button::after, body.inv.inv--template-aniversario-festa-vibrante .theme-hero::before { animation: none !important; transform: none !important; }
+}
+
+/* --- Específico deste template ------------------------------------- */
+
+body.inv.inv--template-aniversario-festa-vibrante .tpl-p--confetti {
+    width: calc(var(--s) * .55);
+    height: var(--s);
+    border-radius: .12rem;
+    background: var(--c);
+    opacity: 0;
+    top: -6%;
+    animation: tpl-confetti-fall var(--t) linear var(--d) infinite;
+}
+body.inv.inv--template-aniversario-festa-vibrante .tpl-p--confetti.tpl-v1 { border-radius: 50%; width: calc(var(--s) * .7); height: calc(var(--s) * .7); }
+body.inv.inv--template-aniversario-festa-vibrante .tpl-p--confetti.tpl-v2 { width: calc(var(--s) * .3); height: calc(var(--s) * 1.2); }
+@keyframes tpl-confetti-fall {
+    0% { opacity: 0; transform: translate3d(0, 0, 0) rotate(var(--r)); }
+    8% { opacity: var(--o); }
+    100% { opacity: var(--o); transform: translate3d(2.5rem, 112vh, 0) rotate(calc(var(--r) + 720deg)); }
+}
+body.inv.inv--template-aniversario-festa-vibrante .tpl-burst--confetti { border-radius: .1rem; background: var(--c); width: calc(var(--s) * .55); }
+body.inv.inv--template-aniversario-festa-vibrante .tpl-burst--confetti.tpl-v1 { border-radius: 50%; width: var(--s); }
+
+body.inv.inv--template-aniversario-festa-vibrante .theme-cover .theme-kicker { font-weight: 800; }
+body.inv.inv--template-aniversario-festa-vibrante .theme-cover h1 { --t-names-size: clamp(3.2rem, 17vw, 4.8rem); text-shadow: 0 4px 0 #f7b928, 0 12px 26px rgba(31, 45, 100, .2); }
+body.inv.inv--template-aniversario-festa-vibrante .theme-cover p { font-weight: 600; }
+body.inv.inv--template-aniversario-festa-vibrante .theme-cover time { color: #1e2742; font-weight: 800; }
+body.inv.inv--template-aniversario-festa-vibrante .theme-hero h1 { text-shadow: 0 3px 0 #f7b928; }
+body.inv.inv--template-aniversario-festa-vibrante .theme-hero .theme-kicker { color: #e2463a; font-weight: 800; }
+body.inv.inv--template-aniversario-festa-vibrante .theme-date { color: #1e2742; border-color: rgba(255, 107, 95, .4); }
+body.inv.inv--template-aniversario-festa-vibrante .inv-countdown__cell { border: 0; color: #fff; }
+body.inv.inv--template-aniversario-festa-vibrante .inv-countdown__cell:nth-child(1) { background: #ff6b5f; }
+body.inv.inv--template-aniversario-festa-vibrante .inv-countdown__cell:nth-child(2) { background: #214bb8; }
+body.inv.inv--template-aniversario-festa-vibrante .inv-countdown__cell:nth-child(3) { background: #f7b928; }
+body.inv.inv--template-aniversario-festa-vibrante .inv-countdown__cell:nth-child(4) { background: #1e2742; }
+body.inv.inv--template-aniversario-festa-vibrante .inv-countdown__cell span { color: #fff; }
+body.inv.inv--template-aniversario-festa-vibrante .inv-countdown__cell:nth-child(3) span, body.inv.inv--template-aniversario-festa-vibrante .inv-countdown__cell:nth-child(3) small { color: #1e2742; }
+body.inv.inv--template-aniversario-festa-vibrante .inv-countdown__cell small { color: rgba(255, 255, 255, .92); font-weight: 800; }
+body.inv.inv--template-aniversario-festa-vibrante .inv-countdown__cell { border-radius: 50% 50% 48% 48% / 56% 56% 44% 44%; padding: .85rem .2rem .9rem; }
+body.inv.inv--template-aniversario-festa-vibrante .theme-facts article { border: 0; }
+body.inv.inv--template-aniversario-festa-vibrante .theme-facts article:nth-child(3n+1) { background: rgba(255, 107, 95, .12); }
+body.inv.inv--template-aniversario-festa-vibrante .theme-facts article:nth-child(3n+2) { background: rgba(33, 75, 184, .1); }
+body.inv.inv--template-aniversario-festa-vibrante .theme-facts article:nth-child(3n) { background: rgba(247, 185, 40, .18); }
+body.inv.inv--template-aniversario-festa-vibrante .theme-facts span { color: #c23a2f; }
+body.inv.inv--template-aniversario-festa-vibrante .inv-timeline__dot { border-radius: 50%; border: 0; }
+body.inv.inv--template-aniversario-festa-vibrante .inv-timeline__item:nth-child(3n+1) .inv-timeline__dot { background: #ff6b5f; }
+body.inv.inv--template-aniversario-festa-vibrante .inv-timeline__item:nth-child(3n+2) .inv-timeline__dot { background: #214bb8; }
+body.inv.inv--template-aniversario-festa-vibrante .inv-timeline__item:nth-child(3n) .inv-timeline__dot { background: #f7b928; }
+body.inv.inv--template-aniversario-festa-vibrante .inv-timeline__dot::before { background: #fff; border-radius: 50%; clip-path: none; width: .55rem; height: .55rem; }
+body.inv.inv--template-aniversario-festa-vibrante .inv-timeline__time { color: #e2463a; }
+body.inv.inv--template-aniversario-festa-vibrante .theme-main > .theme-closing { background: #214bb8; color: #fff; }
+body.inv.inv--template-aniversario-festa-vibrante .theme-main > .theme-closing p::before { color: #f7b928; }
+body.inv.inv--template-aniversario-festa-vibrante .inv-story__quote { font-weight: 500; }
+/* Balões a subir (criados pelo script) */
+body.inv.inv--template-aniversario-festa-vibrante .tpl-p--balloon {
+    top: 105%;
+    width: var(--s);
+    height: calc(var(--s) * 1.22);
+    border-radius: 50% 50% 48% 48% / 56% 56% 44% 44%;
+    background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, .75) 0 8%, transparent 26%), var(--c);
+    box-shadow: inset -.5rem -.7rem 1.2rem rgba(0, 0, 0, .18);
+    opacity: .95;
+    animation: tpl-balloon-rise var(--t) cubic-bezier(.45, .1, .55, .9) var(--d) infinite;
+}
+body.inv.inv--template-aniversario-festa-vibrante .tpl-p--balloon::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    width: 1px;
+    height: 180%;
+    background: linear-gradient(rgba(30, 39, 66, .45), transparent);
+}
+@keyframes tpl-balloon-rise {
+    0% { transform: translate3d(0, 0, 0) rotate(-4deg); }
+    50% { transform: translate3d(1.2rem, -65vh, 0) rotate(4deg); }
+    100% { transform: translate3d(-.6rem, -135vh, 0) rotate(-3deg); }
+}
+body.inv.inv--template-aniversario-festa-vibrante .theme-cinematic-particle { display: none; }
+body.inv.inv--template-aniversario-festa-vibrante .inv-footer__names { color: #1f45b0; }
