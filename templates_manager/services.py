@@ -150,11 +150,42 @@ def invitation_context(
             wedding.gallery_photos.filter(is_visible=True)
             .order_by("display_order", "created_at")
         ),
+        # Momentos com local definido, para layouts que mostram «onde» à parte.
+        "located_schedule": [item for item in programme if item.location_id],
+        "dress_codes": _dress_codes(wedding, programme),
         "qr_events": qr_events,
         "qr_data_uri": qr_data_uri,
         "is_preview": is_preview,
         "show_branding": _show_branding(wedding),
     }
+
+
+# Campos próprios das categorias que descrevem o traje dos convidados.
+DRESS_CODE_KEYS = ("traje", "codigo_vestuario", "traje_tradicional")
+
+
+def _dress_codes(wedding, programme) -> list[dict]:
+    """
+    Traje pedido aos convidados, sem repetições.
+
+    Vem do campo «traje» de cada momento do programa e, quando existe, do
+    campo próprio da categoria (ex.: «Traje» no noivado). `event` fica
+    vazio quando o traje vale para toda a celebração.
+    """
+    codes: list[dict] = []
+    seen: set[str] = set()
+    extra = wedding.extra_data or {}
+    for key in DRESS_CODE_KEYS:
+        value = str(extra.get(key) or "").strip()
+        if value and value.casefold() not in seen:
+            seen.add(value.casefold())
+            codes.append({"event": "", "value": value})
+    for item in programme:
+        value = (getattr(item, "dress_code", "") or "").strip()
+        if value and value.casefold() not in seen:
+            seen.add(value.casefold())
+            codes.append({"event": item.programme_title, "value": value})
+    return codes
 
 
 def _show_branding(wedding) -> bool:

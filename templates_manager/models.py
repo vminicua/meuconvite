@@ -90,6 +90,7 @@ class InvitationLayout(models.TextChoices):
     CORPORATE = "corporativo", _("Evento corporativo")
     THEMATIC = "evento_tematico", _("Evento temático")
     ENGAGEMENT = "noivado_elegante", _("Noivado elegante")
+    EDITORIAL = "editorial_romantico", _("Editorial romântico")
 
 
 class InvitationTemplateQuerySet(models.QuerySet):

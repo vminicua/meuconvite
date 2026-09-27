@@ -143,6 +143,21 @@
                 }, 1480);
                 return;
             }
+            if (cover.classList.contains("inv-cover--editorial")) {
+                // O papel rasga-se ao meio por cima do convite, que já está
+                // por baixo — por isso a capa sai do fluxo durante a cena.
+                opener.disabled = true;
+                cover.style.height = cover.offsetHeight + "px";
+                resetInvitationScroll();
+                cover.classList.add("is-opening");
+                main.classList.add("ed-main--enter");
+                window.setTimeout(function () {
+                    cover.remove();
+                    document.body.classList.remove("inv--cover-pending");
+                    window.dispatchEvent(new Event("resize"));
+                }, 1600);
+                return;
+            }
             if (cover.classList.contains("theme-cover")) {
                 opener.disabled = true;
                 cover.classList.add("is-opening");
@@ -265,6 +280,65 @@
             if (event.key === "ArrowLeft") show(current - 1);
             if (event.key === "ArrowRight") show(current + 1);
         });
+    }
+
+    /* --- Editorial romântico: revelação ao scroll e parallax ---------- */
+    if (document.body.classList.contains("inv--editorial_romantico") && !reducedMotion) {
+        const revealItems = document.querySelectorAll("[data-ed-reveal]");
+        const parallaxItems = Array.from(document.querySelectorAll("[data-ed-parallax]"));
+        const timelines = Array.from(document.querySelectorAll("[data-ed-timeline]"));
+
+        if ("IntersectionObserver" in window) {
+            document.body.classList.add("ed-motion");
+            const revealObserver = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (!entry.isIntersecting) return;
+                    entry.target.classList.add("is-visible");
+                    revealObserver.unobserve(entry.target);
+                });
+            }, { threshold: 0.12, rootMargin: "0px 0px -6% 0px" });
+            revealItems.forEach(function (item) { revealObserver.observe(item); });
+        }
+
+        function scrollViewport() {
+            // Em desktop o convite vive dentro do ecrã do telemóvel, que é
+            // quem faz scroll; no telemóvel é a própria janela.
+            if (invitationViewport && invitationViewport.scrollHeight > invitationViewport.clientHeight + 1
+                && window.getComputedStyle(invitationViewport).overflowY !== "visible") {
+                const rect = invitationViewport.getBoundingClientRect();
+                return { top: rect.top, height: rect.height };
+            }
+            return { top: 0, height: window.innerHeight };
+        }
+
+        let framePending = false;
+        function paintScroll() {
+            framePending = false;
+            const viewport = scrollViewport();
+            const middle = viewport.top + viewport.height / 2;
+            parallaxItems.forEach(function (image) {
+                const frame = image.parentElement.getBoundingClientRect();
+                if (frame.height === 0 || frame.bottom < viewport.top - 80 || frame.top > viewport.top + viewport.height + 80) return;
+                const progress = (frame.top + frame.height / 2 - middle) / (viewport.height / 2 + frame.height / 2);
+                const shift = -Math.max(-1, Math.min(1, progress)) * frame.height * 0.08;
+                image.style.transform = "translate3d(0," + shift.toFixed(1) + "px,0)";
+            });
+            timelines.forEach(function (timeline) {
+                const rect = timeline.getBoundingClientRect();
+                if (rect.height === 0) return;
+                const drawn = (viewport.top + viewport.height * 0.78 - rect.top) / rect.height;
+                timeline.style.setProperty("--ed-progress", Math.max(0, Math.min(1, drawn)).toFixed(3));
+            });
+        }
+        function requestPaint() {
+            if (framePending) return;
+            framePending = true;
+            window.requestAnimationFrame(paintScroll);
+        }
+        window.addEventListener("scroll", requestPaint, { passive: true });
+        window.addEventListener("resize", requestPaint);
+        if (invitationViewport) invitationViewport.addEventListener("scroll", requestPaint, { passive: true });
+        requestPaint();
     }
 
     /* --- Contagem regressiva ------------------------------------------ */

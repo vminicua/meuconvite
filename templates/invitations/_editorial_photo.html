@@ -1,0 +1,9 @@
+{% comment %}Fotografia de página inteira, entre rasgos de papel, com parallax.{% endcomment %}
+<figure class="ed-photo{% if tall %} ed-photo--tall{% endif %}{% if last %} ed-photo--last{% endif %}" data-ed-reveal="photo">
+    <div class="ed-photo__frame">
+        <img class="ed-photo__img" src="{{ photo.source_url }}" alt="{% if photo.caption %}{{ photo.caption }}{% else %}Fotografia de {{ wedding.display_names }}{% endif %}" loading="lazy" decoding="async" data-ed-parallax>
+        {% include "invitations/_editorial_tear.html" with edge="top" v=v %}
+        {% include "invitations/_editorial_tear.html" with edge="bottom" v=v2|default:"c" %}
+    </div>
+    {% if photo.caption %}<figcaption class="ed-photo__caption">{{ photo.caption }}</figcaption>{% endif %}
+</figure>
