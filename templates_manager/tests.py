@@ -752,3 +752,18 @@ class EditorialLayoutTests(TestCase):
             context["dress_codes"],
             [{"event": "", "value": "Traje formal"}, {"event": "Festa", "value": "Branco"}],
         )
+
+
+class TemplateAssetTagTests(TestCase):
+    """Folha de estilos, script e camada decorativa por template são opcionais."""
+
+    def test_missing_assets_render_nothing(self) -> None:
+        from types import SimpleNamespace
+
+        from django.template import Context, Template
+
+        rendered = Template(
+            "{% load template_assets %}"
+            "{% template_stylesheet tpl %}{% template_script tpl %}{% template_decor tpl %}"
+        ).render(Context({"tpl": SimpleNamespace(code="sem-recursos-proprios")}))
+        self.assertEqual(rendered, "")
