@@ -1,0 +1,21 @@
+{% comment %}
+Camada decorativa da Carta Selada: brasão com monograma, aba do envelope com
+lacre dourado e poeira dourada. Fica escondida; static/js/tpl/carta-selada.js
+coloca cada peça no sítio certo. Sem JavaScript o convite continua completo.
+{% endcomment %}
+<div class="tpl-cs-decor" data-tpl-decor hidden aria-hidden="true">
+    <div class="tpl-cs-crest" data-tpl-piece="crest">
+        <span class="tpl-cs-crest__mono">{{ monogram|slice:":1" }}{% if monogram|length > 1 %}<em>{{ monogram|slice:"1:" }}</em>{% endif %}</span>
+    </div>
+    <div class="tpl-cs-flap" data-tpl-piece="flap">
+        <span class="tpl-cs-flap__seal"><span>{{ monogram }}</span></span>
+    </div>
+    <div class="tpl-cs-dust" data-tpl-piece="dust">
+        <i style="--x:8%;--d:9s;--w:-1s;--s:.9"></i><i style="--x:17%;--d:12s;--w:-6s;--s:.6"></i>
+        <i style="--x:29%;--d:10s;--w:-3s;--s:1"></i><i style="--x:41%;--d:13s;--w:-9s;--s:.5"></i>
+        <i style="--x:55%;--d:11s;--w:-2s;--s:.8"></i><i style="--x:66%;--d:9.5s;--w:-7s;--s:.65"></i>
+        <i style="--x:74%;--d:12.5s;--w:-4s;--s:1"></i><i style="--x:86%;--d:10.5s;--w:-8s;--s:.7"></i>
+        <i style="--x:93%;--d:14s;--w:-5s;--s:.55"></i><i style="--x:48%;--d:15s;--w:-11s;--s:.45"></i>
+    </div>
+    <span class="tpl-cs-burst" data-tpl-piece="burst"></span>
+</div>
