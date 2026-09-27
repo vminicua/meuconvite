@@ -1,0 +1,15 @@
+{% comment %}
+Camada decorativa do Envelope Botânico: coroa de folhas com monograma e
+folhas soltas que caem devagar. Fica escondida; static/js/tpl/envelope-botanico.js
+coloca cada peça no sítio certo. Sem JavaScript o convite continua completo.
+{% endcomment %}
+<div class="tpl-eb-decor" data-tpl-decor hidden aria-hidden="true">
+    <div class="tpl-eb-wreath" data-tpl-piece="wreath">
+        <span class="tpl-eb-wreath__mono">{{ monogram|slice:":1" }}{% if monogram|length > 1 %}<i></i>{{ monogram|slice:"1:" }}{% endif %}</span>
+    </div>
+    <div class="tpl-eb-fall" data-tpl-piece="fall">
+        <i style="--x:12%;--d:14s;--w:-2s;--r:160deg;--s:1"></i><i style="--x:34%;--d:17s;--w:-9s;--r:-120deg;--s:.75"></i>
+        <i style="--x:58%;--d:15s;--w:-5s;--r:200deg;--s:.9"></i><i style="--x:79%;--d:19s;--w:-12s;--r:-180deg;--s:.7"></i>
+        <i style="--x:91%;--d:16s;--w:-7s;--r:140deg;--s:.85"></i>
+    </div>
+</div>

@@ -1,0 +1,525 @@
+/* =====================================================================
+   Envelope Botânico — acabamento do catálogo: papel de linho marfim,
+   folhagem em aguarela nos cantos, coroa de folhas com monograma,
+   nomes em versaletes com "&" caligráfico dourado e cartões finos.
+   Tudo limitado a body.inv--template-envelope-botanico.
+   ===================================================================== */
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap");
+
+body.inv--template-envelope-botanico {
+    --eb-green: color-mix(in srgb, var(--inv-primary) 58%, #1c2716);
+    --eb-green-soft: color-mix(in srgb, var(--inv-primary) 80%, #fff);
+    --eb-gold: #c3a061;
+    --eb-gold-text: #80622a;
+    --eb-line: rgba(160, 138, 96, .38);
+    --eb-card: rgba(255, 253, 247, .72);
+    --eb-paper-bg: url("../../img/tpl/envelope-botanico/paper-fibres.svg"), url("../../img/tpl/envelope-botanico/paper-noise.svg"), radial-gradient(120% 70% at 50% 30%, #fffdf7, #f4eee0 80%);
+    --eb-branch: url("../../img/tpl/envelope-botanico/branch-corner.svg");
+    --eb-sprig: url("../../img/tpl/envelope-botanico/sprig.svg");
+}
+@media (max-width: 991.98px) {
+    body.inv--template-envelope-botanico { background: var(--eb-paper-bg); }
+}
+body.inv--template-envelope-botanico .inv-public-device__screen { background: var(--eb-paper-bg); }
+
+/* --- Capa: papel com folhagem nos cantos -------------------------------- */
+body.inv--template-envelope-botanico .inv-cover--botanical {
+    background: var(--eb-paper-bg);
+    color: var(--inv-ink);
+    isolation: isolate;
+}
+body.inv--template-envelope-botanico .inv-cover--botanical::before,
+body.inv--template-envelope-botanico .inv-cover--botanical::after {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    width: min(64vw, 17rem);
+    aspect-ratio: 1;
+    background: var(--eb-branch) left top / contain no-repeat;
+    pointer-events: none;
+}
+body.inv--template-envelope-botanico .inv-cover--botanical::before { left: -1.2rem; top: -1.2rem; transform-origin: 0 0; }
+body.inv--template-envelope-botanico .inv-cover--botanical::after { right: -1.2rem; bottom: -1.2rem; transform: rotate(180deg); transform-origin: 50% 50%; }
+
+body.inv--template-envelope-botanico .inv-cover--botanical .inv-cover__paper {
+    z-index: 2;
+    max-width: 24rem;
+    padding: 2rem 1.2rem;
+    border: 0;
+    background: none;
+    box-shadow: none;
+    backdrop-filter: none;
+    animation: none;
+}
+body.inv--template-envelope-botanico .inv-cover__branch { display: none; }
+body.inv--template-envelope-botanico .inv-cover__eyebrow,
+body.inv--template-envelope-botanico .inv-cover__kicker {
+    max-width: 17rem;
+    margin-inline: auto;
+    color: var(--eb-green);
+    font-size: .64rem;
+    font-weight: 600;
+    letter-spacing: .26em;
+    line-height: 1.8;
+}
+body.inv--template-envelope-botanico .inv-cover__eyebrow { margin-top: 1.1rem; margin-bottom: .2rem; }
+body.inv--template-envelope-botanico .inv-cover__kicker { margin-bottom: 1.1rem; opacity: .85; }
+
+body.inv--template-envelope-botanico .inv-cover__names,
+body.inv--template-envelope-botanico .inv-hero__names {
+    margin: 0 0 .6rem;
+    color: var(--eb-green);
+    font-family: "Cormorant Garamond", var(--inv-body);
+    font-size: clamp(2rem, 9.4vw, 2.7rem);
+    font-weight: 500;
+    line-height: 1.12;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+}
+body.inv--template-envelope-botanico .inv-cover__amp,
+body.inv--template-envelope-botanico .inv-hero__amp {
+    display: inline-block;
+    margin: 0 .12em;
+    color: var(--eb-gold);
+    font-family: var(--inv-display);
+    font-size: 1.35em;
+    line-height: .6;
+    letter-spacing: 0;
+    text-transform: none;
+    vertical-align: -.08em;
+}
+body.inv--template-envelope-botanico .inv-cover__note,
+body.inv--template-envelope-botanico .inv-hero__date {
+    display: inline-flex;
+    align-items: center;
+    gap: .55rem;
+    margin: .3rem 0 1.6rem;
+    color: var(--eb-green);
+    font-size: .84rem;
+    font-weight: 600;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+}
+body.inv--template-envelope-botanico .inv-cover__note::before,
+body.inv--template-envelope-botanico .inv-cover__note::after,
+body.inv--template-envelope-botanico .inv-hero__date::before,
+body.inv--template-envelope-botanico .inv-hero__date::after {
+    content: "";
+    flex: none;
+    width: 2.1rem;
+    height: 1rem;
+    background: var(--eb-sprig) center / contain no-repeat;
+}
+body.inv--template-envelope-botanico .inv-cover__note::before,
+body.inv--template-envelope-botanico .inv-hero__date::before { transform: scaleX(-1); }
+
+body.inv--template-envelope-botanico .inv-btn {
+    padding: .85rem 2.2rem;
+    border: 0;
+    background: var(--eb-green);
+    color: #fbf8ee;
+    font-weight: 600;
+    font-size: .8rem;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    box-shadow: 0 14px 26px -16px rgba(30, 44, 22, .85);
+}
+body.inv--template-envelope-botanico .inv-btn--outline {
+    border: 1px solid var(--eb-line);
+    background: transparent;
+    color: var(--eb-green);
+    box-shadow: none;
+}
+body.inv--template-envelope-botanico .inv-cover .inv-btn { position: relative; overflow: hidden; }
+body.inv--template-envelope-botanico .inv-cover .inv-btn::after {
+    content: "";
+    position: absolute;
+    inset: -30% -60%;
+    background: linear-gradient(100deg, transparent 44%, rgba(255, 255, 240, .3) 50%, transparent 56%);
+    transform: translateX(-60%);
+}
+
+/* Coroa de folhas com monograma. */
+body.inv--template-envelope-botanico .tpl-eb-wreath {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 8.4rem;
+    height: 8.4rem;
+    margin: 0 auto .4rem;
+}
+body.inv--template-envelope-botanico .tpl-eb-wreath::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: url("../../img/tpl/envelope-botanico/wreath.svg") center / contain no-repeat;
+}
+body.inv--template-envelope-botanico .tpl-eb-wreath__mono {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    color: var(--eb-green);
+    font-family: "Cormorant Garamond", var(--inv-body);
+    font-size: 2.05rem;
+    font-weight: 500;
+    line-height: 1;
+}
+body.inv--template-envelope-botanico .tpl-eb-wreath__mono i {
+    width: 1px;
+    height: 2.2rem;
+    background: linear-gradient(transparent, var(--eb-gold) 20%, var(--eb-gold) 80%, transparent);
+}
+
+/* Folhas a cair. */
+body.inv--template-envelope-botanico .tpl-eb-fall {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    overflow: hidden;
+    pointer-events: none;
+}
+body.inv--template-envelope-botanico .tpl-eb-fall i {
+    position: absolute;
+    left: var(--x);
+    top: -3rem;
+    width: calc(var(--s) * 1.6rem);
+    height: calc(var(--s) * 1.35rem);
+    background: url("../../img/tpl/envelope-botanico/leaf.svg") center / contain no-repeat;
+    opacity: 0;
+    animation: eb-fall var(--d) linear var(--w) infinite;
+}
+
+body.inv--template-envelope-botanico.tpl-motion .inv-cover--botanical::before { animation: eb-grow-tl 1.6s cubic-bezier(.2, .8, .2, 1) both, eb-sway 9s 1.6s ease-in-out infinite alternate; }
+body.inv--template-envelope-botanico.tpl-motion .inv-cover--botanical::after { animation: eb-grow-br 1.6s .15s cubic-bezier(.2, .8, .2, 1) both, eb-sway-br 10s 1.8s ease-in-out infinite alternate; }
+body.inv--template-envelope-botanico.tpl-motion .inv-cover .tpl-eb-wreath { animation: eb-wreath 1.3s .25s cubic-bezier(.2, .8, .2, 1) both; }
+body.inv--template-envelope-botanico.tpl-motion .inv-cover .tpl-eb-wreath::before { animation: eb-spin 60s linear infinite; }
+body.inv--template-envelope-botanico.tpl-motion .inv-cover__eyebrow { animation: eb-rise .9s .5s cubic-bezier(.2, .8, .2, 1) both; }
+body.inv--template-envelope-botanico.tpl-motion .inv-cover__kicker { animation: eb-rise .9s .6s cubic-bezier(.2, .8, .2, 1) both; }
+body.inv--template-envelope-botanico.tpl-motion .inv-cover__names { animation: eb-rise-soft 1.2s .7s cubic-bezier(.2, .8, .2, 1) both; }
+body.inv--template-envelope-botanico.tpl-motion .inv-cover__note { animation: eb-rise .9s 1s cubic-bezier(.2, .8, .2, 1) both; }
+body.inv--template-envelope-botanico.tpl-motion .inv-cover .inv-btn { animation: eb-rise .9s 1.15s cubic-bezier(.2, .8, .2, 1) both; }
+body.inv--template-envelope-botanico.tpl-motion .inv-cover .inv-btn::after { animation: eb-glint 5s 2.4s ease-in-out infinite; }
+
+body.inv--template-envelope-botanico .inv-cover.tpl-opening::before { animation: eb-part-tl .9s cubic-bezier(.6, 0, .3, 1) both; }
+body.inv--template-envelope-botanico .inv-cover.tpl-opening::after { animation: eb-part-br .9s cubic-bezier(.6, 0, .3, 1) both; }
+body.inv--template-envelope-botanico .inv-cover.tpl-opening .inv-cover__paper { animation: eb-lift .85s .05s cubic-bezier(.6, 0, .3, 1) both; }
+body.inv--template-envelope-botanico .inv-cover.tpl-opening [data-open-invitation] { pointer-events: none; }
+
+/* --- Interior ----------------------------------------------------------- */
+body.inv--template-envelope-botanico .inv-main {
+    --tpl-par: 0;
+    position: relative;
+    padding: 0 1.3rem 5rem;
+    overflow: hidden;
+    isolation: isolate;
+}
+body.inv--template-envelope-botanico .inv-main::before,
+body.inv--template-envelope-botanico .inv-main::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    width: min(58vw, 15.5rem);
+    aspect-ratio: 1;
+    background: var(--eb-branch) left top / contain no-repeat;
+    pointer-events: none;
+}
+body.inv--template-envelope-botanico .inv-main::before { left: -1rem; top: -1rem; transform: translate3d(0, calc(var(--tpl-par) * .18px), 0); }
+body.inv--template-envelope-botanico .inv-main::after { right: -1rem; bottom: -1rem; transform: rotate(180deg); }
+body.inv--template-envelope-botanico .inv-hero { padding: 2.6rem .4rem 1.4rem; }
+body.inv--template-envelope-botanico .inv-hero__leaf { display: none; }
+body.inv--template-envelope-botanico .inv-hero::after {
+    /* ramo à direita, mais pequeno, como no catálogo */
+    content: "";
+    position: absolute;
+    z-index: -1;
+    right: -2.4rem;
+    bottom: -3.4rem;
+    width: 6.6rem;
+    aspect-ratio: 1;
+    background: var(--eb-branch) left top / contain no-repeat;
+    transform: rotate(100deg) scaleY(-1) translate3d(calc(var(--tpl-par) * -.08px), 0, 0);
+    opacity: .6;
+    pointer-events: none;
+}
+body.inv--template-envelope-botanico .inv-hero__eyebrow {
+    color: var(--eb-green);
+    font-size: .66rem;
+    font-weight: 600;
+    letter-spacing: .32em;
+}
+body.inv--template-envelope-botanico.tpl-eb-dressed .inv-hero > .inv-divider { display: none; }
+body.inv--template-envelope-botanico .inv-hero__greeting { color: var(--eb-green); font-size: 1.1rem; }
+body.inv--template-envelope-botanico .inv-hero__text {
+    max-width: 20rem;
+    color: var(--inv-ink);
+    font-size: 1.02rem;
+    letter-spacing: .02em;
+}
+body.inv--template-envelope-botanico .inv-hero__date { margin-bottom: .2rem; }
+
+body.inv--template-envelope-botanico .inv-countdown { gap: .5rem; margin: 1.3rem 0 1.4rem; }
+body.inv--template-envelope-botanico .inv-countdown__cell {
+    flex: 1;
+    max-width: 5rem;
+    min-width: 0;
+    padding: .7rem .2rem .55rem;
+    border: 1px solid var(--eb-line);
+    border-radius: .7rem;
+    background: var(--eb-card);
+    box-shadow: 0 10px 22px -18px rgba(60, 70, 40, .6);
+}
+body.inv--template-envelope-botanico .inv-countdown__cell span {
+    color: var(--eb-green);
+    font-size: 1.75rem;
+    font-weight: 500;
+    font-variant-numeric: lining-nums tabular-nums;
+}
+body.inv--template-envelope-botanico .inv-countdown__cell small { color: var(--inv-ink); font-size: .56rem; letter-spacing: .18em; }
+body.inv--template-envelope-botanico .inv-seats {
+    margin: .2rem;
+    border-color: var(--eb-line);
+    background: var(--eb-card);
+}
+body.inv--template-envelope-botanico .inv-seats strong { color: var(--eb-green); }
+
+body.inv--template-envelope-botanico .inv-main.tpl-enter .inv-hero > * { animation: eb-rise .95s cubic-bezier(.2, .8, .2, 1) both; }
+body.inv--template-envelope-botanico .inv-main.tpl-enter .inv-hero > :nth-child(2) { animation-delay: .1s; }
+body.inv--template-envelope-botanico .inv-main.tpl-enter .inv-hero > :nth-child(3) { animation-delay: .18s; }
+body.inv--template-envelope-botanico .inv-main.tpl-enter .inv-hero > :nth-child(4) { animation-delay: .26s; }
+body.inv--template-envelope-botanico .inv-main.tpl-enter .inv-hero > :nth-child(5) { animation-delay: .34s; }
+body.inv--template-envelope-botanico .inv-main.tpl-enter .inv-hero > :nth-child(6) { animation-delay: .42s; }
+body.inv--template-envelope-botanico .inv-main.tpl-enter .inv-hero > :nth-child(7) { animation-delay: .5s; }
+body.inv--template-envelope-botanico .inv-main.tpl-enter .inv-hero > :nth-child(n+8) { animation-delay: .58s; }
+body.inv--template-envelope-botanico .inv-main.tpl-enter .inv-hero > .tpl-eb-wreath { animation: eb-wreath 1.3s cubic-bezier(.2, .8, .2, 1) both; }
+body.inv--template-envelope-botanico .inv-main.tpl-enter::before { animation: eb-grow-tl 1.5s .1s cubic-bezier(.2, .8, .2, 1) both; }
+body.inv--template-envelope-botanico .tpl-tick { animation: eb-tick .5s cubic-bezier(.2, .8, .2, 1); }
+
+/* Secções */
+body.inv--template-envelope-botanico .inv-section {
+    padding: 2.4rem .2rem;
+    border-top: 0;
+}
+body.inv--template-envelope-botanico .inv-section__title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .75rem;
+    color: var(--eb-green);
+    font-size: .84rem;
+    font-weight: 600;
+    letter-spacing: .3em;
+}
+body.inv--template-envelope-botanico .inv-section__title::before,
+body.inv--template-envelope-botanico .inv-section__title::after {
+    content: "";
+    flex: none;
+    width: 2.3rem;
+    height: 1rem;
+    background: var(--eb-sprig) center / contain no-repeat;
+}
+body.inv--template-envelope-botanico .inv-section__title::before { transform: scaleX(-1); }
+body.inv--template-envelope-botanico .inv-divider { display: none; }
+body.inv--template-envelope-botanico .inv-section__title + .inv-divider,
+body.inv--template-envelope-botanico .inv-section__title { margin-bottom: 1.3rem; }
+
+body.inv--template-envelope-botanico .inv-text--lead {
+    max-width: 21rem;
+    color: var(--eb-green);
+    font-size: 1.2rem;
+    line-height: 1.5;
+}
+
+/* Programa num cartão fino, com ícones e filete dourado. */
+body.inv--template-envelope-botanico .inv-timeline {
+    max-width: 23rem;
+    padding: .6rem 1rem;
+    border: 1px solid var(--eb-line);
+    border-radius: 1rem;
+    background: var(--eb-card);
+    box-shadow: 0 24px 40px -34px rgba(50, 60, 30, .6);
+}
+body.inv--template-envelope-botanico .inv-timeline__item {
+    grid-template-columns: 2.4rem 3.6rem 1fr;
+    gap: .55rem;
+    padding: .85rem 0;
+    border-bottom: 1px solid rgba(160, 138, 96, .2);
+}
+body.inv--template-envelope-botanico .inv-timeline__dot {
+    width: 2.4rem;
+    height: 2.4rem;
+    background: none;
+}
+body.inv--template-envelope-botanico .inv-timeline__dot i { display: none; }
+body.inv--template-envelope-botanico .inv-timeline__dot::after {
+    content: "";
+    width: 1.75rem;
+    height: 1.75rem;
+    background: var(--eb-green);
+    -webkit-mask: var(--tpl-icon, url("../../img/tpl/envelope-botanico/icon-heart.svg")) center / contain no-repeat;
+    mask: var(--tpl-icon, url("../../img/tpl/envelope-botanico/icon-heart.svg")) center / contain no-repeat;
+}
+body.inv--template-envelope-botanico [data-tpl-icon="rings"] { --tpl-icon: url("../../img/tpl/envelope-botanico/icon-rings.svg"); }
+body.inv--template-envelope-botanico [data-tpl-icon="toast"] { --tpl-icon: url("../../img/tpl/envelope-botanico/icon-toast.svg"); }
+body.inv--template-envelope-botanico [data-tpl-icon="dinner"] { --tpl-icon: url("../../img/tpl/envelope-botanico/icon-dinner.svg"); }
+body.inv--template-envelope-botanico [data-tpl-icon="music"] { --tpl-icon: url("../../img/tpl/envelope-botanico/icon-music.svg"); }
+body.inv--template-envelope-botanico .inv-timeline__time {
+    padding: .35rem .55rem 0 0;
+    border-right: 1px solid var(--eb-gold);
+    color: var(--eb-green);
+    font-weight: 600;
+    font-size: .98rem;
+}
+body.inv--template-envelope-botanico .inv-timeline__label {
+    color: var(--eb-green);
+    font-size: .86rem;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+}
+body.inv--template-envelope-botanico .inv-timeline__note { color: var(--inv-ink); font-size: .86rem; }
+body.inv--template-envelope-botanico .inv-map__toggle { border-color: var(--eb-line); background: #fffdf7; color: var(--eb-green); }
+
+/* História e galeria */
+body.inv--template-envelope-botanico .inv-story__kicker,
+body.inv--template-envelope-botanico .inv-gallery-teaser__eyebrow { color: var(--eb-gold-text); letter-spacing: .28em; }
+body.inv--template-envelope-botanico .inv-section--story .inv-section__title,
+body.inv--template-envelope-botanico .inv-gallery-teaser .inv-section__title {
+    color: var(--eb-green);
+    font-family: var(--inv-display);
+    font-size: clamp(2.4rem, 11vw, 3.1rem);
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1.1;
+    text-transform: none;
+}
+body.inv--template-envelope-botanico .inv-section--story .inv-section__title::before,
+body.inv--template-envelope-botanico .inv-section--story .inv-section__title::after,
+body.inv--template-envelope-botanico .inv-gallery-teaser .inv-section__title::before,
+body.inv--template-envelope-botanico .inv-gallery-teaser .inv-section__title::after { display: none; }
+body.inv--template-envelope-botanico .inv-story__body { font-size: 1.05rem; line-height: 1.75; }
+body.inv--template-envelope-botanico .inv-story__quote {
+    border: 0;
+    color: var(--eb-green);
+    font-family: "Cormorant Garamond", var(--inv-body);
+    font-size: 1.28rem;
+}
+body.inv--template-envelope-botanico .inv-story__quote::before,
+body.inv--template-envelope-botanico .inv-story__quote::after {
+    content: "";
+    display: block;
+    width: 5.5rem;
+    height: 1.3rem;
+    margin: 0 auto .8rem;
+    background: var(--eb-sprig) center / contain no-repeat;
+}
+body.inv--template-envelope-botanico .inv-story__quote::after { margin: .8rem auto 0; transform: scaleX(-1); }
+body.inv--template-envelope-botanico .inv-story__quote cite { color: var(--eb-gold-text); }
+body.inv--template-envelope-botanico .inv-gallery-teaser { grid-template-columns: 1fr; text-align: center; }
+body.inv--template-envelope-botanico .inv-gallery-teaser__stack { min-height: 235px; }
+body.inv--template-envelope-botanico .inv-gallery-teaser__stack span {
+    border: 6px solid #fffdf7;
+    border-radius: .5rem;
+    box-shadow: 0 0 0 1px var(--eb-line), 0 22px 40px -18px rgba(40, 50, 25, .5);
+}
+
+/* QR */
+body.inv--template-envelope-botanico .inv-section--qr {
+    margin-top: 1.4rem;
+    border: 1px solid var(--eb-line);
+    border-radius: 1.2rem;
+    background: var(--eb-card);
+    box-shadow: 0 30px 50px -40px rgba(50, 60, 30, .7);
+}
+body.inv--template-envelope-botanico .inv-qr__eyebrow { color: var(--eb-gold-text); }
+body.inv--template-envelope-botanico .inv-qr__card { border-color: var(--eb-line); border-radius: 1rem; }
+body.inv--template-envelope-botanico .inv-qr__guest { color: var(--eb-green); }
+body.inv--template-envelope-botanico .inv-qr__events li { background: rgba(107, 127, 66, .1); color: var(--eb-green); }
+
+/* Rodapé */
+body.inv--template-envelope-botanico .inv-footer { border-top: 0; padding-top: 2rem; }
+body.inv--template-envelope-botanico .inv-hearts {
+    width: 6rem;
+    height: 1.6rem;
+    background: var(--eb-sprig) center / contain no-repeat;
+    opacity: 1;
+}
+body.inv--template-envelope-botanico .inv-hearts use { display: none; }
+body.inv--template-envelope-botanico .inv-footer__names { color: var(--eb-green); font-size: 2.3rem; }
+body.inv--template-envelope-botanico .inv-footer__date { color: var(--eb-gold-text); letter-spacing: .3em; }
+
+/* Acções e diálogos */
+body.inv--template-envelope-botanico .inv-fab {
+    border-color: var(--eb-green);
+    background: var(--eb-green);
+    color: #fbf8ee;
+    letter-spacing: .04em;
+}
+body.inv--template-envelope-botanico .inv-fab--secondary {
+    border-color: var(--eb-line);
+    background: #fffdf7;
+    color: var(--eb-green);
+}
+body.inv--template-envelope-botanico .inv-music button { color: var(--eb-green); }
+body.inv--template-envelope-botanico .inv-dialog {
+    background: var(--eb-paper-bg);
+    border: 1px solid var(--eb-line);
+}
+body.inv--template-envelope-botanico .inv-dialog::before {
+    content: "";
+    position: absolute;
+    left: -.8rem;
+    top: -.8rem;
+    width: 7rem;
+    aspect-ratio: 1;
+    background: var(--eb-branch) left top / contain no-repeat;
+    opacity: .75;
+    pointer-events: none;
+}
+body.inv--template-envelope-botanico .inv-dialog h2 { color: var(--eb-green); font-weight: 400; }
+body.inv--template-envelope-botanico .inv-dialog__icon { background: rgba(107, 127, 66, .12); color: var(--eb-green); }
+
+/* --- Revelação ao scroll ------------------------------------------------ */
+body.inv--template-envelope-botanico.tpl-motion .tpl-reveal {
+    transition: opacity .95s cubic-bezier(.2, .8, .2, 1), transform .95s cubic-bezier(.2, .8, .2, 1);
+}
+body.inv--template-envelope-botanico.tpl-motion .tpl-reveal:not(.is-in) { opacity: 0; transform: translate3d(0, 26px, 0); }
+body.inv--template-envelope-botanico.tpl-motion .inv-timeline__item.tpl-reveal:not(.is-in) { transform: translate3d(12px, 0, 0); }
+body.inv--template-envelope-botanico.tpl-motion .inv-timeline__item:nth-child(2) { transition-delay: .1s; }
+body.inv--template-envelope-botanico.tpl-motion .inv-timeline__item:nth-child(3) { transition-delay: .2s; }
+body.inv--template-envelope-botanico.tpl-motion .inv-timeline__item:nth-child(4) { transition-delay: .3s; }
+body.inv--template-envelope-botanico.tpl-motion .inv-gallery-teaser__stack.tpl-reveal:not(.is-in) { transform: translate3d(0, 30px, 0) rotate(3deg); }
+body.inv--template-envelope-botanico.tpl-motion .inv-qr__card.tpl-reveal:not(.is-in) { transform: translate3d(0, 20px, 0) scale(.95); }
+body.inv--template-envelope-botanico.tpl-motion .tpl-reveal .inv-section__title::before { transition: transform 1.1s .2s cubic-bezier(.2, .8, .2, 1); }
+body.inv--template-envelope-botanico.tpl-motion .tpl-reveal .inv-section__title::after { transition: transform 1.1s .2s cubic-bezier(.2, .8, .2, 1); }
+body.inv--template-envelope-botanico.tpl-motion .tpl-reveal:not(.is-in) .inv-section__title::before { transform: scaleX(-1) translateX(-12px) rotate(-10deg); }
+body.inv--template-envelope-botanico.tpl-motion .tpl-reveal:not(.is-in) .inv-section__title::after { transform: translateX(-12px) rotate(-10deg); }
+
+/* --- Keyframes ------------------------------------------------------- */
+@keyframes eb-rise { from { opacity: 0; transform: translate3d(0, 16px, 0); } to { opacity: 1; transform: none; } }
+@keyframes eb-rise-soft { from { opacity: 0; transform: translate3d(0, 10px, 0) scale(.97); letter-spacing: .16em; } to { opacity: 1; transform: none; } }
+@keyframes eb-grow-tl { from { opacity: 0; transform: scale(.6) rotate(-8deg); } to { opacity: 1; transform: none; } }
+@keyframes eb-grow-br { from { opacity: 0; transform: rotate(172deg) scale(.6); } to { opacity: 1; transform: rotate(180deg); } }
+@keyframes eb-sway { from { transform: rotate(0); } to { transform: rotate(2.2deg); } }
+@keyframes eb-sway-br { from { transform: rotate(180deg); } to { transform: rotate(177.5deg); } }
+@keyframes eb-wreath { from { opacity: 0; transform: scale(.7) rotate(-25deg); } to { opacity: 1; transform: none; } }
+@keyframes eb-spin { to { transform: rotate(360deg); } }
+@keyframes eb-glint { 0%, 55% { transform: translateX(-60%); } 80%, 100% { transform: translateX(60%); } }
+@keyframes eb-fall {
+    0% { opacity: 0; transform: translate3d(0, 0, 0) rotate(0); }
+    10% { opacity: .85; }
+    50% { transform: translate3d(2.2rem, 55vh, 0) rotate(calc(var(--r) * .5)); }
+    90% { opacity: .7; }
+    100% { opacity: 0; transform: translate3d(-1rem, 110vh, 0) rotate(var(--r)); }
+}
+@keyframes eb-part-tl { to { opacity: 0; transform: translate3d(-35%, -35%, 0) rotate(-12deg) scale(1.15); } }
+@keyframes eb-part-br { to { opacity: 0; transform: translate3d(35%, 35%, 0) rotate(192deg) scale(1.15); } }
+@keyframes eb-lift { 30% { transform: scale(1.02); } to { opacity: 0; transform: translate3d(0, -40px, 0) scale(.96); } }
+@keyframes eb-tick { from { opacity: .35; transform: translateY(-5px); } to { opacity: 1; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+    body.inv--template-envelope-botanico *,
+    body.inv--template-envelope-botanico *::before,
+    body.inv--template-envelope-botanico *::after { animation: none !important; transition: none !important; }
+    body.inv--template-envelope-botanico .tpl-eb-fall { display: none; }
+}
