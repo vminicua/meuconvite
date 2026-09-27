@@ -292,6 +292,7 @@ body.inv--template-floral-rosa.inv--cartao_classico .inv-main {
     box-shadow: none;
     overflow: hidden;
     overflow: clip;
+    isolation: isolate;
     font-family: var(--t-body);
     color: var(--t-ink);
 }

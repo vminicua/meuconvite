@@ -299,6 +299,7 @@ body.inv--template-minimal-branco.inv--cartao_classico .inv-main {
     box-shadow: none;
     overflow: hidden;
     overflow: clip;
+    isolation: isolate;
     font-family: var(--t-body);
     color: var(--t-ink);
 }
