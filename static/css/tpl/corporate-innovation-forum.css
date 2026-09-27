@@ -1,0 +1,514 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap");
+/* Innovation Forum (corporate-innovation-forum) — estilos exclusivos deste template.
+   Gerado a partir de uma base comum; tudo fica sob body.inv--template-corporate-innovation-forum. */
+
+body.inv--template-corporate-innovation-forum {
+    --t-display: "Space Grotesk", "Segoe UI", Arial, sans-serif;
+    --t-body: "Inter", "Segoe UI", Arial, sans-serif;
+    --t-name-weight: 700;
+    --t-name-track: -.03em;
+    --t-h2-weight: 700;
+    --t-num-weight: 600;
+    --t-bg: #07131E;
+    --t-bg-2: #0A1B28;
+    --t-surface: #0E2130;
+    --t-ink: #CFE3E4;
+    --t-title: #F1FBFA;
+    --t-muted: #8FAAB0;
+    --t-accent: #22C7A9;
+    --t-accent-text: #43E0C2;
+    --t-line: rgba(34, 199, 169, .2);
+    --t-shadow: rgba(0, 0, 0, .6);
+    --t-shadow-strong: rgba(34, 199, 169, .35);
+    --t-btn-bg: linear-gradient(120deg, #22C7A9 0%, #2F7FE0 100%);
+    --t-btn-ink: #031A1F;
+    --t-btn-shadow: 0 0 0 1px rgba(255, 255, 255, .15) inset, 0 1rem 2.2rem -1rem rgba(34, 199, 169, .8);
+    --t-cover-align: start;
+    --t-cover-pad: max(4.2rem, 9svh) 1.1rem 2rem;
+    --t-cover-pos: 50% 50%;
+    --t-cover-origin: 50% 60%;
+    --t-cover-bg: #0B1826;
+    --t-veil: linear-gradient(180deg, rgba(7, 19, 30, .35) 0%, rgba(7, 19, 30, 0) 45%, rgba(7, 19, 30, .15) 100%);
+    --t-card-bg: linear-gradient(160deg, rgba(14, 33, 48, .72), rgba(7, 19, 30, .82));
+    --t-card-border: 1px solid rgba(67, 224, 194, .3);
+    --t-card-radius: 1rem;
+    --t-card-blur: blur(12px) saturate(1.2);
+    --t-card-shadow: 0 2rem 3.5rem -1.6rem rgba(0, 0, 0, .9);
+    --t-cover-kicker: #43E0C2;
+    --t-cover-title: #F1FBFA;
+    --t-cover-muted: rgba(207, 227, 228, .85);
+    --t-chip-radius: .5rem;
+    --t-hero-bg: #07131E;
+    --t-hero-ink: #F1FBFA;
+    --t-hero-muted: rgba(207, 227, 228, .85);
+    --t-hero-accent: #43E0C2;
+    --t-hero-num: #43E0C2;
+    --t-hero-line: rgba(67, 224, 194, .28);
+    --t-hero-art: .75;
+    --t-hero-pos: 50% 80%;
+    --t-hero-veil: linear-gradient(180deg, rgba(7, 19, 30, .55) 0%, rgba(7, 19, 30, .78) 50%, #07131E 100%);
+    --t-cell-bg: rgba(14, 33, 48, .7);
+    --t-cell-radius: .6rem;
+    --t-radius: .6rem;
+    --t-radius-lg: 1rem;
+    --t-dot-radius: .4rem;
+    --t-fab-radius: .8rem;
+    --t-closing-bg: radial-gradient(circle at 50% 120%, rgba(34, 199, 169, .3), transparent 60%), #0A1B28;
+    --t-qr-bg: linear-gradient(180deg, #0E2130, #0A1B28);
+    --t-dialog-bg: #0C1C29;
+    --t-backdrop: rgba(2, 8, 14, .74);
+    --t-photo-frame: #12293A;
+    --t-gallery-a: rgba(34, 199, 169, .4);
+    --t-gallery-b: rgba(47, 127, 224, .35);
+    --t-stage: radial-gradient(circle at 50% 38%, #123447 0%, #07131E 55%, #020609 100%);
+}
+
+/* ---------------------------------------------------------------------
+   Base partilhada (gerada) — layout corporativo.
+   Tudo fica sob o body do template; os tokens --t-* vêm do bloco acima.
+   --------------------------------------------------------------------- */
+body.inv--template-corporate-innovation-forum {
+    --inv-display: var(--t-display) !important;
+    --inv-body: var(--t-body) !important;
+    --inv-heading-font: var(--t-display) !important;
+    --inv-muted: var(--t-muted);
+    background: var(--t-bg);
+    color: var(--t-ink);
+    font-family: var(--t-body);
+}
+@media (min-width: 992px) {
+    body.inv--template-corporate-innovation-forum.inv--public-device { background: var(--t-stage, radial-gradient(circle at 50% 40%, #2b3240, #0b0e14 70%)); }
+    body.inv--template-corporate-innovation-forum.inv--public-device .inv-public-device__screen { background: var(--t-bg); }
+}
+
+/* --- Capa: ocupa sempre o ecrã inteiro ---------------------------------- */
+body.inv--template-corporate-innovation-forum .corp-cover {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    min-height: 100vh;
+    min-height: 100svh;
+    display: grid;
+    align-items: var(--t-cover-align, end);
+    justify-items: center;
+    padding: var(--t-cover-pad, 1.2rem 1.1rem 2rem);
+    background: var(--t-cover-bg, #0b1220) !important;
+    color: var(--t-cover-ink, #fff);
+}
+@media (min-width: 992px) { body.inv--template-corporate-innovation-forum.inv--public-device .corp-cover { min-height: 100%; } }
+body.inv--template-corporate-innovation-forum.inv--cover-only .corp-cover { min-height: 100vh; }
+body.inv--template-corporate-innovation-forum .corp-cover::before {
+    content: "";
+    position: absolute;
+    inset: -4%;
+    z-index: 0;
+    background: var(--t-cover, none) var(--t-cover-pos, center) / cover no-repeat;
+    transform-origin: var(--t-cover-origin, 50% 40%);
+    animation: t-kenburns 30s ease-in-out infinite alternate;
+    will-change: transform;
+}
+body.inv--template-corporate-innovation-forum .corp-cover::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: var(--t-veil, none);
+    pointer-events: none;
+}
+body.inv--template-corporate-innovation-forum .corp-cover > .t-layer { z-index: 2; }
+body.inv--template-corporate-innovation-forum .corp-cover__content {
+    position: relative;
+    z-index: 3;
+    width: min(100%, var(--t-card-w, 23rem));
+    max-width: none;
+    padding: var(--t-card-pad, 1.8rem 1.4rem 1.5rem);
+    text-align: var(--t-cover-text-align, left);
+    background: var(--t-card-bg, transparent);
+    border: var(--t-card-border, 0);
+    border-radius: var(--t-card-radius, 0);
+    box-shadow: var(--t-card-shadow, none);
+    -webkit-backdrop-filter: var(--t-card-blur, none);
+    backdrop-filter: var(--t-card-blur, none);
+    animation: t-card-in 1.2s .15s cubic-bezier(.16, .84, .3, 1) both;
+}
+body.inv--template-corporate-innovation-forum .corp-cover__content > * { animation: t-rise 1s cubic-bezier(.16, .84, .3, 1) both; }
+body.inv--template-corporate-innovation-forum .corp-cover__content > :nth-child(1) { animation-delay: .45s; }
+body.inv--template-corporate-innovation-forum .corp-cover__content > :nth-child(2) { animation-delay: .6s; }
+body.inv--template-corporate-innovation-forum .corp-cover__content > :nth-child(3) { animation-delay: .76s; }
+body.inv--template-corporate-innovation-forum .corp-cover__content > :nth-child(4) { animation-delay: .9s; }
+body.inv--template-corporate-innovation-forum .corp-cover__content > :nth-child(5) { animation-delay: 1.05s; }
+body.inv--template-corporate-innovation-forum .corp-cover .corp-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: .6rem;
+    margin: 0 0 1rem;
+    color: var(--t-cover-kicker, var(--t-hero-accent));
+    font: 700 .64rem/1.35 var(--t-body);
+    letter-spacing: .26em;
+}
+body.inv--template-corporate-innovation-forum .corp-cover .corp-kicker::before {
+    content: "";
+    width: 1.6rem;
+    height: 2px;
+    background: currentColor;
+}
+body.inv--template-corporate-innovation-forum .corp-cover h1 {
+    margin: 0 0 .9rem;
+    color: var(--t-cover-title, #fff);
+    font-family: var(--t-display);
+    font-weight: var(--t-name-weight, 800);
+    font-style: var(--t-name-style, normal);
+    font-size: var(--t-name-size, clamp(2.3rem, 11vw, 3.2rem));
+    line-height: 1.04;
+    letter-spacing: var(--t-name-track, -.02em);
+    overflow-wrap: anywhere;
+}
+body.inv--template-corporate-innovation-forum .corp-cover__content > p {
+    max-width: 22rem;
+    margin: 0;
+    color: var(--t-cover-muted, rgba(255, 255, 255, .8));
+    font-size: 1rem;
+    line-height: 1.55;
+}
+body.inv--template-corporate-innovation-forum .corp-cover__meta { gap: .5rem; margin: 1.2rem 0 1.4rem; }
+body.inv--template-corporate-innovation-forum .corp-cover__meta span {
+    padding: .5rem .85rem;
+    border: 1px solid var(--t-chip-line, rgba(255, 255, 255, .28));
+    border-radius: var(--t-chip-radius, 999px);
+    background: var(--t-chip-bg, rgba(255, 255, 255, .08));
+    color: var(--t-cover-title, #fff);
+    font: 700 .72rem/1.2 var(--t-body);
+    letter-spacing: .06em;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+body.inv--template-corporate-innovation-forum .corp-button {
+    position: relative;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .6rem;
+    width: var(--t-btn-w, 100%);
+    padding: 1.05rem 1.6rem;
+    border: var(--t-btn-border, 0);
+    border-radius: var(--t-btn-radius, .7rem);
+    background: var(--t-btn-bg);
+    color: var(--t-btn-ink);
+    font: 800 .76rem/1 var(--t-body);
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: var(--t-btn-shadow, 0 1rem 2rem -1rem rgba(0, 0, 0, .6));
+    transition: transform .25s ease;
+}
+body.inv--template-corporate-innovation-forum .corp-button::after {
+    content: "";
+    position: absolute;
+    inset: -30% -60%;
+    background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, .5) 50%, transparent 60%);
+    transform: translateX(-60%);
+    animation: t-glint 4.6s 2.4s ease-in-out infinite;
+    pointer-events: none;
+}
+body.inv--template-corporate-innovation-forum .corp-button:hover { transform: translateY(-2px); }
+body.inv--template-corporate-innovation-forum .corp-button:focus-visible { outline: 2px solid var(--t-hero-accent); outline-offset: 4px; }
+body.inv--template-corporate-innovation-forum.inv--cover-pending .inv-music { left: auto; right: max(1rem, env(safe-area-inset-right)); bottom: auto; top: max(1rem, env(safe-area-inset-top)); }
+@media (min-width: 992px) { body.inv--template-corporate-innovation-forum.inv--public-device.inv--cover-pending .inv-music { top: 1.6rem; right: 1.6rem; } }
+
+/* Saída da capa (o script do template acrescenta .t-leaving ao clicar) */
+body.inv--template-corporate-innovation-forum .corp-cover.t-leaving::before { animation: t-art-dive .6s cubic-bezier(.6, 0, .2, 1) both; }
+body.inv--template-corporate-innovation-forum .corp-cover.t-leaving .corp-cover__content { animation: t-card-out .5s cubic-bezier(.5, 0, .2, 1) both; }
+body.inv--template-corporate-innovation-forum .corp-main.t-main-enter { animation: t-main-in .9s .35s cubic-bezier(.16, .8, .25, 1) both; }
+
+/* --- Convite ------------------------------------------------------------- */
+body.inv--template-corporate-innovation-forum .corp-main { position: relative; background: var(--t-bg); overflow: hidden; }
+body.inv--template-corporate-innovation-forum .corp-hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding: 4.6rem 1.4rem 3.4rem;
+    background: var(--t-hero-bg);
+    color: var(--t-hero-ink);
+}
+body.inv--template-corporate-innovation-forum .corp-hero::before {
+    content: "";
+    position: absolute;
+    inset: -8% 0 0;
+    z-index: -3;
+    background: var(--t-cover, none) var(--t-hero-pos, var(--t-cover-pos, center)) / cover no-repeat;
+    opacity: var(--t-hero-art, .35);
+    transform: translate3d(0, calc(var(--t-par, 0) * 1px), 0);
+}
+body.inv--template-corporate-innovation-forum .corp-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background: var(--t-hero-veil, none);
+    pointer-events: none;
+}
+body.inv--template-corporate-innovation-forum .corp-hero .corp-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: .6rem;
+    margin: 0 0 1rem;
+    color: var(--t-hero-accent);
+    font: 700 .64rem/1.3 var(--t-body);
+    letter-spacing: .26em;
+}
+body.inv--template-corporate-innovation-forum .corp-hero .corp-kicker::before { content: ""; width: 1.6rem; height: 2px; background: currentColor; }
+body.inv--template-corporate-innovation-forum .corp-hero h1 {
+    margin: 0 0 1rem;
+    color: var(--t-hero-title, var(--t-hero-ink));
+    font-family: var(--t-display);
+    font-weight: var(--t-name-weight, 800);
+    font-style: var(--t-name-style, normal);
+    font-size: var(--t-hero-name-size, clamp(2.2rem, 10.5vw, 3rem));
+    line-height: 1.05;
+    letter-spacing: var(--t-name-track, -.02em);
+    overflow-wrap: anywhere;
+}
+body.inv--template-corporate-innovation-forum .corp-host { color: var(--t-hero-muted); font-size: .95rem; }
+body.inv--template-corporate-innovation-forum .corp-host strong { color: var(--t-hero-ink); }
+body.inv--template-corporate-innovation-forum .corp-greeting { margin: 1.2rem 0 .3rem; color: var(--t-hero-ink); font-weight: 700; }
+body.inv--template-corporate-innovation-forum .corp-lead { margin: 0; color: var(--t-hero-muted); font-size: 1rem; line-height: 1.7; }
+body.inv--template-corporate-innovation-forum .corp-date {
+    display: inline-flex;
+    gap: .6rem;
+    margin-top: 1.5rem;
+    padding: .65rem 1rem;
+    border: 1px solid var(--t-hero-line, rgba(255, 255, 255, .22));
+    border-radius: var(--t-chip-radius, 999px);
+    background: var(--t-hero-chip, rgba(255, 255, 255, .06));
+    color: var(--t-hero-ink);
+    font-size: .88rem;
+}
+body.inv--template-corporate-innovation-forum .corp-date i { color: var(--t-hero-accent); }
+body.inv--template-corporate-innovation-forum .corp-date span { padding-left: .6rem; border-left: 1px solid var(--t-hero-line, rgba(255, 255, 255, .22)); color: var(--t-hero-accent); font-weight: 700; }
+
+/* Contagem regressiva legível sobre o fundo escuro do topo */
+body.inv--template-corporate-innovation-forum .corp-hero .inv-countdown { justify-content: flex-start; gap: .5rem; margin: 1.6rem 0 0; }
+body.inv--template-corporate-innovation-forum .corp-hero .inv-countdown__cell {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 5rem;
+    padding: .85rem .2rem .7rem;
+    border: 1px solid var(--t-hero-line, rgba(255, 255, 255, .22));
+    border-radius: var(--t-cell-radius, .8rem);
+    background: var(--t-cell-bg, rgba(255, 255, 255, .07));
+    box-shadow: var(--t-cell-shadow, inset 0 1px 0 rgba(255, 255, 255, .12));
+    text-align: center;
+}
+body.inv--template-corporate-innovation-forum .corp-hero .inv-countdown__cell span {
+    color: var(--t-hero-num, #fff);
+    font-family: var(--t-num-font, var(--t-display));
+    font-size: 1.7rem;
+    font-weight: var(--t-num-weight, 800);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+body.inv--template-corporate-innovation-forum .corp-hero .inv-countdown__cell small {
+    display: block;
+    margin-top: .4rem;
+    color: var(--t-hero-muted);
+    font-size: .56rem;
+    font-weight: 700;
+    letter-spacing: .16em;
+    opacity: 1;
+}
+
+/* Secções */
+body.inv--template-corporate-innovation-forum .corp-main > section { position: relative; isolation: isolate; }
+body.inv--template-corporate-innovation-forum .corp-section,
+body.inv--template-corporate-innovation-forum .corp-main > .inv-section {
+    margin: 0;
+    padding: 3.2rem 1.4rem;
+    border: 0;
+    border-bottom: 1px solid var(--t-line);
+    text-align: left;
+}
+body.inv--template-corporate-innovation-forum .corp-section h2,
+body.inv--template-corporate-innovation-forum .corp-main .inv-section__title {
+    margin: .4rem 0 1rem;
+    color: var(--t-title);
+    font-family: var(--t-display);
+    font-size: var(--t-h2-size, 1.9rem);
+    font-weight: var(--t-h2-weight, 800);
+    font-style: var(--t-h2-style, normal);
+    letter-spacing: var(--t-h2-track, -.015em);
+    line-height: 1.1;
+    text-transform: none;
+}
+body.inv--template-corporate-innovation-forum .corp-section__eyebrow,
+body.inv--template-corporate-innovation-forum .inv-gallery-teaser__eyebrow,
+body.inv--template-corporate-innovation-forum .inv-qr__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: .55rem;
+    color: var(--t-accent-text);
+    font: 800 .62rem/1.3 var(--t-body);
+    letter-spacing: .24em;
+    text-transform: uppercase;
+}
+body.inv--template-corporate-innovation-forum .corp-section__eyebrow::before { content: ""; width: 1.4rem; height: 2px; background: var(--t-accent); }
+body.inv--template-corporate-innovation-forum .corp-section p { color: var(--t-ink); line-height: 1.75; }
+body.inv--template-corporate-innovation-forum .inv-divider {
+    display: block;
+    width: 3.2rem;
+    height: 3px;
+    margin: 0 0 1.6rem;
+    border-radius: 3px;
+    background: var(--t-rule, var(--t-accent));
+}
+body.inv--template-corporate-innovation-forum .corp-main .inv-section--qr .inv-divider,
+body.inv--template-corporate-innovation-forum .corp-main .inv-gallery-teaser .inv-divider { margin-inline: auto; }
+
+body.inv--template-corporate-innovation-forum .corp-facts { grid-template-columns: 1fr 1fr; gap: .7rem; background: var(--t-bg-2, transparent); }
+body.inv--template-corporate-innovation-forum .corp-facts article {
+    align-content: start;
+    padding: 1rem .95rem;
+    border: 1px solid var(--t-line);
+    border-left: 3px solid var(--t-accent);
+    border-radius: var(--t-radius, .7rem);
+    background: var(--t-surface);
+    box-shadow: 0 1rem 2rem -1.8rem var(--t-shadow);
+}
+body.inv--template-corporate-innovation-forum .corp-facts article span { color: var(--t-muted); opacity: 1; font-size: .58rem; font-weight: 800; letter-spacing: .16em; }
+body.inv--template-corporate-innovation-forum .corp-facts article strong { color: var(--t-title); font-size: .95rem; line-height: 1.3; overflow-wrap: break-word; hyphens: auto; }
+body.inv--template-corporate-innovation-forum .corp-facts a { color: var(--t-accent-text); }
+
+body.inv--template-corporate-innovation-forum .corp-main .inv-timeline { max-width: none; margin: 0; }
+body.inv--template-corporate-innovation-forum .inv-timeline__item { grid-template-columns: 2.3rem 3.7rem 1fr; gap: .55rem; padding: 1rem 0; border-bottom: 1px solid var(--t-line); }
+body.inv--template-corporate-innovation-forum .inv-timeline__dot { width: 2.2rem; height: 2.2rem; border-radius: var(--t-dot-radius, .6rem); border: 1px solid var(--t-line); background: var(--t-surface); color: var(--t-accent-text); }
+body.inv--template-corporate-innovation-forum .inv-timeline__dot i { display: none; }
+body.inv--template-corporate-innovation-forum .inv-timeline__dot::before { content: ""; width: .55rem; height: .55rem; border-radius: 50%; background: var(--t-accent); box-shadow: 0 0 0 .3rem color-mix(in srgb, var(--t-accent) 20%, transparent); }
+body.inv--template-corporate-innovation-forum .inv-timeline__time { color: var(--t-accent-text); font-family: var(--t-num-font, var(--t-display)); font-weight: 800; padding-top: .3rem; }
+body.inv--template-corporate-innovation-forum .inv-timeline__label { color: var(--t-title); font-weight: 700; }
+body.inv--template-corporate-innovation-forum .inv-timeline__note { color: var(--t-muted); }
+body.inv--template-corporate-innovation-forum .inv-map summary { color: var(--t-title); }
+body.inv--template-corporate-innovation-forum .inv-map__toggle { border-color: var(--t-line); background: var(--t-surface); color: var(--t-accent-text); }
+
+body.inv--template-corporate-innovation-forum .inv-gallery-teaser { grid-template-columns: 1fr; text-align: center; }
+body.inv--template-corporate-innovation-forum .inv-gallery-teaser__stack { min-height: 240px; width: min(100%, 20rem); margin: 0 auto; }
+body.inv--template-corporate-innovation-forum .inv-gallery-teaser__stack span { border-color: var(--t-photo-frame, #fff); border-radius: var(--t-photo-radius, 6px); box-shadow: 0 1.4rem 2.6rem -1rem var(--t-shadow); }
+body.inv--template-corporate-innovation-forum .inv-gallery-teaser__copy > p:not(.inv-gallery-teaser__eyebrow) { color: var(--t-muted); }
+body.inv--template-corporate-innovation-forum .inv-btn { background: var(--t-btn-bg); color: var(--t-btn-ink); font-weight: 800; letter-spacing: .06em; border-radius: var(--t-btn-radius, .7rem); }
+body.inv--template-corporate-innovation-forum .inv-btn--outline { background: transparent; color: var(--t-title); border: 1px solid var(--t-line); }
+
+body.inv--template-corporate-innovation-forum .corp-partners { gap: .5rem; }
+body.inv--template-corporate-innovation-forum .corp-partners li { border: 1px solid var(--t-line); border-radius: var(--t-chip-radius, 999px); background: var(--t-surface); color: var(--t-title); font-weight: 700; font-size: .85rem; padding: .6rem .95rem; }
+body.inv--template-corporate-innovation-forum .corp-closing { background: var(--t-closing-bg, var(--t-bg-2)); text-align: center !important; }
+body.inv--template-corporate-innovation-forum .corp-closing p { max-width: 21rem; margin: 0 auto; color: var(--t-closing-ink, var(--t-title)); font-family: var(--t-display); font-size: 1.3rem; font-weight: var(--t-quote-weight, 700); line-height: 1.45; }
+
+body.inv--template-corporate-innovation-forum .corp-main > .inv-section--qr {
+    margin: 1.2rem 1rem;
+    padding: 2.6rem 1.1rem;
+    border: 1px solid var(--t-line);
+    border-radius: var(--t-radius-lg, 1.2rem);
+    background: var(--t-qr-bg, var(--t-surface));
+    text-align: center;
+}
+body.inv--template-corporate-innovation-forum .inv-qr__card { border-color: var(--t-line); border-radius: var(--t-radius, .7rem); }
+body.inv--template-corporate-innovation-forum .inv-qr__card .inv-qr__guest { color: #14203A; }
+body.inv--template-corporate-innovation-forum .inv-qr__instructions { color: var(--t-muted); }
+body.inv--template-corporate-innovation-forum .inv-qr__events li { background: var(--t-bg-2, var(--t-surface)); color: var(--t-accent-text); }
+
+body.inv--template-corporate-innovation-forum .inv-footer { padding: 3rem 1rem 6.5rem; border: 0; }
+body.inv--template-corporate-innovation-forum .inv-hearts { width: 3rem; height: 3px; border-radius: 3px; background: var(--t-accent); opacity: 1; }
+body.inv--template-corporate-innovation-forum .inv-footer__names { color: var(--t-title); font-family: var(--t-display); font-weight: var(--t-name-weight, 800); font-size: 1.6rem; line-height: 1.2; padding: 0 1rem; }
+body.inv--template-corporate-innovation-forum .inv-footer__date { color: var(--t-accent-text); letter-spacing: .2em; font-weight: 800; font-size: .72rem; }
+body.inv--template-corporate-innovation-forum .inv-footer__brand { color: var(--t-muted); }
+
+body.inv--template-corporate-innovation-forum .inv-fab { background: var(--t-btn-bg); color: var(--t-btn-ink); border-color: transparent; border-radius: var(--t-fab-radius, 999px); box-shadow: 0 1rem 2rem -1rem var(--t-shadow-strong, rgba(0, 0, 0, .5)); }
+body.inv--template-corporate-innovation-forum .inv-fab--secondary { background: var(--t-surface); color: var(--t-title); border: 1px solid var(--t-line); }
+body.inv--template-corporate-innovation-forum .inv-music button { background: var(--t-surface); color: var(--t-title); border-color: var(--t-line); }
+body.inv--template-corporate-innovation-forum .inv-dialog { background: var(--t-dialog-bg, var(--t-surface)); color: var(--t-ink); border: 1px solid var(--t-line); border-radius: var(--t-radius-lg, 1.2rem); }
+body.inv--template-corporate-innovation-forum .inv-dialog h2 { color: var(--t-title); font-weight: var(--t-h2-weight, 800); letter-spacing: -.01em; }
+body.inv--template-corporate-innovation-forum .inv-dialog__icon { background: var(--t-bg-2, var(--t-surface)); color: var(--t-accent-text); }
+body.inv--template-corporate-innovation-forum .inv-dialog::backdrop { background: var(--t-backdrop, rgba(6, 12, 24, .6)); }
+body.inv--template-corporate-innovation-forum .inv-gift { background: var(--t-bg); border-color: var(--t-line); }
+body.inv--template-corporate-innovation-forum .inv-gift__button { background: var(--t-btn-bg); color: var(--t-btn-ink); }
+body.inv--template-corporate-innovation-forum .inv-gallery__ambient { background: radial-gradient(circle at 15% 20%, var(--t-gallery-a, rgba(255,255,255,.2)), transparent 40%), radial-gradient(circle at 85% 80%, var(--t-gallery-b, rgba(255,255,255,.12)), transparent 42%); }
+
+/* Revelação ao scroll — só existe quando o script do template a activa. */
+body.inv--template-corporate-innovation-forum.t-motion .t-reveal { opacity: 0; transform: translate3d(0, 1.5rem, 0); transition: opacity .8s cubic-bezier(.2, .7, .2, 1), transform .9s cubic-bezier(.2, .7, .2, 1); transition-delay: var(--t-delay, 0s); }
+body.inv--template-corporate-innovation-forum.t-motion .t-reveal.is-in { opacity: 1; transform: none; }
+body.inv--template-corporate-innovation-forum .t-deco { position: absolute; pointer-events: none; }
+body.inv--template-corporate-innovation-forum .t-layer { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+
+@keyframes t-kenburns { from { transform: scale(1.02) translate3d(0, 0, 0); } to { transform: scale(1.1) translate3d(0, -1.2%, 0); } }
+@keyframes t-card-in { from { opacity: 0; transform: translate3d(0, 2rem, 0) scale(.97); } to { opacity: 1; transform: none; } }
+@keyframes t-rise { from { opacity: 0; transform: translate3d(0, .9rem, 0); } to { opacity: 1; transform: none; } }
+@keyframes t-glint { 0%, 55% { transform: translateX(-60%); } 85%, 100% { transform: translateX(60%); } }
+@keyframes t-art-dive { from { transform: scale(1.06); } to { transform: scale(1.25); } }
+@keyframes t-card-out { to { opacity: 0; transform: translate3d(0, -2.5rem, 0) scale(.94); } }
+@keyframes t-main-in { from { opacity: 0; transform: translate3d(0, 1.6rem, 0); } to { opacity: 1; transform: none; } }
+@keyframes t-twinkle { 0%, 100% { opacity: .15; transform: scale(.6); } 50% { opacity: 1; transform: scale(1); } }
+
+@media (prefers-reduced-motion: reduce) {
+    body.inv--template-corporate-innovation-forum *, body.inv--template-corporate-innovation-forum *::before, body.inv--template-corporate-innovation-forum *::after { animation: none !important; transition: none !important; }
+    body.inv--template-corporate-innovation-forum.t-motion .t-reveal { opacity: 1; transform: none; }
+}
+
+/* --- Específico de Innovation Forum --- */
+
+/* Rede de pontos em deriva e horizonte a pulsar */
+body.inv--template-corporate-innovation-forum .if-grid {
+    left: -10%;
+    top: 0;
+    width: 120%;
+    height: 60%;
+    background: radial-gradient(circle, rgba(67, 224, 194, .5) 1px, transparent 1.6px) 0 0 / 22px 22px;
+    -webkit-mask: radial-gradient(ellipse 60% 70% at 85% 10%, #000, transparent 75%);
+    mask: radial-gradient(ellipse 60% 70% at 85% 10%, #000, transparent 75%);
+    opacity: .55;
+    animation: if-drift 14s linear infinite;
+}
+body.inv--template-corporate-innovation-forum .if-horizon {
+    left: 5%;
+    top: 59.5%;
+    width: 90%;
+    height: 2px;
+    background: radial-gradient(ellipse at center, rgba(255, 255, 255, .95), rgba(120, 220, 255, .35) 40%, transparent 70%);
+    box-shadow: 0 0 22px 4px rgba(120, 220, 255, .25);
+    animation: if-pulse 4.5s ease-in-out infinite;
+}
+body.inv--template-corporate-innovation-forum .if-node {
+    left: var(--x);
+    top: var(--y);
+    width: calc(.32rem * var(--s));
+    height: calc(.32rem * var(--s));
+    border-radius: 50%;
+    background: #7BF5DC;
+    box-shadow: 0 0 .7rem rgba(67, 224, 194, .95);
+    animation: t-twinkle 2.6s ease-in-out var(--d) infinite;
+}
+body.inv--template-corporate-innovation-forum .corp-cover__content::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 1.6rem;
+    bottom: 1.6rem;
+    width: 3px;
+    border-radius: 3px;
+    background: linear-gradient(180deg, #22C7A9, #2F7FE0);
+    box-shadow: 0 0 12px rgba(34, 199, 169, .7);
+}
+body.inv--template-corporate-innovation-forum .corp-hero h1,
+body.inv--template-corporate-innovation-forum .corp-cover h1 { background: linear-gradient(100deg, #FFFFFF 40%, #9AF3E0 75%, #8CC4FF 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+body.inv--template-corporate-innovation-forum .corp-facts { background: #07131E; }
+body.inv--template-corporate-innovation-forum .corp-facts article { background: linear-gradient(160deg, rgba(34, 199, 169, .08), rgba(14, 33, 48, .6)); }
+body.inv--template-corporate-innovation-forum .inv-divider { background: linear-gradient(90deg, #22C7A9, #2F7FE0); }
+
+body.inv--template-corporate-innovation-forum .inv-dialog__close { background: rgba(255, 255, 255, .08); color: var(--t-title); }
+body.inv--template-corporate-innovation-forum .inv-rsvp-state { color: var(--t-accent-text); }
+body.inv--template-corporate-innovation-forum .inv-note { color: var(--t-muted); }
+body.inv--template-corporate-innovation-forum .inv-footer__brand strong { color: var(--t-title); }
+body.inv--template-corporate-innovation-forum .inv-map__toggle { background: rgba(255, 255, 255, .05); }
+body.inv--template-corporate-innovation-forum .inv-gift { background: rgba(255, 255, 255, .04); }
+body.inv--template-corporate-innovation-forum .inv-qr__card { background: #FFFFFF; }
+body.inv--template-corporate-innovation-forum .inv-qr__card .inv-qr__seats { color: #3A4152; }
+
+@keyframes if-drift { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-22px, 22px, 0); } }
+@keyframes if-pulse { 0%, 100% { opacity: .55; transform: scaleX(.8); } 50% { opacity: 1; transform: scaleX(1); } }

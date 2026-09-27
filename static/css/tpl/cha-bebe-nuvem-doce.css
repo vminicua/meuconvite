@@ -1,0 +1,624 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Nunito:wght@400;600;700;800&display=swap");
+/* Nuvem Doce (cha-bebe-nuvem-doce) — estilos exclusivos deste template.
+   Gerado a partir de uma base comum; tudo fica sob body.inv--template-cha-bebe-nuvem-doce. */
+
+body.inv--template-cha-bebe-nuvem-doce {
+    --t-display: "Cormorant Garamond", Georgia, serif;
+    --t-body: "Nunito", "Segoe UI", Arial, sans-serif;
+    --t-name-style: italic;
+    --t-name-weight: 600;
+    --t-name-size: clamp(3.4rem, 18vw, 4.9rem);
+    --t-hero-name-size: clamp(3.4rem, 18vw, 4.9rem);
+    --t-bg: #FBF6F3;
+    --t-bg-2: linear-gradient(180deg, #EEF3F9 0%, #FBEFF0 100%);
+    --t-surface: #FFFDFB;
+    --t-ink: #4D5870;
+    --t-title: #465575;
+    --t-muted: #6C7892;
+    --t-accent: #C9A36B;
+    --t-accent-text: #87663A;
+    --t-line: rgba(116, 136, 172, .24);
+    --t-shadow: rgba(88, 108, 150, .38);
+    --t-btn-bg: linear-gradient(135deg, #53698F 0%, #7F6E93 100%);
+    --t-btn-ink: #FFFFFF;
+    --t-btn-shadow: 0 1rem 2rem -1rem rgba(83, 105, 143, .8);
+    --t-cover-pos: 70% 28%;
+    --t-cover-origin: 72% 40%;
+    --t-cover-bg: #DCE7F2;
+    --t-veil: linear-gradient(180deg, rgba(236, 242, 249, 0) 38%, rgba(247, 240, 240, .5) 72%, rgba(251, 246, 243, .78) 100%);
+    --t-card-bg: rgba(255, 251, 248, .74);
+    --t-card-border: 1px solid rgba(255, 255, 255, .85);
+    --t-card-radius: 2rem;
+    --t-card-shadow: 0 1.8rem 3.5rem -1.6rem rgba(88, 108, 150, .55);
+    --t-card-blur: blur(10px) saturate(1.15);
+    --t-card-pad: 2.6rem 1.5rem 1.8rem;
+    --t-hero-art: .62;
+    --t-hero-veil: linear-gradient(180deg, rgba(251, 246, 243, .1) 0%, rgba(251, 246, 243, .55) 40%, #FBF6F3 76%);
+    --t-cell-bg: rgba(255, 255, 255, .82);
+    --t-cell-radius: 1.3rem;
+    --t-radius: 1.2rem;
+    --t-radius-lg: 1.8rem;
+    --t-chip-bg: rgba(255, 255, 255, .72);
+    --t-closing-bg: linear-gradient(180deg, #E9F0F8 0%, #F8E7EA 100%);
+    --t-qr-bg: linear-gradient(180deg, #FFFFFF 0%, #F5F1F7 100%);
+    --t-divider: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 24%22%3E%3Cg fill=%22none%22 stroke=%22%23C9A36B%22 stroke-width=%221%22%3E%3Cpath d=%22M8 12h66M126 12h66%22/%3E%3C/g%3E%3Cg fill=%22%23C9A36B%22%3E%3Ccircle cx=%2280%22 cy=%2212%22 r=%221.6%22/%3E%3Ccircle cx=%22120%22 cy=%2212%22 r=%221.6%22/%3E%3Cpath transform=%22translate(88 3) scale(.75)%22 d=%22M12 1.5l3.1 6.6 7.2.9-5.3 5 1.4 7.1L12 17.6 5.6 21.1 7 14l-5.3-5 7.2-.9z%22/%3E%3C/g%3E%3Cpath fill=%22%23C9A36B%22 d=%22M104 3.5a8.5 8.5 0 1 0 6.3 14.2 7 7 0 1 1-6.3-14.2z%22/%3E%3C/svg%3E");
+    --t-dot-icon: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath d=%22M12 1.5l3.1 6.6 7.2.9-5.3 5 1.4 7.1L12 17.6 5.6 21.1 7 14l-5.3-5 7.2-.9z%22/%3E%3C/svg%3E");
+    --t-gallery-a: rgba(232, 174, 186, .35);
+    --t-gallery-b: rgba(137, 183, 209, .3);
+    --t-stage: radial-gradient(circle at 50% 38%, #E9EEF6 0%, #CBD6E6 45%, #8E9AB3 100%);
+}
+
+/* ---------------------------------------------------------------------
+   Base partilhada (gerada) — layout evento_tematico.
+   Tudo fica sob o body do template; os tokens --t-* vêm do bloco acima.
+   --------------------------------------------------------------------- */
+body.inv--template-cha-bebe-nuvem-doce {
+    --inv-display: var(--t-display) !important;
+    --inv-body: var(--t-body) !important;
+    --inv-heading-font: var(--t-display) !important;
+    --inv-muted: var(--t-muted);
+    background: var(--t-bg);
+    color: var(--t-ink);
+    font-family: var(--t-body);
+}
+@media (min-width: 992px) {
+    body.inv--template-cha-bebe-nuvem-doce.inv--public-device { background: var(--t-stage, radial-gradient(circle at 50% 40%, #3a3f48, #0d0f13 70%)); }
+    body.inv--template-cha-bebe-nuvem-doce.inv--public-device .inv-public-device__screen { background: var(--t-bg); }
+}
+
+/* --- Capa ------------------------------------------------------------ */
+body.inv--template-cha-bebe-nuvem-doce .theme-cover {
+    min-height: 100svh;
+    display: grid;
+    place-items: var(--t-cover-align, end center);
+    padding: var(--t-cover-pad, 1.25rem 1.1rem 2.1rem);
+    background: var(--t-cover-bg, var(--t-bg)) !important;
+    animation: none;
+    overflow: hidden;
+}
+@media (min-width: 992px) { body.inv--template-cha-bebe-nuvem-doce.inv--public-device .theme-cover { min-height: 100%; } }
+body.inv--template-cha-bebe-nuvem-doce.inv--cover-only .theme-cover { min-height: 100vh; }
+body.inv--template-cha-bebe-nuvem-doce .theme-cover::before {
+    content: "";
+    position: absolute;
+    inset: -4%;
+    z-index: 0;
+    background: var(--t-cover, none) var(--t-cover-pos, center) / cover no-repeat;
+    transform-origin: var(--t-cover-origin, 60% 35%);
+    animation: t-kenburns 28s ease-in-out infinite alternate;
+    will-change: transform;
+}
+body.inv--template-cha-bebe-nuvem-doce .theme-cover::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: var(--t-veil, none);
+    pointer-events: none;
+}
+body.inv--template-cha-bebe-nuvem-doce .theme-cinematic-scene { z-index: 2; }
+body.inv--template-cha-bebe-nuvem-doce .theme-cinematic-orbit,
+body.inv--template-cha-bebe-nuvem-doce .theme-cinematic-glow { display: none; }
+
+body.inv--template-cha-bebe-nuvem-doce .theme-cover__content {
+    position: relative;
+    z-index: 4;
+    width: min(100%, var(--t-card-w, 22.5rem));
+    padding: var(--t-card-pad, 2.1rem 1.5rem 1.7rem);
+    color: var(--t-ink);
+    text-align: center;
+    text-shadow: none;
+    background: var(--t-card-bg, transparent);
+    border: var(--t-card-border, 0);
+    border-radius: var(--t-card-radius, 0);
+    box-shadow: var(--t-card-shadow, none);
+    -webkit-backdrop-filter: var(--t-card-blur, none);
+    backdrop-filter: var(--t-card-blur, none);
+    animation: t-card-in 1.25s .15s cubic-bezier(.16, .84, .3, 1) both;
+}
+body.inv--template-cha-bebe-nuvem-doce .theme-cover__content > * { animation: t-rise 1s cubic-bezier(.16, .84, .3, 1) both; }
+body.inv--template-cha-bebe-nuvem-doce .theme-cover__content > :nth-child(1) { animation-delay: .45s; }
+body.inv--template-cha-bebe-nuvem-doce .theme-cover__content > :nth-child(2) { animation-delay: .6s; }
+body.inv--template-cha-bebe-nuvem-doce .theme-cover__content > :nth-child(3) { animation-delay: .78s; }
+body.inv--template-cha-bebe-nuvem-doce .theme-cover__content > :nth-child(4) { animation-delay: .92s; }
+body.inv--template-cha-bebe-nuvem-doce .theme-cover__content > :nth-child(5) { animation-delay: 1.08s; }
+body.inv--template-cha-bebe-nuvem-doce .theme-cover .theme-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    margin: 0 0 .9rem;
+    color: var(--t-kicker, var(--t-accent-text));
+    font: 700 .64rem/1.3 var(--t-body);
+    letter-spacing: .3em;
+    text-transform: uppercase;
+}
+body.inv--template-cha-bebe-nuvem-doce .theme-cover h1 {
+    margin: 0 0 .7rem;
+    font-family: var(--t-name-font, var(--t-display));
+    font-weight: var(--t-name-weight, 500);
+    font-style: var(--t-name-style, normal);
+    font-size: var(--t-name-size, clamp(3rem, 15vw, 4.4rem));
+    line-height: 1;
+    letter-spacing: var(--t-name-track, 0);
+    color: var(--t-title);
+    overflow-wrap: anywhere;
+}
+body.inv--template-cha-bebe-nuvem-doce .theme-cover p {
+    max-width: 19rem;
+    margin: 0 auto;
+    color: var(--t-muted);
+    font-size: 1rem;
+    line-height: 1.55;
+}
+body.inv--template-cha-bebe-nuvem-doce .theme-cover time {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .75rem;
+    margin: 1.2rem 0 1.5rem;
+    color: var(--t-accent-text);
+    font: 700 .74rem/1.2 var(--t-body);
+    letter-spacing: .2em;
+    text-transform: uppercase;
+}
+body.inv--template-cha-bebe-nuvem-doce .theme-cover time::before,
+body.inv--template-cha-bebe-nuvem-doce .theme-cover time::after {
+    content: "";
+    flex: 0 0 1.8rem;
+    height: 1px;
+    background: currentColor;
+    opacity: .45;
+}
+body.inv--template-cha-bebe-nuvem-doce .theme-button {
+    position: relative;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .55rem;
+    min-width: 12.5rem;
+    padding: 1rem 1.9rem;
+    border: var(--t-btn-border, 0);
+    border-radius: var(--t-btn-radius, 999px);
+    background: var(--t-btn-bg);
+    color: var(--t-btn-ink);
+    font: 700 .74rem/1 var(--t-body);
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    box-shadow: var(--t-btn-shadow, 0 .9rem 2rem -1rem rgba(0, 0, 0, .45));
+    transition: transform .25s ease, box-shadow .25s ease;
+}
+body.inv--template-cha-bebe-nuvem-doce .theme-button::after {
+    content: "";
+    position: absolute;
+    inset: -30% -60%;
+    background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, .55) 50%, transparent 60%);
+    transform: translateX(-60%);
+    animation: t-glint 4.6s 2.4s ease-in-out infinite;
+    pointer-events: none;
+}
+body.inv--template-cha-bebe-nuvem-doce .theme-button:hover { transform: translateY(-2px); }
+body.inv--template-cha-bebe-nuvem-doce .theme-button:focus-visible { outline: 2px solid var(--t-accent-text); outline-offset: 4px; }
+
+/* O botão da música sai do caminho do "Abrir convite" enquanto a capa está visível. */
+body.inv--template-cha-bebe-nuvem-doce.inv--cover-pending .inv-music {
+    left: auto;
+    right: max(1rem, env(safe-area-inset-right));
+    bottom: auto;
+    top: max(1rem, env(safe-area-inset-top));
+}
+@media (min-width: 992px) {
+    body.inv--template-cha-bebe-nuvem-doce.inv--public-device.inv--cover-pending .inv-music { top: 1.6rem; right: 1.6rem; }
+}
+body.inv--template-cha-bebe-nuvem-doce .inv-music button {
+    background: var(--t-chip-bg, color-mix(in srgb, var(--t-surface) 88%, transparent));
+    color: var(--t-ink);
+    border-color: var(--t-line);
+}
+
+/* Abertura */
+body.inv--template-cha-bebe-nuvem-doce .theme-cover.is-opening { animation: t-cover-out 1.3s cubic-bezier(.7, 0, .2, 1) both; }
+body.inv--template-cha-bebe-nuvem-doce .theme-cover.is-opening::before { animation: t-art-dive 1.3s cubic-bezier(.6, 0, .2, 1) both; }
+body.inv--template-cha-bebe-nuvem-doce .theme-cover.is-opening .theme-cover__content { animation: t-card-out .85s cubic-bezier(.5, 0, .2, 1) both; }
+body.inv--template-cha-bebe-nuvem-doce .theme-cover.is-opening .theme-cinematic-particle,
+body.inv--template-cha-bebe-nuvem-doce .theme-cover.is-opening .t-deco:not(.t-wide) { animation: t-burst 1.1s cubic-bezier(.2, .7, .2, 1) both; }
+body.inv--template-cha-bebe-nuvem-doce .theme-main--cinematic-enter { animation: t-main-in 1s .85s cubic-bezier(.16, .8, .25, 1) both; }
+
+/* --- Convite ------------------------------------------------------------ */
+body.inv--template-cha-bebe-nuvem-doce .theme-main {
+    position: relative;
+    width: 100%;
+    max-width: 44rem;
+    background: var(--t-bg);
+    overflow: hidden;
+}
+body.inv--template-cha-bebe-nuvem-doce .theme-hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding: 4.6rem 1.35rem 3.4rem;
+    border: 0;
+    text-align: center;
+}
+body.inv--template-cha-bebe-nuvem-doce .theme-hero::before {
+    content: "";
+    position: absolute;
+    inset: -6% 0 auto;
+    height: var(--t-hero-art-h, 78%);
+    z-index: -3;
+    background: var(--t-cover, none) var(--t-cover-pos, center) / cover no-repeat;
+    opacity: var(--t-hero-art, .4);
+    -webkit-mask-image: linear-gradient(#000 0 35%, transparent 100%);
+    mask-image: linear-gradient(#000 0 35%, transparent 100%);
+    transform: translate3d(0, calc(var(--t-par, 0) * 1px), 0);
+}
+body.inv--template-cha-bebe-nuvem-doce .theme-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background: var(--t-hero-veil, none);
+    pointer-events: none;
+}
+body.inv--template-cha-bebe-nuvem-doce .theme-hero .theme-kicker {
+    display: inline-block;
+    margin: 0 0 1rem;
+    color: var(--t-accent-text);
+    font: 700 .64rem/1.3 var(--t-body);
+    letter-spacing: .32em;
+    text-transform: uppercase;
+}
+body.inv--template-cha-bebe-nuvem-doce .theme-hero h1 {
+    margin: 0 0 1.1rem;
+    font-family: var(--t-name-font, var(--t-display));
+    font-weight: var(--t-name-weight, 500);
+    font-style: var(--t-name-style, normal);
+    font-size: var(--t-hero-name-size, clamp(3rem, 15vw, 4.3rem));
+    letter-spacing: var(--t-name-track, 0);
+    line-height: 1;
+    color: var(--t-title);
+    overflow-wrap: anywhere;
+}
+body.inv--template-cha-bebe-nuvem-doce .theme-greeting {
+    margin: 0 auto .35rem;
+    color: var(--t-title);
+    font-family: var(--t-display);
+    font-size: 1.3rem;
+    font-style: var(--t-greet-style, italic);
+}
+body.inv--template-cha-bebe-nuvem-doce .theme-lead { max-width: 21rem; margin: 0 auto; color: var(--t-muted); line-height: 1.7; }
+body.inv--template-cha-bebe-nuvem-doce .theme-date {
+    display: inline-flex;
+    align-items: center;
+    gap: .55rem;
+    margin: 1.5rem 0 .4rem;
+    padding: .55rem 1.1rem;
+    border: 1px solid var(--t-line);
+    border-radius: 999px;
+    background: var(--t-chip-bg, color-mix(in srgb, var(--t-surface) 70%, transparent));
+    color: var(--t-accent-text);
+    font: 700 .74rem/1.2 var(--t-body);
+    letter-spacing: .14em;
+    text-transform: uppercase;
+}
+body.inv--template-cha-bebe-nuvem-doce .inv-countdown { gap: .55rem; margin: 1.4rem auto 1.3rem; }
+body.inv--template-cha-bebe-nuvem-doce .inv-countdown__cell {
+    position: relative;
+    min-width: 4.3rem;
+    padding: .8rem .3rem .65rem;
+    border: 1px solid var(--t-line);
+    border-radius: var(--t-cell-radius, 1rem);
+    background: var(--t-cell-bg, var(--t-surface));
+    box-shadow: var(--t-cell-shadow, 0 .8rem 1.6rem -1.2rem var(--t-shadow));
+}
+body.inv--template-cha-bebe-nuvem-doce .inv-countdown__cell span {
+    font-family: var(--t-num-font, var(--t-display));
+    font-size: 1.75rem;
+    font-weight: var(--t-num-weight, 600);
+    color: var(--t-title);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+body.inv--template-cha-bebe-nuvem-doce .inv-countdown__cell small {
+    display: block;
+    margin-top: .35rem;
+    color: var(--t-muted);
+    font-size: .56rem;
+    font-weight: 700;
+    letter-spacing: .18em;
+}
+body.inv--template-cha-bebe-nuvem-doce .inv-seats { background: var(--t-chip-bg, var(--t-surface)); border-color: var(--t-line); color: var(--t-ink); }
+body.inv--template-cha-bebe-nuvem-doce .inv-seats strong { color: var(--t-accent-text); }
+
+/* Secções */
+body.inv--template-cha-bebe-nuvem-doce .theme-main > section,
+body.inv--template-cha-bebe-nuvem-doce .theme-main > .inv-section {
+    position: relative;
+    margin: 0;
+    padding: 3.4rem 1.35rem;
+    border: 0;
+    background: transparent;
+    text-align: center;
+}
+body.inv--template-cha-bebe-nuvem-doce .theme-main > section:nth-of-type(even) { background: var(--t-bg-2, transparent); }
+body.inv--template-cha-bebe-nuvem-doce .inv-section__title,
+body.inv--template-cha-bebe-nuvem-doce .theme-section h2 {
+    margin: 0;
+    color: var(--t-title);
+    font-family: var(--t-display);
+    font-size: var(--t-h2-size, 2.15rem);
+    font-weight: var(--t-h2-weight, 500);
+    font-style: var(--t-h2-style, normal);
+    letter-spacing: var(--t-h2-track, 0);
+    line-height: 1.1;
+    text-transform: var(--t-h2-case, none);
+}
+body.inv--template-cha-bebe-nuvem-doce .inv-divider {
+    display: block;
+    width: 9rem;
+    height: 1.5rem;
+    margin: .8rem auto 1.4rem;
+    background: var(--t-divider, none) center / contain no-repeat;
+}
+body.inv--template-cha-bebe-nuvem-doce .inv-story__kicker,
+body.inv--template-cha-bebe-nuvem-doce .inv-gallery-teaser__eyebrow,
+body.inv--template-cha-bebe-nuvem-doce .inv-qr__eyebrow {
+    color: var(--t-accent-text);
+    font: 700 .62rem/1.3 var(--t-body);
+    letter-spacing: .3em;
+    text-transform: uppercase;
+}
+body.inv--template-cha-bebe-nuvem-doce .inv-story__body,
+body.inv--template-cha-bebe-nuvem-doce .theme-section p { max-width: 22rem; margin: 0 auto; color: var(--t-ink); line-height: 1.8; }
+body.inv--template-cha-bebe-nuvem-doce .inv-story__quote { border-color: var(--t-line); color: var(--t-title); }
+
+body.inv--template-cha-bebe-nuvem-doce .theme-facts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .7rem;
+    text-align: left;
+}
+body.inv--template-cha-bebe-nuvem-doce .theme-facts article {
+    padding: 1rem .95rem;
+    border: 1px solid var(--t-line);
+    border-radius: var(--t-radius, 1rem);
+    background: var(--t-surface);
+    box-shadow: 0 .9rem 1.8rem -1.5rem var(--t-shadow);
+}
+body.inv--template-cha-bebe-nuvem-doce .theme-facts span { color: var(--t-accent-text); opacity: 1; font-size: .58rem; font-weight: 700; letter-spacing: .18em; }
+body.inv--template-cha-bebe-nuvem-doce .theme-facts strong { color: var(--t-title); font-family: var(--t-display); font-size: 1.15rem; font-weight: 600; line-height: 1.25; }
+
+body.inv--template-cha-bebe-nuvem-doce .inv-timeline { max-width: 23rem; margin-top: .4rem; }
+body.inv--template-cha-bebe-nuvem-doce .inv-timeline__item {
+    grid-template-columns: 2.4rem 3.6rem 1fr;
+    gap: .55rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--t-line);
+}
+body.inv--template-cha-bebe-nuvem-doce .inv-timeline__dot {
+    width: 2.3rem;
+    height: 2.3rem;
+    border: 1px solid var(--t-line);
+    background: var(--t-surface);
+    color: var(--t-accent-text);
+}
+body.inv--template-cha-bebe-nuvem-doce .inv-timeline__dot i { display: none; }
+body.inv--template-cha-bebe-nuvem-doce .inv-timeline__dot::before {
+    content: "";
+    width: 1.05rem;
+    height: 1.05rem;
+    background: var(--t-accent-text);
+    -webkit-mask: var(--t-dot-icon) center / contain no-repeat;
+    mask: var(--t-dot-icon) center / contain no-repeat;
+}
+body.inv--template-cha-bebe-nuvem-doce .inv-timeline__time { color: var(--t-accent-text); font-family: var(--t-num-font, var(--t-display)); font-size: 1.1rem; font-weight: 600; padding-top: .3rem; }
+body.inv--template-cha-bebe-nuvem-doce .inv-timeline__label { color: var(--t-title); font-weight: 700; }
+body.inv--template-cha-bebe-nuvem-doce .inv-timeline__note { color: var(--t-muted); }
+body.inv--template-cha-bebe-nuvem-doce .inv-map summary { color: var(--t-title); }
+body.inv--template-cha-bebe-nuvem-doce .inv-map__toggle { border-color: var(--t-line); background: var(--t-surface); color: var(--t-accent-text); }
+
+body.inv--template-cha-bebe-nuvem-doce .inv-gallery-teaser__stack span { border-color: var(--t-photo-frame, #fff); border-radius: var(--t-photo-radius, 6px); box-shadow: 0 1.4rem 2.6rem -1rem var(--t-shadow); }
+body.inv--template-cha-bebe-nuvem-doce .inv-gallery-teaser__copy > p:not(.inv-gallery-teaser__eyebrow) { color: var(--t-muted); }
+body.inv--template-cha-bebe-nuvem-doce .inv-btn { background: var(--t-btn-bg); color: var(--t-btn-ink); font-weight: 700; letter-spacing: .08em; border-radius: var(--t-btn-radius, 999px); }
+body.inv--template-cha-bebe-nuvem-doce .inv-btn--outline { background: transparent; color: var(--t-title); border: 1px solid var(--t-line); }
+
+body.inv--template-cha-bebe-nuvem-doce .theme-closing {
+    padding: 3.6rem 1.8rem !important;
+    background: var(--t-closing-bg, var(--t-bg-2)) !important;
+    font-family: var(--t-display);
+}
+body.inv--template-cha-bebe-nuvem-doce .theme-closing p {
+    max-width: 20rem;
+    margin: 0 auto;
+    color: var(--t-title);
+    font-family: var(--t-display);
+    font-size: 1.45rem;
+    font-style: var(--t-quote-style, italic);
+    line-height: 1.45;
+}
+body.inv--template-cha-bebe-nuvem-doce .theme-closing::before,
+body.inv--template-cha-bebe-nuvem-doce .theme-closing::after {
+    content: "";
+    display: block;
+    width: 8rem;
+    height: 1.4rem;
+    margin: 0 auto 1.1rem;
+    background: var(--t-divider, none) center / contain no-repeat;
+}
+body.inv--template-cha-bebe-nuvem-doce .theme-closing::after { margin: 1.1rem auto 0; transform: scaleY(-1); }
+
+body.inv--template-cha-bebe-nuvem-doce .theme-main > .inv-section--qr {
+    margin: 1rem 1rem 0;
+    padding: 2.8rem 1.1rem;
+    border: 1px solid var(--t-line);
+    border-radius: var(--t-radius-lg, 1.6rem);
+    background: var(--t-qr-bg, var(--t-surface));
+    box-shadow: 0 1.5rem 3rem -2rem var(--t-shadow);
+}
+body.inv--template-cha-bebe-nuvem-doce .inv-qr__card { border-color: var(--t-line); border-radius: var(--t-radius, 1rem); }
+body.inv--template-cha-bebe-nuvem-doce .inv-qr__guest { color: var(--t-title); }
+body.inv--template-cha-bebe-nuvem-doce .inv-qr__instructions { color: var(--t-muted); }
+body.inv--template-cha-bebe-nuvem-doce .inv-qr__events li { background: var(--t-chip-bg, var(--t-bg-2)); color: var(--t-accent-text); }
+
+body.inv--template-cha-bebe-nuvem-doce .inv-footer { padding: 3.2rem 1rem 6.5rem; border: 0; }
+body.inv--template-cha-bebe-nuvem-doce .inv-hearts { background: var(--t-divider, none) center / contain no-repeat; opacity: 1; }
+body.inv--template-cha-bebe-nuvem-doce .inv-footer__names { color: var(--t-title); font-family: var(--t-name-font, var(--t-display)); font-style: var(--t-name-style, normal); font-size: 2.3rem; }
+body.inv--template-cha-bebe-nuvem-doce .inv-footer__date { color: var(--t-accent-text); letter-spacing: .2em; font-weight: 700; font-size: .72rem; }
+body.inv--template-cha-bebe-nuvem-doce .inv-footer__brand { color: var(--t-muted); }
+
+/* Acções flutuantes e diálogos */
+body.inv--template-cha-bebe-nuvem-doce .inv-fab { background: var(--t-btn-bg); color: var(--t-btn-ink); border-color: transparent; box-shadow: 0 1rem 2rem -1rem var(--t-shadow-strong, rgba(0, 0, 0, .45)); }
+body.inv--template-cha-bebe-nuvem-doce .inv-fab--secondary { background: var(--t-surface); color: var(--t-title); border: 1px solid var(--t-line); }
+body.inv--template-cha-bebe-nuvem-doce .inv-dialog {
+    background: var(--t-dialog-bg, var(--t-surface));
+    color: var(--t-ink);
+    border: 1px solid var(--t-line);
+    border-radius: var(--t-radius-lg, 1.6rem);
+}
+body.inv--template-cha-bebe-nuvem-doce .inv-dialog h2 { color: var(--t-title); font-weight: 500; }
+body.inv--template-cha-bebe-nuvem-doce .inv-dialog__icon { background: var(--t-bg-2); color: var(--t-accent-text); border-radius: 50%; }
+body.inv--template-cha-bebe-nuvem-doce .inv-dialog::backdrop { background: var(--t-backdrop, rgba(20, 24, 32, .55)); }
+body.inv--template-cha-bebe-nuvem-doce .inv-gift { background: var(--t-bg); border-color: var(--t-line); }
+body.inv--template-cha-bebe-nuvem-doce .inv-gift__button { background: var(--t-btn-bg); color: var(--t-btn-ink); }
+body.inv--template-cha-bebe-nuvem-doce .inv-gallery__ambient { background: radial-gradient(circle at 15% 20%, var(--t-gallery-a, rgba(255,255,255,.2)), transparent 40%), radial-gradient(circle at 85% 80%, var(--t-gallery-b, rgba(255,255,255,.12)), transparent 42%); }
+
+/* Revelação ao scroll — só existe quando o script do template a activa. */
+body.inv--template-cha-bebe-nuvem-doce.t-motion .t-reveal { opacity: 0; transform: translate3d(0, 1.6rem, 0); transition: opacity .9s cubic-bezier(.2, .7, .2, 1), transform 1s cubic-bezier(.2, .7, .2, 1); transition-delay: var(--t-delay, 0s); }
+body.inv--template-cha-bebe-nuvem-doce.t-motion .t-reveal.is-in { opacity: 1; transform: none; }
+body.inv--template-cha-bebe-nuvem-doce .t-deco { position: absolute; pointer-events: none; }
+body.inv--template-cha-bebe-nuvem-doce .t-layer { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+body.inv--template-cha-bebe-nuvem-doce .theme-main > section { isolation: isolate; }
+
+/* O convite vive sempre numa coluna de telemóvel (também dentro do aparelho em desktop). */
+body.inv--template-cha-bebe-nuvem-doce .inv-gallery-teaser { grid-template-columns: 1fr; text-align: center; }
+body.inv--template-cha-bebe-nuvem-doce .inv-gallery-teaser__stack { min-height: 240px; width: min(100%, 20rem); margin: 0 auto; }
+
+@keyframes t-kenburns { from { transform: scale(1.02) translate3d(0, 0, 0); } to { transform: scale(1.1) translate3d(-1.2%, -1%, 0); } }
+@keyframes t-card-in { from { opacity: 0; transform: translate3d(0, 2.2rem, 0) scale(.96); } to { opacity: 1; transform: none; } }
+@keyframes t-rise { from { opacity: 0; transform: translate3d(0, .9rem, 0); } to { opacity: 1; transform: none; } }
+@keyframes t-glint { 0%, 55% { transform: translateX(-60%); } 85%, 100% { transform: translateX(60%); } }
+@keyframes t-cover-out { 0%, 70% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes t-art-dive { from { transform: scale(1.06); } to { transform: scale(1.35); } }
+@keyframes t-card-out { 0% { opacity: 1; transform: none; } 30% { transform: translate3d(0, -.4rem, 0) scale(1.02); } 100% { opacity: 0; transform: translate3d(0, -3rem, 0) scale(.9); } }
+@keyframes t-burst { to { opacity: 0; transform: translate3d(0, -40vh, 0) scale(1.6) rotate(200deg); } }
+@keyframes t-main-in { from { opacity: 0; transform: translate3d(0, 1.8rem, 0); } to { opacity: 1; transform: none; } }
+@keyframes t-twinkle { 0%, 100% { opacity: .15; transform: scale(.6) rotate(0deg); } 50% { opacity: 1; transform: scale(1) rotate(20deg); } }
+@keyframes t-float { 0%, 100% { transform: translate3d(0, 0, 0); } 50% { transform: translate3d(0, -10px, 0); } }
+
+@media (prefers-reduced-motion: reduce) {
+    body.inv--template-cha-bebe-nuvem-doce *, body.inv--template-cha-bebe-nuvem-doce *::before, body.inv--template-cha-bebe-nuvem-doce *::after { animation: none !important; transition: none !important; }
+    body.inv--template-cha-bebe-nuvem-doce.t-motion .t-reveal { opacity: 1; transform: none; }
+}
+
+/* --- Específico de Nuvem Doce --- */
+
+body.inv--template-cha-bebe-nuvem-doce .theme-cover__content::before {
+    content: "";
+    position: absolute;
+    inset: .5rem;
+    border: 1px dashed rgba(201, 163, 107, .5);
+    border-radius: 1.55rem;
+    pointer-events: none;
+}
+body.inv--template-cha-bebe-nuvem-doce .theme-cover__content::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: -1.75rem;
+    width: 3.5rem;
+    height: 3.5rem;
+    margin-left: -1.75rem;
+    border-radius: 50%;
+    background: #FFFBF6 url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath fill=%22%23C9A36B%22 d=%22M14.5 2.5a9.5 9.5 0 1 0 7 15.9 8 8 0 1 1-7-15.9z%22/%3E%3C/svg%3E") 52% 50% / 55% no-repeat;
+    box-shadow: 0 .8rem 1.6rem -.7rem rgba(88, 108, 150, .6), 0 0 0 1px rgba(201, 163, 107, .35), 0 0 0 .4rem rgba(255, 255, 255, .5);
+    animation: t-float 5s ease-in-out infinite;
+}
+body.inv--template-cha-bebe-nuvem-doce .theme-cover .theme-kicker i { color: #D98FA0; font-size: .9rem; }
+
+/* Estrelas douradas em vez das partículas genéricas */
+body.inv--template-cha-bebe-nuvem-doce .theme-cover .theme-cinematic-particle {
+    top: var(--py, 20%);
+    width: .8rem;
+    height: .8rem;
+    border-radius: 0;
+    clip-path: polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);
+    background: linear-gradient(135deg, #FFF6DD, #D6AE6E);
+    box-shadow: none;
+    opacity: 1;
+    mix-blend-mode: normal;
+    animation: t-twinkle 3.6s ease-in-out var(--delay) infinite;
+}
+body.inv--template-cha-bebe-nuvem-doce .theme-cover .theme-cinematic-particle:nth-child(3) { --py: 8%; }
+body.inv--template-cha-bebe-nuvem-doce .theme-cover .theme-cinematic-particle:nth-child(4) { --py: 22%; width: .55rem; height: .55rem; }
+body.inv--template-cha-bebe-nuvem-doce .theme-cover .theme-cinematic-particle:nth-child(5) { --py: 14%; }
+body.inv--template-cha-bebe-nuvem-doce .theme-cover .theme-cinematic-particle:nth-child(6) { --py: 34%; width: .5rem; height: .5rem; }
+body.inv--template-cha-bebe-nuvem-doce .theme-cover .theme-cinematic-particle:nth-child(7) { --py: 5%; width: .6rem; height: .6rem; }
+body.inv--template-cha-bebe-nuvem-doce .theme-cover .theme-cinematic-particle:nth-child(8) { --py: 44%; }
+body.inv--template-cha-bebe-nuvem-doce .theme-cover .theme-cinematic-particle:nth-child(9) { --py: 18%; width: .5rem; height: .5rem; }
+body.inv--template-cha-bebe-nuvem-doce .theme-cover .theme-cinematic-particle:nth-child(10) { --py: 30%; width: .65rem; height: .65rem; }
+
+/* Nuvens que respiram por cima da arte */
+body.inv--template-cha-bebe-nuvem-doce .nd-cloud {
+    left: var(--x);
+    top: var(--y);
+    width: calc(11rem * var(--s));
+    aspect-ratio: 80 / 44;
+    margin-left: calc(-5.5rem * var(--s));
+    background: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 80 44%22%3E%3Cdefs%3E%3ClinearGradient id=%22g%22 x1=%220%22 y1=%220%22 x2=%220%22 y2=%221%22%3E%3Cstop offset=%220%22 stop-color=%22%23fff%22/%3E%3Cstop offset=%221%22 stop-color=%22%23F7DDE3%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill=%22url(%23g)%22 d=%22M18 40h44a12 12 0 0 0 0-24 16 16 0 0 0-30-6 11 11 0 0 0-14 10A10 10 0 0 0 18 40z%22/%3E%3C/svg%3E") center / contain no-repeat;
+    opacity: .6;
+    filter: blur(1.5px);
+    animation: nd-drift 16s ease-in-out var(--d) infinite alternate;
+}
+body.inv--template-cha-bebe-nuvem-doce .nd-star {
+    left: var(--x);
+    top: var(--y);
+    width: calc(.8rem * var(--s));
+    height: calc(.8rem * var(--s));
+    clip-path: polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);
+    background: linear-gradient(135deg, #FFF3D1, #CFA565);
+    animation: t-twinkle 3.8s ease-in-out var(--d) infinite;
+}
+body.inv--template-cha-bebe-nuvem-doce .nd-dot {
+    left: var(--x);
+    top: var(--y);
+    width: calc(.3rem * var(--s));
+    height: calc(.3rem * var(--s));
+    border-radius: 50%;
+    background: #E0BD86;
+    box-shadow: 0 0 .5rem rgba(224, 189, 134, .9);
+    animation: t-twinkle 2.8s ease-in-out var(--d) infinite;
+}
+
+/* Abertura: as nuvens fecham-se sobre a capa e abrem para o convite */
+body.inv--template-cha-bebe-nuvem-doce .theme-cinematic-curtain {
+    width: 64%;
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 80 44%22%3E%3Cdefs%3E%3ClinearGradient id=%22g%22 x1=%220%22 y1=%220%22 x2=%220%22 y2=%221%22%3E%3Cstop offset=%220%22 stop-color=%22%23FFFFFF%22/%3E%3Cstop offset=%221%22 stop-color=%22%23EEF3FA%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill=%22url(%23g)%22 d=%22M18 40h44a12 12 0 0 0 0-24 16 16 0 0 0-30-6 11 11 0 0 0-14 10A10 10 0 0 0 18 40z%22/%3E%3C/svg%3E") right -4.5rem top 4% / 15rem auto no-repeat,
+        url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 80 44%22%3E%3Cdefs%3E%3ClinearGradient id=%22g%22 x1=%220%22 y1=%220%22 x2=%220%22 y2=%221%22%3E%3Cstop offset=%220%22 stop-color=%22%23FFF6F7%22/%3E%3Cstop offset=%221%22 stop-color=%22%23F6D9E0%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill=%22url(%23g)%22 d=%22M18 40h44a12 12 0 0 0 0-24 16 16 0 0 0-30-6 11 11 0 0 0-14 10A10 10 0 0 0 18 40z%22/%3E%3C/svg%3E") right -3.5rem top 30% / 17rem auto no-repeat,
+        url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 80 44%22%3E%3Cdefs%3E%3ClinearGradient id=%22g%22 x1=%220%22 y1=%220%22 x2=%220%22 y2=%221%22%3E%3Cstop offset=%220%22 stop-color=%22%23FFFFFF%22/%3E%3Cstop offset=%221%22 stop-color=%22%23EEF3FA%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill=%22url(%23g)%22 d=%22M18 40h44a12 12 0 0 0 0-24 16 16 0 0 0-30-6 11 11 0 0 0-14 10A10 10 0 0 0 18 40z%22/%3E%3C/svg%3E") right -5rem top 56% / 16rem auto no-repeat,
+        url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 80 44%22%3E%3Cdefs%3E%3ClinearGradient id=%22g%22 x1=%220%22 y1=%220%22 x2=%220%22 y2=%221%22%3E%3Cstop offset=%220%22 stop-color=%22%23F4F8FD%22/%3E%3Cstop offset=%221%22 stop-color=%22%23D7E4F2%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill=%22url(%23g)%22 d=%22M18 40h44a12 12 0 0 0 0-24 16 16 0 0 0-30-6 11 11 0 0 0-14 10A10 10 0 0 0 18 40z%22/%3E%3C/svg%3E") right -3rem top 80% / 17rem auto no-repeat,
+        linear-gradient(90deg, #F3F6FB 0 58%, rgba(243, 246, 251, 0) 80%);
+}
+body.inv--template-cha-bebe-nuvem-doce .theme-cinematic-curtain--right { transform: scaleX(-1); left: auto; right: 0; }
+body.inv--template-cha-bebe-nuvem-doce .theme-cover.is-opening .theme-cinematic-curtain--right { animation-name: nd-curtain-right; }
+
+body.inv--template-cha-bebe-nuvem-doce .theme-hero h1 { text-shadow: 0 .2rem 1.2rem rgba(255, 255, 255, .9); }
+body.inv--template-cha-bebe-nuvem-doce .inv-countdown__cell::after {
+    content: "";
+    position: absolute;
+    top: -.4rem;
+    right: -.3rem;
+    width: .8rem;
+    height: .8rem;
+    clip-path: polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);
+    background: linear-gradient(135deg, #FFF3D1, #CFA565);
+    animation: t-twinkle 3.4s ease-in-out infinite;
+}
+body.inv--template-cha-bebe-nuvem-doce .inv-countdown__cell:nth-child(2)::after { animation-delay: -1.1s; top: auto; bottom: -.35rem; right: auto; left: -.3rem; }
+body.inv--template-cha-bebe-nuvem-doce .inv-countdown__cell:nth-child(3)::after { animation-delay: -2.2s; }
+body.inv--template-cha-bebe-nuvem-doce .inv-countdown__cell:nth-child(4)::after { animation-delay: -.6s; top: auto; bottom: -.35rem; }
+
+body.inv--template-cha-bebe-nuvem-doce .inv-gallery-teaser__stack span { border-width: 6px; }
+
+@keyframes nd-drift { from { transform: translate3d(-1.6rem, 0, 0); } to { transform: translate3d(1.6rem, -.4rem, 0); } }
+@keyframes nd-curtain-right { 0% { opacity: 0; transform: scaleX(-1) translateX(-100%); } 20%, 52% { opacity: .96; transform: scaleX(-1); } 100% { opacity: 0; transform: scaleX(-1) translateX(-110%); } }
