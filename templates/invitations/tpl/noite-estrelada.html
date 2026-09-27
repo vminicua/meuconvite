@@ -1,0 +1,43 @@
+{% load static %}{% comment %}
+Camada decorativa do template noite-estrelada. Só ornamentos (aria-hidden): o script
+static/js/tpl/noite-estrelada.js distribui cada peça para o sítio indicado em
+data-tpl-into. Sem JavaScript nada disto aparece e o convite fica intacto.
+{% endcomment %}{% with d=wedding.main_date %}
+<svg class="tpl-sprite" width="0" height="0" aria-hidden="true" focusable="false">
+    <defs>
+        <symbol id="tpl-i-heart" viewBox="0 0 32 32"><path d="M16 25.5s-9.5-5.6-9.5-11.8A4.8 4.8 0 0 1 16 11.2a4.8 4.8 0 0 1 9.5 2.5c0 6.2-9.5 11.8-9.5 11.8Z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></symbol>
+        <symbol id="tpl-i-rings" viewBox="0 0 32 32"><g fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="12.2" cy="19.6" r="7"/><circle cx="19.8" cy="19.6" r="7"/><path d="M9.6 9.6 12.2 6.6l2.6 3-2.6 2.9Z" stroke-linejoin="round"/><path d="M9.6 9.6h5.2" stroke-width="1"/></g></symbol>
+        <symbol id="tpl-i-toast" viewBox="0 0 32 32"><g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><g transform="rotate(-14 11 16)"><path d="M8 6h6l-.5 6.6a2.5 2.5 0 0 1-5 0Z"/><path d="M11 15.1V25M8.2 25.2h5.6"/></g><g transform="rotate(14 21 16)"><path d="M18 6h6l-.5 6.6a2.5 2.5 0 0 1-5 0Z"/><path d="M21 15.1V25M18.2 25.2h5.6"/></g><path d="M16 2.6v2.2M13.4 3.8l1 1.2M18.6 3.8l-1 1.2" stroke-width="1"/></g></symbol>
+        <symbol id="tpl-i-dinner" viewBox="0 0 32 32"><g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><circle cx="16" cy="17" r="8"/><circle cx="16" cy="17" r="5.2" stroke-width="1"/><path d="M4.6 6.5v5a1.6 1.6 0 0 0 3.2 0v-5M6.2 6.5v19.5"/><path d="M27.4 6.5c-2.3 2.2-2.3 7.3 0 9.4v10.1"/></g></symbol>
+        <symbol id="tpl-i-music" viewBox="0 0 32 32"><g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"><path d="M12.2 23V8.6l12.3-3.2v15"/><path d="M12.2 12.4l12.3-3.2"/><ellipse cx="9.6" cy="23.2" rx="2.7" ry="2.2"/><ellipse cx="21.9" cy="20.6" rx="2.7" ry="2.2"/></g></symbol>
+        <symbol id="tpl-i-cake" viewBox="0 0 32 32"><g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"><path d="M6 26.5h20M8 26.5v-7h16v7M10.5 19.5v-4.5h11v4.5M16 15v-3"/><path d="M16 9.6c-1.2-1.1-1.2-2.3 0-3.5 1.2 1.2 1.2 2.4 0 3.5Z"/><path d="M8 22.4c2.7 1.4 5.3 1.4 8 0s5.3-1.4 8 0" stroke-width="1"/></g></symbol>
+        <symbol id="tpl-i-camera" viewBox="0 0 32 32"><g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"><rect x="4.5" y="10" width="23" height="15.5" rx="2.4"/><circle cx="16" cy="17.6" r="4.6"/><path d="M11 10l2-3.2h6L21 10"/></g></symbol>
+
+    </defs>
+</svg>
+<div class="tpl-stash" data-tpl-decor aria-hidden="true">
+    <div class="tpl-crest" data-tpl-into=".inv-hero" data-tpl-pos="prepend" aria-hidden="true">
+        <svg class="tpl-crest__art" viewBox="0 0 160 120" aria-hidden="true" focusable="false">
+            <g class="ne-constellation" fill="none" stroke="currentColor" stroke-width=".6" opacity=".7">
+                <path class="tpl-draw" d="M10 70 24 52 40 58 52 34M150 64l-16-16-14 8-10-22"/>
+                <path d="M22 100c18-50 98-50 116 0" stroke-dasharray="1.5 3"/>
+            </g>
+            <g class="ne-stars" fill="currentColor">
+                <circle cx="10" cy="70" r="1.4"/><circle cx="24" cy="52" r="1.8"/><circle cx="40" cy="58" r="1.2"/><circle cx="52" cy="34" r="1.6"/>
+                <circle cx="150" cy="64" r="1.4"/><circle cx="134" cy="48" r="1.8"/><circle cx="120" cy="56" r="1.2"/><circle cx="110" cy="34" r="1.6"/>
+            </g>
+            <path class="ne-moon" d="M92 14a46 46 0 1 0 0 92 58 58 0 0 1 0-92Z" transform="translate(-20 0)" fill="url(#ne-gold)"/>
+            <defs><linearGradient id="ne-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff0b8"/><stop offset=".45" stop-color="#e2bd5c"/><stop offset="1" stop-color="#a47a26"/></linearGradient></defs>
+        </svg>
+        <span class="tpl-crest__mono"><b>{{ wedding.primary_short_name|slice:":1"|upper }}</b>{% if wedding.secondary_short_name %}<i></i><b>{{ wedding.secondary_short_name|slice:":1"|upper }}</b>{% endif %}</span>
+    </div>
+    {% if d %}<div class="tpl-date" data-tpl-into=".inv-hero__date" data-tpl-pos="after" data-tpl-flag=".inv-hero|tpl-has-date" aria-hidden="true">
+        <span class="tpl-date__month">{{ d|date:"F" }}</span>
+        <span class="tpl-date__row"><span>{{ d|date:"l" }}</span><strong>{{ d|date:"d" }}</strong><span>{% if schedule and countdown_target %}{{ countdown_target|time:"H\hi" }}{% else %}{{ d|date:"Y" }}{% endif %}</span></span>
+        {% if schedule and countdown_target %}<span class="tpl-date__year">{{ d|date:"Y" }}</span>{% endif %}
+    </div>{% endif %}
+    <span class="ne-sky" data-tpl-into=".inv-main" data-tpl-pos="prepend" data-ne-sky aria-hidden="true"></span>
+    <span class="ne-shoot" data-tpl-into="#inv-cover" data-tpl-pos="prepend" aria-hidden="true"></span>
+    <span class="ne-shoot ne-shoot--2" data-tpl-into="#inv-cover" data-tpl-pos="prepend" aria-hidden="true"></span>
+</div>
+{% endwith %}
