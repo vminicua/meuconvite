@@ -31,12 +31,13 @@ desenhada quando o evento tem dados para ela.
     <div class="ed-cover__content">
         <svg class="ed-cover__monogram" viewBox="58 -2 124 124" aria-hidden="true">
             <circle class="ed-cover__ring" cx="120" cy="60" r="56"/>
+            <circle class="ed-cover__ring-inner" cx="120" cy="60" r="49"/>
             {% if monogram|length > 1 %}
-                <text x="78" y="78" text-anchor="middle">{{ monogram|first }}</text>
-                <line x1="120" y1="30" x2="120" y2="90"/>
-                <text x="162" y="78" text-anchor="middle">{{ monogram|slice:"1:" }}</text>
+                <text x="97" y="61" text-anchor="middle" dominant-baseline="central">{{ monogram|first }}</text>
+                <line x1="120" y1="36" x2="120" y2="84"/>
+                <text x="143" y="61" text-anchor="middle" dominant-baseline="central">{{ monogram|slice:"1:" }}</text>
             {% else %}
-                <text x="120" y="78" text-anchor="middle">{{ monogram }}</text>
+                <text x="120" y="61" text-anchor="middle" dominant-baseline="central">{{ monogram }}</text>
             {% endif %}
         </svg>
         <div class="ed-cover__text">
