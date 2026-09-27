@@ -105,6 +105,30 @@ body.inv--embedded::-webkit-scrollbar {
         max-width: calc(100% - 1rem);
     }
 
+    /* O ecrã do aparelho é o contentor de scroll e está transformado, por isso
+       `position: fixed` deixaria as acções a meio do conteúdo. Ficam coladas ao
+       fundo do ecrã com sticky, no fim do fluxo. */
+    .inv-public-device__screen > .inv-floating-actions {
+        position: sticky;
+        right: auto;
+        bottom: 1rem;
+        width: max-content;
+        margin: 0 1rem 1rem auto;
+    }
+
+    .inv-public-device__screen > .inv-music {
+        position: sticky;
+        left: auto;
+        bottom: 1rem;
+        width: max-content;
+        margin: -3.4rem auto 1rem 1rem;
+    }
+
+    .inv-public-device__screen .inv-gallery-teaser {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
     .inv-public-device__island {
         position: sticky;
         z-index: 120;
