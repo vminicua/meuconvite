@@ -1,0 +1,10 @@
+{% comment %}Camada decorativa do tema Branco Celestial (só visual).{% endcomment %}<style>body.inv.inv--template-batismo-branco-celestial { {% if template.cover_image %}--tpl-art:url('{{ template.cover_image.url }}');{% endif %}{% if wedding.cover_image and not ignore_custom_cover %}--tpl-cover-art:none;--t-cover-veil:linear-gradient(180deg,rgba(0,0,0,.18),rgba(0,0,0,.62));--t-cover-ink:#fff;--t-cover-kicker:#fff;--t-cover-names:#fff;--t-cover-shadow:0 2px 18px rgba(0,0,0,.45);{% else %}--tpl-cover-art:var(--tpl-art);{% endif %} }</style>
+<svg class="tpl-symbols" width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <symbol id="inv-divider" viewBox="0 0 200 24"><path d="M6 13c30-6 50 6 80 0M114 13c30-6 50 6 80 0" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+<path d="M100 1l2.6 9.4L112 13l-9.4 2.6L100 25l-2.6-9.4L88 13l9.4-2.6z" fill="currentColor"/>
+<path d="M80 5l1 3 3 1-3 1-1 3-1-3-3-1 3-1zM120 17l1 3 3 1-3 1-1 3-1-3-3-1 3-1z" fill="currentColor" opacity=".8"/></symbol>
+</svg>
+<div class="tpl-decor" aria-hidden="true">
+    <div class="tpl-backdrop"></div>
+    <div class="tpl-ambient" data-tpl-ambient></div>
+</div>
