@@ -1,0 +1,40 @@
+{% load static %}{% comment %}
+Camada decorativa do template areia-dourada. Só ornamentos (aria-hidden): o script
+static/js/tpl/areia-dourada.js distribui cada peça para o sítio indicado em
+data-tpl-into. Sem JavaScript nada disto aparece e o convite fica intacto.
+{% endcomment %}{% with d=wedding.main_date %}
+<svg class="tpl-sprite" width="0" height="0" aria-hidden="true" focusable="false">
+    <defs>
+        <symbol id="tpl-i-heart" viewBox="0 0 32 32"><path d="M16 25.5s-9.5-5.6-9.5-11.8A4.8 4.8 0 0 1 16 11.2a4.8 4.8 0 0 1 9.5 2.5c0 6.2-9.5 11.8-9.5 11.8Z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></symbol>
+        <symbol id="tpl-i-rings" viewBox="0 0 32 32"><g fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="12.2" cy="19.6" r="7"/><circle cx="19.8" cy="19.6" r="7"/><path d="M9.6 9.6 12.2 6.6l2.6 3-2.6 2.9Z" stroke-linejoin="round"/><path d="M9.6 9.6h5.2" stroke-width="1"/></g></symbol>
+        <symbol id="tpl-i-toast" viewBox="0 0 32 32"><g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><g transform="rotate(-14 11 16)"><path d="M8 6h6l-.5 6.6a2.5 2.5 0 0 1-5 0Z"/><path d="M11 15.1V25M8.2 25.2h5.6"/></g><g transform="rotate(14 21 16)"><path d="M18 6h6l-.5 6.6a2.5 2.5 0 0 1-5 0Z"/><path d="M21 15.1V25M18.2 25.2h5.6"/></g><path d="M16 2.6v2.2M13.4 3.8l1 1.2M18.6 3.8l-1 1.2" stroke-width="1"/></g></symbol>
+        <symbol id="tpl-i-dinner" viewBox="0 0 32 32"><g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><circle cx="16" cy="17" r="8"/><circle cx="16" cy="17" r="5.2" stroke-width="1"/><path d="M4.6 6.5v5a1.6 1.6 0 0 0 3.2 0v-5M6.2 6.5v19.5"/><path d="M27.4 6.5c-2.3 2.2-2.3 7.3 0 9.4v10.1"/></g></symbol>
+        <symbol id="tpl-i-music" viewBox="0 0 32 32"><g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"><path d="M12.2 23V8.6l12.3-3.2v15"/><path d="M12.2 12.4l12.3-3.2"/><ellipse cx="9.6" cy="23.2" rx="2.7" ry="2.2"/><ellipse cx="21.9" cy="20.6" rx="2.7" ry="2.2"/></g></symbol>
+        <symbol id="tpl-i-cake" viewBox="0 0 32 32"><g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"><path d="M6 26.5h20M8 26.5v-7h16v7M10.5 19.5v-4.5h11v4.5M16 15v-3"/><path d="M16 9.6c-1.2-1.1-1.2-2.3 0-3.5 1.2 1.2 1.2 2.4 0 3.5Z"/><path d="M8 22.4c2.7 1.4 5.3 1.4 8 0s5.3-1.4 8 0" stroke-width="1"/></g></symbol>
+        <symbol id="tpl-i-camera" viewBox="0 0 32 32"><g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"><rect x="4.5" y="10" width="23" height="15.5" rx="2.4"/><circle cx="16" cy="17.6" r="4.6"/><path d="M11 10l2-3.2h6L21 10"/></g></symbol>
+
+    </defs>
+</svg>
+<div class="tpl-stash" data-tpl-decor aria-hidden="true">
+    <div class="tpl-crest" data-tpl-into=".inv-hero" data-tpl-pos="prepend" aria-hidden="true">
+        <svg class="tpl-crest__art" viewBox="0 0 140 100" aria-hidden="true" focusable="false">
+            <g class="ad-birds" fill="none" stroke="#6b7f8d" stroke-width="1.1" stroke-linecap="round">
+                <path class="ad-bird" d="M18 20q4-4.5 8 0q4-4.5 8 0"/>
+                <path class="ad-bird ad-bird--2" d="M104 12q3.2-3.6 6.4 0q3.2-3.6 6.4 0"/>
+            </g>
+            <g fill="none" stroke="currentColor" stroke-linecap="round">
+                <path class="tpl-draw" d="M14 80c10-6 20 6 30 0s20-6 30 0 20 6 30 0 16-5 22-2" stroke-width="1.2"/>
+                <path class="tpl-draw" d="M24 87c9-5 18 5 27 0s18-5 27 0 18 5 27 0" stroke="#2e6e8e" stroke-width=".9" opacity=".75"/>
+            </g>
+        </svg>
+        <span class="tpl-crest__mono"><b>{{ wedding.primary_short_name|slice:":1"|upper }}</b>{% if wedding.secondary_short_name %}<i></i><b>{{ wedding.secondary_short_name|slice:":1"|upper }}</b>{% endif %}</span>
+    </div>
+    {% if d %}<div class="tpl-date" data-tpl-into=".inv-hero__date" data-tpl-pos="after" data-tpl-flag=".inv-hero|tpl-has-date" aria-hidden="true">
+        <span class="tpl-date__month">{{ d|date:"F" }}</span>
+        <span class="tpl-date__row"><span>{{ d|date:"l" }}</span><strong>{{ d|date:"d" }}</strong><span>{% if schedule and countdown_target %}{{ countdown_target|time:"H\hi" }}{% else %}{{ d|date:"Y" }}{% endif %}</span></span>
+        {% if schedule and countdown_target %}<span class="tpl-date__year">{{ d|date:"Y" }}</span>{% endif %}
+    </div>{% endif %}
+    <div class="ad-sea" data-tpl-into=".inv-hero .inv-countdown" data-tpl-pos="before" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <span class="ad-waves ad-waves--top" data-tpl-into=".inv-main" data-tpl-pos="prepend" aria-hidden="true"></span>
+</div>
+{% endwith %}

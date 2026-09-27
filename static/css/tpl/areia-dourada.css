@@ -1,0 +1,1053 @@
+/* =====================================================================
+   Areia Dourada — cartão clássico
+   Papel marfim, ondas desenhadas a ouro, gaivotas, uma janela para o mar
+   ao pôr-do-sol e brilho de areia. Segue areia-dourada-cover-v3.
+   ===================================================================== */
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Allura&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap");
+
+body.inv--template-areia-dourada {
+    --ad-gold: color-mix(in srgb, var(--inv-primary) 78%, #6b4a10);
+    --ad-navy: color-mix(in srgb, var(--inv-secondary) 62%, #0b2233);
+    --t-page: #f1e6cf;
+    --t-stage: radial-gradient(circle at 50% 36%, #fbf3e0 0, #e5cf9f 50%, #8f7446 100%);
+    --t-paper: #fffcf4;
+    --t-ink: #4d4231;
+    --t-muted: #7a6c55;
+    --t-accent: var(--ad-navy);
+    --t-accent-2: var(--ad-gold);
+    --t-accent-soft: #a88645;
+    --t-line: rgba(184, 145, 63, .45);
+    --t-line-soft: rgba(184, 145, 63, .22);
+    --t-tile: rgba(255, 252, 244, .92);
+    --t-glass: rgba(255, 252, 244, .9);
+    --t-names: "Cinzel", Georgia, serif;
+    --t-num: "Cinzel", Georgia, serif;
+    --t-amp: "Cormorant Garamond", Georgia, serif;
+    --t-body: "Cormorant Garamond", Georgia, serif;
+    --t-names-size: clamp(2.2rem, 10.6vw, 2.85rem);
+    --t-names-track: .06em;
+    --t-radius: .7rem;
+    --t-tile-radius: .5rem;
+    --t-btn-bg: linear-gradient(120deg, #a9812f 0%, #e3c77c 35%, #c79a42 55%, #f0d78f 78%, #b08633 100%);
+    --t-btn-ink: #3b2c0e;
+    --t-btn-border: rgba(255, 240, 200, .6);
+    --t-btn-shadow: 0 14px 28px -14px rgba(120, 88, 20, .65), inset 0 1px rgba(255, 255, 255, .55);
+    --t-cover-base: #ead4a5;
+    --t-cover-art: url("../../img/invitations/areia-dourada-editorial-v1.webp");
+    --t-cover-card: linear-gradient(170deg, rgba(255, 252, 244, .82), rgba(250, 243, 226, .7));
+    --t-cover-shadow: 0 44px 90px -46px rgba(110, 80, 20, .6);
+    --t-bloom: rgba(255, 244, 214, .98);
+    --t-divider: url("../../img/tpl/areia-dourada/divider.svg");
+    --t-div-color: var(--ad-gold);
+    --t-main-bg:
+        radial-gradient(80% 22% at 50% 0%, rgba(255, 236, 190, .5), transparent 70%),
+        linear-gradient(180deg, var(--t-paper), #fdf6e6 60%, #fbf1dc);
+    --t-crest-w: 8.8rem;
+    --t-crest-h: 6.3rem;
+    --t-mono-size: 2rem;
+    --t-mono-y: -.35rem;
+    --t-icon: var(--ad-gold);
+    --t-qr-name: #1f4a66;
+}
+
+/* ---------------------------------------------------------------------
+   Base partilhada do cartão clássico premium (gerada para este template).
+   Tudo fica dentro de body.inv--template-areia-dourada; as cores e a arte vêm dos tokens --t-*.
+   --------------------------------------------------------------------- */
+
+body:where(.inv--template-areia-dourada) {
+    --t-ease: cubic-bezier(.19, .8, .22, 1);
+    --t-ease-io: cubic-bezier(.65, 0, .35, 1);
+    --t-caps: "Cinzel", "Cormorant Garamond", Georgia, serif;
+    --t-names: var(--inv-display);
+    --t-body: "Cormorant Garamond", Georgia, serif;
+    --t-radius: .5rem;
+    --t-btn-radius: 999px;
+    --t-names-size: clamp(3.2rem, 15vw, 4.6rem);
+}
+body.inv--template-areia-dourada {
+    background: var(--t-page);
+    color: var(--t-ink);
+}
+
+@media (min-width: 992px) {
+    body.inv--template-areia-dourada.inv--public-device {
+        background: var(--t-stage, radial-gradient(circle at 50% 42%, var(--t-page) 0, color-mix(in srgb, var(--t-page) 55%, #1a1416) 100%));
+    }
+}
+
+/* Paleta aplicada também às partes partilhadas (diálogos, botões, galeria). */
+body.inv--template-areia-dourada > * {
+    --inv-paper: var(--t-paper);
+    --inv-ink: var(--t-ink);
+    --inv-primary-text: var(--t-accent);
+    --inv-secondary-text: var(--t-accent-2);
+    --inv-muted: var(--t-muted);
+}
+
+/* --- Camada decorativa (armazém escondido; o JS distribui as peças) -- */
+body.inv--template-areia-dourada .tpl-stash { display: none !important; }
+body.inv--template-areia-dourada .tpl-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+body.inv--template-areia-dourada .tpl-particles {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    overflow: hidden;
+    pointer-events: none;
+}
+body.inv--template-areia-dourada .tpl-particles i {
+    position: absolute;
+    top: -8%;
+    left: var(--x);
+    width: var(--s);
+    height: var(--s);
+    opacity: 0;
+    will-change: transform, opacity;
+    animation: tpl-fall var(--dur) linear var(--delay) infinite;
+}
+@keyframes tpl-fall {
+    0% { opacity: 0; transform: translate3d(0, -4vh, 0) rotate(0deg); }
+    10% { opacity: var(--o, .85); }
+    85% { opacity: var(--o, .85); }
+    100% { opacity: 0; transform: translate3d(var(--drift), 112vh, 0) rotate(var(--spin)); }
+}
+
+/* --- Capa -------------------------------------------------------------- */
+body.inv--template-areia-dourada .inv-cover--classic {
+    isolation: isolate;
+    background: var(--t-cover-base);
+    color: var(--t-ink);
+}
+body.inv--template-areia-dourada .inv-cover--classic:not([style])::before {
+    content: "";
+    display: block;
+    position: absolute;
+    inset: -3%;
+    width: auto;
+    height: auto;
+    opacity: 1;
+    z-index: -1;
+    background: var(--t-cover-art);
+    background-size: cover;
+    background-position: center;
+    transform-origin: 50% 40%;
+    animation: tpl-kenburns 24s ease-in-out infinite alternate;
+}
+body.inv--template-areia-dourada .inv-cover--classic::after {
+    content: "";
+    display: block;
+    position: absolute;
+    inset: 0;
+    width: auto;
+    height: auto;
+    transform: none;
+    z-index: 0;
+    pointer-events: none;
+    background: var(--t-cover-veil, none);
+}
+@keyframes tpl-kenburns {
+    from { transform: scale(1) translate3d(0, 0, 0); }
+    to { transform: scale(1.08) translate3d(-1%, -1.2%, 0); }
+}
+
+body.inv--template-areia-dourada .inv-cover--classic .inv-cover__paper {
+    z-index: 2;
+    max-width: 23.5rem;
+    min-height: min(80vh, 44rem);
+    padding: 3.2rem 1.6rem 2.8rem;
+    border: 1px solid var(--t-line);
+    border-radius: var(--t-cover-radius, .35rem);
+    background: var(--t-cover-card);
+    box-shadow: var(--t-cover-shadow, 0 40px 90px -50px rgba(0, 0, 0, .55));
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    color: var(--t-ink);
+    overflow: visible;
+}
+body.inv--template-areia-dourada .inv-cover--classic .inv-cover__paper::before,
+body.inv--template-areia-dourada .inv-cover--classic .inv-cover__paper::after {
+    content: "";
+    position: absolute;
+    top: auto; right: auto; bottom: auto; left: auto;
+    width: auto;
+    height: auto;
+    transform: none;
+    pointer-events: none;
+}
+/* Filete interior duplo, como nos cartões impressos. */
+body.inv--template-areia-dourada .inv-cover--classic .inv-cover__paper::before {
+    inset: .55rem;
+    border: 1px solid var(--t-line-soft);
+    border-radius: calc(var(--t-cover-radius, .35rem) * .7);
+}
+body.inv--template-areia-dourada .inv-cover--classic .inv-cover__paper::after {
+    inset: -1px;
+    border-radius: inherit;
+    background: linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, .38) 50%, transparent 62%) no-repeat;
+    background-size: 250% 100%;
+    background-position: 130% 0;
+    mix-blend-mode: soft-light;
+    animation: tpl-sheen 7s 2s ease-in-out infinite;
+}
+@keyframes tpl-sheen {
+    0%, 55% { background-position: 130% 0; }
+    100% { background-position: -30% 0; }
+}
+
+body.inv--template-areia-dourada .inv-cover__kicker {
+    font-family: var(--t-caps);
+    font-size: .56rem;
+    letter-spacing: .3em;
+    color: var(--t-accent-soft);
+    margin-bottom: 1rem;
+}
+body.inv--template-areia-dourada .inv-cover__eyebrow {
+    font-family: var(--t-caps);
+    font-size: .64rem;
+    letter-spacing: .38em;
+    color: var(--t-accent-soft);
+}
+body.inv--template-areia-dourada .inv-cover__names {
+    font-family: var(--t-names);
+    font-size: var(--t-names-size);
+    font-weight: 400;
+    line-height: .95;
+    letter-spacing: var(--t-names-track, 0);
+    color: var(--t-accent);
+    margin: .2rem 0 .9rem;
+}
+body.inv--template-areia-dourada .inv-cover__amp {
+    font-family: var(--t-amp, var(--inv-display));
+    font-size: .5em;
+    line-height: 1.25;
+    color: var(--t-accent-2);
+}
+body.inv--template-areia-dourada .inv-cover__note {
+    font-family: var(--t-caps);
+    font-size: .74rem;
+    font-weight: 500;
+    letter-spacing: .24em;
+    text-transform: uppercase;
+    color: var(--t-accent);
+}
+
+/* Botões ----------------------------------------------------------------- */
+body.inv--template-areia-dourada .inv-btn,
+body.inv--template-areia-dourada .inv-cover .inv-btn--light {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    padding: .95rem 2.2rem;
+    border: 1px solid var(--t-btn-border, transparent);
+    border-radius: var(--t-btn-radius);
+    background: var(--t-btn-bg);
+    color: var(--t-btn-ink);
+    font-family: var(--t-caps);
+    font-size: .74rem;
+    font-weight: 600;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    box-shadow: var(--t-btn-shadow, 0 14px 30px -16px rgba(0, 0, 0, .45));
+    transition: transform .35s var(--t-ease), box-shadow .35s var(--t-ease);
+}
+body.inv--template-areia-dourada .inv-btn::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, .45) 50%, transparent 65%) no-repeat;
+    background-size: 260% 100%;
+    background-position: 150% 0;
+    animation: tpl-sheen 4.8s 1.2s ease-in-out infinite;
+}
+body.inv--template-areia-dourada .inv-btn:hover { transform: translateY(-2px); box-shadow: var(--t-btn-shadow-hover, 0 18px 36px -16px rgba(0, 0, 0, .5)); }
+body.inv--template-areia-dourada .inv-btn--outline {
+    background: transparent;
+    color: var(--t-accent);
+    border-color: var(--t-line);
+    box-shadow: none;
+}
+body.inv--template-areia-dourada .inv-btn--outline::after { display: none; }
+body.inv--template-areia-dourada .inv-btn--disabled { opacity: .6; }
+
+/* Acções flutuantes, música ------------------------------------------ */
+body.inv--template-areia-dourada .inv-fab {
+    border: 1px solid var(--t-btn-border, transparent);
+    background: var(--t-btn-bg);
+    color: var(--t-btn-ink);
+    font-family: var(--t-caps);
+    font-size: .66rem;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    box-shadow: 0 16px 34px -14px rgba(0, 0, 0, .45);
+}
+body.inv--template-areia-dourada .inv-fab--secondary {
+    background: var(--t-glass);
+    color: var(--t-accent);
+    border-color: var(--t-line);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+body.inv--template-areia-dourada .inv-music button {
+    background: var(--t-glass);
+    color: var(--t-accent);
+    border-color: var(--t-line);
+}
+
+/* --- Interior ------------------------------------------------------------ */
+body.inv--template-areia-dourada.inv--cartao_classico .inv-main {
+    position: relative;
+    max-width: 30rem;
+    margin: 0 auto;
+    padding: 0 1.4rem 6.5rem;
+    border: 0;
+    border-radius: 0;
+    background: var(--t-main-bg);
+    box-shadow: none;
+    overflow: hidden;
+    overflow: clip;
+    isolation: isolate;
+    font-family: var(--t-body);
+    color: var(--t-ink);
+}
+@media (min-width: 560px) {
+    body.inv--template-areia-dourada.inv--cartao_classico .inv-main {
+        margin: 2rem auto;
+        border-radius: var(--t-radius);
+        box-shadow: 0 50px 120px -60px rgba(0, 0, 0, .55);
+    }
+}
+@media (min-width: 992px) {
+    body.inv--template-areia-dourada.inv--public-device.inv--cartao_classico .inv-main { margin: 0 auto; border-radius: 0; box-shadow: none; }
+}
+
+/* Moldura contínua em filete duplo. */
+body.inv--template-areia-dourada .inv-main::before,
+body.inv--template-areia-dourada .inv-main::after {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    pointer-events: none;
+}
+body.inv--template-areia-dourada .inv-main::before {
+    inset: .7rem;
+    border: 1px solid var(--t-frame, transparent);
+    border-radius: var(--t-frame-radius, 0);
+}
+body.inv--template-areia-dourada .inv-main::after {
+    inset: 1.05rem;
+    border: 1px solid var(--t-frame-inner, transparent);
+    border-radius: var(--t-frame-radius, 0);
+}
+body.inv--template-areia-dourada .inv-main > * { position: relative; z-index: 1; }
+
+/* Hero */
+body.inv--template-areia-dourada.inv--cartao_classico .inv-hero {
+    margin: 0 -1.4rem;
+    padding: 3.4rem 1.6rem 2.4rem;
+    border: 0;
+    border-radius: 0;
+    background: var(--t-hero-bg, transparent);
+}
+body.inv--template-areia-dourada .tpl-crest {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: var(--t-crest-w, 7.2rem);
+    height: var(--t-crest-h, 7.2rem);
+    margin: 0 auto 1.2rem;
+    color: var(--t-accent-soft);
+}
+body.inv--template-areia-dourada .tpl-crest__art {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+body.inv--template-areia-dourada .tpl-crest__mono {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-family: var(--t-mono-font, var(--t-caps));
+    font-size: var(--t-mono-size, 1.7rem);
+    line-height: 1;
+    color: var(--t-accent);
+    transform: translateY(var(--t-mono-y, 0));
+}
+body.inv--template-areia-dourada .tpl-crest__mono b { font-weight: 400; }
+body.inv--template-areia-dourada .tpl-crest__mono i {
+    display: block;
+    width: 1px;
+    height: 1.25em;
+    background: currentColor;
+    opacity: .6;
+}
+body.inv--template-areia-dourada .tpl-crest__mono i:last-child { display: none; }
+
+body.inv--template-areia-dourada .inv-hero__eyebrow {
+    font-family: var(--t-caps);
+    font-size: .64rem;
+    font-weight: 500;
+    letter-spacing: .36em;
+    color: var(--t-accent-soft);
+    margin-bottom: .9rem;
+}
+body.inv--template-areia-dourada .inv-hero__names {
+    font-family: var(--t-names);
+    font-size: var(--t-names-size);
+    font-weight: 400;
+    line-height: .95;
+    letter-spacing: var(--t-names-track, 0);
+    color: var(--t-accent);
+}
+body.inv--template-areia-dourada .inv-hero__amp {
+    font-family: var(--t-amp, var(--inv-display));
+    font-size: .48em;
+    line-height: 1.3;
+    color: var(--t-accent-2);
+}
+body.inv--template-areia-dourada .inv-hero__greeting {
+    font-family: var(--t-body);
+    font-size: 1.12rem;
+    color: var(--t-accent);
+}
+body.inv--template-areia-dourada .inv-hero__text {
+    font-size: 1.05rem;
+    line-height: 1.55;
+    color: var(--t-ink);
+    max-width: 21rem;
+}
+
+/* Ornamento de divisão (máscara, pinta com a cor do template). */
+body.inv--template-areia-dourada .inv-divider,
+body.inv--template-areia-dourada .inv-hearts {
+    width: var(--t-div-w, 11rem);
+    height: var(--t-div-h, 1.6rem);
+    margin: 1.1rem auto 1.4rem;
+    color: transparent;
+    opacity: 1;
+    background: var(--t-div-color, var(--t-accent-soft));
+    -webkit-mask: var(--t-divider) center / contain no-repeat;
+    mask: var(--t-divider) center / contain no-repeat;
+}
+body.inv--template-areia-dourada .inv-divider use,
+body.inv--template-areia-dourada .inv-hearts use { display: none; }
+
+/* Data em composição de convite impresso. */
+body.inv--template-areia-dourada .inv-hero__date {
+    font-family: var(--t-caps);
+    letter-spacing: .12em;
+    color: var(--t-accent);
+}
+body.inv--template-areia-dourada .inv-hero.tpl-has-date .inv-hero__date {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+body.inv--template-areia-dourada .tpl-date {
+    display: grid;
+    justify-items: center;
+    gap: .15rem;
+    margin: .4rem auto .6rem;
+    font-family: var(--t-caps);
+    color: var(--t-accent);
+}
+body.inv--template-areia-dourada .tpl-date__month,
+body.inv--template-areia-dourada .tpl-date__year {
+    font-size: .72rem;
+    letter-spacing: .34em;
+    text-transform: uppercase;
+    color: var(--t-accent-soft);
+}
+body.inv--template-areia-dourada .tpl-date__row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: .9rem;
+    width: min(100%, 19rem);
+}
+body.inv--template-areia-dourada .tpl-date__row span {
+    padding: .45rem 0;
+    border-block: 1px solid var(--t-line);
+    font-size: .62rem;
+    letter-spacing: .24em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+body.inv--template-areia-dourada .tpl-date__row strong {
+    font-family: var(--t-num, var(--t-caps));
+    font-size: 2.9rem;
+    font-weight: 400;
+    line-height: 1;
+    color: var(--t-accent);
+}
+
+/* Contagem regressiva */
+body.inv--template-areia-dourada .inv-countdown {
+    gap: .5rem;
+    margin: 1.6rem auto 1.4rem;
+    max-width: 20rem;
+}
+body.inv--template-areia-dourada .inv-countdown__cell {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: .7rem .2rem .55rem;
+    border: 1px solid var(--t-line);
+    border-radius: var(--t-tile-radius, .4rem);
+    background: var(--t-tile);
+    box-shadow: var(--t-tile-shadow, none);
+    overflow: hidden;
+}
+body.inv--template-areia-dourada .inv-countdown__cell span {
+    font-family: var(--t-num, var(--t-caps));
+    font-size: 1.55rem;
+    font-weight: 400;
+    color: var(--t-tile-num, var(--t-accent));
+    font-variant-numeric: tabular-nums;
+}
+body.inv--template-areia-dourada .inv-countdown__cell small {
+    display: block;
+    margin-top: .2rem;
+    font-family: var(--t-caps);
+    font-size: .5rem;
+    letter-spacing: .2em;
+    color: var(--t-tile-label, var(--t-ink));
+    opacity: .85;
+}
+body.inv--template-areia-dourada .inv-countdown__cell span.tpl-tick { animation: tpl-tick .6s var(--t-ease); }
+@keyframes tpl-tick {
+    0% { transform: translateY(-.45em); opacity: 0; filter: blur(1px); }
+    100% { transform: none; opacity: 1; filter: none; }
+}
+
+body.inv--template-areia-dourada .inv-seats {
+    margin: .25rem .2rem;
+    padding: .4rem 1rem;
+    border: 1px solid var(--t-line);
+    background: var(--t-tile);
+    color: var(--t-ink);
+}
+body.inv--template-areia-dourada .inv-seats span { font-family: var(--t-caps); font-size: .56rem; letter-spacing: .2em; }
+body.inv--template-areia-dourada .inv-seats strong { font-family: var(--t-body); color: var(--t-accent); font-weight: 600; }
+
+/* Secções */
+body.inv--template-areia-dourada .inv-section {
+    padding: 2.6rem .2rem;
+    border-top: 0;
+}
+body.inv--template-areia-dourada .inv-section + .inv-section::before,
+body.inv--template-areia-dourada .inv-section--qr::before {
+    content: "";
+    display: block;
+    width: 3.2rem;
+    height: 1px;
+    margin: -2.6rem auto 2.6rem;
+    background: linear-gradient(90deg, transparent, var(--t-line), transparent);
+}
+body.inv--template-areia-dourada .inv-section--qr::before { display: none; }
+body.inv--template-areia-dourada .inv-section__title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .9rem;
+    font-family: var(--t-caps);
+    font-size: .78rem;
+    font-weight: 500;
+    letter-spacing: .32em;
+    color: var(--t-accent);
+}
+body.inv--template-areia-dourada .inv-section__title::before,
+body.inv--template-areia-dourada .inv-section__title::after {
+    content: "";
+    flex: 0 1 2.6rem;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--t-line));
+}
+body.inv--template-areia-dourada .inv-section__title::after { background: linear-gradient(270deg, transparent, var(--t-line)); }
+
+body.inv--template-areia-dourada .inv-section:has(> .inv-text--lead) {
+    margin: .6rem 0;
+    padding: 2rem 1.4rem;
+    border: 1px solid var(--t-line-soft);
+    border-radius: var(--t-radius);
+    background: var(--t-tile);
+}
+body.inv--template-areia-dourada .inv-section:has(> .inv-text--lead)::before { display: none; }
+body.inv--template-areia-dourada .inv-section:has(> .inv-text--lead) + .inv-section::before { display: none; }
+body.inv--template-areia-dourada .inv-text--lead {
+    font-family: var(--t-body);
+    font-size: 1.18rem;
+    line-height: 1.55;
+    color: var(--t-accent);
+}
+body.inv--template-areia-dourada .inv-text--lead::before {
+    content: "\201C";
+    display: block;
+    height: 1.6rem;
+    font-family: var(--t-caps);
+    font-size: 3rem;
+    font-style: normal;
+    line-height: 1;
+    color: var(--t-accent-soft);
+    opacity: .55;
+}
+
+/* História */
+body.inv--template-areia-dourada .inv-story .inv-section__title,
+body.inv--template-areia-dourada .theme-section.inv-story h2 {
+    display: block;
+    font-family: var(--t-names);
+    font-size: clamp(2.3rem, 10vw, 2.9rem);
+    font-weight: 400;
+    letter-spacing: var(--t-names-track, 0);
+    line-height: 1.05;
+    text-transform: var(--t-story-case, none);
+    color: var(--t-accent);
+    margin: .2rem 0 0;
+}
+body.inv--template-areia-dourada .inv-story .inv-section__title::before,
+body.inv--template-areia-dourada .inv-story .inv-section__title::after { display: none; }
+body.inv--template-areia-dourada .inv-story__kicker {
+    font-family: var(--t-caps);
+    font-size: .6rem;
+    font-weight: 500;
+    letter-spacing: .32em;
+    color: var(--t-accent-soft);
+}
+body.inv--template-areia-dourada .inv-story__body { font-size: 1.08rem; line-height: 1.65; color: var(--t-ink); }
+body.inv--template-areia-dourada .inv-story__quote {
+    position: relative;
+    margin-top: 1.8rem;
+    padding: 1.5rem 1.2rem;
+    border: 0;
+    font-family: var(--t-quote-font, var(--t-body));
+    font-size: 1.2rem;
+    color: var(--t-accent);
+}
+body.inv--template-areia-dourada .inv-story__quote::before,
+body.inv--template-areia-dourada .inv-story__quote::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    width: 7rem;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--t-line), transparent);
+    transform: translateX(-50%);
+}
+body.inv--template-areia-dourada .inv-story__quote::before { top: 0; }
+body.inv--template-areia-dourada .inv-story__quote::after { bottom: 0; }
+body.inv--template-areia-dourada .inv-story__quote cite { font-family: var(--t-caps); font-size: .58rem; letter-spacing: .26em; color: var(--t-accent-soft); }
+
+/* Galeria */
+body.inv--template-areia-dourada .inv-gallery-teaser__stack span {
+    border: 6px solid var(--t-photo-mat, #fff);
+    border-radius: 3px;
+    box-shadow: 0 22px 44px -22px rgba(0, 0, 0, .45);
+}
+body.inv--template-areia-dourada .inv-gallery-teaser__eyebrow { font-family: var(--t-caps); font-size: .58rem; font-weight: 500; letter-spacing: .3em; color: var(--t-accent-soft); }
+body.inv--template-areia-dourada .inv-gallery-teaser .inv-section__title { margin-bottom: .6rem; }
+body.inv--template-areia-dourada .inv-gallery-teaser__copy > p:not(.inv-gallery-teaser__eyebrow) { color: var(--t-muted); font-size: 1.02rem; }
+body.inv--template-areia-dourada .inv-gallery__header strong { font-family: var(--t-names); font-weight: 400; font-size: 1.9rem; }
+
+/* Programa: linha vertical com ícones desenhados. */
+body.inv--template-areia-dourada .inv-timeline {
+    position: relative;
+    max-width: 21rem;
+    margin-top: .4rem;
+}
+body.inv--template-areia-dourada .inv-timeline::before {
+    content: "";
+    position: absolute;
+    top: 1.4rem;
+    bottom: 1.4rem;
+    left: 3.35rem;
+    width: 1px;
+    background: linear-gradient(var(--t-line), var(--t-line)) top / 100% var(--tpl-line, 100%) no-repeat;
+}
+/* Ícone à esquerda; hora por cima do título, que fica com a largura toda. */
+body.inv--template-areia-dourada .inv-timeline__item {
+    position: relative;
+    grid-template-columns: 2.9rem 1fr;
+    grid-template-rows: auto 1fr;
+    gap: 0 .9rem;
+    padding: .9rem 0;
+    border-bottom: 0;
+}
+body.inv--template-areia-dourada .inv-timeline__item::before {
+    content: "";
+    position: absolute;
+    top: 1.33rem;
+    left: calc(3.35rem - 3px);
+    width: 7px;
+    height: 7px;
+    background: var(--t-paper);
+    border: 1px solid var(--t-accent-soft);
+    transform: rotate(45deg);
+    border-radius: 1px;
+}
+body.inv--template-areia-dourada .inv-timeline__dot {
+    grid-row: 1 / 3;
+    width: 2.6rem;
+    height: 2.6rem;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--t-icon, var(--t-accent));
+}
+body.inv--template-areia-dourada .inv-timeline__dot svg { width: 1.9rem; height: 1.9rem; overflow: visible; }
+body.inv--template-areia-dourada .inv-timeline__dot svg * { vector-effect: non-scaling-stroke; }
+body.inv--template-areia-dourada .inv-timeline__time {
+    grid-column: 2;
+    padding: .15rem 0 0 .9rem;
+    font-family: var(--t-caps);
+    font-size: .82rem;
+    font-weight: 500;
+    letter-spacing: .1em;
+    color: var(--t-accent);
+    white-space: nowrap;
+}
+body.inv--template-areia-dourada .inv-timeline__body { grid-column: 2; padding: .1rem 0 0 .9rem; min-width: 0; }
+body.inv--template-areia-dourada .inv-timeline__label {
+    font-family: var(--t-caps);
+    font-size: .74rem;
+    font-weight: 500;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--t-ink);
+}
+body.inv--template-areia-dourada .inv-timeline__note { font-size: .92rem; line-height: 1.4; color: var(--t-muted); opacity: 1; font-style: italic; }
+body.inv--template-areia-dourada .inv-timeline__note .bi { font-style: normal; color: var(--t-accent-soft); }
+body.inv--template-areia-dourada .inv-map summary { align-items: flex-start; flex-wrap: wrap; }
+body.inv--template-areia-dourada .inv-map__toggle,
+body.inv--template-areia-dourada .inv-venue-map summary {
+    padding: .32rem .6rem;
+    border-color: var(--t-line);
+    background: var(--t-tile);
+    color: var(--t-accent);
+    font-family: var(--t-caps);
+    font-size: .54rem;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+body.inv--template-areia-dourada .inv-map__frame { border: 1px solid var(--t-line-soft); }
+
+/* QR */
+body.inv--template-areia-dourada .inv-section--qr {
+    margin-top: 1.2rem;
+    padding: 2.8rem 1.2rem 2.4rem;
+    border: 1px solid var(--t-line);
+    border-radius: var(--t-radius);
+    background: var(--t-qr-bg, var(--t-tile));
+    box-shadow: 0 0 0 5px var(--t-paper), 0 0 0 6px var(--t-line-soft);
+}
+body.inv--template-areia-dourada .inv-qr__eyebrow { font-family: var(--t-caps); font-size: .58rem; font-weight: 500; letter-spacing: .3em; color: var(--t-accent-soft); }
+body.inv--template-areia-dourada .inv-qr__card {
+    position: relative;
+    width: min(100%, 15rem);
+    padding: 1rem 1rem .9rem;
+    border: 1px solid var(--t-line);
+    border-radius: .4rem;
+    background: #fff;
+    box-shadow: 0 26px 50px -30px rgba(0, 0, 0, .55);
+}
+body.inv--template-areia-dourada .inv-qr__card::before {
+    content: "";
+    position: absolute;
+    inset: .35rem;
+    border: 1px solid var(--t-line-soft);
+    border-radius: .25rem;
+    pointer-events: none;
+}
+body.inv--template-areia-dourada .inv-qr__guest { font-family: var(--t-names); font-size: 1.7rem; color: var(--t-qr-name, #3a2a2a); }
+body.inv--template-areia-dourada .inv-qr__seats { font-family: var(--t-caps); font-size: .56rem; letter-spacing: .22em; color: #4a4a4a; }
+body.inv--template-areia-dourada .inv-qr__instructions { color: var(--t-ink); font-size: 1rem; }
+body.inv--template-areia-dourada .inv-qr__events li {
+    border: 1px solid var(--t-line);
+    background: var(--t-tile);
+    color: var(--t-accent);
+    font-size: .82rem;
+}
+
+/* Rodapé */
+body.inv--template-areia-dourada .inv-footer {
+    border-top: 0;
+    padding: 2.4rem 0 1rem;
+}
+body.inv--template-areia-dourada .inv-footer__names {
+    font-family: var(--t-names);
+    font-size: 2.5rem;
+    line-height: 1.05;
+    letter-spacing: var(--t-names-track, 0);
+    color: var(--t-accent);
+}
+body.inv--template-areia-dourada .inv-footer__date { font-family: var(--t-caps); font-size: .7rem; letter-spacing: .3em; color: var(--t-accent-soft); opacity: 1; margin-top: .5rem; }
+body.inv--template-areia-dourada .inv-footer__brand { font-family: var(--t-caps); font-size: .56rem; letter-spacing: .2em; color: var(--t-muted); opacity: 1; }
+body.inv--template-areia-dourada .inv-footer__brand strong { color: var(--t-accent); font-weight: 500; }
+
+/* Diálogos */
+body.inv--template-areia-dourada .inv-dialog {
+    padding: 2.4rem 1.5rem 2rem;
+    border: 1px solid var(--t-line);
+    border-radius: var(--t-radius);
+    background: var(--t-dialog-bg, var(--t-paper));
+    color: var(--t-ink);
+    font-family: var(--t-body);
+}
+body.inv--template-areia-dourada .inv-dialog::before {
+    content: "";
+    position: absolute;
+    inset: .5rem;
+    border: 1px solid var(--t-line-soft);
+    border-radius: calc(var(--t-radius) * .7);
+    pointer-events: none;
+}
+body.inv--template-areia-dourada .inv-dialog[open] { animation: tpl-dialog-in .55s var(--t-ease) both; }
+@keyframes tpl-dialog-in {
+    from { opacity: 0; transform: translateY(18px) scale(.97); }
+}
+body.inv--template-areia-dourada .inv-dialog h2 { font-family: var(--t-names); font-weight: 400; color: var(--t-accent); letter-spacing: var(--t-names-track, 0); }
+body.inv--template-areia-dourada .inv-dialog > p { font-size: 1.05rem; }
+body.inv--template-areia-dourada .inv-dialog .inv-btn { padding: .9rem 1.3rem; letter-spacing: .14em; }
+body.inv--template-areia-dourada .inv-dialog__icon { background: var(--t-tile); border: 1px solid var(--t-line); border-radius: 50%; color: var(--t-accent); }
+body.inv--template-areia-dourada .inv-dialog__close { z-index: 1; color: var(--t-accent); }
+body.inv--template-areia-dourada .inv-gift { border-color: var(--t-line); background: var(--t-tile); }
+body.inv--template-areia-dourada .inv-gift strong { font-family: var(--t-body); color: var(--t-ink); }
+body.inv--template-areia-dourada .inv-gift__button { background: var(--t-btn-bg); color: var(--t-btn-ink); font-family: var(--t-caps); letter-spacing: .1em; }
+
+/* --- Movimento (só quando o script do template o activa) ----------------- */
+body.inv--template-areia-dourada.tpl-motion .inv-cover:not(.tpl-cover-go) .tpl-cv { opacity: 0; }
+body.inv--template-areia-dourada.tpl-motion .inv-cover.tpl-cover-go .tpl-cv {
+    animation: tpl-rise 1.25s var(--t-ease) both;
+    animation-delay: calc(var(--i, 0) * .13s + .1s);
+}
+body.inv--template-areia-dourada.tpl-motion .inv-cover.tpl-cover-go .inv-collection-seal.tpl-cv {
+    animation: tpl-seal-drop 1.3s var(--t-ease) both, inv-wax-breathe 3.8s 2s ease-in-out infinite;
+    animation-delay: calc(var(--i, 0) * .13s + .1s), 2.2s;
+}
+body.inv--template-areia-dourada.tpl-motion .inv-cover.tpl-cover-go .inv-cover__paper { animation: tpl-card-in 1.3s var(--t-ease) both; }
+@keyframes tpl-rise {
+    from { opacity: 0; transform: translate3d(0, 1.4rem, 0); letter-spacing: var(--t-rise-track, inherit); }
+    to { opacity: 1; transform: none; }
+}
+@keyframes tpl-card-in {
+    from { opacity: 0; transform: translate3d(0, 2rem, 0) scale(.97); }
+    to { opacity: 1; transform: none; }
+}
+@keyframes tpl-seal-drop {
+    0% { opacity: 0; transform: translateY(-1.2rem) scale(1.35) rotate(-10deg); }
+    60% { opacity: 1; transform: translateY(0) scale(.96) rotate(2deg); }
+    100% { opacity: 1; transform: none; }
+}
+
+/* Abertura: o cartão sobe, a arte aproxima-se, a luz invade. */
+body.inv--template-areia-dourada .inv-cover.tpl-opening .inv-cover__paper { animation: tpl-card-out 1.15s var(--t-ease-io) forwards !important; }
+body.inv--template-areia-dourada .inv-cover.tpl-opening::before { animation: tpl-art-push 1.4s var(--t-ease-io) forwards !important; }
+body.inv--template-areia-dourada .inv-cover.tpl-opening::after {
+    background: radial-gradient(circle at 50% 45%, var(--t-bloom, rgba(255, 255, 255, .95)), transparent 70%);
+    background-size: 100% 100%;
+    animation: tpl-bloom 1.2s .25s ease-in forwards;
+    opacity: 0;
+}
+body.inv--template-areia-dourada .inv-cover.tpl-opening .tpl-particles i { animation-duration: calc(var(--dur) * .35); }
+@keyframes tpl-card-out {
+    0% { transform: none; opacity: 1; }
+    30% { transform: translate3d(0, .6rem, 0) scale(1.01); opacity: 1; }
+    100% { transform: translate3d(0, -40vh, 0) scale(.9) rotate(-2deg); opacity: 0; }
+}
+@keyframes tpl-art-push {
+    to { transform: scale(1.35); filter: brightness(1.15); }
+}
+@keyframes tpl-bloom {
+    0% { opacity: 0; transform: scale(.6); }
+    100% { opacity: 1; transform: scale(1.6); }
+}
+
+/* Revelação ao percorrer o convite */
+body.inv--template-areia-dourada.tpl-motion .tpl-rv {
+    opacity: 0;
+    transform: translate3d(0, 1.6rem, 0);
+    transition: opacity 1s var(--t-ease) var(--d, 0s), transform 1.2s var(--t-ease) var(--d, 0s);
+}
+body.inv--template-areia-dourada.tpl-motion .tpl-rv.is-in { opacity: 1; transform: none; }
+body.inv--template-areia-dourada.tpl-motion .tpl-rv--zoom { transform: scale(.94); }
+body.inv--template-areia-dourada.tpl-motion .tpl-rv--left { transform: translate3d(-1.4rem, 0, 0); }
+body.inv--template-areia-dourada.tpl-motion .tpl-rv--zoom.is-in,
+body.inv--template-areia-dourada.tpl-motion .tpl-rv--left.is-in { transform: none; }
+body.inv--template-areia-dourada.tpl-motion .inv-section__title.tpl-rv::before,
+body.inv--template-areia-dourada.tpl-motion .inv-section__title.tpl-rv::after {
+    transform: scaleX(0);
+    transition: transform 1.4s var(--t-ease) calc(var(--d, 0s) + .3s);
+}
+body.inv--template-areia-dourada.tpl-motion .inv-section__title.tpl-rv::before { transform-origin: right; }
+body.inv--template-areia-dourada.tpl-motion .inv-section__title.tpl-rv::after { transform-origin: left; }
+body.inv--template-areia-dourada.tpl-motion .inv-section__title.tpl-rv.is-in::before,
+body.inv--template-areia-dourada.tpl-motion .inv-section__title.tpl-rv.is-in::after { transform: scaleX(1); }
+body.inv--template-areia-dourada.tpl-motion .inv-divider.tpl-rv { -webkit-mask-size: 0 100%; mask-size: 0 100%; transform: none; transition: opacity .6s ease var(--d, 0s), -webkit-mask-size 1.6s var(--t-ease) var(--d, 0s), mask-size 1.6s var(--t-ease) var(--d, 0s); }
+body.inv--template-areia-dourada.tpl-motion .inv-divider.tpl-rv.is-in { -webkit-mask-size: contain; mask-size: contain; }
+body.inv--template-areia-dourada.tpl-motion .inv-timeline::before { transition: background-size .2s linear; }
+
+@media (prefers-reduced-motion: reduce) {
+    body.inv--template-areia-dourada *,
+    body.inv--template-areia-dourada *::before,
+    body.inv--template-areia-dourada *::after {
+        animation-duration: .001s !important;
+        animation-iteration-count: 1 !important;
+        animation-delay: 0s !important;
+        transition-duration: .001s !important;
+    }
+    body.inv--template-areia-dourada .tpl-particles { display: none; }
+}
+
+/* === Específico de areia-dourada === */
+/* Nomes a ouro batido, com reflexo de sol. */
+body.inv--template-areia-dourada .inv-hero__names,
+body.inv--template-areia-dourada .inv-cover__names {
+    text-transform: uppercase;
+    font-weight: 500;
+    line-height: 1.08;
+    background: linear-gradient(100deg, #9c7424 0%, #d4b064 28%, #f3dc98 46%, #c09140 64%, #9c7424 100%);
+    background-size: 230% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: ad-sun 7s ease-in-out infinite alternate;
+}
+@keyframes ad-sun { from { background-position: 0 0; } to { background-position: 100% 0; } }
+body.inv--template-areia-dourada .inv-hero__amp,
+body.inv--template-areia-dourada .inv-cover__amp { font-style: italic; font-size: .66em; line-height: 1.2; text-transform: none; -webkit-text-fill-color: var(--ad-navy); }
+body.inv--template-areia-dourada .inv-footer__names { font-size: 1.5rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ad-gold); }
+body.inv--template-areia-dourada .inv-cover__kicker, body.inv--template-areia-dourada .inv-cover__eyebrow { color: var(--ad-navy); }
+body.inv--template-areia-dourada .inv-cover__note { color: var(--ad-navy); }
+body.inv--template-areia-dourada .inv-cover--classic .inv-cover__paper { max-width: 21rem; }
+body.inv--template-areia-dourada .inv-collection-seal { width: 8.4rem; height: 8.4rem; }
+
+/* Brilho de areia e luz no mar. */
+body.inv--template-areia-dourada .tpl-particles i { border-radius: 50%; background: radial-gradient(circle, #fff6d6 0 25%, rgba(236, 196, 110, .7) 40%, transparent 70%); animation-name: ad-rise; }
+body.inv--template-areia-dourada .tpl-particles i.tpl-p2 { background: radial-gradient(circle, #ffffff 0 20%, rgba(255, 240, 200, .5) 40%, transparent 70%); }
+body.inv--template-areia-dourada .tpl-particles i.tpl-p3 { clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%); background: #fff3cf; }
+@keyframes ad-rise {
+    0% { opacity: 0; transform: translate3d(0, 100vh, 0) scale(.5); }
+    20% { opacity: var(--o, .8); }
+    80% { opacity: var(--o, .8); }
+    100% { opacity: 0; transform: translate3d(var(--drift), 10vh, 0) scale(1.1) rotate(var(--spin)); }
+}
+
+/* Ondas douradas que correm devagar. */
+body.inv--template-areia-dourada .ad-waves {
+    position: absolute;
+    z-index: 0;
+    left: 0;
+    width: calc(100% + 12rem);
+    height: 1.8rem;
+    pointer-events: none;
+    background: var(--ad-gold);
+    opacity: .55;
+    -webkit-mask: url("../../img/tpl/areia-dourada/waves.svg") 0 0 / 12rem 100% repeat-x;
+    mask: url("../../img/tpl/areia-dourada/waves.svg") 0 0 / 12rem 100% repeat-x;
+    animation: ad-tide 14s linear infinite;
+}
+body.inv--template-areia-dourada .ad-waves--top { top: .9rem; }
+@keyframes ad-tide { to { transform: translate3d(-12rem, 0, 0); } }
+body.inv--template-areia-dourada .inv-footer { position: relative; isolation: isolate; padding-bottom: 5rem; }
+body.inv--template-areia-dourada .inv-footer::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    left: -1.4rem;
+    bottom: -3.6rem;
+    width: calc(100% + 14.8rem);
+    height: 3.4rem;
+    background: var(--ad-gold);
+    opacity: .5;
+    -webkit-mask: url("../../img/tpl/areia-dourada/waves.svg") 0 0 / 12rem 100% repeat-x;
+    mask: url("../../img/tpl/areia-dourada/waves.svg") 0 0 / 12rem 100% repeat-x;
+    animation: ad-tide 18s linear infinite reverse;
+}
+
+/* Monograma com gaivotas e ondas. */
+body.inv--template-areia-dourada .tpl-crest { color: var(--ad-gold); }
+body.inv--template-areia-dourada .tpl-crest__mono { color: var(--ad-gold); gap: .45rem; }
+body.inv--template-areia-dourada .tpl-crest__mono i { opacity: .5; }
+body.inv--template-areia-dourada .tpl-crest .tpl-draw { stroke-dasharray: 160; stroke-dashoffset: 0; }
+body.inv--template-areia-dourada.tpl-motion .tpl-crest.tpl-rv .tpl-draw { stroke-dashoffset: 160; transition: stroke-dashoffset 2.2s var(--t-ease) .3s; }
+body.inv--template-areia-dourada.tpl-motion .tpl-crest.tpl-rv.is-in .tpl-draw { stroke-dashoffset: 0; }
+body.inv--template-areia-dourada .ad-bird { animation: ad-fly 5s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: center; }
+body.inv--template-areia-dourada .ad-bird--2 { animation-duration: 6.5s; animation-delay: -2s; }
+@keyframes ad-fly {
+    0% { transform: translate(0, 0) scaleY(1); }
+    25% { transform: translate(2px, -2px) scaleY(.7); }
+    50% { transform: translate(4px, -1px) scaleY(1.05); }
+    100% { transform: translate(8px, -4px) scaleY(.8); }
+}
+
+body.inv--template-areia-dourada.inv--cartao_classico .inv-hero { padding-top: 3.2rem; }
+body.inv--template-areia-dourada .inv-hero__eyebrow { color: var(--ad-navy); }
+body.inv--template-areia-dourada .inv-hero__greeting { color: var(--ad-navy); font-style: italic; }
+body.inv--template-areia-dourada .tpl-date__row strong { color: var(--ad-navy); }
+body.inv--template-areia-dourada .tpl-date__row span { color: var(--ad-navy); }
+
+/* Janela para o mar, com cintilações. */
+body.inv--template-areia-dourada .ad-sea {
+    position: relative;
+    height: 9.5rem;
+    margin: 1.4rem -1.6rem 0;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(transparent, #000 22%, #000 78%, transparent);
+    mask-image: linear-gradient(transparent, #000 22%, #000 78%, transparent);
+}
+body.inv--template-areia-dourada .ad-sea::before {
+    content: "";
+    position: absolute;
+    inset: -8%;
+    background: url("../../img/tpl/areia-dourada/ad-sea.webp") center / cover no-repeat;
+    animation: ad-swell 16s ease-in-out infinite alternate;
+}
+@keyframes ad-swell {
+    from { transform: scale(1.02) translate3d(-2%, 0, 0); }
+    to { transform: scale(1.1) translate3d(2%, -2%, 0); }
+}
+body.inv--template-areia-dourada .ad-sea i {
+    position: absolute;
+    width: .7rem;
+    height: .7rem;
+    background: #fffbe8;
+    clip-path: polygon(50% 0, 58% 42%, 100% 50%, 58% 58%, 50% 100%, 42% 58%, 0 50%, 42% 42%);
+    opacity: 0;
+    animation: ad-glint 3.2s ease-in-out infinite;
+}
+body.inv--template-areia-dourada .ad-sea i:nth-child(1) { left: 62%; top: 30%; }
+body.inv--template-areia-dourada .ad-sea i:nth-child(2) { left: 78%; top: 52%; animation-delay: -1s; width: .5rem; height: .5rem; }
+body.inv--template-areia-dourada .ad-sea i:nth-child(3) { left: 88%; top: 26%; animation-delay: -2.1s; }
+body.inv--template-areia-dourada .ad-sea i:nth-child(4) { left: 70%; top: 66%; animation-delay: -.5s; width: .45rem; height: .45rem; }
+body.inv--template-areia-dourada .ad-sea i:nth-child(5) { left: 40%; top: 44%; animation-delay: -1.6s; width: .4rem; height: .4rem; }
+body.inv--template-areia-dourada .ad-sea i:nth-child(6) { left: 94%; top: 60%; animation-delay: -2.6s; width: .55rem; height: .55rem; }
+@keyframes ad-glint {
+    0%, 100% { opacity: 0; transform: scale(.3) rotate(0); }
+    50% { opacity: .95; transform: scale(1) rotate(45deg); }
+}
+
+/* Contagem num cartão que pousa sobre o mar. */
+body.inv--template-areia-dourada .ad-sea + .inv-countdown {
+    position: relative;
+    z-index: 2;
+    margin-top: -2.6rem;
+    padding: .65rem;
+    border: 1px solid var(--t-line-soft);
+    border-radius: var(--t-radius);
+    background: rgba(255, 252, 244, .94);
+    box-shadow: 0 20px 40px -26px rgba(80, 60, 20, .6);
+    max-width: 21rem;
+}
+body.inv--template-areia-dourada .inv-countdown__cell span { color: var(--ad-navy); font-weight: 500; }
+body.inv--template-areia-dourada .inv-section__title { color: var(--ad-navy); }
+body.inv--template-areia-dourada .inv-timeline__label { color: var(--ad-navy); }
+body.inv--template-areia-dourada .inv-timeline__time { color: var(--ad-gold); }
+body.inv--template-areia-dourada .inv-btn { font-weight: 600; }
+body.inv--template-areia-dourada .inv-fab--secondary, body.inv--template-areia-dourada .inv-btn--outline { color: var(--ad-navy); }
