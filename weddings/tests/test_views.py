@@ -64,7 +64,7 @@ class EventCreationViewTests(TestCase):
             field_schema=[{"key": "idade", "label": "Idade a celebrar", "type": "number"}],
         )
         self.url = reverse("weddings:create")
-        self.template = InvitationTemplate.objects.filter(is_active=True).first()
+        self.template = InvitationTemplate.objects.for_category(self.category).first()
 
     def _payload(self, **overrides) -> dict:
         data = {

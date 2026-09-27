@@ -1,0 +1,64 @@
+{% load invitation_texts %}
+{% comment %}
+Editorial romântico — convite longo, fotográfico, em papel com aguarelas.
+
+A capa rasga-se ao meio quando o convidado a abre; cada secção entra com
+o scroll (static/js/invitation.js, bloco «Editorial romântico») e só é
+desenhada quando o evento tem dados para ela.
+{% endcomment %}
+{% include "invitations/_ornaments.html" %}
+{% include "invitations/_editorial_icons.html" %}
+
+{% if template.has_cover %}
+<section class="inv-cover inv-cover--editorial ed-cover{% if 'rose' in template.code or 'rosa' in template.code %} ed-set--rose{% endif %}{% if wedding.cover_image and not ignore_custom_cover or gallery %} ed-cover--photo{% else %} ed-cover--paper{% endif %}" id="inv-cover" data-ed-cover>
+    <div class="ed-cover__sheet ed-cover__sheet--top">
+        {% if wedding.cover_image and not ignore_custom_cover %}
+            <img class="ed-cover__photo" src="{{ wedding.cover_image.url }}" alt="">
+        {% elif gallery %}
+            <img class="ed-cover__photo" src="{{ gallery.0.source_url }}" alt="">
+        {% endif %}
+        <span class="ed-cover__shade" aria-hidden="true"></span>
+        {% include "invitations/_editorial_tear.html" with edge="bottom" v="a" %}
+    </div>
+    <div class="ed-cover__sheet ed-cover__sheet--bottom">
+        {% include "invitations/_editorial_tear.html" with edge="top" v="a" %}
+    </div>
+
+    <span class="ed-floral ed-floral--cover-tl" aria-hidden="true"></span>
+    <span class="ed-floral ed-floral--cover-br" aria-hidden="true"></span>
+    {% include "invitations/_editorial_petals.html" %}
+
+    <div class="ed-cover__content">
+        <svg class="ed-cover__monogram" viewBox="58 -2 124 124" aria-hidden="true">
+            <circle class="ed-cover__ring" cx="120" cy="60" r="56"/>
+            {% if monogram|length > 1 %}
+                <text x="78" y="78" text-anchor="middle">{{ monogram|first }}</text>
+                <line x1="120" y1="30" x2="120" y2="90"/>
+                <text x="162" y="78" text-anchor="middle">{{ monogram|slice:"1:" }}</text>
+            {% else %}
+                <text x="120" y="78" text-anchor="middle">{{ monogram }}</text>
+            {% endif %}
+        </svg>
+        <div class="ed-cover__text">
+            <p class="ed-cover__kicker">{% invtext "cover_message" %}</p>
+            {% if guest_name %}
+                <p class="ed-cover__for">{% invtext "cover_to_label" %}</p>
+                <p class="ed-cover__guest">{{ guest_name }}</p>
+                <p class="ed-cover__names">{{ wedding.display_names }}</p>
+            {% else %}
+                <p class="ed-cover__guest">{{ wedding.display_names }}</p>
+            {% endif %}
+            <p class="ed-cover__date">{{ wedding.main_date|date:"d · m · Y" }}</p>
+            <button type="button" class="ed-cover__open" data-open-invitation>
+                <span>{% invtext "open_button" %}</span>
+            </button>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% if wedding.cover_image and not ignore_custom_cover %}
+    {% include "invitations/_editorial_main.html" with band_photos=gallery %}
+{% else %}
+    {% include "invitations/_editorial_main.html" with band_photos=gallery|slice:"1:" %}
+{% endif %}

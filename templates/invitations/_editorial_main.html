@@ -1,0 +1,242 @@
+{% load invitation_texts %}
+{% comment %}
+Corpo do layout Editorial romântico. `band_photos` são as fotografias da
+galeria ainda não usadas na capa; cada faixa só aparece quando existe.
+{% endcomment %}
+<main class="inv-main ed-main{% if 'rose' in template.code or 'rosa' in template.code %} ed-set--rose{% endif %}" id="inv-main" {% if template.has_cover %}hidden{% endif %}>
+
+    {# --- Abertura: verso, monograma ------------------------------------ #}
+    <header class="ed-hero">
+        <span class="ed-floral ed-floral--tl" aria-hidden="true"></span>
+        <span class="ed-floral ed-floral--tr" aria-hidden="true"></span>
+        {% include "invitations/_editorial_petals.html" %}
+
+        {% if wedding.show_story and wedding.story_verse %}
+            <blockquote class="ed-verse" data-ed-reveal>
+                <p>{{ wedding.story_verse|linebreaksbr }}</p>
+                {% if wedding.story_verse_reference %}<cite>{{ wedding.story_verse_reference }}</cite>{% endif %}
+            </blockquote>
+        {% endif %}
+
+        <div class="ed-monogram" data-ed-reveal="monogram" aria-hidden="true">
+            <span class="ed-monogram__letter">{{ monogram|first }}</span>
+            {% if monogram|length > 1 %}
+                <span class="ed-monogram__bar"></span>
+                <span class="ed-monogram__letter">{{ monogram|slice:"1:" }}</span>
+            {% endif %}
+        </div>
+        <p class="ed-kicker" data-ed-reveal>
+            {% invtext "editorial_kicker" %}
+        </p>
+    </header>
+
+    {% if band_photos.0 %}{% include "invitations/_editorial_photo.html" with photo=band_photos.0 v="b" v2="c" %}{% endif %}
+
+    {# --- Gratidão e famílias ------------------------------------------- #}
+    {% if wedding.welcome_message or wedding.primary_parents_names or wedding.secondary_parents_names %}
+        <section class="ed-section ed-gratitude">
+            {% if wedding.welcome_message %}
+                <p class="ed-lead" data-ed-reveal>{{ wedding.welcome_message|linebreaksbr }}</p>
+            {% endif %}
+            {% if wedding.primary_parents_names or wedding.secondary_parents_names %}
+                <div class="ed-parents{% if wedding.primary_parents_names and wedding.secondary_parents_names %} ed-parents--pair{% endif %}" data-ed-reveal>
+                    {% if wedding.primary_parents_names %}
+                        <div class="ed-parents__family">
+                            <h3>{% invtext "parents_of" nome=wedding.primary_short_name %}</h3>
+                            <p>{{ wedding.primary_parents_names }}</p>
+                        </div>
+                    {% endif %}
+                    {% if wedding.primary_parents_names and wedding.secondary_parents_names %}<span class="ed-parents__rule" aria-hidden="true"></span>{% endif %}
+                    {% if wedding.secondary_parents_names %}
+                        <div class="ed-parents__family">
+                            <h3>{% invtext "parents_of" nome=wedding.secondary_short_name|default:wedding.primary_short_name %}</h3>
+                            <p>{{ wedding.secondary_parents_names }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </section>
+    {% endif %}
+
+    {# --- Nós · nomes · convite ----------------------------------------- #}
+    <section class="ed-section ed-couple">
+        {% if guest_name %}<p class="ed-greeting" data-ed-reveal>{% invtext "greeting" %}</p>{% endif %}
+        {% if wedding.parents_invitation_text and wedding.category.code == "casamento" %}
+            <p class="ed-hosts" data-ed-reveal>{% invtext "parents_sentence" pais=wedding.parents_hosts %}</p>
+        {% endif %}
+        {% if not wedding.invitation_message and wedding.category.code == "casamento" or not wedding.invitation_message and wedding.category.code == "noivado" %}
+            <p class="ed-we" data-ed-reveal>{% invtext "editorial_we" %}</p>
+        {% endif %}
+        <h1 class="ed-names" data-ed-reveal="names">
+            <span class="ed-names__name">{{ wedding.primary_short_name }}</span>
+            {% if wedding.secondary_short_name %}
+                <span class="ed-names__amp">{{ wedding.names_separator }}</span>
+                <span class="ed-names__name">{{ wedding.secondary_short_name }}</span>
+            {% endif %}
+        </h1>
+        <p class="ed-invite" data-ed-reveal>
+            {% if not wedding.invitation_message and wedding.category.code == "casamento" or not wedding.invitation_message and wedding.category.code == "noivado" %}{% invtext "editorial_invite" %}{% else %}{% invtext "invitation_message" %}{% endif %}
+        </p>
+    </section>
+
+    {# --- Data e contagem regressiva ------------------------------------ #}
+    <section class="ed-section ed-when">
+        <span class="ed-sprig" aria-hidden="true"></span>
+        <div class="ed-date" data-ed-reveal="date">
+            <span class="ed-date__month">{{ wedding.main_date|date:"F" }}</span>
+            <div class="ed-date__row">
+                <span class="ed-date__side">{{ wedding.main_date|date:"l" }}</span>
+                <span class="ed-date__day">{{ wedding.main_date|date:"d" }}</span>
+                <span class="ed-date__side">{{ wedding.main_date|date:"Y" }}</span>
+            </div>
+            {% if first_moment and first_moment.start_time %}<span class="ed-date__time">{% invtext "start_time" hora=first_moment.start_time|time:"H\hi" %}</span>{% endif %}
+        </div>
+        {% if wedding.show_countdown and wedding.main_date %}
+            <div class="ed-countdown" data-ed-reveal>
+                <p class="ed-eyebrow">{% invtext "countdown_title" %}</p>
+                {% include "invitations/_countdown.html" %}
+            </div>
+        {% endif %}
+        {% if seats or seating_assignment %}
+            <div class="ed-seats" data-ed-reveal>
+                {% if seats %}<p class="inv-seats"><span>{% invtext "seats_label" %}</span><strong>{{ seats }}</strong></p>{% endif %}
+                {% if seating_assignment %}<p class="inv-seats"><span>{% invtext "seating_label" %}</span><strong>{{ seating_assignment }}</strong></p>{% endif %}
+            </div>
+        {% endif %}
+    </section>
+
+    {% if band_photos.1 %}{% include "invitations/_editorial_photo.html" with photo=band_photos.1 v="c" v2="a" tall=True %}{% endif %}
+
+    {# --- Onde celebramos ----------------------------------------------- #}
+    {% if located_schedule %}
+        <section class="ed-section ed-venues">
+            <div>
+                <p class="ed-eyebrow" data-ed-reveal>{% invtext "venues_eyebrow" %}</p>
+                <h2 class="ed-title" data-ed-reveal>{% invtext "venues_title" %}</h2>
+            </div>
+            {% for item in located_schedule %}
+                <article class="ed-venue" data-ed-reveal>
+                    <svg class="ed-venue__icon" aria-hidden="true"><use href="#ed-i-pin"/></svg>
+                    <h2 class="ed-venue__event">{{ item.programme_title }}</h2>
+                    {% if item.start_time %}<p class="ed-venue__time">{% if item.date and item.date != wedding.main_date %}{{ item.date|date:"d \d\e F" }} · {% endif %}{{ item.start_time|time:"H\hi" }}</p>{% endif %}
+                    <p class="ed-venue__name">{{ item.location.name }}</p>
+                    {% if item.location.address %}<p class="ed-venue__address">{{ item.location.address }}</p>{% endif %}
+                    {% if item.location.parking_information %}<p class="ed-venue__note">{{ item.location.parking_information }}</p>{% endif %}
+                    {% if item.location.directions_url %}
+                        <a class="ed-pill" href="{{ item.location.directions_url }}" target="_blank" rel="noopener noreferrer"><i class="bi bi-geo-alt"></i> {% invtext "venue_directions" %}</a>
+                    {% endif %}
+                    {% if item.location.embed_url %}
+                        <details class="inv-map ed-venue__map">
+                            <summary><span class="inv-map__toggle"><i class="bi bi-map"></i> {% invtext "map_toggle" %} <i class="bi bi-chevron-down"></i></span></summary>
+                            <div class="inv-map__frame"><iframe src="{{ item.location.embed_url }}" title="Mapa de {{ item.location.name }}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
+                        </details>
+                    {% endif %}
+                </article>
+            {% endfor %}
+        </section>
+    {% endif %}
+
+    {# --- Itinerário ---------------------------------------------------- #}
+    {% if schedule %}
+        <section class="ed-section ed-itinerary">
+            <p class="ed-eyebrow" data-ed-reveal>{% invtext "schedule_eyebrow" %}</p>
+            <h2 class="ed-title" data-ed-reveal>{% invtext "schedule_title" %}</h2>
+            <ol class="ed-timeline" data-ed-timeline>
+                {% for item in schedule %}
+                    <li class="ed-timeline__item" data-ed-reveal style="--ed-i:{{ forloop.counter0 }}">
+                        <span class="ed-timeline__icon" aria-hidden="true"><svg><use href="#ed-i-{% if item.event_type == 'religious' %}arch{% elif item.event_type == 'civil' %}rings{% elif item.event_type == 'reception' %}dinner{% elif item.event_type == 'welcome_drink' %}toast{% elif item.event_type == 'photo_session' %}camera{% elif item.event_type == 'cake_cutting' %}cake{% elif item.event_type == 'lobolo' or item.event_type == 'xiguiane' or item.event_type == 'traditional' %}heart{% elif 'artif' in item.programme_title|lower %}fireworks{% elif 'bolo' in item.programme_title|lower or 'cake' in item.icon %}cake{% elif 'foto' in item.programme_title|lower or 'camera' in item.icon %}camera{% elif 'festa' in item.programme_title|lower or 'dança' in item.programme_title|lower or 'baile' in item.programme_title|lower or 'music' in item.icon %}dance{% elif 'jantar' in item.programme_title|lower or 'almoço' in item.programme_title|lower or 'recep' in item.programme_title|lower %}dinner{% elif 'brinde' in item.programme_title|lower or 'copo' in item.programme_title|lower or 'cocktail' in item.programme_title|lower %}toast{% elif 'igreja' in item.programme_title|lower or 'missa' in item.programme_title|lower or 'cerimónia' in item.programme_title|lower %}arch{% elif 'civil' in item.programme_title|lower or 'pedido' in item.programme_title|lower or 'alian' in item.programme_title|lower %}rings{% else %}{% cycle 'heart' 'toast' 'dance' 'fireworks' %}{% endif %}"/></svg></span>
+                        <div class="ed-timeline__body">
+                            {% if item.start_time %}<span class="ed-timeline__time">{{ item.start_time|time:"H\hi" }}</span>{% endif %}
+                            <h3 class="ed-timeline__title">{{ item.programme_title }}</h3>
+                            {% if item.date and item.date != wedding.main_date %}<span class="ed-timeline__note">{{ item.date|date:"l, d \d\e F" }}</span>{% endif %}
+                            {% if item.description %}<span class="ed-timeline__note">{{ item.description }}</span>{% endif %}
+                            {% if item.location %}<span class="ed-timeline__place"><i class="bi bi-geo-alt"></i> {{ item.location.name }}</span>{% endif %}
+                        </div>
+                    </li>
+                {% endfor %}
+            </ol>
+        </section>
+    {% endif %}
+
+    {# --- Traje -------------------------------------------------------- #}
+    {% if dress_codes %}
+        <section class="ed-section ed-dress">
+            <p class="ed-eyebrow" data-ed-reveal>{% invtext "dress_eyebrow" %}</p>
+            <h2 class="ed-title" data-ed-reveal>{% invtext "dress_title" %}</h2>
+            <div class="ed-dress__figures" data-ed-reveal aria-hidden="true">
+                <svg class="ed-dress__figure"><use href="#ed-i-suit"/></svg>
+                <svg class="ed-dress__figure"><use href="#ed-i-gown"/></svg>
+            </div>
+            <ul class="ed-dress__list">
+                {% for code in dress_codes %}
+                    <li data-ed-reveal>{% if code.event %}<span>{{ code.event }}</span>{% endif %}<strong>{{ code.value }}</strong></li>
+                {% endfor %}
+            </ul>
+        </section>
+    {% endif %}
+
+    {% if band_photos.2 %}{% include "invitations/_editorial_photo.html" with photo=band_photos.2 v="a" v2="b" %}{% endif %}
+
+    {# --- História ----------------------------------------------------- #}
+    {% if wedding.show_story and wedding.story %}
+        <section class="ed-section ed-story">
+            <p class="ed-eyebrow" data-ed-reveal>{% invtext "story_kicker" %}</p>
+            <h2 class="ed-title" data-ed-reveal>{{ wedding.story_heading }}</h2>
+            <p class="ed-story__body" data-ed-reveal>{{ wedding.story|linebreaksbr }}</p>
+        </section>
+    {% endif %}
+
+    {% include "invitations/_gallery.html" %}
+
+    {# --- Presentes ----------------------------------------------------- #}
+    {% if gifts and guest %}
+        <section class="ed-section ed-gifts">
+            <svg class="ed-section__icon" data-ed-reveal aria-hidden="true"><use href="#ed-i-gift"/></svg>
+            <h2 class="ed-title" data-ed-reveal>{% invtext "gifts_section_title" %}</h2>
+            <p class="ed-text" data-ed-reveal>{% invtext "gifts_section_intro" %}</p>
+            <ul class="ed-gifts__list" data-ed-reveal>
+                {% for gift in gifts|slice:":3" %}<li>{{ gift.name }}</li>{% endfor %}
+            </ul>
+            <button class="ed-pill" type="button" data-dialog-open="gift-dialog"><i class="bi bi-gift"></i> {% invtext "gifts_section_button" %}</button>
+        </section>
+    {% endif %}
+
+    {# --- Confirmação --------------------------------------------------- #}
+    <section class="ed-section ed-rsvp">
+        <svg class="ed-section__icon" data-ed-reveal aria-hidden="true"><use href="#ed-i-calendar"/></svg>
+        <h2 class="ed-title" data-ed-reveal>{% invtext "rsvp_title" %}</h2>
+        <p class="ed-text" data-ed-reveal>
+            {% if wedding.rsvp_deadline %}{% invtext "rsvp_deadline_text" data=wedding.rsvp_deadline|date:"d \d\e F" %}{% else %}{% invtext "rsvp_no_deadline_text" %}{% endif %}
+        </p>
+        {% if guest.rsvp_status == 'confirmed' %}<p class="inv-rsvp-state inv-rsvp-state--confirmed"><i class="bi bi-check-circle-fill"></i> {% invtext "rsvp_confirmed" %}</p>{% elif guest.rsvp_status == 'declined' %}<p class="inv-rsvp-state"><i class="bi bi-info-circle"></i> {% invtext "rsvp_declined_state" %}</p>{% endif %}
+        <div class="ed-rsvp__actions" data-ed-reveal>
+            <button class="ed-pill ed-pill--solid" type="button" data-dialog-open="rsvp-dialog">{% invtext "rsvp_button" %}</button>
+            {% if countdown_target %}
+                <a class="ed-pill" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text={{ wedding.display_names|urlencode }}&amp;dates={{ countdown_target|date:'Ymd\THis' }}/{{ countdown_target|date:'Ymd\THis' }}&amp;ctz={{ wedding.timezone|urlencode }}{% if first_moment.location %}&amp;location={{ first_moment.location.name|urlencode }}{% if first_moment.location.address %}%2C%20{{ first_moment.location.address|urlencode }}{% endif %}{% endif %}" target="_blank" rel="noopener noreferrer"><i class="bi bi-calendar-plus"></i> {% invtext "calendar_button" %}</a>
+            {% endif %}
+        </div>
+    </section>
+
+    {% include "invitations/_qr.html" %}
+
+    {# --- Despedida ----------------------------------------------------- #}
+    <section class="ed-section ed-closing">
+        <span class="ed-sprig" aria-hidden="true"></span>
+        {% include "invitations/_editorial_petals.html" %}
+        <p class="ed-closing__lead" data-ed-reveal>{% invtext "closing_lead" %}</p>
+        <p class="ed-closing__thanks" data-ed-reveal="names">{% invtext "closing_thanks" %}</p>
+        <p class="ed-closing__names" data-ed-reveal>{{ wedding.display_names }}</p>
+        {% if wedding.hashtag %}<p class="ed-closing__hashtag" data-ed-reveal>{{ wedding.hashtag }}</p>{% endif %}
+    </section>
+
+    {% if band_photos.3 %}
+        {% include "invitations/_editorial_photo.html" with photo=band_photos.3 v="b" tall=True last=True %}
+    {% elif gallery %}
+        {% include "invitations/_editorial_photo.html" with photo=gallery.0 v="b" tall=True last=True %}
+    {% endif %}
+
+    <footer class="ed-footer">
+        <p class="ed-footer__date">{{ wedding.main_date|date:"d · m · Y" }}</p>
+        {% if show_branding %}<p class="inv-footer__brand">convite criado com <strong>MeuConvite</strong></p>{% endif %}
+    </footer>
+</main>
