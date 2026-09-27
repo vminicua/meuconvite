@@ -1,3 +1,4 @@
+{% load invitation_texts %}
 {% comment %}
 Editorial romântico — convite longo, fotográfico, em papel com aguarelas.
 
@@ -39,9 +40,9 @@ desenhada quando o evento tem dados para ela.
             {% endif %}
         </svg>
         <div class="ed-cover__text">
-            <p class="ed-cover__kicker">{{ wedding.cover_message|default:invitation_eyebrow }}</p>
+            <p class="ed-cover__kicker">{% invtext "cover_message" %}</p>
             {% if guest_name %}
-                <p class="ed-cover__for">Para</p>
+                <p class="ed-cover__for">{% invtext "cover_to_label" %}</p>
                 <p class="ed-cover__guest">{{ guest_name }}</p>
                 <p class="ed-cover__names">{{ wedding.display_names }}</p>
             {% else %}
@@ -49,7 +50,7 @@ desenhada quando o evento tem dados para ela.
             {% endif %}
             <p class="ed-cover__date">{{ wedding.main_date|date:"d · m · Y" }}</p>
             <button type="button" class="ed-cover__open" data-open-invitation>
-                <span>Abrir o convite</span>
+                <span>{% invtext "open_button" %}</span>
             </button>
         </div>
     </div>

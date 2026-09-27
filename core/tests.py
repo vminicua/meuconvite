@@ -51,7 +51,8 @@ class PublicPageTests(TestCase):
         from templates_manager.models import InvitationTemplate
 
         category = create_category(code="evento-publico", name="Evento público")
-        template = InvitationTemplate.objects.active().order_by(
+        # Um tipo de evento sem colecção própria recebe os templates globais.
+        template = InvitationTemplate.objects.active().filter(categories__isnull=True).order_by(
             "-is_featured", "display_order", "name"
         ).first()
         self.assertIsNotNone(template)

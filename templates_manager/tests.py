@@ -35,7 +35,9 @@ class CatalogueTests(TestCase):
     """O catálogo é semeado pela migração de dados."""
 
     def test_engagement_collection_uses_script_typography(self) -> None:
-        templates = InvitationTemplate.objects.filter(code__startswith="noivado-")
+        templates = InvitationTemplate.objects.filter(
+            code__startswith="noivado-", layout=InvitationLayout.ENGAGEMENT
+        )
         self.assertEqual(templates.count(), 7)
         for template in templates:
             with self.subTest(template=template.code):
@@ -62,6 +64,7 @@ class CatalogueTests(TestCase):
                 InvitationLayout.BOTANICAL,
                 InvitationLayout.CORPORATE,
                 InvitationLayout.ENGAGEMENT,
+                InvitationLayout.EDITORIAL,
             },
         )
 
@@ -82,14 +85,16 @@ class CatalogueTests(TestCase):
         self.assertTrue(all(not template.supports_music for template in templates))
         self.assertTrue(all(template.cover_image for template in templates))
 
-    def test_engagement_category_has_its_seven_curated_templates(self) -> None:
+    def test_engagement_category_has_its_curated_templates(self) -> None:
         from events.models import EventCategory
 
         engagement = EventCategory.objects.get(code="noivado")
         templates = list(registry.all_templates(engagement))
-        self.assertEqual(len(templates), 7)
-        self.assertTrue(
-            all(template.layout == InvitationLayout.ENGAGEMENT for template in templates)
+        self.assertEqual(len(templates), 8)
+        self.assertEqual(templates[0].code, "noivado-editorial-rose")
+        self.assertEqual(
+            {template.layout for template in templates},
+            {InvitationLayout.ENGAGEMENT, InvitationLayout.EDITORIAL},
         )
         self.assertTrue(all(template.cover_image for template in templates))
 
@@ -581,3 +586,169 @@ class TemplateAdminTests(TestCase):
         self.assertRedirects(response, reverse("platform:templates"))
         template = InvitationTemplate.objects.get(code="com-cover")
         self.assertTrue(template.cover_image.name.startswith("templates/covers/"))
+
+
+class EditorialLayoutTests(TestCase):
+    """Layout «Editorial romântico» e os templates semeados pela 0013."""
+
+    migration = "templates_manager.migrations.0013_editorial_romantic_layout"
+
+    def setUp(self) -> None:
+        import importlib
+
+        from django.apps import apps
+        from events.models import EventCategory
+
+        # Numa base nova a categoria «casamento» só existe depois do
+        # seed_event_categories: criamo-la e voltamos a correr a migração,
+        # como acontece em produção (e para provar que é idempotente).
+        self.media = tempfile.TemporaryDirectory()
+        self.addCleanup(self.media.cleanup)
+        media_settings = self.settings(MEDIA_ROOT=self.media.name)
+        media_settings.enable()
+        self.addCleanup(media_settings.disable)
+        if not EventCategory.objects.filter(code="casamento").exists():
+            create_category()
+        module = importlib.import_module(self.migration)
+        module.forwards(apps, None)
+        module.forwards(apps, None)
+        self.module = module
+
+    def test_both_templates_are_seeded_once_with_their_category(self) -> None:
+        wedding = InvitationTemplate.objects.get(code="editorial-terracota")
+        engagement = InvitationTemplate.objects.get(code="noivado-editorial-rose")
+        for template, category in ((wedding, "casamento"), (engagement, "noivado")):
+            with self.subTest(template=template.code):
+                self.assertEqual(template.layout, InvitationLayout.EDITORIAL)
+                self.assertEqual(list(template.categories.values_list("code", flat=True)), [category])
+                self.assertTrue(template.is_featured)
+                self.assertTrue(template.has_countdown and template.supports_music and template.has_cover)
+                self.assertTrue(template.cover_image.name.startswith("templates/covers/editorial/"))
+                self.assertIsNotNone(finders.find(f"img/templates/editorial/{template.cover_image.name.rsplit('/', 1)[1]}"))
+        self.assertEqual(
+            InvitationTemplate.objects.filter(layout=InvitationLayout.EDITORIAL).count(), 2
+        )
+
+    def test_editorial_templates_come_first_for_their_category(self) -> None:
+        from events.models import EventCategory
+
+        for code, template_code in (("casamento", "editorial-terracota"), ("noivado", "noivado-editorial-rose")):
+            with self.subTest(category=code):
+                category = EventCategory.objects.get(code=code)
+                self.assertEqual(registry.all_templates(category).first().code, template_code)
+
+    def test_static_assets_exist(self) -> None:
+        for asset in (
+            "css/invitation-editorial.css",
+            "img/invitations/editorial/floral-corner-terracota.webp",
+            "img/invitations/editorial/floral-corner-rose.webp",
+            "img/invitations/editorial/floral-sprig-terracota.webp",
+            "img/invitations/editorial/floral-sprig-rose.webp",
+            "img/invitations/editorial/paper-grain.webp",
+        ):
+            with self.subTest(asset=asset):
+                self.assertIsNotNone(finders.find(asset))
+
+    def _guest_page(self, template_code: str, **wedding_fields):
+        from events.models import EventCategory, EventType
+        from guests.models import Gift, Guest
+        from weddings.models import WeddingGalleryPhoto
+
+        template = InvitationTemplate.objects.get(code=template_code)
+        category = template.categories.first()
+        wedding = create_wedding(
+            category=category, selected_template=template_code, show_story=True,
+            story_verse="O amor é paciente.", story_verse_reference="1 Coríntios 13:4",
+            primary_parents_names="Maria e Joaquim Mate", secondary_parents_names="Ana e Manuel Cossa",
+            **wedding_fields,
+        )
+        location = create_location(wedding, name="Jardim da Polana", address="Av. Julius Nyerere, Maputo")
+        reception = create_event(
+            wedding, name="Recepção", event_type=EventType.RECEPTION,
+            location=location, dress_code="Traje formal",
+        )
+        guest = Guest.objects.create(wedding=wedding, full_name="Élio Nhaca", party_size=2)
+        guest.allowed_events.set([reception])
+        Gift.objects.create(wedding=wedding, name="Jogo de copos")
+        for order in range(3):
+            WeddingGalleryPhoto.objects.create(
+                wedding=wedding, external_url=f"https://example.com/foto-{order}.jpg", display_order=order
+            )
+        return self.client.get(reverse("guest_invitation", args=[guest.invitation_token]))
+
+    def test_guest_page_renders_every_editorial_section(self) -> None:
+        response = self._guest_page("editorial-terracota")
+        self.assertEqual(response.status_code, 200)
+        for fragment in (
+            "inv--editorial_romantico",
+            "css/invitation-editorial.css",
+            'class="inv-cover inv-cover--editorial',
+            "data-open-invitation",
+            "Élio Nhaca",
+            "Vamos casar!",
+            "O amor é paciente.",
+            "Pais de Natércia",
+            "Maria e Joaquim Mate",
+            "Nós,",
+            "temos a alegria de o convidar para o nosso casamento",
+            "data-countdown",
+            "Onde celebramos",
+            "Jardim da Polana",
+            "Ver localização",
+            "output=embed",
+            "Itinerário",
+            "#ed-i-dinner",
+            "Traje formal",
+            "Sugestão de presente",
+            "Jogo de copos",
+            'data-dialog-open="rsvp-dialog"',
+            "Guardar na agenda",
+            "Obrigado!",
+            "https://example.com/foto-0.jpg",
+            "data-ed-parallax",
+            "ed-tear",
+        ):
+            with self.subTest(fragment=fragment):
+                self.assertContains(response, fragment)
+        self.assertNotContains(response, "Onde será")
+
+    def test_engagement_template_uses_its_own_wording_and_florals(self) -> None:
+        response = self._guest_page("noivado-editorial-rose", extra_data={"traje": "Traje semi-formal"})
+        self.assertContains(response, "Dissemos sim!")
+        self.assertContains(response, "o nosso noivado")
+        self.assertContains(response, "Traje semi-formal")
+        self.assertContains(response, "ed-set--rose")
+
+    def test_editorial_page_without_photos_or_programme_still_renders(self) -> None:
+        from events.models import EventCategory
+
+        wedding = create_wedding(
+            category=EventCategory.objects.get(code="casamento"),
+            selected_template="editorial-terracota",
+        )
+        context = services.invitation_context(
+            wedding, InvitationTemplate.objects.get(code="editorial-terracota"), is_preview=True
+        )
+        from django.template.loader import render_to_string
+
+        html = render_to_string("invitations/preview.html", context)
+        self.assertIn("ed-cover--paper", html)
+        self.assertNotIn("ed-photo__img", html)
+        self.assertNotIn("Itinerário", html)
+        self.assertNotIn("Onde celebramos", html)
+
+    def test_dress_codes_come_from_the_programme_and_category_fields(self) -> None:
+        from events.models import EventCategory
+
+        wedding = create_wedding(
+            category=EventCategory.objects.get(code="noivado"), extra_data={"traje": "Traje formal"}
+        )
+        create_event(wedding, name="Jantar", dress_code="traje formal")
+        create_event(wedding, name="Festa", dress_code="Branco")
+        context = services.invitation_context(
+            wedding, InvitationTemplate.objects.get(code="noivado-editorial-rose"), include_qr=False
+        )
+        self.assertEqual(
+            context["dress_codes"],
+            [{"event": "", "value": "Traje formal"}, {"event": "Festa", "value": "Branco"}],
+        )

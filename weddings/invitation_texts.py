@@ -56,6 +56,7 @@ TOKEN_HELP: dict[str, str] = {
     "presente": "nome do presente",
     "organizacao": "organização anfitriã",
     "pais": "nomes dos pais",
+    "nome": "nome de um dos protagonistas",
 }
 
 CORPORATE = "evento-corporativo"
@@ -63,7 +64,12 @@ CORPORATE = "evento-corporativo"
 # Layouts com a estrutura clássica (ornamentos, lugares, mesa…).
 CLASSIC_LAYOUTS = frozenset({
     "carta_selada", "cartao_classico", "envelope_botanico", "noivado_elegante",
+    "editorial_romantico",
 })
+
+EDITORIAL = frozenset({"editorial_romantico"})
+# Casamento e noivado: frases na primeira pessoa do plural («Nós, …»).
+COUPLE_CATEGORIES = frozenset({"casamento", "noivado"})
 
 
 @dataclass(frozen=True)
@@ -134,6 +140,7 @@ GROUPS: tuple[TextGroup, ...] = (
     TextGroup("rsvp", "Confirmação de presença", "Botão, janela e respostas de confirmação.", "bi-calendar-check"),
     TextGroup("presentes", "Presentes", "Lista de presentes para o convidado escolher.", "bi-gift"),
     TextGroup("qr", "QR Code e entrada", "Credencial pessoal apresentada à entrada.", "bi-qr-code"),
+    TextGroup("despedida", "Despedida", "Agradecimento no fim do convite.", "bi-heart"),
     TextGroup("partilha", "Partilha da ligação", "Título e descrição mostrados quando a ligação é partilhada.", "bi-share"),
 )
 GROUPS_BY_CODE = {group.code: group for group in GROUPS}
@@ -150,6 +157,7 @@ _KEYS: tuple[TextKey, ...] = (
             "layout:noivado_elegante": "Uma promessa para toda a vida",
             "layout:evento_tematico": "Um momento especial para partilhar.",
             "layout:corporativo": "Ideias, pessoas e oportunidades no mesmo lugar.",
+            "layout:editorial_romantico": "{categoria}",
             "*": "Uma celebração para recordar",
         },
         max_length=200, model_field="cover_message",
@@ -181,7 +189,7 @@ _KEYS: tuple[TextKey, ...] = (
         layouts=frozenset({"carta_selada", "cartao_classico", "envelope_botanico", "evento_tematico"}),
     ),
     TextKey("cover_to_label", "abertura", "Antes do nome do convidado", "Para", max_length=40,
-            layouts=frozenset({"carta_selada"})),
+            layouts=frozenset({"carta_selada", "editorial_romantico"})),
     TextKey("cover_from_label", "abertura", "Capa sem convidado identificado", "Convite de", max_length=40,
             layouts=frozenset({"carta_selada"})),
     TextKey(
@@ -201,14 +209,23 @@ _KEYS: tuple[TextKey, ...] = (
 
     # --- Convite -------------------------------------------------------
     TextKey("hero_eyebrow", "convite", "Etiqueta por cima dos nomes", "{categoria}", max_length=60,
+            exclude_layouts=EDITORIAL,
             help="No layout corporativo, só aparece quando o formato do evento não está preenchido."),
+    TextKey(
+        "editorial_kicker", "convite", "Frase por baixo do monograma",
+        {"cat:casamento": "Vamos casar!", "cat:noivado": "Dissemos sim!", "*": "{categoria}"},
+        max_length=60, layouts=EDITORIAL,
+    ),
+    TextKey("parents_of", "convite", "Título dos pais", "Pais de {nome}", max_length=60,
+            tokens=("nome",), layouts=EDITORIAL,
+            help="Por cima dos nomes dos pais de cada um dos protagonistas."),
     TextKey("greeting", "convite", "Saudação ao convidado", "Caro(a) {convidado},",
             tokens=("convidado",)),
     TextKey(
         "parents_sentence", "convite", "Frase dos pais anfitriões",
         "{pais} convidam para o casamento dos seus filhos.", max_length=200,
         tokens=("pais",), categories=frozenset({"casamento"}),
-        layouts=frozenset({"carta_selada", "cartao_classico", "envelope_botanico"}),
+        layouts=frozenset({"carta_selada", "cartao_classico", "envelope_botanico", "editorial_romantico"}),
         help="Aparece quando os pais de ambos apresentam o convite.",
     ),
     TextKey(
@@ -220,19 +237,34 @@ _KEYS: tuple[TextKey, ...] = (
         },
         max_length=1000, multiline=True, model_field="invitation_message",
     ),
+    TextKey("editorial_we", "convite", "Antes dos nomes", "Nós,", max_length=40,
+            layouts=EDITORIAL, categories=COUPLE_CATEGORIES,
+            help="Só aparece com a frase do convite original (mensagem principal em branco)."),
+    TextKey(
+        "editorial_invite", "convite", "Frase do convite depois dos nomes",
+        {
+            "cat:noivado": "temos a alegria de o convidar para celebrar connosco o nosso noivado — o primeiro capítulo de uma promessa para toda a vida.",
+            "*": "temos a alegria de o convidar para o nosso casamento e para celebrar connosco o início desta nova vida.",
+        },
+        max_length=300, multiline=True, layouts=EDITORIAL, categories=COUPLE_CATEGORIES,
+        help="Usada quando a mensagem principal do convite está em branco.",
+    ),
     TextKey(
         "corporate_host", "convite", "Organização anfitriã",
         "Uma iniciativa de {organizacao}", tokens=("organizacao",), emphasis=("organizacao",),
         layouts=frozenset({"corporativo"}),
     ),
-    TextKey("start_time", "convite", "Hora de início", "Início: {hora}", max_length=40,
-            tokens=("hora",), layouts=frozenset({"carta_selada"})),
+    TextKey("start_time", "convite", "Hora de início",
+            {"layout:editorial_romantico": "às {hora}", "*": "Início: {hora}"}, max_length=40,
+            tokens=("hora",), layouts=frozenset({"carta_selada", "editorial_romantico"})),
     TextKey("seats_label", "convite", "Lugares reservados", "Lugares reservados", max_length=40,
             exclude_layouts=frozenset({"corporativo"})),
     TextKey("seating_label", "convite", "Mesa atribuída", "Mesa / cadeira", max_length=40,
             layouts=CLASSIC_LAYOUTS),
 
     # --- Contagem regressiva ------------------------------------------
+    TextKey("countdown_title", "contagem", "Título da contagem", "Tempo restante", max_length=40,
+            layouts=EDITORIAL),
     TextKey("countdown_days", "contagem", "Dias", "dias", max_length=15),
     TextKey("countdown_hours", "contagem", "Horas", "horas", max_length=15),
     TextKey("countdown_minutes", "contagem", "Minutos", "min", max_length=15),
@@ -271,13 +303,25 @@ _KEYS: tuple[TextKey, ...] = (
             {"cat:evento-corporativo": "Galeria", "*": "A nossa galeria"}, max_length=60),
 
     # --- Programa -----------------------------------------------------
-    TextKey("schedule_title", "programa", "Título do programa", "Programa"),
+    TextKey("schedule_eyebrow", "programa", "Etiqueta do programa", "O nosso dia", max_length=60,
+            layouts=EDITORIAL),
+    TextKey("schedule_title", "programa", "Título do programa",
+            {"layout:editorial_romantico": "Itinerário", "*": "Programa"}),
     TextKey("map_toggle", "programa", "Botão do mapa", "Mapa", max_length=30),
     TextKey("map_open", "programa", "Ligação para o mapa", "Abrir no Google Maps", max_length=40),
     # O partial _venues.html não é usado pelos layouts actuais: um layout novo
     # que o inclua acrescenta-se aqui para a frase aparecer no editor.
-    TextKey("venues_title", "programa", "Título dos locais", "Onde será",
-            layouts=frozenset()),
+    TextKey("venues_eyebrow", "programa", "Etiqueta dos locais", "Os lugares do nosso dia",
+            max_length=60, layouts=EDITORIAL),
+    TextKey("venues_title", "programa", "Título dos locais",
+            {"layout:editorial_romantico": "Onde celebramos", "*": "Onde será"},
+            layouts=EDITORIAL),
+    TextKey("venue_directions", "programa", "Botão da localização", "Ver localização",
+            max_length=40, layouts=EDITORIAL),
+    TextKey("dress_eyebrow", "programa", "Etiqueta do traje", "Dress code", max_length=60,
+            layouts=EDITORIAL),
+    TextKey("dress_title", "programa", "Título do traje", "Traje", max_length=60,
+            layouts=EDITORIAL),
 
     # --- Confirmação de presença --------------------------------------
     TextKey("rsvp_button", "rsvp", "Botão flutuante", "Confirmar presença", max_length=40),
@@ -291,6 +335,8 @@ _KEYS: tuple[TextKey, ...] = (
             "Será uma alegria celebrar consigo. Pode confirmar agora?", max_length=200),
     TextKey("rsvp_yes", "rsvp", "Botão «vou»", "Sim, vou estar presente", max_length=50),
     TextKey("rsvp_no", "rsvp", "Botão «não vou»", "Não poderei comparecer", max_length=50),
+    TextKey("calendar_button", "rsvp", "Botão da agenda", "Guardar na agenda", max_length=40,
+            layouts=EDITORIAL),
     TextKey("rsvp_declined_state", "rsvp", "Resposta negativa registada",
             "Indicou que não poderá comparecer", max_length=120),
     TextKey("rsvp_thanks_toast", "rsvp", "Aviso depois de responder",
@@ -298,6 +344,13 @@ _KEYS: tuple[TextKey, ...] = (
 
     # --- Presentes ----------------------------------------------------
     TextKey("gift_button", "presentes", "Botão flutuante", "Selecionar presente", max_length=40),
+    TextKey("gifts_section_title", "presentes", "Título da secção", "Sugestão de presente",
+            layouts=EDITORIAL),
+    TextKey("gifts_section_intro", "presentes", "Texto da secção",
+            "A sua presença é o nosso maior presente. Se desejar mimar-nos, preparámos uma pequena lista com carinho.",
+            max_length=240, layouts=EDITORIAL),
+    TextKey("gifts_section_button", "presentes", "Botão da secção", "Escolher um presente",
+            max_length=40, layouts=EDITORIAL),
     TextKey("gift_title", "presentes", "Título da janela", "Escolha um presente"),
     TextKey("gift_intro", "presentes", "Texto da janela",
             "A sua escolha fica reservada e os anfitriões saberão com o que podem contar.",
@@ -325,6 +378,12 @@ _KEYS: tuple[TextKey, ...] = (
             max_length=240),
 
     # --- Partilha da ligação ------------------------------------------
+    # --- Despedida ------------------------------------------------------
+    TextKey("closing_lead", "despedida", "Frase de despedida", "Esperamos celebrar convosco",
+            max_length=80, layouts=EDITORIAL),
+    TextKey("closing_thanks", "despedida", "Agradecimento", "Obrigado!", max_length=30,
+            layouts=EDITORIAL),
+
     TextKey("page_title", "partilha", "Título do separador", "{nomes} · Convite"),
     TextKey("share_title", "partilha", "Título na pré-visualização",
             "Um convite especial de {nomes}", max_length=100),
