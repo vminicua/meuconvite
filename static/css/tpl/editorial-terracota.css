@@ -1,0 +1,23 @@
+/* Editorial Terracota — afinações próprias do template.
+   O layout partilhado (invitation-editorial.css) já segue o desenho do
+   catálogo; aqui só se alinham os botões flutuantes com o botão da capa
+   (terracota escuro, como no catálogo) e se dá folga à capa no ecrã largo. */
+
+body.inv--template-editorial-terracota .inv-fab:not(.inv-fab--secondary),
+body.inv--template-editorial-terracota .inv-gift__button:not(.is-own) {
+    border-color: color-mix(in srgb, var(--inv-primary-text) 80%, #000);
+    background: var(--inv-primary-text);
+    color: var(--inv-paper);
+    box-shadow: 0 14px 30px -16px color-mix(in srgb, var(--inv-primary-text) 80%, #000);
+}
+body.inv--template-editorial-terracota .inv-fab--secondary {
+    border-color: color-mix(in srgb, var(--inv-primary) 45%, transparent);
+    color: var(--inv-primary-text);
+}
+
+/* No telemóvel desenhado do ecrã largo, o botão da capa não pode tocar no
+   botão da música, que ali fica por baixo dele: a capa ganha margem em baixo. */
+@media (min-width: 992px) {
+    body.inv--template-editorial-terracota .ed-cover { --ed-seam: max(34%, min(50%, calc(100% - 500px))); }
+    body.inv--template-editorial-terracota .ed-cover__content { padding-bottom: 4.4rem; }
+}
