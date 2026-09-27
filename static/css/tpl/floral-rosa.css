@@ -48,7 +48,7 @@ body.inv--template-floral-rosa {
    Tudo fica dentro de body.inv--template-floral-rosa; as cores e a arte vêm dos tokens --t-*.
    --------------------------------------------------------------------- */
 
-body.inv--template-floral-rosa {
+body:where(.inv--template-floral-rosa) {
     --t-ease: cubic-bezier(.19, .8, .22, 1);
     --t-ease-io: cubic-bezier(.65, 0, .35, 1);
     --t-caps: "Cinzel", "Cormorant Garamond", Georgia, serif;
@@ -57,6 +57,8 @@ body.inv--template-floral-rosa {
     --t-radius: .5rem;
     --t-btn-radius: 999px;
     --t-names-size: clamp(3.2rem, 15vw, 4.6rem);
+}
+body.inv--template-floral-rosa {
     background: var(--t-page);
     color: var(--t-ink);
 }
