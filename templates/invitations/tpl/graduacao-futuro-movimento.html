@@ -1,0 +1,10 @@
+{% comment %}Camada decorativa do tema Futuro em Movimento (só visual).{% endcomment %}<style>body.inv.inv--template-graduacao-futuro-movimento { {% if template.cover_image %}--tpl-art:url('{{ template.cover_image.url }}');{% endif %}{% if wedding.cover_image and not ignore_custom_cover %}--tpl-cover-art:none;--t-cover-veil:linear-gradient(180deg,rgba(0,0,0,.18),rgba(0,0,0,.62));--t-cover-ink:#fff;--t-cover-kicker:#fff;--t-cover-names:#fff;--t-cover-shadow:0 2px 18px rgba(0,0,0,.45);{% else %}--tpl-cover-art:var(--tpl-art);{% endif %} }</style>
+<svg class="tpl-symbols" width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <symbol id="inv-divider" viewBox="0 0 200 24"><path d="M6 12h70M124 12h70" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+<path d="M84 5l7 7-7 7M95 5l7 7-7 7M106 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M76 12h4M120 12h4" stroke="#27b9d0" stroke-width="3" stroke-linecap="round"/></symbol>
+</svg>
+<div class="tpl-decor" aria-hidden="true">
+    <div class="tpl-backdrop"></div>
+    <div class="tpl-ambient" data-tpl-ambient></div>
+</div>
