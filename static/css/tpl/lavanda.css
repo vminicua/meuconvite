@@ -1,0 +1,997 @@
+/* =====================================================================
+   Lavanda — cartão clássico
+   Papel creme, ramos de lavanda desenhados a subir pelas margens, coroa de
+   louro no monograma e um campo da Provença no fim. Segue
+   lavanda-cover-v2 do catálogo.
+   ===================================================================== */
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500&family=Parisienne&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap");
+
+body.inv--template-lavanda {
+    --t-page: #efeaf3;
+    --t-stage: radial-gradient(circle at 50% 38%, #f7f3fa 0, #d8cde8 55%, #8e7fae 100%);
+    --t-paper: #fbf9f4;
+    --t-ink: #4b4459;
+    --t-muted: #756c85;
+    --t-accent: color-mix(in srgb, var(--inv-primary) 62%, #2e2150);
+    --t-accent-2: color-mix(in srgb, var(--inv-primary) 88%, #3b2d66);
+    --t-accent-soft: #8a7fa0;
+    --t-line: rgba(128, 110, 168, .36);
+    --t-line-soft: rgba(128, 110, 168, .18);
+    --t-tile: rgba(236, 230, 246, .78);
+    --t-glass: rgba(251, 249, 244, .9);
+    --t-names: "Cormorant Garamond", Georgia, serif;
+    --t-num: "Cormorant Garamond", Georgia, serif;
+    --t-amp: "Parisienne", "Segoe Script", cursive;
+    --t-body: "Cormorant Garamond", Georgia, serif;
+    --t-names-size: clamp(2.9rem, 13.5vw, 3.7rem);
+    --t-names-track: .04em;
+    --t-radius: .7rem;
+    --t-tile-radius: .55rem;
+    --t-btn-bg: linear-gradient(135deg, color-mix(in srgb, var(--inv-primary) 82%, #3b2d66), var(--inv-primary));
+    --t-btn-ink: #fdfbff;
+    --t-btn-shadow: 0 14px 28px -14px rgba(76, 58, 120, .6);
+    --t-cover-base: #d9cce4;
+    --t-cover-art: url("../../img/invitations/lavender-editorial-v1.webp");
+    --t-cover-card: linear-gradient(170deg, rgba(253, 251, 248, .8), rgba(246, 241, 250, .68));
+    --t-cover-shadow: 0 44px 90px -46px rgba(67, 43, 92, .6);
+    --t-bloom: rgba(250, 246, 255, .98);
+    --t-divider: url("../../img/tpl/lavanda/divider.svg");
+    --t-main-bg:
+        radial-gradient(60% 18% at 0% 30%, rgba(200, 186, 230, .18), transparent 70%),
+        radial-gradient(60% 18% at 100% 62%, rgba(200, 186, 230, .16), transparent 70%),
+        var(--t-paper);
+    --t-crest-w: 7rem;
+    --t-crest-h: 7rem;
+    --t-mono-size: 1.7rem;
+    --t-mono-font: "Cormorant Garamond", Georgia, serif;
+    --t-mono-y: -.1rem;
+    --t-tile-num: var(--t-accent);
+    --t-qr-name: #4d3c78;
+}
+
+/* ---------------------------------------------------------------------
+   Base partilhada do cartão clássico premium (gerada para este template).
+   Tudo fica dentro de body.inv--template-lavanda; as cores e a arte vêm dos tokens --t-*.
+   --------------------------------------------------------------------- */
+
+body:where(.inv--template-lavanda) {
+    --t-ease: cubic-bezier(.19, .8, .22, 1);
+    --t-ease-io: cubic-bezier(.65, 0, .35, 1);
+    --t-caps: "Cinzel", "Cormorant Garamond", Georgia, serif;
+    --t-names: var(--inv-display);
+    --t-body: "Cormorant Garamond", Georgia, serif;
+    --t-radius: .5rem;
+    --t-btn-radius: 999px;
+    --t-names-size: clamp(3.2rem, 15vw, 4.6rem);
+}
+body.inv--template-lavanda {
+    background: var(--t-page);
+    color: var(--t-ink);
+}
+
+@media (min-width: 992px) {
+    body.inv--template-lavanda.inv--public-device {
+        background: var(--t-stage, radial-gradient(circle at 50% 42%, var(--t-page) 0, color-mix(in srgb, var(--t-page) 55%, #1a1416) 100%));
+    }
+}
+
+/* Paleta aplicada também às partes partilhadas (diálogos, botões, galeria). */
+body.inv--template-lavanda > * {
+    --inv-paper: var(--t-paper);
+    --inv-ink: var(--t-ink);
+    --inv-primary-text: var(--t-accent);
+    --inv-secondary-text: var(--t-accent-2);
+    --inv-muted: var(--t-muted);
+}
+
+/* --- Camada decorativa (armazém escondido; o JS distribui as peças) -- */
+body.inv--template-lavanda .tpl-stash { display: none !important; }
+body.inv--template-lavanda .tpl-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+body.inv--template-lavanda .tpl-particles {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    overflow: hidden;
+    pointer-events: none;
+}
+body.inv--template-lavanda .tpl-particles i {
+    position: absolute;
+    top: -8%;
+    left: var(--x);
+    width: var(--s);
+    height: var(--s);
+    opacity: 0;
+    will-change: transform, opacity;
+    animation: tpl-fall var(--dur) linear var(--delay) infinite;
+}
+@keyframes tpl-fall {
+    0% { opacity: 0; transform: translate3d(0, -4vh, 0) rotate(0deg); }
+    10% { opacity: var(--o, .85); }
+    85% { opacity: var(--o, .85); }
+    100% { opacity: 0; transform: translate3d(var(--drift), 112vh, 0) rotate(var(--spin)); }
+}
+
+/* --- Capa -------------------------------------------------------------- */
+body.inv--template-lavanda .inv-cover--classic {
+    isolation: isolate;
+    background: var(--t-cover-base);
+    color: var(--t-ink);
+}
+body.inv--template-lavanda .inv-cover--classic:not([style])::before {
+    content: "";
+    display: block;
+    position: absolute;
+    inset: -3%;
+    width: auto;
+    height: auto;
+    opacity: 1;
+    z-index: -1;
+    background: var(--t-cover-art);
+    background-size: cover;
+    background-position: center;
+    transform-origin: 50% 40%;
+    animation: tpl-kenburns 24s ease-in-out infinite alternate;
+}
+body.inv--template-lavanda .inv-cover--classic::after {
+    content: "";
+    display: block;
+    position: absolute;
+    inset: 0;
+    width: auto;
+    height: auto;
+    transform: none;
+    z-index: 0;
+    pointer-events: none;
+    background: var(--t-cover-veil, none);
+}
+@keyframes tpl-kenburns {
+    from { transform: scale(1) translate3d(0, 0, 0); }
+    to { transform: scale(1.08) translate3d(-1%, -1.2%, 0); }
+}
+
+body.inv--template-lavanda .inv-cover--classic .inv-cover__paper {
+    z-index: 2;
+    max-width: 23.5rem;
+    min-height: min(80vh, 44rem);
+    padding: 3.2rem 1.6rem 2.8rem;
+    border: 1px solid var(--t-line);
+    border-radius: var(--t-cover-radius, .35rem);
+    background: var(--t-cover-card);
+    box-shadow: var(--t-cover-shadow, 0 40px 90px -50px rgba(0, 0, 0, .55));
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    color: var(--t-ink);
+    overflow: visible;
+}
+body.inv--template-lavanda .inv-cover--classic .inv-cover__paper::before,
+body.inv--template-lavanda .inv-cover--classic .inv-cover__paper::after {
+    content: "";
+    position: absolute;
+    top: auto; right: auto; bottom: auto; left: auto;
+    width: auto;
+    height: auto;
+    transform: none;
+    pointer-events: none;
+}
+/* Filete interior duplo, como nos cartões impressos. */
+body.inv--template-lavanda .inv-cover--classic .inv-cover__paper::before {
+    inset: .55rem;
+    border: 1px solid var(--t-line-soft);
+    border-radius: calc(var(--t-cover-radius, .35rem) * .7);
+}
+body.inv--template-lavanda .inv-cover--classic .inv-cover__paper::after {
+    inset: -1px;
+    border-radius: inherit;
+    background: linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, .38) 50%, transparent 62%) no-repeat;
+    background-size: 250% 100%;
+    background-position: 130% 0;
+    mix-blend-mode: soft-light;
+    animation: tpl-sheen 7s 2s ease-in-out infinite;
+}
+@keyframes tpl-sheen {
+    0%, 55% { background-position: 130% 0; }
+    100% { background-position: -30% 0; }
+}
+
+body.inv--template-lavanda .inv-cover__kicker {
+    font-family: var(--t-caps);
+    font-size: .56rem;
+    letter-spacing: .3em;
+    color: var(--t-accent-soft);
+    margin-bottom: 1rem;
+}
+body.inv--template-lavanda .inv-cover__eyebrow {
+    font-family: var(--t-caps);
+    font-size: .64rem;
+    letter-spacing: .38em;
+    color: var(--t-accent-soft);
+}
+body.inv--template-lavanda .inv-cover__names {
+    font-family: var(--t-names);
+    font-size: var(--t-names-size);
+    font-weight: 400;
+    line-height: .95;
+    letter-spacing: var(--t-names-track, 0);
+    color: var(--t-accent);
+    margin: .2rem 0 .9rem;
+}
+body.inv--template-lavanda .inv-cover__amp {
+    font-family: var(--t-amp, var(--inv-display));
+    font-size: .5em;
+    line-height: 1.25;
+    color: var(--t-accent-2);
+}
+body.inv--template-lavanda .inv-cover__note {
+    font-family: var(--t-caps);
+    font-size: .74rem;
+    font-weight: 500;
+    letter-spacing: .24em;
+    text-transform: uppercase;
+    color: var(--t-accent);
+}
+
+/* Botões ----------------------------------------------------------------- */
+body.inv--template-lavanda .inv-btn,
+body.inv--template-lavanda .inv-cover .inv-btn--light {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    padding: .95rem 2.2rem;
+    border: 1px solid var(--t-btn-border, transparent);
+    border-radius: var(--t-btn-radius);
+    background: var(--t-btn-bg);
+    color: var(--t-btn-ink);
+    font-family: var(--t-caps);
+    font-size: .74rem;
+    font-weight: 600;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    box-shadow: var(--t-btn-shadow, 0 14px 30px -16px rgba(0, 0, 0, .45));
+    transition: transform .35s var(--t-ease), box-shadow .35s var(--t-ease);
+}
+body.inv--template-lavanda .inv-btn::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, .45) 50%, transparent 65%) no-repeat;
+    background-size: 260% 100%;
+    background-position: 150% 0;
+    animation: tpl-sheen 4.8s 1.2s ease-in-out infinite;
+}
+body.inv--template-lavanda .inv-btn:hover { transform: translateY(-2px); box-shadow: var(--t-btn-shadow-hover, 0 18px 36px -16px rgba(0, 0, 0, .5)); }
+body.inv--template-lavanda .inv-btn--outline {
+    background: transparent;
+    color: var(--t-accent);
+    border-color: var(--t-line);
+    box-shadow: none;
+}
+body.inv--template-lavanda .inv-btn--outline::after { display: none; }
+body.inv--template-lavanda .inv-btn--disabled { opacity: .6; }
+
+/* Acções flutuantes, música ------------------------------------------ */
+body.inv--template-lavanda .inv-fab {
+    border: 1px solid var(--t-btn-border, transparent);
+    background: var(--t-btn-bg);
+    color: var(--t-btn-ink);
+    font-family: var(--t-caps);
+    font-size: .66rem;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    box-shadow: 0 16px 34px -14px rgba(0, 0, 0, .45);
+}
+body.inv--template-lavanda .inv-fab--secondary {
+    background: var(--t-glass);
+    color: var(--t-accent);
+    border-color: var(--t-line);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+body.inv--template-lavanda .inv-music button {
+    background: var(--t-glass);
+    color: var(--t-accent);
+    border-color: var(--t-line);
+}
+
+/* --- Interior ------------------------------------------------------------ */
+body.inv--template-lavanda.inv--cartao_classico .inv-main {
+    position: relative;
+    max-width: 30rem;
+    margin: 0 auto;
+    padding: 0 1.4rem 6.5rem;
+    border: 0;
+    border-radius: 0;
+    background: var(--t-main-bg);
+    box-shadow: none;
+    overflow: hidden;
+    overflow: clip;
+    isolation: isolate;
+    font-family: var(--t-body);
+    color: var(--t-ink);
+}
+@media (min-width: 560px) {
+    body.inv--template-lavanda.inv--cartao_classico .inv-main {
+        margin: 2rem auto;
+        border-radius: var(--t-radius);
+        box-shadow: 0 50px 120px -60px rgba(0, 0, 0, .55);
+    }
+}
+@media (min-width: 992px) {
+    body.inv--template-lavanda.inv--public-device.inv--cartao_classico .inv-main { margin: 0 auto; border-radius: 0; box-shadow: none; }
+}
+
+/* Moldura contínua em filete duplo. */
+body.inv--template-lavanda .inv-main::before,
+body.inv--template-lavanda .inv-main::after {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    pointer-events: none;
+}
+body.inv--template-lavanda .inv-main::before {
+    inset: .7rem;
+    border: 1px solid var(--t-frame, transparent);
+    border-radius: var(--t-frame-radius, 0);
+}
+body.inv--template-lavanda .inv-main::after {
+    inset: 1.05rem;
+    border: 1px solid var(--t-frame-inner, transparent);
+    border-radius: var(--t-frame-radius, 0);
+}
+body.inv--template-lavanda .inv-main > * { position: relative; z-index: 1; }
+
+/* Hero */
+body.inv--template-lavanda.inv--cartao_classico .inv-hero {
+    margin: 0 -1.4rem;
+    padding: 3.4rem 1.6rem 2.4rem;
+    border: 0;
+    border-radius: 0;
+    background: var(--t-hero-bg, transparent);
+}
+body.inv--template-lavanda .tpl-crest {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: var(--t-crest-w, 7.2rem);
+    height: var(--t-crest-h, 7.2rem);
+    margin: 0 auto 1.2rem;
+    color: var(--t-accent-soft);
+}
+body.inv--template-lavanda .tpl-crest__art {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+body.inv--template-lavanda .tpl-crest__mono {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-family: var(--t-mono-font, var(--t-caps));
+    font-size: var(--t-mono-size, 1.7rem);
+    line-height: 1;
+    color: var(--t-accent);
+    transform: translateY(var(--t-mono-y, 0));
+}
+body.inv--template-lavanda .tpl-crest__mono b { font-weight: 400; }
+body.inv--template-lavanda .tpl-crest__mono i {
+    display: block;
+    width: 1px;
+    height: 1.25em;
+    background: currentColor;
+    opacity: .6;
+}
+body.inv--template-lavanda .tpl-crest__mono i:last-child { display: none; }
+
+body.inv--template-lavanda .inv-hero__eyebrow {
+    font-family: var(--t-caps);
+    font-size: .64rem;
+    font-weight: 500;
+    letter-spacing: .36em;
+    color: var(--t-accent-soft);
+    margin-bottom: .9rem;
+}
+body.inv--template-lavanda .inv-hero__names {
+    font-family: var(--t-names);
+    font-size: var(--t-names-size);
+    font-weight: 400;
+    line-height: .95;
+    letter-spacing: var(--t-names-track, 0);
+    color: var(--t-accent);
+}
+body.inv--template-lavanda .inv-hero__amp {
+    font-family: var(--t-amp, var(--inv-display));
+    font-size: .48em;
+    line-height: 1.3;
+    color: var(--t-accent-2);
+}
+body.inv--template-lavanda .inv-hero__greeting {
+    font-family: var(--t-body);
+    font-size: 1.12rem;
+    color: var(--t-accent);
+}
+body.inv--template-lavanda .inv-hero__text {
+    font-size: 1.05rem;
+    line-height: 1.55;
+    color: var(--t-ink);
+    max-width: 21rem;
+}
+
+/* Ornamento de divisão (máscara, pinta com a cor do template). */
+body.inv--template-lavanda .inv-divider,
+body.inv--template-lavanda .inv-hearts {
+    width: var(--t-div-w, 11rem);
+    height: var(--t-div-h, 1.6rem);
+    margin: 1.1rem auto 1.4rem;
+    color: transparent;
+    opacity: 1;
+    background: var(--t-div-color, var(--t-accent-soft));
+    -webkit-mask: var(--t-divider) center / contain no-repeat;
+    mask: var(--t-divider) center / contain no-repeat;
+}
+body.inv--template-lavanda .inv-divider use,
+body.inv--template-lavanda .inv-hearts use { display: none; }
+
+/* Data em composição de convite impresso. */
+body.inv--template-lavanda .inv-hero__date {
+    font-family: var(--t-caps);
+    letter-spacing: .12em;
+    color: var(--t-accent);
+}
+body.inv--template-lavanda .inv-hero.tpl-has-date .inv-hero__date {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+body.inv--template-lavanda .tpl-date {
+    display: grid;
+    justify-items: center;
+    gap: .15rem;
+    margin: .4rem auto .6rem;
+    font-family: var(--t-caps);
+    color: var(--t-accent);
+}
+body.inv--template-lavanda .tpl-date__month,
+body.inv--template-lavanda .tpl-date__year {
+    font-size: .72rem;
+    letter-spacing: .34em;
+    text-transform: uppercase;
+    color: var(--t-accent-soft);
+}
+body.inv--template-lavanda .tpl-date__row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: .9rem;
+    width: min(100%, 19rem);
+}
+body.inv--template-lavanda .tpl-date__row span {
+    padding: .45rem 0;
+    border-block: 1px solid var(--t-line);
+    font-size: .62rem;
+    letter-spacing: .24em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+body.inv--template-lavanda .tpl-date__row strong {
+    font-family: var(--t-num, var(--t-caps));
+    font-size: 2.9rem;
+    font-weight: 400;
+    line-height: 1;
+    color: var(--t-accent);
+}
+
+/* Contagem regressiva */
+body.inv--template-lavanda .inv-countdown {
+    gap: .5rem;
+    margin: 1.6rem auto 1.4rem;
+    max-width: 20rem;
+}
+body.inv--template-lavanda .inv-countdown__cell {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: .7rem .2rem .55rem;
+    border: 1px solid var(--t-line);
+    border-radius: var(--t-tile-radius, .4rem);
+    background: var(--t-tile);
+    box-shadow: var(--t-tile-shadow, none);
+    overflow: hidden;
+}
+body.inv--template-lavanda .inv-countdown__cell span {
+    font-family: var(--t-num, var(--t-caps));
+    font-size: 1.55rem;
+    font-weight: 400;
+    color: var(--t-tile-num, var(--t-accent));
+    font-variant-numeric: tabular-nums;
+}
+body.inv--template-lavanda .inv-countdown__cell small {
+    display: block;
+    margin-top: .2rem;
+    font-family: var(--t-caps);
+    font-size: .5rem;
+    letter-spacing: .2em;
+    color: var(--t-tile-label, var(--t-ink));
+    opacity: .85;
+}
+body.inv--template-lavanda .inv-countdown__cell span.tpl-tick { animation: tpl-tick .6s var(--t-ease); }
+@keyframes tpl-tick {
+    0% { transform: translateY(-.45em); opacity: 0; filter: blur(1px); }
+    100% { transform: none; opacity: 1; filter: none; }
+}
+
+body.inv--template-lavanda .inv-seats {
+    margin: .25rem .2rem;
+    padding: .4rem 1rem;
+    border: 1px solid var(--t-line);
+    background: var(--t-tile);
+    color: var(--t-ink);
+}
+body.inv--template-lavanda .inv-seats span { font-family: var(--t-caps); font-size: .56rem; letter-spacing: .2em; }
+body.inv--template-lavanda .inv-seats strong { font-family: var(--t-body); color: var(--t-accent); font-weight: 600; }
+
+/* Secções */
+body.inv--template-lavanda .inv-section {
+    padding: 2.6rem .2rem;
+    border-top: 0;
+}
+body.inv--template-lavanda .inv-section + .inv-section::before,
+body.inv--template-lavanda .inv-section--qr::before {
+    content: "";
+    display: block;
+    width: 3.2rem;
+    height: 1px;
+    margin: -2.6rem auto 2.6rem;
+    background: linear-gradient(90deg, transparent, var(--t-line), transparent);
+}
+body.inv--template-lavanda .inv-section--qr::before { display: none; }
+body.inv--template-lavanda .inv-section__title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .9rem;
+    font-family: var(--t-caps);
+    font-size: .78rem;
+    font-weight: 500;
+    letter-spacing: .32em;
+    color: var(--t-accent);
+}
+body.inv--template-lavanda .inv-section__title::before,
+body.inv--template-lavanda .inv-section__title::after {
+    content: "";
+    flex: 0 1 2.6rem;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--t-line));
+}
+body.inv--template-lavanda .inv-section__title::after { background: linear-gradient(270deg, transparent, var(--t-line)); }
+
+body.inv--template-lavanda .inv-section:has(> .inv-text--lead) {
+    margin: .6rem 0;
+    padding: 2rem 1.4rem;
+    border: 1px solid var(--t-line-soft);
+    border-radius: var(--t-radius);
+    background: var(--t-tile);
+}
+body.inv--template-lavanda .inv-section:has(> .inv-text--lead)::before { display: none; }
+body.inv--template-lavanda .inv-section:has(> .inv-text--lead) + .inv-section::before { display: none; }
+body.inv--template-lavanda .inv-text--lead {
+    font-family: var(--t-body);
+    font-size: 1.18rem;
+    line-height: 1.55;
+    color: var(--t-accent);
+}
+body.inv--template-lavanda .inv-text--lead::before {
+    content: "\201C";
+    display: block;
+    height: 1.6rem;
+    font-family: var(--t-caps);
+    font-size: 3rem;
+    font-style: normal;
+    line-height: 1;
+    color: var(--t-accent-soft);
+    opacity: .55;
+}
+
+/* História */
+body.inv--template-lavanda .inv-story .inv-section__title,
+body.inv--template-lavanda .theme-section.inv-story h2 {
+    display: block;
+    font-family: var(--t-names);
+    font-size: clamp(2.3rem, 10vw, 2.9rem);
+    font-weight: 400;
+    letter-spacing: var(--t-names-track, 0);
+    line-height: 1.05;
+    text-transform: var(--t-story-case, none);
+    color: var(--t-accent);
+    margin: .2rem 0 0;
+}
+body.inv--template-lavanda .inv-story .inv-section__title::before,
+body.inv--template-lavanda .inv-story .inv-section__title::after { display: none; }
+body.inv--template-lavanda .inv-story__kicker {
+    font-family: var(--t-caps);
+    font-size: .6rem;
+    font-weight: 500;
+    letter-spacing: .32em;
+    color: var(--t-accent-soft);
+}
+body.inv--template-lavanda .inv-story__body { font-size: 1.08rem; line-height: 1.65; color: var(--t-ink); }
+body.inv--template-lavanda .inv-story__quote {
+    position: relative;
+    margin-top: 1.8rem;
+    padding: 1.5rem 1.2rem;
+    border: 0;
+    font-family: var(--t-quote-font, var(--t-body));
+    font-size: 1.2rem;
+    color: var(--t-accent);
+}
+body.inv--template-lavanda .inv-story__quote::before,
+body.inv--template-lavanda .inv-story__quote::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    width: 7rem;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--t-line), transparent);
+    transform: translateX(-50%);
+}
+body.inv--template-lavanda .inv-story__quote::before { top: 0; }
+body.inv--template-lavanda .inv-story__quote::after { bottom: 0; }
+body.inv--template-lavanda .inv-story__quote cite { font-family: var(--t-caps); font-size: .58rem; letter-spacing: .26em; color: var(--t-accent-soft); }
+
+/* Galeria */
+body.inv--template-lavanda .inv-gallery-teaser__stack span {
+    border: 6px solid var(--t-photo-mat, #fff);
+    border-radius: 3px;
+    box-shadow: 0 22px 44px -22px rgba(0, 0, 0, .45);
+}
+body.inv--template-lavanda .inv-gallery-teaser__eyebrow { font-family: var(--t-caps); font-size: .58rem; font-weight: 500; letter-spacing: .3em; color: var(--t-accent-soft); }
+body.inv--template-lavanda .inv-gallery-teaser .inv-section__title { margin-bottom: .6rem; }
+body.inv--template-lavanda .inv-gallery-teaser__copy > p:not(.inv-gallery-teaser__eyebrow) { color: var(--t-muted); font-size: 1.02rem; }
+body.inv--template-lavanda .inv-gallery__header strong { font-family: var(--t-names); font-weight: 400; font-size: 1.9rem; }
+
+/* Programa: linha vertical com ícones desenhados. */
+body.inv--template-lavanda .inv-timeline {
+    position: relative;
+    max-width: 21rem;
+    margin-top: .4rem;
+}
+body.inv--template-lavanda .inv-timeline::before {
+    content: "";
+    position: absolute;
+    top: 1.4rem;
+    bottom: 1.4rem;
+    left: 3.35rem;
+    width: 1px;
+    background: linear-gradient(var(--t-line), var(--t-line)) top / 100% var(--tpl-line, 100%) no-repeat;
+}
+/* Ícone à esquerda; hora por cima do título, que fica com a largura toda. */
+body.inv--template-lavanda .inv-timeline__item {
+    position: relative;
+    grid-template-columns: 2.9rem 1fr;
+    grid-template-rows: auto 1fr;
+    gap: 0 .9rem;
+    padding: .9rem 0;
+    border-bottom: 0;
+}
+body.inv--template-lavanda .inv-timeline__item::before {
+    content: "";
+    position: absolute;
+    top: 1.33rem;
+    left: calc(3.35rem - 3px);
+    width: 7px;
+    height: 7px;
+    background: var(--t-paper);
+    border: 1px solid var(--t-accent-soft);
+    transform: rotate(45deg);
+    border-radius: 1px;
+}
+body.inv--template-lavanda .inv-timeline__dot {
+    grid-row: 1 / 3;
+    width: 2.6rem;
+    height: 2.6rem;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--t-icon, var(--t-accent));
+}
+body.inv--template-lavanda .inv-timeline__dot svg { width: 1.9rem; height: 1.9rem; overflow: visible; }
+body.inv--template-lavanda .inv-timeline__dot svg * { vector-effect: non-scaling-stroke; }
+body.inv--template-lavanda .inv-timeline__time {
+    grid-column: 2;
+    padding: .15rem 0 0 .9rem;
+    font-family: var(--t-caps);
+    font-size: .82rem;
+    font-weight: 500;
+    letter-spacing: .1em;
+    color: var(--t-accent);
+    white-space: nowrap;
+}
+body.inv--template-lavanda .inv-timeline__body { grid-column: 2; padding: .1rem 0 0 .9rem; min-width: 0; }
+body.inv--template-lavanda .inv-timeline__label {
+    font-family: var(--t-caps);
+    font-size: .74rem;
+    font-weight: 500;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--t-ink);
+}
+body.inv--template-lavanda .inv-timeline__note { font-size: .92rem; line-height: 1.4; color: var(--t-muted); opacity: 1; font-style: italic; }
+body.inv--template-lavanda .inv-timeline__note .bi { font-style: normal; color: var(--t-accent-soft); }
+body.inv--template-lavanda .inv-map summary { align-items: flex-start; flex-wrap: wrap; }
+body.inv--template-lavanda .inv-map__toggle,
+body.inv--template-lavanda .inv-venue-map summary {
+    padding: .32rem .6rem;
+    border-color: var(--t-line);
+    background: var(--t-tile);
+    color: var(--t-accent);
+    font-family: var(--t-caps);
+    font-size: .54rem;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+body.inv--template-lavanda .inv-map__frame { border: 1px solid var(--t-line-soft); }
+
+/* QR */
+body.inv--template-lavanda .inv-section--qr {
+    margin-top: 1.2rem;
+    padding: 2.8rem 1.2rem 2.4rem;
+    border: 1px solid var(--t-line);
+    border-radius: var(--t-radius);
+    background: var(--t-qr-bg, var(--t-tile));
+    box-shadow: 0 0 0 5px var(--t-paper), 0 0 0 6px var(--t-line-soft);
+}
+body.inv--template-lavanda .inv-qr__eyebrow { font-family: var(--t-caps); font-size: .58rem; font-weight: 500; letter-spacing: .3em; color: var(--t-accent-soft); }
+body.inv--template-lavanda .inv-qr__card {
+    position: relative;
+    width: min(100%, 15rem);
+    padding: 1rem 1rem .9rem;
+    border: 1px solid var(--t-line);
+    border-radius: .4rem;
+    background: #fff;
+    box-shadow: 0 26px 50px -30px rgba(0, 0, 0, .55);
+}
+body.inv--template-lavanda .inv-qr__card::before {
+    content: "";
+    position: absolute;
+    inset: .35rem;
+    border: 1px solid var(--t-line-soft);
+    border-radius: .25rem;
+    pointer-events: none;
+}
+body.inv--template-lavanda .inv-qr__guest { font-family: var(--t-names); font-size: 1.7rem; color: var(--t-qr-name, #3a2a2a); }
+body.inv--template-lavanda .inv-qr__seats { font-family: var(--t-caps); font-size: .56rem; letter-spacing: .22em; color: #4a4a4a; }
+body.inv--template-lavanda .inv-qr__instructions { color: var(--t-ink); font-size: 1rem; }
+body.inv--template-lavanda .inv-qr__events li {
+    border: 1px solid var(--t-line);
+    background: var(--t-tile);
+    color: var(--t-accent);
+    font-size: .82rem;
+}
+
+/* Rodapé */
+body.inv--template-lavanda .inv-footer {
+    border-top: 0;
+    padding: 2.4rem 0 1rem;
+}
+body.inv--template-lavanda .inv-footer__names {
+    font-family: var(--t-names);
+    font-size: 2.5rem;
+    line-height: 1.05;
+    letter-spacing: var(--t-names-track, 0);
+    color: var(--t-accent);
+}
+body.inv--template-lavanda .inv-footer__date { font-family: var(--t-caps); font-size: .7rem; letter-spacing: .3em; color: var(--t-accent-soft); opacity: 1; margin-top: .5rem; }
+body.inv--template-lavanda .inv-footer__brand { font-family: var(--t-caps); font-size: .56rem; letter-spacing: .2em; color: var(--t-muted); opacity: 1; }
+body.inv--template-lavanda .inv-footer__brand strong { color: var(--t-accent); font-weight: 500; }
+
+/* Diálogos */
+body.inv--template-lavanda .inv-dialog {
+    padding: 2.4rem 1.5rem 2rem;
+    border: 1px solid var(--t-line);
+    border-radius: var(--t-radius);
+    background: var(--t-dialog-bg, var(--t-paper));
+    color: var(--t-ink);
+    font-family: var(--t-body);
+}
+body.inv--template-lavanda .inv-dialog::before {
+    content: "";
+    position: absolute;
+    inset: .5rem;
+    border: 1px solid var(--t-line-soft);
+    border-radius: calc(var(--t-radius) * .7);
+    pointer-events: none;
+}
+body.inv--template-lavanda .inv-dialog[open] { animation: tpl-dialog-in .55s var(--t-ease) both; }
+@keyframes tpl-dialog-in {
+    from { opacity: 0; transform: translateY(18px) scale(.97); }
+}
+body.inv--template-lavanda .inv-dialog h2 { font-family: var(--t-names); font-weight: 400; color: var(--t-accent); letter-spacing: var(--t-names-track, 0); }
+body.inv--template-lavanda .inv-dialog > p { font-size: 1.05rem; }
+body.inv--template-lavanda .inv-dialog .inv-btn { padding: .9rem 1.3rem; letter-spacing: .14em; }
+body.inv--template-lavanda .inv-dialog__icon { background: var(--t-tile); border: 1px solid var(--t-line); border-radius: 50%; color: var(--t-accent); }
+body.inv--template-lavanda .inv-dialog__close { z-index: 1; color: var(--t-accent); }
+body.inv--template-lavanda .inv-gift { border-color: var(--t-line); background: var(--t-tile); }
+body.inv--template-lavanda .inv-gift strong { font-family: var(--t-body); color: var(--t-ink); }
+body.inv--template-lavanda .inv-gift__button { background: var(--t-btn-bg); color: var(--t-btn-ink); font-family: var(--t-caps); letter-spacing: .1em; }
+
+/* --- Movimento (só quando o script do template o activa) ----------------- */
+body.inv--template-lavanda.tpl-motion .inv-cover:not(.tpl-cover-go) .tpl-cv { opacity: 0; }
+body.inv--template-lavanda.tpl-motion .inv-cover.tpl-cover-go .tpl-cv {
+    animation: tpl-rise 1.25s var(--t-ease) both;
+    animation-delay: calc(var(--i, 0) * .13s + .1s);
+}
+body.inv--template-lavanda.tpl-motion .inv-cover.tpl-cover-go .inv-collection-seal.tpl-cv {
+    animation: tpl-seal-drop 1.3s var(--t-ease) both, inv-wax-breathe 3.8s 2s ease-in-out infinite;
+    animation-delay: calc(var(--i, 0) * .13s + .1s), 2.2s;
+}
+body.inv--template-lavanda.tpl-motion .inv-cover.tpl-cover-go .inv-cover__paper { animation: tpl-card-in 1.3s var(--t-ease) both; }
+@keyframes tpl-rise {
+    from { opacity: 0; transform: translate3d(0, 1.4rem, 0); letter-spacing: var(--t-rise-track, inherit); }
+    to { opacity: 1; transform: none; }
+}
+@keyframes tpl-card-in {
+    from { opacity: 0; transform: translate3d(0, 2rem, 0) scale(.97); }
+    to { opacity: 1; transform: none; }
+}
+@keyframes tpl-seal-drop {
+    0% { opacity: 0; transform: translateY(-1.2rem) scale(1.35) rotate(-10deg); }
+    60% { opacity: 1; transform: translateY(0) scale(.96) rotate(2deg); }
+    100% { opacity: 1; transform: none; }
+}
+
+/* Abertura: o cartão sobe, a arte aproxima-se, a luz invade. */
+body.inv--template-lavanda .inv-cover.tpl-opening .inv-cover__paper { animation: tpl-card-out 1.15s var(--t-ease-io) forwards !important; }
+body.inv--template-lavanda .inv-cover.tpl-opening::before { animation: tpl-art-push 1.4s var(--t-ease-io) forwards !important; }
+body.inv--template-lavanda .inv-cover.tpl-opening::after {
+    background: radial-gradient(circle at 50% 45%, var(--t-bloom, rgba(255, 255, 255, .95)), transparent 70%);
+    background-size: 100% 100%;
+    animation: tpl-bloom 1.2s .25s ease-in forwards;
+    opacity: 0;
+}
+body.inv--template-lavanda .inv-cover.tpl-opening .tpl-particles i { animation-duration: calc(var(--dur) * .35); }
+@keyframes tpl-card-out {
+    0% { transform: none; opacity: 1; }
+    30% { transform: translate3d(0, .6rem, 0) scale(1.01); opacity: 1; }
+    100% { transform: translate3d(0, -40vh, 0) scale(.9) rotate(-2deg); opacity: 0; }
+}
+@keyframes tpl-art-push {
+    to { transform: scale(1.35); filter: brightness(1.15); }
+}
+@keyframes tpl-bloom {
+    0% { opacity: 0; transform: scale(.6); }
+    100% { opacity: 1; transform: scale(1.6); }
+}
+
+/* Revelação ao percorrer o convite */
+body.inv--template-lavanda.tpl-motion .tpl-rv {
+    opacity: 0;
+    transform: translate3d(0, 1.6rem, 0);
+    transition: opacity 1s var(--t-ease) var(--d, 0s), transform 1.2s var(--t-ease) var(--d, 0s);
+}
+body.inv--template-lavanda.tpl-motion .tpl-rv.is-in { opacity: 1; transform: none; }
+body.inv--template-lavanda.tpl-motion .tpl-rv--zoom { transform: scale(.94); }
+body.inv--template-lavanda.tpl-motion .tpl-rv--left { transform: translate3d(-1.4rem, 0, 0); }
+body.inv--template-lavanda.tpl-motion .tpl-rv--zoom.is-in,
+body.inv--template-lavanda.tpl-motion .tpl-rv--left.is-in { transform: none; }
+body.inv--template-lavanda.tpl-motion .inv-section__title.tpl-rv::before,
+body.inv--template-lavanda.tpl-motion .inv-section__title.tpl-rv::after {
+    transform: scaleX(0);
+    transition: transform 1.4s var(--t-ease) calc(var(--d, 0s) + .3s);
+}
+body.inv--template-lavanda.tpl-motion .inv-section__title.tpl-rv::before { transform-origin: right; }
+body.inv--template-lavanda.tpl-motion .inv-section__title.tpl-rv::after { transform-origin: left; }
+body.inv--template-lavanda.tpl-motion .inv-section__title.tpl-rv.is-in::before,
+body.inv--template-lavanda.tpl-motion .inv-section__title.tpl-rv.is-in::after { transform: scaleX(1); }
+body.inv--template-lavanda.tpl-motion .inv-divider.tpl-rv { -webkit-mask-size: 0 100%; mask-size: 0 100%; transform: none; transition: opacity .6s ease var(--d, 0s), -webkit-mask-size 1.6s var(--t-ease) var(--d, 0s), mask-size 1.6s var(--t-ease) var(--d, 0s); }
+body.inv--template-lavanda.tpl-motion .inv-divider.tpl-rv.is-in { -webkit-mask-size: contain; mask-size: contain; }
+body.inv--template-lavanda.tpl-motion .inv-timeline::before { transition: background-size .2s linear; }
+
+@media (prefers-reduced-motion: reduce) {
+    body.inv--template-lavanda *,
+    body.inv--template-lavanda *::before,
+    body.inv--template-lavanda *::after {
+        animation-duration: .001s !important;
+        animation-iteration-count: 1 !important;
+        animation-delay: 0s !important;
+        transition-duration: .001s !important;
+    }
+    body.inv--template-lavanda .tpl-particles { display: none; }
+}
+
+/* === Específico de lavanda === */
+/* Nomes em romanas grandes, «e» em caligrafia com filete. */
+body.inv--template-lavanda .inv-hero__names,
+body.inv--template-lavanda .inv-cover__names { text-transform: uppercase; font-weight: 500; line-height: 1.02; }
+body.inv--template-lavanda .inv-hero__amp,
+body.inv--template-lavanda .inv-cover__amp {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .6rem;
+    font-size: .52em;
+    line-height: 1.2;
+    text-transform: none;
+    letter-spacing: 0;
+}
+body.inv--template-lavanda .inv-hero__amp::before, body.inv--template-lavanda .inv-hero__amp::after,
+body.inv--template-lavanda .inv-cover__amp::before, body.inv--template-lavanda .inv-cover__amp::after {
+    content: "";
+    width: 3rem;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--t-line));
+}
+body.inv--template-lavanda .inv-hero__amp::after, body.inv--template-lavanda .inv-cover__amp::after { background: linear-gradient(270deg, transparent, var(--t-line)); }
+body.inv--template-lavanda .inv-footer__names { font-size: 1.9rem; text-transform: uppercase; letter-spacing: .06em; }
+body.inv--template-lavanda .inv-cover__names { font-size: clamp(2.5rem, 11.5vw, 3.1rem); }
+
+body.inv--template-lavanda .inv-cover--classic .inv-cover__paper { max-width: 21rem; }
+body.inv--template-lavanda .inv-collection-seal { width: 8.4rem; height: 8.4rem; }
+
+/* Botões de lavanda: ovais suaves. */
+body.inv--template-lavanda .inv-btn { letter-spacing: .24em; }
+
+/* Botões de lavanda e gipsófila a flutuar. */
+body.inv--template-lavanda .tpl-particles i { width: calc(var(--s) * .45); border-radius: 50%; background: radial-gradient(circle at 35% 35%, #c6b3ea, #7b64b4); }
+body.inv--template-lavanda .tpl-particles i.tpl-p2 { width: calc(var(--s) * .38); background: radial-gradient(circle at 35% 35%, #ddd0f3, #9a85cc); }
+body.inv--template-lavanda .tpl-particles i.tpl-p3 { width: calc(var(--s) * .5); height: calc(var(--s) * .5); background: radial-gradient(circle, #ffffff 30%, rgba(236, 230, 246, .8) 45%, transparent 70%); }
+
+/* Ramos de lavanda nas margens, a ondular. */
+body.inv--template-lavanda .lv-sprig {
+    position: absolute;
+    z-index: 1;
+    width: 4.6rem;
+    aspect-ratio: 80 / 300;
+    pointer-events: none;
+    background: url("../../img/tpl/lavanda/lv-sprig.svg") no-repeat center bottom / contain;
+    transform-origin: 50% 100%;
+    animation: lv-wave 6s ease-in-out infinite alternate;
+}
+body.inv--template-lavanda .lv-sprig--l1 { top: .6rem; left: -1.4rem; width: 6.6rem; transform: rotate(-4deg); }
+body.inv--template-lavanda .lv-sprig--l2 { top: 5rem; left: -.4rem; width: 3.6rem; animation-delay: -2.5s; opacity: .8; }
+body.inv--template-lavanda .lv-sprig--r1 { top: 2.4rem; right: -1.6rem; width: 6.2rem; transform: scaleX(-1); animation-name: lv-wave-r; animation-delay: -1.2s; }
+body.inv--template-lavanda .lv-sprig--l3 { top: 44rem; left: -1.6rem; width: 4.4rem; animation-delay: -3.4s; }
+body.inv--template-lavanda .lv-sprig--r2 { top: 66rem; right: -1.5rem; width: 4.6rem; transform: scaleX(-1); animation-name: lv-wave-r; animation-delay: -4s; }
+@keyframes lv-wave {
+    from { transform: rotate(-3deg); }
+    to { transform: rotate(2.5deg); }
+}
+@keyframes lv-wave-r {
+    from { transform: scaleX(-1) rotate(-3deg); }
+    to { transform: scaleX(-1) rotate(2.5deg); }
+}
+
+/* Campo da Provença a fechar o convite. */
+body.inv--template-lavanda .inv-footer { position: relative; isolation: isolate; padding-bottom: 10.5rem; }
+body.inv--template-lavanda .inv-footer::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    left: -1.6rem;
+    right: -1.6rem;
+    bottom: -6.6rem;
+    height: 13rem;
+    background: url("../../img/tpl/lavanda/lv-field.svg") no-repeat center bottom / cover;
+    -webkit-mask-image: linear-gradient(transparent, #000 38%);
+    mask-image: linear-gradient(transparent, #000 38%);
+    opacity: .9;
+}
+
+/* Coroa de louro */
+body.inv--template-lavanda .tpl-crest { color: #9aa28c; }
+body.inv--template-lavanda .tpl-crest .lv-wreath { transform-box: view-box; transform-origin: 60px 104px; }
+body.inv--template-lavanda.tpl-motion .tpl-crest.tpl-rv .lv-wreath--l { transform: rotate(40deg); opacity: 0; transition: transform 1.8s var(--t-ease) .3s, opacity 1.2s ease .3s; }
+body.inv--template-lavanda.tpl-motion .tpl-crest.tpl-rv .lv-wreath--r { transform: rotate(-40deg); opacity: 0; transition: transform 1.8s var(--t-ease) .3s, opacity 1.2s ease .3s; }
+body.inv--template-lavanda.tpl-motion .tpl-crest.tpl-rv.is-in .lv-wreath { transform: none; opacity: 1; }
+body.inv--template-lavanda .tpl-crest__mono { color: var(--t-accent); gap: .45rem; }
+
+/* Contagem em ladrilhos lilás cheios. */
+body.inv--template-lavanda .inv-countdown__cell { border-color: transparent; background: linear-gradient(170deg, #eee8f7, #e2d9f0); }
+body.inv--template-lavanda .inv-countdown__cell span { font-weight: 500; }
+body.inv--template-lavanda .tpl-date__row strong { font-weight: 500; }
+body.inv--template-lavanda .inv-hero__greeting { font-style: italic; }

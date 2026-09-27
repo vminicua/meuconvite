@@ -1,0 +1,39 @@
+{% load static %}{% comment %}
+Camada decorativa do template azul-marinho. Só ornamentos (aria-hidden): o script
+static/js/tpl/azul-marinho.js distribui cada peça para o sítio indicado em
+data-tpl-into. Sem JavaScript nada disto aparece e o convite fica intacto.
+{% endcomment %}{% with d=wedding.main_date %}
+<svg class="tpl-sprite" width="0" height="0" aria-hidden="true" focusable="false">
+    <defs>
+        <symbol id="tpl-i-heart" viewBox="0 0 32 32"><path d="M16 25.5s-9.5-5.6-9.5-11.8A4.8 4.8 0 0 1 16 11.2a4.8 4.8 0 0 1 9.5 2.5c0 6.2-9.5 11.8-9.5 11.8Z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></symbol>
+        <symbol id="tpl-i-rings" viewBox="0 0 32 32"><g fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="12.2" cy="19.6" r="7"/><circle cx="19.8" cy="19.6" r="7"/><path d="M9.6 9.6 12.2 6.6l2.6 3-2.6 2.9Z" stroke-linejoin="round"/><path d="M9.6 9.6h5.2" stroke-width="1"/></g></symbol>
+        <symbol id="tpl-i-toast" viewBox="0 0 32 32"><g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><g transform="rotate(-14 11 16)"><path d="M8 6h6l-.5 6.6a2.5 2.5 0 0 1-5 0Z"/><path d="M11 15.1V25M8.2 25.2h5.6"/></g><g transform="rotate(14 21 16)"><path d="M18 6h6l-.5 6.6a2.5 2.5 0 0 1-5 0Z"/><path d="M21 15.1V25M18.2 25.2h5.6"/></g><path d="M16 2.6v2.2M13.4 3.8l1 1.2M18.6 3.8l-1 1.2" stroke-width="1"/></g></symbol>
+        <symbol id="tpl-i-dinner" viewBox="0 0 32 32"><g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><circle cx="16" cy="17" r="8"/><circle cx="16" cy="17" r="5.2" stroke-width="1"/><path d="M4.6 6.5v5a1.6 1.6 0 0 0 3.2 0v-5M6.2 6.5v19.5"/><path d="M27.4 6.5c-2.3 2.2-2.3 7.3 0 9.4v10.1"/></g></symbol>
+        <symbol id="tpl-i-music" viewBox="0 0 32 32"><g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"><path d="M12.2 23V8.6l12.3-3.2v15"/><path d="M12.2 12.4l12.3-3.2"/><ellipse cx="9.6" cy="23.2" rx="2.7" ry="2.2"/><ellipse cx="21.9" cy="20.6" rx="2.7" ry="2.2"/></g></symbol>
+        <symbol id="tpl-i-cake" viewBox="0 0 32 32"><g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"><path d="M6 26.5h20M8 26.5v-7h16v7M10.5 19.5v-4.5h11v4.5M16 15v-3"/><path d="M16 9.6c-1.2-1.1-1.2-2.3 0-3.5 1.2 1.2 1.2 2.4 0 3.5Z"/><path d="M8 22.4c2.7 1.4 5.3 1.4 8 0s5.3-1.4 8 0" stroke-width="1"/></g></symbol>
+        <symbol id="tpl-i-camera" viewBox="0 0 32 32"><g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"><rect x="4.5" y="10" width="23" height="15.5" rx="2.4"/><circle cx="16" cy="17.6" r="4.6"/><path d="M11 10l2-3.2h6L21 10"/></g></symbol>
+
+    </defs>
+</svg>
+<div class="tpl-stash" data-tpl-decor aria-hidden="true">
+    <div class="tpl-crest" data-tpl-into=".inv-hero" data-tpl-pos="prepend" aria-hidden="true">
+        <svg class="tpl-crest__art" viewBox="0 0 120 120" aria-hidden="true" focusable="false">
+            <g fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="round">
+                <path class="tpl-draw" d="M40 32h40v27c0 17.5-9.5 28-20 34-10.5-6-20-16.5-20-34Z"/>
+                <path d="M43.5 35.5h33v23.4c0 14.8-8 24-16.5 29.2-8.5-5.2-16.5-14.4-16.5-29.2Z" stroke-width=".6" opacity=".6"/>
+                <path class="am-crown" d="M47 26.5l-2.2-10 7 5.6L60 12l8.2 10.1 7-5.6-2.2 10Zm.3 2.8h25.4"/>
+            </g>
+            <g class="am-crown-gems" fill="currentColor"><circle cx="44.8" cy="16.2" r="1.3"/><circle cx="60" cy="11.4" r="1.5"/><circle cx="75.2" cy="16.2" r="1.3"/></g>
+            <g fill="currentColor" stroke="currentColor" stroke-width=".7" opacity=".9"><g class="am-laurel"><path d="M54 100Q22 90 26 38" fill="none"/><ellipse cx="43.1" cy="98.6" rx="5.0" ry="1.9" transform="rotate(-191 43.1 98.6)"/><ellipse cx="45.8" cy="93.1" rx="5.0" ry="1.9" transform="rotate(-115 45.8 93.1)"/><ellipse cx="37.9" cy="94.4" rx="4.8" ry="1.8" transform="rotate(-181 37.9 94.4)"/><ellipse cx="41.4" cy="89.7" rx="4.8" ry="1.8" transform="rotate(-105 41.4 89.7)"/><ellipse cx="33.6" cy="89.5" rx="4.5" ry="1.7" transform="rotate(-171 33.6 89.5)"/><ellipse cx="37.6" cy="85.7" rx="4.5" ry="1.7" transform="rotate(-95 37.6 85.7)"/><ellipse cx="30.1" cy="83.9" rx="4.3" ry="1.6" transform="rotate(-161 30.1 83.9)"/><ellipse cx="34.5" cy="81.0" rx="4.3" ry="1.6" transform="rotate(-85 34.5 81.0)"/><ellipse cx="27.4" cy="77.6" rx="4.1" ry="1.6" transform="rotate(-152 27.4 77.6)"/><ellipse cx="32.0" cy="75.5" rx="4.1" ry="1.6" transform="rotate(-76 32.0 75.5)"/><ellipse cx="25.4" cy="70.6" rx="3.9" ry="1.5" transform="rotate(-144 25.4 70.6)"/><ellipse cx="30.0" cy="69.3" rx="3.9" ry="1.5" transform="rotate(-68 30.0 69.3)"/><ellipse cx="24.1" cy="63.0" rx="3.7" ry="1.4" transform="rotate(-138 24.1 63.0)"/><ellipse cx="28.6" cy="62.2" rx="3.7" ry="1.4" transform="rotate(-62 28.6 62.2)"/><ellipse cx="23.5" cy="54.6" rx="3.4" ry="1.3" transform="rotate(-132 23.5 54.6)"/><ellipse cx="27.8" cy="54.3" rx="3.4" ry="1.3" transform="rotate(-56 27.8 54.3)"/><ellipse cx="23.6" cy="45.4" rx="3.2" ry="1.2" transform="rotate(-128 23.6 45.4)"/><ellipse cx="27.6" cy="45.5" rx="3.2" ry="1.2" transform="rotate(-52 27.6 45.5)"/></g><g transform="translate(120 0) scale(-1 1)"><g class="am-laurel"><path d="M54 100Q22 90 26 38" fill="none"/><ellipse cx="43.1" cy="98.6" rx="5.0" ry="1.9" transform="rotate(-191 43.1 98.6)"/><ellipse cx="45.8" cy="93.1" rx="5.0" ry="1.9" transform="rotate(-115 45.8 93.1)"/><ellipse cx="37.9" cy="94.4" rx="4.8" ry="1.8" transform="rotate(-181 37.9 94.4)"/><ellipse cx="41.4" cy="89.7" rx="4.8" ry="1.8" transform="rotate(-105 41.4 89.7)"/><ellipse cx="33.6" cy="89.5" rx="4.5" ry="1.7" transform="rotate(-171 33.6 89.5)"/><ellipse cx="37.6" cy="85.7" rx="4.5" ry="1.7" transform="rotate(-95 37.6 85.7)"/><ellipse cx="30.1" cy="83.9" rx="4.3" ry="1.6" transform="rotate(-161 30.1 83.9)"/><ellipse cx="34.5" cy="81.0" rx="4.3" ry="1.6" transform="rotate(-85 34.5 81.0)"/><ellipse cx="27.4" cy="77.6" rx="4.1" ry="1.6" transform="rotate(-152 27.4 77.6)"/><ellipse cx="32.0" cy="75.5" rx="4.1" ry="1.6" transform="rotate(-76 32.0 75.5)"/><ellipse cx="25.4" cy="70.6" rx="3.9" ry="1.5" transform="rotate(-144 25.4 70.6)"/><ellipse cx="30.0" cy="69.3" rx="3.9" ry="1.5" transform="rotate(-68 30.0 69.3)"/><ellipse cx="24.1" cy="63.0" rx="3.7" ry="1.4" transform="rotate(-138 24.1 63.0)"/><ellipse cx="28.6" cy="62.2" rx="3.7" ry="1.4" transform="rotate(-62 28.6 62.2)"/><ellipse cx="23.5" cy="54.6" rx="3.4" ry="1.3" transform="rotate(-132 23.5 54.6)"/><ellipse cx="27.8" cy="54.3" rx="3.4" ry="1.3" transform="rotate(-56 27.8 54.3)"/><ellipse cx="23.6" cy="45.4" rx="3.2" ry="1.2" transform="rotate(-128 23.6 45.4)"/><ellipse cx="27.6" cy="45.5" rx="3.2" ry="1.2" transform="rotate(-52 27.6 45.5)"/></g></g></g>
+        </svg>
+        <span class="tpl-crest__mono"><b>{{ wedding.primary_short_name|slice:":1"|upper }}</b>{% if wedding.secondary_short_name %}<i></i><b>{{ wedding.secondary_short_name|slice:":1"|upper }}</b>{% endif %}</span>
+    </div>
+    {% if d %}<div class="tpl-date" data-tpl-into=".inv-hero__date" data-tpl-pos="after" data-tpl-flag=".inv-hero|tpl-has-date" aria-hidden="true">
+        <span class="tpl-date__month">{{ d|date:"F" }}</span>
+        <span class="tpl-date__row"><span>{{ d|date:"l" }}</span><strong>{{ d|date:"d" }}</strong><span>{% if schedule and countdown_target %}{{ countdown_target|time:"H\hi" }}{% else %}{{ d|date:"Y" }}{% endif %}</span></span>
+        {% if schedule and countdown_target %}<span class="tpl-date__year">{{ d|date:"Y" }}</span>{% endif %}
+    </div>{% endif %}
+    <span class="am-corner am-corner--tl" data-tpl-into=".inv-main" data-tpl-pos="prepend" aria-hidden="true"></span>
+    <span class="am-corner am-corner--tr" data-tpl-into=".inv-main" data-tpl-pos="prepend" aria-hidden="true"></span>
+</div>
+{% endwith %}
