@@ -1,0 +1,10 @@
+{% comment %}Camada decorativa do tema Herança Dourada (só visual).{% endcomment %}<style>body.inv.inv--template-lobolo-heranca-dourada { {% if template.cover_image %}--tpl-art:url('{{ template.cover_image.url }}');{% endif %}{% if wedding.cover_image and not ignore_custom_cover %}--tpl-cover-art:none;--t-cover-veil:linear-gradient(180deg,rgba(0,0,0,.18),rgba(0,0,0,.62));--t-cover-ink:#fff;--t-cover-kicker:#fff;--t-cover-names:#fff;--t-cover-shadow:0 2px 18px rgba(0,0,0,.45);{% else %}--tpl-cover-art:var(--tpl-art);{% endif %} }</style>
+<svg class="tpl-symbols" width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <symbol id="inv-divider" viewBox="0 0 200 24"><g fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 12h66M130 12h66"/><path d="M70 12l8-6 8 6-8 6z"/><path d="M114 12l8-6 8 6-8 6z"/></g>
+<g fill="currentColor"><path d="M100 2l10 10-10 10-10-10z"/><circle cx="60" cy="12" r="1.6"/><circle cx="50" cy="12" r="1.6"/><circle cx="140" cy="12" r="1.6"/><circle cx="150" cy="12" r="1.6"/><circle cx="78" cy="12" r="1.8"/><circle cx="122" cy="12" r="1.8"/></g>
+<path d="M100 7l5 5-5 5-5-5z" fill="#2c070e"/></symbol>
+</svg>
+<div class="tpl-decor" aria-hidden="true">
+    <div class="tpl-backdrop"></div>
+    <div class="tpl-ambient" data-tpl-ambient></div>
+</div>

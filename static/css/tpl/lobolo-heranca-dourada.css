@@ -1,0 +1,790 @@
+/* =====================================================================
+   Herança Dourada (lobolo-heranca-dourada) — tema completo do convite
+   Veludo bordô, capulana creme e fios de ouro, como na arte da capa.
+   Tudo está limitado a body.inv.inv--template-lobolo-heranca-dourada.
+   ===================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+
+body.inv.inv--template-lobolo-heranca-dourada {
+--t-bg: #2c070e;
+    --t-surface: #3d0b15;
+    --t-ink: #f6e8cf;
+    --t-muted: #e3cda9;
+    --t-accent: #d9b25f;
+    --t-accent-text: #e9c878;
+    --t-line: rgba(217, 178, 95, .38);
+    --t-line-strong: rgba(233, 200, 120, .7);
+    --t-ornament: #d9b25f;
+    --t-display: "Cinzel", Georgia, serif;
+    --t-names: "Cinzel Decorative", "Cinzel", Georgia, serif;
+    --t-names-weight: 700;
+    --t-names-size: clamp(2.3rem, 11.5vw, 3.5rem);
+    --t-hero-names-size: clamp(2.1rem, 10.5vw, 3.2rem);
+    --t-body: "Lora", Georgia, serif;
+    --t-display-weight: 600;
+    --t-foil: linear-gradient(100deg, #b8862f 0%, #f7df9c 28%, #d6a84f 50%, #fff0bf 68%, #b27d2a 100%);
+    --t-backdrop: linear-gradient(180deg, rgba(44, 7, 14, .72), rgba(44, 7, 14, .9)), url("../../img/tpl/lobolo-heranca-dourada/backdrop.webp") center / cover no-repeat, #2c070e;
+    --t-texture: repeating-linear-gradient(45deg, rgba(217, 178, 95, .05) 0 1px, transparent 1px 22px), repeating-linear-gradient(-45deg, rgba(217, 178, 95, .05) 0 1px, transparent 1px 22px);
+    --t-backdrop-glow: radial-gradient(60% 40% at 50% 0%, rgba(217, 178, 95, .16), transparent 70%);
+    --t-cover-veil: radial-gradient(62% 40% at 50% 44%, rgba(60, 8, 18, .5), rgba(40, 5, 12, .12) 70%, transparent 85%), linear-gradient(180deg, rgba(30, 4, 9, .1), transparent 35%, rgba(30, 4, 9, .45));
+    --t-cover-ink: #f8ecd6;
+    --t-cover-kicker: #eccd82;
+    --t-cover-shadow: 0 2px 16px rgba(20, 2, 6, .7);
+    --t-glow: rgba(233, 196, 110, .35);
+    --t-frame: 1px solid rgba(233, 200, 120, .55);
+    --t-frame-shadow: inset 0 0 0 5px rgba(44, 7, 14, .35), inset 0 0 0 6px rgba(233, 200, 120, .35);
+    --t-frame-inset: .85rem;
+    --t-hero-veil: linear-gradient(180deg, rgba(44, 7, 14, .25), rgba(44, 7, 14, .78) 55%, #2c070e 98%);
+    --t-card-bg: radial-gradient(120% 70% at 50% 0%, rgba(92, 16, 29, .82), rgba(52, 8, 17, .9));
+    --t-card-border: 1px solid rgba(233, 200, 120, .55);
+    --t-card-radius: .4rem;
+    --t-card-shadow: 0 30px 60px -20px rgba(0, 0, 0, .6), inset 0 0 0 6px rgba(52, 8, 17, .9), inset 0 0 0 7px rgba(233, 200, 120, .35);
+    --t-card-inset: 6.2rem 1rem 1.4rem;
+    --t-panel: linear-gradient(180deg, rgba(74, 12, 24, .94), rgba(52, 8, 17, .96));
+    --t-panel-shadow: 0 24px 50px -24px rgba(0, 0, 0, .7);
+    --t-radius: .35rem;
+    --t-band: url("../../img/tpl/lobolo-heranca-dourada/band.svg") repeat-x left top / auto 100%;
+    --t-band-h: 1.1rem;
+    --t-panel-pad: 3.4rem 1.35rem 2.6rem;
+    --t-inner-border: 1px solid rgba(233, 200, 120, .25);
+    --t-inner-inset: 1.55rem .45rem .45rem;
+    --t-chip-bg: rgba(217, 178, 95, .1);
+    --t-chip-radius: .25rem;
+    --t-btn-bg: linear-gradient(180deg, #f0d48b, #c8963f);
+    --t-btn-ink: #3a0710;
+    --t-btn-radius: .2rem;
+    --t-btn-shadow: 0 .9rem 2rem -0.4rem rgba(0, 0, 0, .55), inset 0 1px 0 rgba(255, 255, 255, .5);
+    --t-fab-bg: linear-gradient(180deg, #f0d48b, #c8963f);
+    --t-fab-ink: #3a0710;
+    --t-fab2-bg: #4a0c17;
+    --t-fab2-ink: #f3dca7;
+    --t-dialog-bg: linear-gradient(180deg, #4a0c17, #32070f);
+    --t-title-color: #eccd82;
+    --t-names-color: #f3d68f;
+    --t-rail: linear-gradient(180deg, rgba(233, 200, 120, .8), rgba(233, 200, 120, .15));
+    --t-dot-bg: #3d0b15;
+    --t-photo-border: 4px solid #d9b25f;
+    --t-photo-radius: .15rem;
+    --t-qr-border: 1px solid #d9b25f;
+    --t-qr-ink: #5c101d;
+}
+
+/* ---------------------------------------------------------------------
+   Estrutura comum aos temas (gerada por template; tudo sob body.inv.inv--template-lobolo-heranca-dourada).
+   Os tokens --t-* acima definem o mundo visual deste template.
+   --------------------------------------------------------------------- */
+
+/* Fundo: telemóvel pinta o body; no desktop o ecrã do aparelho. */
+@media (max-width: 991.98px) {
+    body.inv.inv--template-lobolo-heranca-dourada { background: var(--t-bg); }
+}
+@media (min-width: 992px) {
+    body.inv.inv--template-lobolo-heranca-dourada .inv-public-device__screen { background: var(--t-bg); }
+    body.inv.inv--template-lobolo-heranca-dourada { --tpl-screen-h: calc(min(454px, 45.6vh, 100vw - 2rem) * 956 / 454 - 24px); }
+}
+
+body.inv.inv--template-lobolo-heranca-dourada :where(.theme-cover, .theme-main, .inv-dialog, .inv-floating-actions, .inv-music, .inv-gallery, .tpl-decor) {
+    --inv-paper: var(--t-surface);
+    --inv-ink: var(--t-ink);
+    --inv-primary-text: var(--t-accent-text);
+    --inv-muted: var(--t-muted);
+    --inv-display: var(--t-display);
+    --inv-body: var(--t-body);
+    --inv-heading-font: var(--t-display);
+    font-family: var(--t-body);
+}
+
+/* --- Camada decorativa fixa (sticky: funciona na janela e no aparelho) --- */
+body.inv.inv--template-lobolo-heranca-dourada .tpl-decor {
+    position: sticky;
+    top: 0;
+    z-index: 0;
+    display: block;
+    height: 0;
+    pointer-events: none;
+}
+body.inv.inv--template-lobolo-heranca-dourada .tpl-backdrop,
+body.inv.inv--template-lobolo-heranca-dourada .tpl-ambient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    height: 100lvh;
+    overflow: hidden;
+}
+@media (min-width: 992px) {
+    body.inv.inv--template-lobolo-heranca-dourada .tpl-backdrop, body.inv.inv--template-lobolo-heranca-dourada .tpl-ambient { height: var(--tpl-screen-h); }
+}
+body.inv.inv--template-lobolo-heranca-dourada .tpl-backdrop {
+    background: var(--t-backdrop);
+}
+body.inv.inv--template-lobolo-heranca-dourada .tpl-backdrop::before,
+body.inv.inv--template-lobolo-heranca-dourada .tpl-backdrop::after { content: ""; position: absolute; inset: 0; }
+body.inv.inv--template-lobolo-heranca-dourada .tpl-backdrop::before { background: var(--t-texture, none); opacity: var(--t-texture-opacity, 1); }
+body.inv.inv--template-lobolo-heranca-dourada .tpl-backdrop::after { background: var(--t-backdrop-glow, none); }
+body.inv.inv--template-lobolo-heranca-dourada.inv--cover-pending .tpl-ambient { visibility: hidden; }
+
+/* --- Capa ---------------------------------------------------------- */
+body.inv.inv--template-lobolo-heranca-dourada .theme-cover {
+    display: grid;
+    align-items: var(--t-cover-align, center);
+    justify-items: center;
+    min-height: 100svh;
+    padding: calc(env(safe-area-inset-top) + 4rem) 1.4rem calc(env(safe-area-inset-bottom) + 6.75rem);
+    text-align: center;
+    animation: none;
+    background-color: var(--t-bg);
+}
+@media (min-width: 992px) {
+    body.inv.inv--template-lobolo-heranca-dourada .theme-cover { min-height: var(--tpl-screen-h); }
+}
+body.inv.inv--template-lobolo-heranca-dourada .theme-cover::before {
+    background: var(--t-cover-veil), var(--tpl-cover-art, none) var(--t-cover-pos, center) / cover no-repeat;
+    transform-origin: var(--t-cover-origin, 50% 45%);
+}
+body.inv.inv--template-lobolo-heranca-dourada .theme-cover::after {
+    content: "";
+    position: absolute;
+    z-index: 3;
+    inset: var(--t-frame-inset, .8rem);
+    border: var(--t-frame, 0);
+    border-radius: var(--t-frame-radius, 0);
+    box-shadow: var(--t-frame-shadow, none);
+    pointer-events: none;
+}
+body.inv.inv--template-lobolo-heranca-dourada .theme-cover__content {
+    width: min(100%, 22.5rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--t-cover-ink);
+    text-shadow: var(--t-cover-shadow, none);
+    animation: none;
+}
+body.inv.inv--template-lobolo-heranca-dourada .theme-cover .theme-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: .55rem;
+    margin: 0 0 1.1rem;
+    color: var(--t-cover-kicker);
+    font: 600 .68rem/1.3 var(--t-body);
+    letter-spacing: .3em;
+}
+body.inv.inv--template-lobolo-heranca-dourada .theme-cover .theme-kicker::before,
+body.inv.inv--template-lobolo-heranca-dourada .theme-cover .theme-kicker::after {
+    content: "";
+    width: 1.6rem;
+    height: 1px;
+    background: currentColor;
+    opacity: .7;
+}
+body.inv.inv--template-lobolo-heranca-dourada .theme-cover .theme-kicker i { display: none; }
+body.inv.inv--template-lobolo-heranca-dourada .theme-cover h1 {
+    margin: 0 0 .9rem;
+    font-family: var(--t-names, var(--t-display));
+    font-weight: var(--t-names-weight, 600);
+    font-size: var(--t-names-size, clamp(2.9rem, 14vw, 4.3rem));
+    line-height: 1.02;
+    letter-spacing: var(--t-names-track, 0);
+    text-wrap: balance;
+    color: var(--t-cover-names, inherit);
+}
+body.inv.inv--template-lobolo-heranca-dourada .theme-cover p {
+    margin: 0 auto;
+    max-width: 19rem;
+    font-size: 1rem;
+    line-height: 1.6;
+    opacity: .95;
+}
+body.inv.inv--template-lobolo-heranca-dourada .theme-cover time {
+    display: block;
+    margin: 1.2rem 0 1.6rem;
+    font: 600 .82rem/1.3 var(--t-body);
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--t-cover-kicker);
+}
+body.inv.inv--template-lobolo-heranca-dourada .theme-button {
+    position: relative;
+    overflow: hidden;
+    min-height: 3.1rem;
+    padding: .95rem 2rem;
+    border: var(--t-btn-border, 0);
+    border-radius: var(--t-btn-radius, 999px);
+    background: var(--t-btn-bg);
+    color: var(--t-btn-ink);
+    font: 700 .82rem/1 var(--t-body);
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    text-shadow: none;
+    box-shadow: var(--t-btn-shadow, 0 .9rem 2rem rgba(0,0,0,.25));
+    cursor: pointer;
+    transition: transform .25s ease, box-shadow .25s ease;
+}
+body.inv.inv--template-lobolo-heranca-dourada .theme-button::after {
+    content: "";
+    position: absolute;
+    inset: -20% -60%;
+    background: linear-gradient(100deg, transparent 40%, rgba(255,255,255,.55) 50%, transparent 60%);
+    transform: translateX(-60%);
+    pointer-events: none;
+}
+body.inv.inv--template-lobolo-heranca-dourada .theme-button:hover { transform: translateY(-2px); }
+body.inv.inv--template-lobolo-heranca-dourada .theme-button:focus-visible { outline: 2px solid var(--t-cover-ink); outline-offset: 4px; }
+
+/* cena cinematográfica partilhada: por omissão só a luz */
+body.inv.inv--template-lobolo-heranca-dourada .theme-cinematic-orbit,
+body.inv.inv--template-lobolo-heranca-dourada .theme-cinematic-curtain { display: none; }
+body.inv.inv--template-lobolo-heranca-dourada .theme-cinematic-glow {
+    top: var(--t-glow-y, 45%);
+    width: min(95vw, 30rem);
+    background: radial-gradient(circle, var(--t-glow, rgba(255,255,255,.22)), transparent 62%);
+    filter: none;
+}
+
+/* --- Convite -------------------------------------------------------- */
+body.inv.inv--template-lobolo-heranca-dourada .theme-main {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 34rem;
+    margin: 0 auto;
+    min-height: 100svh;
+    padding: 0 0 7.5rem;
+    background: transparent;
+    color: var(--t-ink);
+    overflow-x: hidden;
+    overflow-x: clip;
+}
+
+/* Abertura: o convite sobe quando a capa se dissolve no fundo. */
+body.inv.inv--template-lobolo-heranca-dourada .theme-main--cinematic-enter { animation: tpl-main-in 1.1s 1.1s cubic-bezier(.16,.8,.25,1) both; }
+
+/* Hero com a arte do template */
+body.inv.inv--template-lobolo-heranca-dourada .theme-hero {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100svh;
+    padding: var(--t-hero-pad, 5.25rem 2.1rem 3.6rem);
+    border: 0;
+    text-align: center;
+    overflow: hidden;
+}
+@media (min-width: 992px) {
+    body.inv.inv--template-lobolo-heranca-dourada .theme-hero { min-height: var(--tpl-screen-h); }
+}
+body.inv.inv--template-lobolo-heranca-dourada .theme-hero::before {
+    content: "";
+    position: absolute;
+    z-index: -2;
+    inset: -8% 0 0;
+    background: var(--t-hero-veil), var(--tpl-art, none) var(--t-hero-pos, center top) / cover no-repeat;
+    transform: translate3d(0, var(--tpl-par, 0px), 0);
+    will-change: transform;
+}
+body.inv.inv--template-lobolo-heranca-dourada .theme-hero::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: var(--t-card-inset, 3.3rem .85rem 1.6rem);
+    border: var(--t-card-border, 0);
+    border-radius: var(--t-card-radius, 1.5rem);
+    background: var(--t-card-bg, transparent);
+    box-shadow: var(--t-card-shadow, none);
+}
+body.inv.inv--template-lobolo-heranca-dourada .theme-hero > * { position: relative; }
+body.inv.inv--template-lobolo-heranca-dourada .theme-hero .theme-kicker {
+    margin: 0 0 .9rem;
+    color: var(--t-accent-text);
+    font: 600 .68rem/1.4 var(--t-body);
+    letter-spacing: .3em;
+}
+body.inv.inv--template-lobolo-heranca-dourada .theme-hero h1 {
+    margin: 0 0 .6rem;
+    font-family: var(--t-names, var(--t-display));
+    font-weight: var(--t-names-weight, 600);
+    font-size: var(--t-hero-names-size, clamp(2.7rem, 13vw, 3.9rem));
+    line-height: 1.04;
+    letter-spacing: var(--t-names-track, 0);
+    color: var(--t-names-color, var(--t-ink));
+    text-wrap: balance;
+}
+body.inv.inv--template-lobolo-heranca-dourada .theme-greeting {
+    margin: .4rem auto 0;
+    font-family: var(--t-display);
+    font-size: 1.2rem;
+    font-style: var(--t-greeting-style, italic);
+    color: var(--t-accent-text);
+}
+body.inv.inv--template-lobolo-heranca-dourada .theme-lead {
+    max-width: 19rem;
+    margin: .6rem auto 0;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--t-ink);
+}
+body.inv.inv--template-lobolo-heranca-dourada .theme-date {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    margin: 1.3rem 0 .2rem;
+    padding: .55rem 1.1rem;
+    border-block: 1px solid var(--t-line);
+    color: var(--t-accent-text);
+    font: 700 .8rem/1.3 var(--t-body);
+    letter-spacing: .2em;
+    text-transform: uppercase;
+}
+body.inv.inv--template-lobolo-heranca-dourada .theme-date i { font-size: .95rem; }
+
+body.inv.inv--template-lobolo-heranca-dourada .inv-countdown { gap: .5rem; margin: 1.3rem 0 1.2rem; flex-wrap: nowrap; }
+body.inv.inv--template-lobolo-heranca-dourada .inv-countdown__cell {
+    min-width: 0;
+    width: 4.1rem;
+    padding: .7rem .2rem .55rem;
+    border: 1px solid var(--t-line);
+    border-radius: var(--t-chip-radius, .9rem);
+    background: var(--t-chip-bg);
+    box-shadow: var(--t-chip-shadow, none);
+}
+body.inv.inv--template-lobolo-heranca-dourada .inv-countdown__cell span {
+    font-family: var(--t-display);
+    font-size: 1.7rem;
+    font-weight: var(--t-display-weight, 600);
+    color: var(--t-count-color, var(--t-accent-text));
+    font-variant-numeric: tabular-nums;
+}
+body.inv.inv--template-lobolo-heranca-dourada .inv-countdown__cell small { font-size: .56rem; letter-spacing: .18em; color: var(--t-muted); opacity: 1; }
+body.inv.inv--template-lobolo-heranca-dourada .inv-seats {
+    border-color: var(--t-line);
+    background: var(--t-chip-bg);
+    color: var(--t-ink);
+}
+body.inv.inv--template-lobolo-heranca-dourada .inv-seats span { font-size: .64rem; letter-spacing: .18em; }
+body.inv.inv--template-lobolo-heranca-dourada .inv-seats strong { color: var(--t-accent-text); font-family: var(--t-display); }
+
+/* Painéis das secções */
+body.inv.inv--template-lobolo-heranca-dourada .theme-main > .theme-section,
+body.inv.inv--template-lobolo-heranca-dourada .theme-main > .inv-section {
+    position: relative;
+    isolation: isolate;
+    margin: 1.1rem .85rem;
+    padding: var(--t-panel-pad, 2.8rem 1.35rem 2.5rem);
+    border: var(--t-panel-border, 1px solid var(--t-line));
+    border-radius: var(--t-radius, 1.4rem);
+    background: var(--t-panel);
+    box-shadow: var(--t-panel-shadow, none);
+    color: var(--t-ink);
+    text-align: center;
+    overflow: hidden;
+}
+body.inv.inv--template-lobolo-heranca-dourada .theme-main > .theme-section::before,
+body.inv.inv--template-lobolo-heranca-dourada .theme-main > .inv-section::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--t-band-h, 0);
+    background: var(--t-band, none);
+}
+body.inv.inv--template-lobolo-heranca-dourada .theme-main > .theme-section::after,
+body.inv.inv--template-lobolo-heranca-dourada .theme-main > .inv-section::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: var(--t-inner-inset, .45rem);
+    border: var(--t-inner-border, 0);
+    border-radius: calc(var(--t-radius, 1.4rem) - .35rem);
+    background: var(--t-panel-ornament, none);
+    pointer-events: none;
+}
+body.inv.inv--template-lobolo-heranca-dourada .theme-main .inv-section__title,
+body.inv.inv--template-lobolo-heranca-dourada .theme-main .theme-section h2 {
+    margin: .2rem 0 0;
+    font-family: var(--t-title-font, var(--t-display));
+    font-size: var(--t-title-size, clamp(1.95rem, 9vw, 2.45rem));
+    font-weight: var(--t-display-weight, 600);
+    font-style: var(--t-title-style, normal);
+    line-height: 1.12;
+    letter-spacing: var(--t-title-track, 0);
+    text-transform: var(--t-title-case, none);
+    color: var(--t-title-color, var(--t-ink));
+    text-wrap: balance;
+}
+body.inv.inv--template-lobolo-heranca-dourada .inv-story__kicker,
+body.inv.inv--template-lobolo-heranca-dourada .inv-gallery-teaser__eyebrow,
+body.inv.inv--template-lobolo-heranca-dourada .inv-qr__eyebrow {
+    display: block;
+    margin: 0 0 .55rem;
+    color: var(--t-accent-text);
+    font: 700 .64rem/1.4 var(--t-body);
+    letter-spacing: .28em;
+    text-transform: uppercase;
+}
+body.inv.inv--template-lobolo-heranca-dourada .inv-divider {
+    width: 11rem;
+    height: 1.7rem;
+    margin: .9rem auto 1.3rem;
+    color: var(--t-ornament);
+    opacity: 1;
+    overflow: visible;
+}
+body.inv.inv--template-lobolo-heranca-dourada .inv-text,
+body.inv.inv--template-lobolo-heranca-dourada .theme-section p { line-height: 1.75; }
+body.inv.inv--template-lobolo-heranca-dourada .inv-story__body { max-width: 21rem; margin: 0 auto; }
+body.inv.inv--template-lobolo-heranca-dourada .inv-story__quote {
+    margin-top: 1.6rem;
+    border-color: var(--t-line);
+    font-family: var(--t-display);
+    font-size: 1.2rem;
+    color: var(--t-ink);
+}
+body.inv.inv--template-lobolo-heranca-dourada .inv-story__quote cite { color: var(--t-accent-text); }
+
+/* Factos do evento */
+body.inv.inv--template-lobolo-heranca-dourada .theme-facts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .6rem;
+    text-align: left;
+}
+body.inv.inv--template-lobolo-heranca-dourada .theme-facts article {
+    padding: .95rem .9rem;
+    border: 1px solid var(--t-line);
+    border-radius: calc(var(--t-radius, 1.4rem) - .5rem);
+    background: var(--t-chip-bg);
+    min-width: 0;
+}
+body.inv.inv--template-lobolo-heranca-dourada .theme-facts article:nth-child(odd):last-child { grid-column: 1 / -1; }
+body.inv.inv--template-lobolo-heranca-dourada .theme-facts span { color: var(--t-accent-text); font-size: .6rem; font-weight: 700; letter-spacing: .18em; opacity: 1; }
+body.inv.inv--template-lobolo-heranca-dourada .theme-facts strong { font-family: var(--t-fact-font, var(--t-body)); font-size: 1rem; font-weight: 600; line-height: 1.35; overflow-wrap: break-word; hyphens: auto; }
+body.inv.inv--template-lobolo-heranca-dourada .theme-facts a { color: var(--t-accent-text); font-weight: 700; }
+
+/* Programa */
+body.inv.inv--template-lobolo-heranca-dourada .inv-timeline { position: relative; max-width: 21.5rem; margin-top: .4rem; }
+body.inv.inv--template-lobolo-heranca-dourada .inv-timeline::before {
+    content: "";
+    position: absolute;
+    left: 1.05rem;
+    top: 1.4rem;
+    bottom: 1.4rem;
+    width: 2px;
+    border-radius: 2px;
+    background: var(--t-rail, var(--t-line));
+    transform-origin: top;
+}
+body.inv.inv--template-lobolo-heranca-dourada .inv-timeline__item {
+    grid-template-columns: 2.15rem minmax(0, 1fr);
+    grid-template-areas: "dot time" "dot body";
+    column-gap: .95rem;
+    row-gap: .05rem;
+    padding: .9rem 0;
+    border-bottom: 0;
+}
+body.inv.inv--template-lobolo-heranca-dourada .inv-timeline__dot {
+    grid-area: dot;
+    position: relative;
+    z-index: 1;
+    width: 2.15rem;
+    height: 2.15rem;
+    border: 1px solid var(--t-line-strong, var(--t-line));
+    background: var(--t-dot-bg, var(--t-surface));
+    box-shadow: var(--t-dot-shadow, none);
+}
+body.inv.inv--template-lobolo-heranca-dourada .inv-timeline__dot i { display: none; }
+body.inv.inv--template-lobolo-heranca-dourada .inv-timeline__dot::before {
+    content: "";
+    width: .72rem;
+    height: .72rem;
+    background: var(--t-dot, var(--t-accent));
+    clip-path: var(--t-dot-shape, polygon(50% 0, 100% 50%, 50% 100%, 0 50%));
+}
+body.inv.inv--template-lobolo-heranca-dourada .inv-timeline__time {
+    grid-area: time;
+    padding-top: .15rem;
+    font-family: var(--t-display);
+    font-size: 1.35rem;
+    font-weight: var(--t-display-weight, 600);
+    color: var(--t-accent-text);
+    line-height: 1.2;
+}
+body.inv.inv--template-lobolo-heranca-dourada .inv-timeline__body { grid-area: body; min-width: 0; }
+body.inv.inv--template-lobolo-heranca-dourada .inv-timeline__label { font-size: 1.02rem; line-height: 1.35; color: var(--t-ink); }
+body.inv.inv--template-lobolo-heranca-dourada .inv-timeline__note { color: var(--t-muted); opacity: 1; font-size: .84rem; line-height: 1.5; margin-top: .15rem; }
+body.inv.inv--template-lobolo-heranca-dourada .inv-map summary { align-items: flex-start; }
+body.inv.inv--template-lobolo-heranca-dourada .inv-map__toggle {
+    flex: none;
+    border-color: var(--t-line);
+    background: var(--t-chip-bg);
+    color: var(--t-accent-text);
+}
+body.inv.inv--template-lobolo-heranca-dourada .inv-map__external { color: var(--t-accent-text); }
+
+/* Galeria */
+body.inv.inv--template-lobolo-heranca-dourada .inv-gallery-teaser { gap: 1.1rem; }
+body.inv.inv--template-lobolo-heranca-dourada .inv-gallery-teaser__stack span {
+    border: var(--t-photo-border, 5px solid #fff);
+    border-radius: var(--t-photo-radius, .6rem);
+    box-shadow: 0 18px 40px -12px rgba(0,0,0,.45);
+}
+body.inv.inv--template-lobolo-heranca-dourada .inv-gallery-teaser__copy > p:not(.inv-gallery-teaser__eyebrow) { color: var(--t-muted); }
+
+/* Botões */
+body.inv.inv--template-lobolo-heranca-dourada .inv-btn {
+    border: var(--t-btn-border, 0);
+    border-radius: var(--t-btn-radius, 999px);
+    background: var(--t-btn-bg);
+    color: var(--t-btn-ink);
+    font-family: var(--t-body);
+    font-weight: 700;
+    letter-spacing: .06em;
+    box-shadow: var(--t-btn-shadow, none);
+}
+body.inv.inv--template-lobolo-heranca-dourada .inv-btn--outline {
+    background: transparent;
+    color: var(--t-accent-text);
+    border: 1px solid var(--t-line-strong, var(--t-line));
+    box-shadow: none;
+}
+body.inv.inv--template-lobolo-heranca-dourada .inv-btn--disabled { background: var(--t-chip-bg); color: var(--t-muted); box-shadow: none; }
+
+/* Mensagem final */
+body.inv.inv--template-lobolo-heranca-dourada .theme-main > .theme-closing {
+    font-family: var(--t-display);
+    font-size: 1.4rem;
+    line-height: 1.5;
+    padding-top: 3.4rem;
+}
+body.inv.inv--template-lobolo-heranca-dourada .theme-closing p { margin: 0; line-height: 1.55; font-style: var(--t-closing-style, normal); }
+body.inv.inv--template-lobolo-heranca-dourada .theme-closing p::before {
+    content: "\201C";
+    display: block;
+    height: 2.2rem;
+    margin-bottom: .2rem;
+    font: 400 4.2rem/1 var(--t-display);
+    color: var(--t-ornament);
+}
+
+/* QR */
+body.inv.inv--template-lobolo-heranca-dourada .theme-main > .inv-section--qr { background: var(--t-panel); }
+body.inv.inv--template-lobolo-heranca-dourada .inv-qr__card {
+    border: var(--t-qr-border, 1px solid var(--t-line));
+    border-radius: 1rem;
+    background: #fff;
+    box-shadow: 0 24px 48px -26px rgba(0,0,0,.6);
+}
+body.inv.inv--template-lobolo-heranca-dourada .inv-qr__guest { font-family: var(--t-display); color: var(--t-qr-ink, #2b2b2b); }
+body.inv.inv--template-lobolo-heranca-dourada .inv-qr__seats { color: #3b3b3b; }
+body.inv.inv--template-lobolo-heranca-dourada .inv-qr__events li { background: var(--t-chip-bg); color: var(--t-accent-text); border: 1px solid var(--t-line); }
+body.inv.inv--template-lobolo-heranca-dourada .inv-qr__instructions { color: var(--t-muted); }
+body.inv.inv--template-lobolo-heranca-dourada .inv-note { color: var(--t-muted); opacity: 1; }
+
+/* Rodapé */
+body.inv.inv--template-lobolo-heranca-dourada .inv-footer {
+    position: relative;
+    margin: 1.4rem .85rem 0;
+    padding: 2.6rem 1rem 1rem;
+    border: 0;
+    color: var(--t-ink);
+}
+body.inv.inv--template-lobolo-heranca-dourada .inv-hearts { width: 9rem; height: 1.6rem; color: var(--t-ornament); opacity: 1; overflow: visible; }
+body.inv.inv--template-lobolo-heranca-dourada .inv-footer__names {
+    font-family: var(--t-names, var(--t-display));
+    font-weight: var(--t-names-weight, 600);
+    font-size: 2.2rem;
+    line-height: 1.1;
+    color: var(--t-names-color, var(--t-ink));
+}
+body.inv.inv--template-lobolo-heranca-dourada .inv-footer__date { color: var(--t-accent-text); letter-spacing: .24em; font-weight: 700; font-size: .78rem; opacity: 1; margin-top: .5rem; }
+body.inv.inv--template-lobolo-heranca-dourada .inv-footer__brand { color: var(--t-muted); opacity: .9; }
+
+/* Acções flutuantes, música e diálogos */
+body.inv.inv--template-lobolo-heranca-dourada .inv-fab {
+    border: 1px solid var(--t-fab-border, transparent);
+    background: var(--t-fab-bg);
+    color: var(--t-fab-ink);
+    font-family: var(--t-body);
+    letter-spacing: .02em;
+    box-shadow: var(--t-fab-shadow, 0 .8rem 2rem rgba(0,0,0,.28));
+}
+body.inv.inv--template-lobolo-heranca-dourada .inv-fab--secondary {
+    background: var(--t-fab2-bg);
+    color: var(--t-fab2-ink);
+    border-color: var(--t-line);
+}
+body.inv.inv--template-lobolo-heranca-dourada .inv-music button {
+    border-color: var(--t-line);
+    background: var(--t-fab2-bg);
+    color: var(--t-fab2-ink);
+    font-family: var(--t-body);
+}
+body.inv.inv--template-lobolo-heranca-dourada .inv-dialog {
+    border: 1px solid var(--t-line);
+    background: var(--t-dialog-bg, var(--t-surface));
+    color: var(--t-ink);
+}
+body.inv.inv--template-lobolo-heranca-dourada .inv-dialog h2 { font-family: var(--t-display); font-weight: var(--t-display-weight, 600); color: var(--t-title-color, var(--t-ink)); }
+body.inv.inv--template-lobolo-heranca-dourada .inv-dialog__icon { background: var(--t-chip-bg); color: var(--t-accent-text); border: 1px solid var(--t-line); }
+body.inv.inv--template-lobolo-heranca-dourada .inv-dialog__close { background: var(--t-chip-bg); color: var(--t-ink); }
+body.inv.inv--template-lobolo-heranca-dourada .inv-dialog strong { color: var(--t-accent-text); }
+body.inv.inv--template-lobolo-heranca-dourada .inv-gift { border-color: var(--t-line); }
+body.inv.inv--template-lobolo-heranca-dourada .inv-gallery__slide figcaption p { font-family: var(--t-display); }
+
+/* --- Movimento ----------------------------------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+    body.inv.inv--template-lobolo-heranca-dourada .theme-cover::before { animation: tpl-kenburns 22s ease-in-out infinite alternate; }
+    body.inv.inv--template-lobolo-heranca-dourada .theme-cover__content > * { animation: tpl-rise 1.1s cubic-bezier(.2,.8,.2,1) both; }
+    body.inv.inv--template-lobolo-heranca-dourada .theme-cover__content > :nth-child(1) { animation-delay: .35s; }
+    body.inv.inv--template-lobolo-heranca-dourada .theme-cover__content > :nth-child(2) { animation: tpl-name-in 1.5s .5s cubic-bezier(.2,.8,.2,1) both; }
+    body.inv.inv--template-lobolo-heranca-dourada .theme-cover__content > :nth-child(3) { animation-delay: .95s; }
+    body.inv.inv--template-lobolo-heranca-dourada .theme-cover__content > :nth-child(4) { animation-delay: 1.1s; }
+    body.inv.inv--template-lobolo-heranca-dourada .theme-cover__content > :nth-child(5) { animation-delay: 1.3s; }
+    body.inv.inv--template-lobolo-heranca-dourada .theme-button::after { animation: tpl-glint 4.5s 2.4s ease-in-out infinite; }
+    body.inv.inv--template-lobolo-heranca-dourada .theme-cover::after { animation: tpl-frame-in 1.6s .1s cubic-bezier(.2,.8,.2,1) both; }
+
+    body.inv.inv--template-lobolo-heranca-dourada .theme-cover.is-opening { animation: tpl-cover-out 1.28s cubic-bezier(.7,0,.2,1) both; }
+    body.inv.inv--template-lobolo-heranca-dourada .theme-cover.is-opening::before { animation: tpl-art-dive 1.28s cubic-bezier(.6,0,.2,1) both; }
+    body.inv.inv--template-lobolo-heranca-dourada .theme-cover.is-opening .theme-cover__content { animation: tpl-content-out .7s cubic-bezier(.5,0,.75,0) both; }
+    body.inv.inv--template-lobolo-heranca-dourada .theme-cover.is-opening .theme-cover__content > * { animation: none; }
+    body.inv.inv--template-lobolo-heranca-dourada .theme-cover.is-opening .theme-cinematic-glow { animation: tpl-bloom 1.25s ease-out both; }
+    body.inv.inv--template-lobolo-heranca-dourada .theme-cover.is-opening::after { animation: tpl-frame-out .8s ease-in both; }
+
+    body.inv.inv--template-lobolo-heranca-dourada.tpl-motion [data-tpl-reveal] {
+        opacity: 0;
+        transform: translate3d(0, 1.8rem, 0);
+        transition: opacity .9s cubic-bezier(.2,.8,.2,1) var(--tpl-d, 0s), transform 1.1s cubic-bezier(.2,.8,.2,1) var(--tpl-d, 0s);
+    }
+    body.inv.inv--template-lobolo-heranca-dourada.tpl-motion [data-tpl-reveal="zoom"] { transform: scale(.94); }
+    body.inv.inv--template-lobolo-heranca-dourada.tpl-motion [data-tpl-reveal="left"] { transform: translate3d(-1.6rem, 0, 0); }
+    body.inv.inv--template-lobolo-heranca-dourada.tpl-motion [data-tpl-reveal="right"] { transform: translate3d(1.6rem, 0, 0); }
+    body.inv.inv--template-lobolo-heranca-dourada.tpl-motion [data-tpl-reveal].is-in { opacity: 1; transform: none; }
+    body.inv.inv--template-lobolo-heranca-dourada.tpl-motion .inv-timeline::before { transform: scaleY(0); transition: transform 1.6s cubic-bezier(.3,.7,.2,1) .2s; }
+    body.inv.inv--template-lobolo-heranca-dourada.tpl-motion .inv-timeline.is-in::before { transform: none; }
+    body.inv.inv--template-lobolo-heranca-dourada .tpl-tick { animation: tpl-tick .5s cubic-bezier(.2,.8,.2,1); }
+}
+@keyframes tpl-kenburns { from { transform: scale(1.02); } to { transform: scale(1.1) translate3d(0, -1.5%, 0); } }
+@keyframes tpl-rise { from { opacity: 0; transform: translate3d(0, 1.4rem, 0); } to { opacity: 1; transform: none; } }
+@keyframes tpl-name-in { from { opacity: 0; transform: translate3d(0, 1rem, 0) scale(.96); letter-spacing: .08em; } to { opacity: 1; transform: none; } }
+@keyframes tpl-glint { 0%, 72% { transform: translateX(-60%); } 100% { transform: translateX(60%); } }
+@keyframes tpl-frame-in { from { opacity: 0; transform: scale(1.04); } to { opacity: 1; transform: none; } }
+@keyframes tpl-frame-out { to { opacity: 0; transform: scale(.94); } }
+@keyframes tpl-cover-out { 0%, 70% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes tpl-art-dive { from { transform: scale(1.06); } to { transform: scale(1.32); } }
+@keyframes tpl-content-out { to { opacity: 0; transform: translate3d(0, -2.2rem, 0) scale(.95); } }
+@keyframes tpl-bloom { 0% { opacity: 0; transform: translate(-50%, -50%) scale(.4); } 45% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -50%) scale(3.6); } }
+@keyframes tpl-main-in { from { opacity: 0; transform: translate3d(0, 2.4rem, 0); } to { opacity: 1; transform: none; } }
+@keyframes tpl-tick { 0% { transform: translateY(-.35rem); opacity: .2; } 100% { transform: none; opacity: 1; } }
+
+/* Partículas criadas pelo script (ambiente e explosão de abertura) */
+body.inv.inv--template-lobolo-heranca-dourada .tpl-p {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: var(--s);
+    height: var(--s);
+    pointer-events: none;
+    will-change: transform, opacity;
+}
+body.inv.inv--template-lobolo-heranca-dourada .tpl-burst {
+    position: absolute;
+    z-index: 9;
+    left: 50%;
+    top: var(--by, 70%);
+    width: var(--s);
+    height: var(--s);
+    pointer-events: none;
+    animation: tpl-burst 1.15s cubic-bezier(.15,.7,.3,1) var(--d, 0s) both;
+}
+@keyframes tpl-burst {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(.3) rotate(0); }
+    12% { opacity: 1; }
+    100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1) rotate(var(--r, 360deg)); }
+}
+
+/* Movimento reduzido: tudo parado, nada escondido. */
+@media (prefers-reduced-motion: reduce) {
+    body.inv.inv--template-lobolo-heranca-dourada .tpl-ambient, body.inv.inv--template-lobolo-heranca-dourada .tpl-burst, body.inv.inv--template-lobolo-heranca-dourada .theme-cinematic-scene { display: none !important; }
+    body.inv.inv--template-lobolo-heranca-dourada .theme-cover::before, body.inv.inv--template-lobolo-heranca-dourada .theme-cover::after, body.inv.inv--template-lobolo-heranca-dourada .theme-cover__content, body.inv.inv--template-lobolo-heranca-dourada .theme-cover__content > *,
+    body.inv.inv--template-lobolo-heranca-dourada .theme-button::after, body.inv.inv--template-lobolo-heranca-dourada .theme-hero::before { animation: none !important; transform: none !important; }
+}
+
+/* --- Específico deste template ------------------------------------- */
+
+body.inv.inv--template-lobolo-heranca-dourada .tpl-p--dust {
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--c) 0 35%, transparent 70%);
+    opacity: 0;
+    animation: tpl-dust-rise var(--t) linear var(--d) infinite;
+}
+@keyframes tpl-dust-rise {
+    0% { opacity: 0; transform: translate3d(0, 0, 0); }
+    15% { opacity: var(--o); }
+    85% { opacity: var(--o); }
+    100% { opacity: 0; transform: translate3d(1.5rem, -38vh, 0); }
+}
+
+/* Letras em folha de ouro */
+body.inv.inv--template-lobolo-heranca-dourada .theme-cover h1,
+body.inv.inv--template-lobolo-heranca-dourada .theme-hero h1,
+body.inv.inv--template-lobolo-heranca-dourada .inv-footer__names,
+body.inv.inv--template-lobolo-heranca-dourada .theme-main .inv-section__title,
+body.inv.inv--template-lobolo-heranca-dourada .theme-main .theme-section h2 {
+    background: var(--t-foil);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: none;
+    filter: drop-shadow(0 2px 6px rgba(20, 2, 6, .55));
+}
+body.inv.inv--template-lobolo-heranca-dourada .theme-main .inv-section__title, body.inv.inv--template-lobolo-heranca-dourada .theme-main .theme-section h2 { --t-title-size: clamp(1.6rem, 7.4vw, 2.05rem); letter-spacing: .04em; }
+body.inv.inv--template-lobolo-heranca-dourada .theme-cover h1 { filter: drop-shadow(0 3px 14px rgba(20, 2, 6, .8)); }
+
+/* Faixa de capulana no topo e na base do cartão de abertura */
+body.inv.inv--template-lobolo-heranca-dourada .theme-hero::after {
+    background:
+        url("../../img/tpl/lobolo-heranca-dourada/band.svg") repeat-x left top / auto 1.1rem,
+        url("../../img/tpl/lobolo-heranca-dourada/band.svg") repeat-x left bottom / auto 1.1rem,
+        var(--t-card-bg);
+}
+body.inv.inv--template-lobolo-heranca-dourada .theme-hero { --t-hero-pad: 8.4rem 2.1rem 3.6rem; }
+
+/* Cortinas de capulana que fecham e abrem na abertura */
+body.inv.inv--template-lobolo-heranca-dourada .theme-cinematic-curtain {
+    display: block;
+    width: 52%;
+    background: linear-gradient(90deg, rgba(40, 5, 12, .15), rgba(40, 5, 12, .45)), url("../../img/tpl/lobolo-heranca-dourada/fabric.webp") center / 190px auto repeat;
+    box-shadow: 0 0 40px rgba(0, 0, 0, .6);
+}
+body.inv.inv--template-lobolo-heranca-dourada .theme-cinematic-curtain--left { border-right: 3px solid #d9b25f; }
+body.inv.inv--template-lobolo-heranca-dourada .theme-cinematic-curtain--right { border-left: 3px solid #d9b25f; background: linear-gradient(270deg, rgba(40, 5, 12, .15), rgba(40, 5, 12, .45)), url("../../img/tpl/lobolo-heranca-dourada/fabric.webp") center / 190px auto repeat; }
+@media (prefers-reduced-motion: no-preference) {
+    body.inv.inv--template-lobolo-heranca-dourada .theme-cover.is-opening .theme-cinematic-curtain--left { animation: tpl-heranca-left 1.25s cubic-bezier(.7,0,.3,1) both; }
+    body.inv.inv--template-lobolo-heranca-dourada .theme-cover.is-opening .theme-cinematic-curtain--right { animation: tpl-heranca-right 1.25s cubic-bezier(.7,0,.3,1) both; }
+}
+@keyframes tpl-heranca-left { 0% { opacity: 1; transform: translateX(-101%); } 55%, 100% { opacity: 1; transform: none; } }
+@keyframes tpl-heranca-right { 0% { opacity: 1; transform: translateX(101%); } 55%, 100% { opacity: 1; transform: none; } }
+
+/* Partículas: losangos dourados que descem devagar */
+body.inv.inv--template-lobolo-heranca-dourada .theme-cinematic-particle {
+    width: .5rem;
+    height: .5rem;
+    border-radius: 0;
+    background: linear-gradient(135deg, #f7df9c, #b8862f);
+    box-shadow: 0 0 .8rem rgba(233, 196, 110, .6);
+    opacity: .7;
+    animation-duration: calc(var(--duration) * 1.6);
+}
+body.inv.inv--template-lobolo-heranca-dourada .theme-cinematic-glow { --t-glow-y: 42%; }
+body.inv.inv--template-lobolo-heranca-dourada .tpl-burst--dust { border-radius: 50%; background: radial-gradient(circle, #fff3c8 0 30%, #d9b25f 55%, transparent 72%); }
+
+body.inv.inv--template-lobolo-heranca-dourada .inv-timeline__dot { border-radius: .15rem; transform: rotate(45deg); }
+body.inv.inv--template-lobolo-heranca-dourada .inv-timeline__dot::before { transform: rotate(-45deg); }
+body.inv.inv--template-lobolo-heranca-dourada .inv-qr__card { background: #fffaf0; }
