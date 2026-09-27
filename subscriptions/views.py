@@ -43,6 +43,10 @@ def subscription_detail(request: HttpRequest, wedding) -> HttpResponse:
     )
     upgrade_form = PayzenoCheckoutForm(initial={"payer_phone": billing_phone})
 
+    paused = services.payments_paused()
+    if request.method == "POST" and paused:
+        messages.info(request, "Os pagamentos estão em pausa: todas as funcionalidades já estão disponíveis.")
+        return redirect("subscriptions:detail", wedding_id=wedding.pk)
     if request.method == "POST":
         if not capabilities["can_manage_billing"]:
             raise Http404
@@ -121,6 +125,7 @@ def subscription_detail(request: HttpRequest, wedding) -> HttpResponse:
             "voucher_form": VoucherApplyForm(),
             "voucher_redemption": getattr(wedding, "voucher_redemption", None),
             "payzeno_ready": services.payzeno_is_ready(),
+            "payments_paused": paused,
         },
     )
 

@@ -10,6 +10,18 @@
     {{ form.non_field_errors }}
     <div class="row g-4">
         <div class="col-xl-8">
+            <div class="admin-card mb-4{% if form.instance.payments_paused %} border-success{% endif %}">
+                <div class="admin-card__header d-flex align-items-center justify-content-between">
+                    <div><h2 class="h6 mb-1">Pagamentos e subscrições</h2><p class="small text-body-secondary mb-0">Pause as cobranças para que qualquer pessoa use a app sem subscrição.</p></div>
+                    {% if form.instance.payments_paused %}<span class="badge text-bg-success">Acesso livre</span>{% else %}<span class="badge text-bg-secondary">Pagamentos activos</span>{% endif %}
+                </div>
+                <div class="admin-card__body">
+                    <div class="form-check form-switch fs-6">{{ form.payments_paused }}<label class="form-check-label fw-semibold" for="{{ form.payments_paused.id_for_label }}">{{ form.payments_paused.label|capfirst }}</label></div>
+                    <div class="form-text">{{ form.payments_paused.help_text }} O envio de SMS continua limitado ao pacote de cada evento, porque tem custo por mensagem. Pode reactivar os pagamentos a qualquer momento; os pacotes e pagamentos existentes mantêm-se.</div>
+                    {{ form.payments_paused.errors }}
+                </div>
+            </div>
+
             <div class="admin-card mb-4">
                 <div class="admin-card__header d-flex align-items-center justify-content-between">
                     <div><h2 class="h6 mb-1">Twilio · SMS</h2><p class="small text-body-secondary mb-0">Credenciais cifradas e estado da integração.</p></div>

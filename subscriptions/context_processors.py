@@ -8,6 +8,8 @@ def upgrade_modal(request):
     """Disponibiliza os planos no modal sem obrigar a sair da página actual."""
     if not getattr(request, "user", None) or not request.user.is_authenticated:
         return {}
+    if services.payments_paused():
+        return {"payments_paused": True}
     match = getattr(request, "resolver_match", None)
     wedding_id = match.kwargs.get("wedding_id") if match else None
     if not wedding_id:

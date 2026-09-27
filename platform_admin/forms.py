@@ -54,6 +54,7 @@ class PlatformConfigurationForm(BootstrapModelForm):
     class Meta:
         model = PlatformConfiguration
         fields = [
+            "payments_paused",
             "twilio_sms_from",
             "twilio_status_callback_url",
             "payzeno_enabled",

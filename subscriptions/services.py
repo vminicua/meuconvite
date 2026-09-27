@@ -8,11 +8,12 @@ nenhuma view tenha de saber como os planos estão organizados.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import timedelta
 from decimal import Decimal, ROUND_HALF_UP
 from urllib.parse import urlparse
 
+from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
@@ -44,6 +45,23 @@ from .payzeno import (
 # nova, antes de correr `seed_plans`): a plataforma continua utilizável.
 FALLBACK_GUEST_LIMIT = 5
 FALLBACK_SMS_LIMIT = 0
+
+# Com os pagamentos pausados, os limites deixam de ser um obstáculo prático.
+PAUSED_GUEST_LIMIT = 100_000
+PAUSED_EVENT_LIMIT = 1_000
+PAUSED_TEAM_LIMIT = 1_000
+PAUSED_CACHE_SECONDS = 30
+
+
+def payments_paused() -> bool:
+    """A equipa pode pausar as cobranças: a app fica toda disponível sem subscrição."""
+    from platform_admin.models import PAYMENTS_PAUSED_CACHE_KEY, PlatformConfiguration
+
+    value = cache.get(PAYMENTS_PAUSED_CACHE_KEY)
+    if value is None:
+        value = bool(PlatformConfiguration.load().payments_paused)
+        cache.set(PAYMENTS_PAUSED_CACHE_KEY, value, PAUSED_CACHE_SECONDS)
+    return value
 
 
 @dataclass(frozen=True)
@@ -134,6 +152,8 @@ def ensure_subscription(wedding, *, allow_free: bool = True) -> Subscription | N
 
 def event_requires_upgrade(wedding) -> bool:
     """Eventos adicionais ficam bloqueados até receberem um plano ou voucher."""
+    if payments_paused():
+        return False
     subscription = get_subscription(wedding)
     redemption = getattr(wedding, "voucher_redemption", None)
     return bool(
@@ -146,6 +166,27 @@ def event_requires_upgrade(wedding) -> bool:
 
 def limits(wedding) -> Limits:
     """Limites em vigor para este evento."""
+    resolved = _plan_limits(wedding)
+    if not payments_paused():
+        return resolved
+    # SMS têm custo real por mensagem, por isso continuam a seguir o pacote.
+    return replace(
+        resolved,
+        plan_name=str(_("Acesso livre")),
+        max_guests=max(resolved.max_guests, PAUSED_GUEST_LIMIT),
+        max_events=max(resolved.max_events, PAUSED_EVENT_LIMIT),
+        max_team=max(resolved.max_team, PAUSED_TEAM_LIMIT),
+        allows_seating=True,
+        allows_team=True,
+        allows_exports=True,
+        is_free=False,
+        status=SubscriptionStatus.ACTIVE,
+        days_remaining=None,
+    )
+
+
+def _plan_limits(wedding) -> Limits:
+    """Limites definidos pelo pacote, voucher ou falta deles."""
     subscription = get_subscription(wedding)
     redemption = getattr(wedding, "voucher_redemption", None)
 
@@ -249,6 +290,8 @@ def limits(wedding) -> Limits:
 
 def team_member_limit(wedding) -> int | None:
     """Maximum active team members, or ``None`` when the team is unlimited."""
+    if payments_paused():
+        return None
     current = limits(wedding)
     has_voucher = getattr(wedding, "voucher_redemption", None) is not None
     subscription = get_subscription(wedding)

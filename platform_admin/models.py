@@ -31,6 +31,9 @@ def _decrypt(value: str) -> str:
         return ""
 
 
+PAYMENTS_PAUSED_CACHE_KEY = "platform:payments-paused"
+
+
 class PlatformConfiguration(TimeStampedModel):
     """Singleton com integrações; segredos são cifrados antes de chegar à base de dados."""
 
@@ -53,6 +56,15 @@ class PlatformConfiguration(TimeStampedModel):
     mpesa_account_name = models.CharField(_("titular M-Pesa"), max_length=100, blank=True)
     whatsapp_number = models.CharField(_("WhatsApp de pagamentos"), max_length=40, blank=True)
 
+    payments_paused = models.BooleanField(
+        _("pausar pagamentos"),
+        default=False,
+        help_text=_(
+            "Enquanto estiver activo, todos os eventos usam a plataforma sem subscrição: "
+            "sem bloqueios de upgrade nem limites de convidados ou equipa."
+        ),
+    )
+
     class Meta:
         verbose_name = _("configuração da plataforma")
         verbose_name_plural = _("configuração da plataforma")
@@ -74,6 +86,12 @@ class PlatformConfiguration(TimeStampedModel):
             },
         )
         return obj
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        from django.core.cache import cache
+
+        cache.delete(PAYMENTS_PAUSED_CACHE_KEY)
 
     def set_secret(self, name: str, value: str) -> None:
         setattr(self, f"{name}_secret", _encrypt((value or "").strip()))

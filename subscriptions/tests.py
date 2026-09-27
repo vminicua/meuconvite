@@ -423,3 +423,54 @@ class PayzenoWebhookTests(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         mocked_verify.assert_called_once()
+
+
+class PaymentsPausedTests(TestCase):
+    """Com os pagamentos pausados, a app funciona toda sem subscrição."""
+
+    def setUp(self) -> None:
+        from django.core.cache import cache
+        from platform_admin.models import PlatformConfiguration
+
+        cache.clear()
+        self.free = create_plan()
+        self.wedding = create_wedding()
+        services.ensure_subscription(self.wedding)
+        self.configuration = PlatformConfiguration.load()
+
+    def pause(self, paused: bool = True) -> None:
+        self.configuration.payments_paused = paused
+        self.configuration.save()
+
+    def lock_as_additional_event(self) -> None:
+        self.wedding.subscription.status = SubscriptionStatus.PENDING
+        self.wedding.subscription.save(update_fields=["status"])
+        self.wedding.refresh_from_db()
+
+    def test_locked_event_is_unlocked_while_paused_and_locks_again_after(self) -> None:
+        self.lock_as_additional_event()
+        self.assertTrue(services.event_requires_upgrade(self.wedding))
+        self.pause()
+        self.assertFalse(services.event_requires_upgrade(self.wedding))
+        self.pause(False)
+        self.assertTrue(services.event_requires_upgrade(self.wedding))
+
+    def test_limits_are_lifted_but_sms_keeps_following_the_plan(self) -> None:
+        self.pause()
+        limits = services.limits(self.wedding)
+        self.assertGreaterEqual(limits.max_guests, services.PAUSED_GUEST_LIMIT)
+        self.assertEqual(limits.max_sms, 0)
+        self.assertFalse(limits.is_free)
+        self.assertIsNone(services.team_member_limit(self.wedding))
+        services.check_can_add_guests(self.wedding, 500)
+
+    def test_checkout_is_not_started_while_paused(self) -> None:
+        self.pause()
+        paid = create_paid_plan()
+        self.client.login(email=self.wedding.owner.email, password=DEFAULT_PASSWORD)
+        url = reverse("subscriptions:detail", kwargs={"wedding_id": self.wedding.pk})
+        response = self.client.post(url, {"plan_code": paid.code, "payer_phone": "+258840000000", "method": "mpesa"})
+        self.assertRedirects(response, url)
+        self.assertFalse(Payment.objects.filter(wedding=self.wedding).exists())
+        page = self.client.get(url)
+        self.assertContains(page, "Acesso livre a todas as funcionalidades")

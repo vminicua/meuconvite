@@ -6,6 +6,13 @@
 {% block content %}
 {% if not account_subscription %}{% include "partials/wedding_nav.html" %}{% endif %}
 
+{% if payments_paused %}
+<div class="alert alert-success d-flex gap-3 align-items-start mb-4" role="status">
+    <i class="bi bi-gift fs-4"></i>
+    <div><strong>Acesso livre a todas as funcionalidades</strong><div class="small">De momento não é necessária nenhuma subscrição: pode adicionar convidados, equipa e eventos sem limites. O envio de SMS continua sujeito ao pacote.</div></div>
+</div>
+{% endif %}
+
 {% if account_subscription %}
 <div class="workspace-section-heading mb-4">
     <span class="workspace-eyebrow">A SUA CONTA</span>
@@ -81,6 +88,7 @@
 </section>
 {% endif %}
 
+{% if not payments_paused %}
 <section aria-labelledby="plans-title">
     <div class="subscription-section-head">
         <div><span class="workspace-eyebrow">ESCOLHA O SEU PACOTE</span><h2 class="h4 mb-1" id="plans-title">Planos para cada celebração</h2><p class="text-body-secondary mb-0">Todos os limites e vantagens, sem surpresas.</p></div>
@@ -158,6 +166,7 @@
         {% empty %}<div class="empty-state p-5 text-center">Ainda não há pacotes configurados.</div>{% endfor %}
     </div>
 </section>
+{% endif %}
 
 {% if history %}
 <section class="card shadow-sm mt-5">
