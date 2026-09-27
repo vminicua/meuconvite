@@ -34,6 +34,7 @@ from .selectors import (
     upcoming_events,
     weddings_for_user,
 )
+from .workspace import build_next_steps
 
 # ---------------------------------------------------------------------
 # Wedding list & creation
@@ -176,6 +177,7 @@ def wedding_preview(request: HttpRequest, wedding) -> HttpResponse:
             "selected_template": selected_template,
             "preview_sections": preview_sections,
             "capabilities": capabilities,
+            "next_steps": build_next_steps(wedding, capabilities),
         },
     )
 
