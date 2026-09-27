@@ -1,0 +1,22 @@
+/* Noivado Editorial Rosé — afinações próprias do template.
+   O layout partilhado (invitation-editorial.css) já segue o desenho do
+   catálogo; aqui os botões flutuantes passam ao ameixa do botão da capa
+   (no catálogo não há botões rosa-claro) e a capa ganha folga no ecrã largo. */
+
+body.inv--template-noivado-editorial-rose .inv-fab:not(.inv-fab--secondary),
+body.inv--template-noivado-editorial-rose .inv-gift__button:not(.is-own) {
+    border-color: color-mix(in srgb, var(--inv-primary-text) 80%, #000);
+    background: var(--inv-primary-text);
+    color: var(--inv-paper);
+    box-shadow: 0 14px 30px -16px color-mix(in srgb, var(--inv-primary-text) 80%, #000);
+}
+body.inv--template-noivado-editorial-rose .inv-fab--secondary {
+    border-color: color-mix(in srgb, var(--inv-primary) 45%, transparent);
+    color: var(--inv-primary-text);
+}
+
+@media (min-width: 992px) {
+    /* O botão da capa não pode tocar no botão da música. */
+    body.inv--template-noivado-editorial-rose .ed-cover { --ed-seam: max(34%, min(50%, calc(100% - 500px))); }
+    body.inv--template-noivado-editorial-rose .ed-cover__content { padding-bottom: 4.4rem; }
+}
