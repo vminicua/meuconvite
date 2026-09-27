@@ -113,8 +113,12 @@ body.inv--template-floral-rosa .inv-cover--classic {
 }
 body.inv--template-floral-rosa .inv-cover--classic:not([style])::before {
     content: "";
+    display: block;
     position: absolute;
     inset: -3%;
+    width: auto;
+    height: auto;
+    opacity: 1;
     z-index: -1;
     background: var(--t-cover-art);
     background-size: cover;
@@ -124,8 +128,12 @@ body.inv--template-floral-rosa .inv-cover--classic:not([style])::before {
 }
 body.inv--template-floral-rosa .inv-cover--classic::after {
     content: "";
+    display: block;
     position: absolute;
     inset: 0;
+    width: auto;
+    height: auto;
+    transform: none;
     z-index: 0;
     pointer-events: none;
     background: var(--t-cover-veil, none);

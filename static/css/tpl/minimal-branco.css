@@ -120,8 +120,12 @@ body.inv--template-minimal-branco .inv-cover--classic {
 }
 body.inv--template-minimal-branco .inv-cover--classic:not([style])::before {
     content: "";
+    display: block;
     position: absolute;
     inset: -3%;
+    width: auto;
+    height: auto;
+    opacity: 1;
     z-index: -1;
     background: var(--t-cover-art);
     background-size: cover;
@@ -131,8 +135,12 @@ body.inv--template-minimal-branco .inv-cover--classic:not([style])::before {
 }
 body.inv--template-minimal-branco .inv-cover--classic::after {
     content: "";
+    display: block;
     position: absolute;
     inset: 0;
+    width: auto;
+    height: auto;
+    transform: none;
     z-index: 0;
     pointer-events: none;
     background: var(--t-cover-veil, none);
