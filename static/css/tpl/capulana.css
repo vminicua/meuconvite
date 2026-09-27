@@ -1,0 +1,615 @@
+/* =====================================================================
+   Capulana Moçambicana — acabamento do catálogo: papel marfim, cantos com padrões de
+   capulana (azul-petróleo, terracota e ocre), selo dourado com monograma,
+   nomes em Cinzel azul-petróleo, títulos com filetes e pontos.
+   Tudo limitado a body.inv--template-capulana. Gerado a partir de um esqueleto comum aos
+   três cartões clássicos do grupo; editar com cuidado.
+   ===================================================================== */
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap");
+
+body.inv--template-capulana {
+    --k-display: "Cinzel", Georgia, serif;
+    --k-script: var(--inv-display);
+    --cp-teal: color-mix(in srgb, var(--inv-secondary) 70%, #16353d);
+    --cp-terra: var(--inv-primary);
+    --cp-terra-text: color-mix(in srgb, var(--inv-primary) 82%, #3a1408);
+    --k-page: url("../../img/tpl/capulana/paper-fibres.svg"), url("../../img/tpl/capulana/paper-noise.svg"), radial-gradient(130% 80% at 50% 35%, #fffaf1, #f6ead6 88%);
+    --k-ink: #43281c;
+    --k-heading: #23373a;
+    --k-accent-text: var(--cp-teal);
+    --k-name: var(--cp-teal);
+    --k-name-grad: linear-gradient(100deg, var(--cp-teal) 0%, var(--cp-teal) 40%, color-mix(in srgb, var(--cp-teal) 60%, #6fb3b3) 50%, var(--cp-teal) 60%, var(--cp-teal) 100%);
+    --k-amp: var(--cp-terra);
+    --k-line: rgba(29, 92, 99, .28);
+    --k-line-strong: rgba(29, 92, 99, .6);
+    --k-card: rgba(255, 250, 241, .78);
+    --k-card-solid: #fff8ee;
+    --k-btn-bg: linear-gradient(180deg, color-mix(in srgb, var(--cp-teal) 82%, #fff), var(--cp-teal));
+    --k-btn-ink: #fff6e6;
+    --k-btn-radius: 4px;
+    --k-radius: 6px;
+    --k-btn-shadow: 0 14px 26px -14px rgba(20, 60, 66, .85);
+    --k-frame: none;
+    --k-crest: url("../../img/tpl/capulana/crest.svg");
+    --k-crest-w: 6.8rem;
+    --k-crest-ratio: 1;
+    --k-mono: #9a6c1f;
+    --k-mono-shift: 0;
+    --k-mono-size: 1.5rem;
+    --k-glow: rgba(233, 190, 120, .35);
+    --k-spark: #d9a649;
+    --k-dot: var(--cp-teal);
+    --k-dot-ring: #fbf1e2;
+    --k-icon: #b7812d;
+    --k-title-rule: url("../../img/tpl/capulana/rule-left.svg") right center / contain no-repeat;
+    --k-divider: none;
+    --k-photo-border: #fffaf1;
+}
+/* --- Base ---------------------------------------------------------------- */
+@media (max-width: 991.98px) {
+    body.inv--template-capulana { background: var(--k-page); }
+}
+body.inv--template-capulana .inv-public-device__screen { background: var(--k-page); }
+
+/* --- Abertura temática (envelope) ------------------------------------- */
+body.inv--template-capulana .inv-theme-envelope__letter strong { font-family: var(--k-display); font-size: clamp(1.25rem, 5.6vw, 2rem); letter-spacing: .06em; text-transform: uppercase; }
+
+/* --- Capa ------------------------------------------------------------------ */
+body.inv--template-capulana .inv-cover--classic {
+    background: var(--k-page);
+    color: var(--k-ink);
+    isolation: isolate;
+}
+body.inv--template-capulana .inv-cover--classic::before {
+    content: "";
+    position: absolute;
+    inset: .75rem;
+    z-index: 1;
+    border: 22px solid transparent;
+    border-image: var(--k-frame) 40 / 22px stretch;
+    pointer-events: none;
+}
+body.inv--template-capulana .inv-cover--classic::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 42%;
+    z-index: 0;
+    width: 150vw;
+    max-width: 44rem;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--k-glow), transparent 62%);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+body.inv--template-capulana .inv-cover--classic .inv-cover__paper {
+    z-index: 2;
+    max-width: 24rem;
+    min-height: 0;
+    padding: 2.2rem .9rem;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    backdrop-filter: none;
+    animation: none;
+}
+body.inv--template-capulana .inv-cover--classic .inv-cover__paper::before,
+body.inv--template-capulana .inv-cover--classic .inv-cover__paper::after { display: none; }
+body.inv--template-capulana .inv-cover .inv-collection-seal { display: none; }
+body.inv--template-capulana .inv-cover__kicker {
+    max-width: 16rem;
+    margin: .2rem auto .8rem;
+    color: var(--k-accent-text);
+    font-size: .64rem;
+    font-weight: 600;
+    letter-spacing: .24em;
+    line-height: 1.8;
+}
+body.inv--template-capulana .inv-cover__eyebrow {
+    margin-bottom: .4rem;
+    color: var(--k-accent-text);
+    font-size: .64rem;
+    letter-spacing: .4em;
+}
+body.inv--template-capulana .inv-cover__names,
+body.inv--template-capulana .inv-hero__names {
+    margin: 0 0 .5rem;
+    padding: 0 .05em;
+    color: var(--k-name);
+    background: var(--k-name-grad);
+    background-size: 220% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-family: var(--k-display);
+    font-size: clamp(2rem, 10.6vw, 2.75rem);
+    font-weight: 500;
+    line-height: 1.02;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    text-shadow: none;
+    overflow-wrap: anywhere;
+}
+body.inv--template-capulana .inv-cover__amp,
+body.inv--template-capulana .inv-hero__amp {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .7rem;
+    margin: .02em 0 .06em;
+    color: var(--k-amp);
+    -webkit-text-fill-color: var(--k-amp);
+    font-family: var(--k-script);
+    font-size: .74em;
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: 0;
+    text-transform: none;
+}
+body.inv--template-capulana .inv-cover__amp::before,
+body.inv--template-capulana .inv-cover__amp::after,
+body.inv--template-capulana .inv-hero__amp::before,
+body.inv--template-capulana .inv-hero__amp::after {
+    content: "";
+    width: 3.6rem;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--k-line-strong));
+}
+body.inv--template-capulana .inv-cover__amp::after,
+body.inv--template-capulana .inv-hero__amp::after { transform: scaleX(-1); }
+body.inv--template-capulana .inv-cover__note {
+    margin: .7rem 0 1.7rem;
+    padding: .55rem 0;
+    border-block: 1px solid var(--k-line);
+    color: var(--k-ink);
+    font-family: var(--k-display);
+    font-size: .8rem;
+    font-weight: 500;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+}
+body.inv--template-capulana .inv-btn {
+    padding: .85rem 2.1rem;
+    border: 0;
+    border-radius: var(--k-btn-radius, 999px);
+    background: var(--k-btn-bg);
+    color: var(--k-btn-ink);
+    font-family: var(--k-display);
+    font-size: .74rem;
+    font-weight: 600;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    box-shadow: var(--k-btn-shadow);
+}
+body.inv--template-capulana .inv-btn--outline {
+    border: 1px solid var(--k-line-strong);
+    background: transparent;
+    color: var(--k-accent-text);
+    box-shadow: none;
+}
+body.inv--template-capulana .inv-cover .inv-btn,
+body.inv--template-capulana .inv-cover .inv-btn--light { position: relative; overflow: hidden; background: var(--k-btn-bg); color: var(--k-btn-ink); }
+body.inv--template-capulana .inv-cover .inv-btn::after {
+    content: "";
+    position: absolute;
+    inset: -30% -60%;
+    background: linear-gradient(100deg, transparent 44%, rgba(255, 255, 255, .45) 50%, transparent 56%);
+    transform: translateX(-60%);
+}
+
+/* Brasão com monograma */
+body.inv--template-capulana .tpl-crest {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: var(--k-crest-w, 7.2rem);
+    aspect-ratio: var(--k-crest-ratio, 200 / 190);
+    margin: 0 auto .9rem;
+    background: var(--k-crest) center / contain no-repeat;
+}
+body.inv--template-capulana .tpl-crest__mono {
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+    margin-top: var(--k-mono-shift, .9rem);
+    color: var(--k-mono);
+    font-family: var(--k-display);
+    font-size: var(--k-mono-size, 1.35rem);
+    font-weight: 500;
+    line-height: 1;
+}
+body.inv--template-capulana .tpl-crest__mono i {
+    width: 1px;
+    height: 1.4em;
+    background: currentColor;
+    opacity: .7;
+}
+
+/* Brilhos */
+body.inv--template-capulana .tpl-sparkle { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+body.inv--template-capulana .tpl-sparkle i {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: 14px;
+    height: 14px;
+    background: var(--k-spark);
+    clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+    opacity: 0;
+    animation: cp-spark 4.2s ease-in-out var(--w) infinite;
+}
+
+body.inv--template-capulana.tpl-motion .inv-cover--classic::before { animation: cp-frame-in 1.4s cubic-bezier(.2, .8, .2, 1) both; }
+body.inv--template-capulana.tpl-motion .inv-cover--classic::after { animation: cp-glow 7s ease-in-out infinite alternate; }
+body.inv--template-capulana.tpl-motion .inv-cover .tpl-crest { animation: cp-crest-in 1.3s .2s cubic-bezier(.2, .8, .2, 1) both; }
+body.inv--template-capulana.tpl-motion .inv-cover__kicker { animation: cp-rise .9s .45s cubic-bezier(.2, .8, .2, 1) both; }
+body.inv--template-capulana.tpl-motion .inv-cover__eyebrow { animation: cp-rise .9s .55s cubic-bezier(.2, .8, .2, 1) both; }
+body.inv--template-capulana.tpl-motion .inv-cover__names { animation: cp-names-in 1.3s .65s cubic-bezier(.2, .8, .2, 1) both, cp-shimmer 7s 2s linear infinite; }
+body.inv--template-capulana.tpl-motion .inv-cover__note { animation: cp-rise .9s 1s cubic-bezier(.2, .8, .2, 1) both; }
+body.inv--template-capulana.tpl-motion .inv-cover .inv-btn { animation: cp-rise .9s 1.15s cubic-bezier(.2, .8, .2, 1) both; }
+body.inv--template-capulana.tpl-motion .inv-cover .inv-btn::after { animation: cp-glint 4.8s 2.4s ease-in-out infinite; }
+
+body.inv--template-capulana .inv-cover.tpl-opening::before { animation: cp-frame-out .9s cubic-bezier(.6, 0, .3, 1) both; }
+body.inv--template-capulana .inv-cover.tpl-opening::after { animation: cp-flash .9s ease-out both; }
+body.inv--template-capulana .inv-cover.tpl-opening .inv-cover__paper { animation: cp-card-out .85s cubic-bezier(.6, 0, .3, 1) both; }
+body.inv--template-capulana .inv-cover.tpl-opening [data-open-invitation] { pointer-events: none; }
+
+/* --- Interior: cartão com moldura --------------------------------------- */
+body.inv--template-capulana .inv-main {
+    --tpl-par: 0;
+    position: relative;
+    max-width: 38rem;
+    margin: 0 auto;
+    padding: 2.2rem 1.7rem 5rem;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    overflow: hidden;
+}
+body.inv--template-capulana .inv-main::before {
+    content: "";
+    position: absolute;
+    inset: .75rem;
+    border: 22px solid transparent;
+    border-image: var(--k-frame) 40 / 22px stretch;
+    pointer-events: none;
+}
+body.inv--template-capulana .inv-hero {
+    margin: 0;
+    padding: 1.2rem 0 1.4rem;
+    border: 0;
+    border-radius: 0;
+    background: none;
+}
+body.inv--template-capulana .inv-hero .tpl-crest { transform: translate3d(0, calc(var(--tpl-par) * .12px), 0); }
+body.inv--template-capulana .inv-hero__eyebrow { color: var(--k-accent-text); font-size: .64rem; letter-spacing: .4em; }
+body.inv--template-capulana.tpl-dressed .inv-hero > .inv-divider { display: none; }
+body.inv--template-capulana .inv-hero__greeting { color: var(--k-accent-text); font-size: 1.08rem; }
+body.inv--template-capulana .inv-hero__text { max-width: 20rem; color: var(--k-ink); font-size: 1.02rem; letter-spacing: .02em; }
+body.inv--template-capulana .inv-hero__date {
+    margin: 1rem 0 .2rem;
+    padding: .6rem 0;
+    border-block: 1px solid var(--k-line);
+    color: var(--k-accent-text);
+    font-family: var(--k-display);
+    font-size: .98rem;
+    font-weight: 600;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+}
+body.inv--template-capulana .inv-hero__time { margin: .5rem 0 0; color: var(--k-ink); font-size: .78rem; letter-spacing: .24em; text-transform: uppercase; }
+
+body.inv--template-capulana .inv-countdown {
+    gap: .45rem;
+    max-width: 21rem;
+    margin: 1.4rem auto;
+    padding: .7rem;
+    border: 1px solid var(--k-line);
+    border-radius: var(--k-radius, 4px);
+}
+body.inv--template-capulana .inv-countdown__cell {
+    flex: 1;
+    min-width: 0;
+    padding: .45rem .15rem .35rem;
+    border: 1px solid var(--k-line-strong);
+    border-radius: var(--k-radius, 4px);
+    background: var(--k-card);
+}
+body.inv--template-capulana .inv-countdown__cell span {
+    color: var(--k-accent-text);
+    font-family: var(--k-display);
+    font-size: 1.45rem;
+    font-weight: 500;
+    font-variant-numeric: lining-nums tabular-nums;
+}
+body.inv--template-capulana .inv-countdown__cell small { color: var(--k-ink); font-size: .54rem; letter-spacing: .16em; }
+body.inv--template-capulana .inv-seats { margin: .2rem; border-color: var(--k-line-strong); background: var(--k-card); color: var(--k-ink); }
+body.inv--template-capulana .inv-seats strong { color: var(--k-accent-text); }
+
+body.inv--template-capulana .inv-main.tpl-enter .inv-hero > * { animation: cp-rise .95s cubic-bezier(.2, .8, .2, 1) both; }
+body.inv--template-capulana .inv-main.tpl-enter .inv-hero > :nth-child(2) { animation-delay: .1s; }
+body.inv--template-capulana .inv-main.tpl-enter .inv-hero > :nth-child(3) { animation-delay: .18s; }
+body.inv--template-capulana .inv-main.tpl-enter .inv-hero > :nth-child(4) { animation-delay: .26s; }
+body.inv--template-capulana .inv-main.tpl-enter .inv-hero > :nth-child(5) { animation-delay: .34s; }
+body.inv--template-capulana .inv-main.tpl-enter .inv-hero > :nth-child(6) { animation-delay: .42s; }
+body.inv--template-capulana .inv-main.tpl-enter .inv-hero > :nth-child(7) { animation-delay: .5s; }
+body.inv--template-capulana .inv-main.tpl-enter .inv-hero > :nth-child(n+8) { animation-delay: .58s; }
+body.inv--template-capulana .inv-main.tpl-enter .inv-hero > .tpl-crest { animation: cp-crest-in 1.2s cubic-bezier(.2, .8, .2, 1) both; }
+body.inv--template-capulana .inv-main.tpl-enter::before { animation: cp-frame-in 1.4s cubic-bezier(.2, .8, .2, 1) both; }
+body.inv--template-capulana.tpl-motion .inv-hero__names { animation: cp-shimmer 8s 1.8s linear infinite; }
+body.inv--template-capulana .inv-main.tpl-enter .inv-hero__names { animation: cp-names-in 1.2s .1s cubic-bezier(.2, .8, .2, 1) both, cp-shimmer 8s 1.8s linear infinite; }
+body.inv--template-capulana .tpl-tick { animation: cp-tick .5s cubic-bezier(.2, .8, .2, 1); }
+
+/* Secções */
+body.inv--template-capulana .inv-section { padding: 2.3rem 0; border-top: 0; }
+body.inv--template-capulana .inv-section__title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .8rem;
+    color: var(--k-accent-text);
+    font-family: var(--k-display);
+    font-size: .86rem;
+    font-weight: 600;
+    letter-spacing: .2em;
+}
+body.inv--template-capulana .inv-section__title::before,
+body.inv--template-capulana .inv-section__title::after {
+    content: "";
+    flex: 1;
+    max-width: 4.5rem;
+    height: 8px;
+    background: var(--k-title-rule);
+}
+body.inv--template-capulana .inv-section__title::after { transform: scaleX(-1); }
+body.inv--template-capulana .inv-divider {
+    width: 9rem;
+    height: 1rem;
+    margin: .8rem auto 1.2rem;
+    background: var(--k-divider) center / contain no-repeat;
+    opacity: 1;
+}
+body.inv--template-capulana .inv-divider use { display: none; }
+body.inv--template-capulana .inv-text--lead { max-width: 21rem; color: var(--k-accent-text); font-size: 1.18rem; line-height: 1.55; }
+body.inv--template-capulana .inv-section + .inv-section { border-top: 1px solid var(--k-line); }
+
+body.inv--template-capulana .inv-story__kicker,
+body.inv--template-capulana .inv-gallery-teaser__eyebrow { color: var(--k-accent-text); letter-spacing: .3em; }
+body.inv--template-capulana .inv-section--story .inv-section__title,
+body.inv--template-capulana .inv-gallery-teaser .inv-section__title {
+    font-size: 1.15rem;
+    letter-spacing: .12em;
+}
+body.inv--template-capulana .inv-gallery-teaser .inv-section__title::before,
+body.inv--template-capulana .inv-gallery-teaser .inv-section__title::after { max-width: 2.4rem; }
+body.inv--template-capulana .inv-story__body { color: var(--k-ink); font-size: 1.05rem; line-height: 1.75; }
+body.inv--template-capulana .inv-story__quote {
+    border-block: 1px solid var(--k-line);
+    color: var(--k-accent-text);
+    font-family: var(--inv-body);
+    font-size: 1.22rem;
+}
+body.inv--template-capulana .inv-story__quote cite { color: var(--k-accent-text); }
+body.inv--template-capulana .inv-gallery-teaser { grid-template-columns: 1fr; text-align: center; }
+body.inv--template-capulana .inv-gallery-teaser__stack { min-height: 235px; }
+body.inv--template-capulana .inv-gallery-teaser__stack span {
+    border: 5px solid var(--k-photo-border);
+    border-radius: 2px;
+    box-shadow: 0 0 0 1px var(--k-line-strong), 0 22px 40px -18px rgba(0, 0, 0, .45);
+}
+body.inv--template-capulana .inv-gallery-teaser__copy > p:not(.inv-gallery-teaser__eyebrow) { color: var(--k-ink); }
+
+/* Programa: linha vertical com pontos e ícones de traço */
+body.inv--template-capulana .inv-timeline { position: relative; max-width: 22rem; }
+body.inv--template-capulana .inv-timeline::before {
+    content: "";
+    position: absolute;
+    left: 3.05rem;
+    top: 1.2rem;
+    bottom: 1.4rem;
+    width: 1px;
+    background: var(--k-line-strong);
+    transform-origin: top;
+}
+body.inv--template-capulana .inv-timeline__item {
+    position: relative;
+    grid-template-columns: 2.3rem 1fr;
+    grid-template-rows: auto auto;
+    column-gap: 1.6rem;
+    padding: .8rem 0;
+    border-bottom: 0;
+}
+body.inv--template-capulana .inv-timeline__item::before {
+    content: "";
+    position: absolute;
+    left: calc(3.05rem - 3.5px);
+    top: 1.3rem;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--k-dot);
+    box-shadow: 0 0 0 3px var(--k-dot-ring);
+}
+body.inv--template-capulana .inv-timeline__dot {
+    grid-row: 1 / span 2;
+    width: 2.3rem;
+    height: 2.3rem;
+    background: none;
+}
+body.inv--template-capulana .inv-timeline__dot i { display: none; }
+body.inv--template-capulana .inv-timeline__dot::after {
+    content: "";
+    width: 1.85rem;
+    height: 1.85rem;
+    background: var(--k-icon);
+    -webkit-mask: var(--tpl-icon) center / contain no-repeat;
+    mask: var(--tpl-icon) center / contain no-repeat;
+}
+body.inv--template-capulana .inv-timeline__time {
+    grid-column: 2;
+    padding-top: .1rem;
+    color: var(--k-accent-text);
+    font-family: var(--k-display);
+    font-size: .86rem;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+body.inv--template-capulana .inv-timeline__body { grid-column: 2; padding-top: 0; }
+body.inv--template-capulana .inv-timeline__label {
+    color: var(--k-heading);
+    font-family: var(--k-display);
+    font-size: .84rem;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+body.inv--template-capulana .inv-timeline__note { color: var(--k-ink); font-size: .9rem; font-style: italic; }
+body.inv--template-capulana .inv-map__toggle { border-color: var(--k-line-strong); background: var(--k-card); color: var(--k-accent-text); font-style: normal; }
+
+/* QR */
+body.inv--template-capulana .inv-section--qr {
+    margin-top: 1.2rem;
+    padding: 2.8rem 1.1rem;
+    border: 1px solid var(--k-line);
+    border-radius: var(--k-radius, 4px);
+    background: var(--k-card);
+    box-shadow: none;
+}
+body.inv--template-capulana .inv-qr__eyebrow { color: var(--k-accent-text); }
+body.inv--template-capulana .inv-qr__card {
+    border: 1px solid var(--k-line-strong);
+    border-radius: var(--k-radius, 4px);
+    box-shadow: 0 0 0 4px var(--k-card), 0 0 0 5px var(--k-line), 0 24px 40px -28px rgba(0, 0, 0, .6);
+}
+body.inv--template-capulana .inv-qr__guest { color: #2b2418; font-family: var(--k-display); font-size: 1rem; letter-spacing: .1em; text-transform: uppercase; }
+body.inv--template-capulana .inv-qr__instructions { color: var(--k-ink); }
+body.inv--template-capulana .inv-qr__events li { border: 1px solid var(--k-line); background: transparent; color: var(--k-accent-text); }
+body.inv--template-capulana .inv-section--qr .inv-note { color: var(--k-ink); }
+
+/* Rodapé */
+body.inv--template-capulana .inv-footer { border-top: 0; padding: 2.4rem 0 1rem; }
+body.inv--template-capulana .inv-hearts { width: 9rem; height: 1rem; background: var(--k-divider) center / contain no-repeat; opacity: 1; }
+body.inv--template-capulana .inv-hearts use { display: none; }
+body.inv--template-capulana .inv-footer__names { color: var(--k-accent-text); font-family: var(--k-display); font-size: 1.3rem; letter-spacing: .1em; text-transform: uppercase; }
+body.inv--template-capulana .inv-footer__date { color: var(--k-ink); letter-spacing: .3em; }
+body.inv--template-capulana .inv-footer__brand { color: var(--k-ink); }
+
+/* Acções e diálogos */
+body.inv--template-capulana .inv-fab {
+    border: 1px solid var(--k-line-strong);
+    background: var(--k-btn-bg);
+    color: var(--k-btn-ink);
+    letter-spacing: .04em;
+}
+body.inv--template-capulana .inv-fab--secondary { background: var(--k-card-solid); color: var(--k-accent-text); }
+body.inv--template-capulana .inv-music button { background: var(--k-card-solid); color: var(--k-accent-text); border-color: var(--k-line); }
+body.inv--template-capulana .inv-dialog {
+    border-radius: var(--k-radius, 4px);
+    background: var(--k-card-solid);
+    color: var(--k-ink);
+    box-shadow: inset 0 0 0 7px var(--k-card-solid), inset 0 0 0 8px var(--k-line-strong), 0 2rem 6rem rgba(0, 0, 0, .45);
+}
+body.inv--template-capulana .inv-dialog h2 { color: var(--k-accent-text); font-weight: 400; }
+body.inv--template-capulana .inv-dialog__icon { border: 1px solid var(--k-line-strong); border-radius: 50%; background: transparent; color: var(--k-accent-text); }
+body.inv--template-capulana .inv-dialog__close { color: var(--k-ink); }
+
+/* --- Revelação ao scroll ------------------------------------------------ */
+body.inv--template-capulana.tpl-motion .tpl-reveal { transition: opacity .95s cubic-bezier(.2, .8, .2, 1), transform .95s cubic-bezier(.2, .8, .2, 1); }
+body.inv--template-capulana.tpl-motion .tpl-reveal:not(.is-in) { opacity: 0; transform: translate3d(0, 26px, 0); }
+body.inv--template-capulana.tpl-motion .inv-timeline__item.tpl-reveal:not(.is-in) { transform: translate3d(14px, 0, 0); }
+body.inv--template-capulana.tpl-motion .inv-timeline__item:nth-child(2) { transition-delay: .1s; }
+body.inv--template-capulana.tpl-motion .inv-timeline__item:nth-child(3) { transition-delay: .2s; }
+body.inv--template-capulana.tpl-motion .inv-timeline__item:nth-child(4) { transition-delay: .3s; }
+body.inv--template-capulana.tpl-motion .inv-qr__card.tpl-reveal:not(.is-in) { transform: translate3d(0, 22px, 0) scale(.94); }
+body.inv--template-capulana.tpl-motion .inv-gallery-teaser__stack.tpl-reveal:not(.is-in) { transform: translate3d(0, 30px, 0) rotate(-3deg); }
+body.inv--template-capulana.tpl-motion .inv-section--schedule:not(.is-in) .inv-timeline::before { transform: scaleY(0); }
+body.inv--template-capulana.tpl-motion .inv-timeline::before { transition: transform 1.6s .2s cubic-bezier(.3, .7, .2, 1); }
+body.inv--template-capulana.tpl-motion .tpl-reveal .inv-section__title::before,
+body.inv--template-capulana.tpl-motion .tpl-reveal .inv-section__title::after { transition: transform 1s .15s cubic-bezier(.2, .8, .2, 1), opacity 1s .15s ease; }
+body.inv--template-capulana.tpl-motion .tpl-reveal:not(.is-in) .inv-section__title::before { transform: scaleX(.2); opacity: 0; }
+body.inv--template-capulana.tpl-motion .tpl-reveal:not(.is-in) .inv-section__title::after { transform: scaleX(-.2); opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+    body.inv--template-capulana *,
+    body.inv--template-capulana *::before,
+    body.inv--template-capulana *::after { animation: none !important; transition: none !important; }
+    body.inv--template-capulana .tpl-sparkle { display: none; }
+}
+
+/* Cantos de capulana (capa e cartão) */
+body.inv--template-capulana .tpl-corners { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+body.inv--template-capulana .inv-main > .tpl-corners { z-index: 0; }
+body.inv--template-capulana .tpl-corners i {
+    --c-t: none;
+    position: absolute;
+    width: min(30vw, 8.4rem);
+    aspect-ratio: 1;
+    background: url("../../img/tpl/capulana/corner.svg") left top / contain no-repeat;
+    transform: var(--c-t);
+    filter: drop-shadow(0 3px 5px rgba(80, 40, 10, .18));
+}
+body.inv--template-capulana .tpl-corners i:nth-child(1) { left: 0; top: 0; }
+body.inv--template-capulana .tpl-corners i:nth-child(2) { right: 0; top: 0; --c-t: scaleX(-1); }
+body.inv--template-capulana .tpl-corners i:nth-child(3) { left: 0; bottom: 0; --c-t: scaleY(-1); }
+body.inv--template-capulana .tpl-corners i:nth-child(4) { right: 0; bottom: 0; --c-t: scale(-1, -1); }
+body.inv--template-capulana .inv-main > .tpl-corners i { width: min(26vw, 7rem); }
+body.inv--template-capulana .inv-main > .tpl-corners i:nth-child(3),
+body.inv--template-capulana .inv-main > .tpl-corners i:nth-child(4) { display: none; }
+body.inv--template-capulana .inv-main > * { position: relative; z-index: 1; }
+body.inv--template-capulana .inv-main > .tpl-corners { position: absolute; }
+body.inv--template-capulana.tpl-motion .inv-cover .tpl-corners i { animation: cp-corner-in 1.2s cubic-bezier(.2, .8, .2, 1) both; }
+body.inv--template-capulana.tpl-motion .inv-cover .tpl-corners i:nth-child(2) { animation-delay: .12s; }
+body.inv--template-capulana.tpl-motion .inv-cover .tpl-corners i:nth-child(3) { animation-delay: .24s; }
+body.inv--template-capulana.tpl-motion .inv-cover .tpl-corners i:nth-child(4) { animation-delay: .36s; }
+body.inv--template-capulana .inv-cover.tpl-opening .tpl-corners i { animation: cp-corner-out .8s cubic-bezier(.6, 0, .3, 1) both; }
+body.inv--template-capulana .inv-main.tpl-enter > .tpl-corners i { animation: cp-corner-in 1.2s .1s cubic-bezier(.2, .8, .2, 1) both; }
+
+/* Terracota nos números, como no catálogo */
+body.inv--template-capulana .inv-countdown { border: 0; padding: 0; }
+body.inv--template-capulana .inv-countdown__cell { border-color: color-mix(in srgb, var(--cp-terra) 70%, transparent); border-radius: 6px; background: rgba(255, 250, 241, .8); }
+body.inv--template-capulana .inv-countdown__cell span { color: var(--cp-terra-text); font-size: 1.6rem; }
+body.inv--template-capulana .inv-hero__date { border: 0; color: var(--cp-terra-text); font-size: 1.12rem; }
+body.inv--template-capulana .inv-hero__date::before,
+body.inv--template-capulana .inv-hero__date::after { content: ""; display: block; width: 7rem; height: 1px; margin: .45rem auto; background: linear-gradient(90deg, transparent, var(--cp-terra), transparent); }
+body.inv--template-capulana .inv-cover__note { border-color: color-mix(in srgb, var(--cp-terra) 45%, transparent); color: var(--cp-terra-text); }
+body.inv--template-capulana .inv-section__title::before,
+body.inv--template-capulana .inv-section__title::after { height: 16px; max-width: 6.5rem; }
+body.inv--template-capulana .inv-section + .inv-section { border-top: 0; }
+body.inv--template-capulana .inv-divider { display: none; }
+body.inv--template-capulana .inv-section__title { margin-bottom: 1.2rem; }
+body.inv--template-capulana .inv-cover--classic::before { display: none; }
+body.inv--template-capulana .inv-main::before { display: none; }
+body.inv--template-capulana .inv-cover__amp::before,
+body.inv--template-capulana .inv-cover__amp::after,
+body.inv--template-capulana .inv-hero__amp::before,
+body.inv--template-capulana .inv-hero__amp::after { background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--cp-terra) 70%, transparent)); }
+body.inv--template-capulana .inv-hearts { display: none; }
+body.inv--template-capulana .inv-timeline__note { font-style: normal; }
+body.inv--template-capulana .inv-cover__paper { padding-top: 3.2rem; }
+body.inv--template-capulana .inv-main { padding-top: 3.4rem; }
+body.inv--template-capulana [data-tpl-icon="rings"] { --tpl-icon: url("../../img/tpl/capulana/icon-rings.svg"); }
+body.inv--template-capulana [data-tpl-icon="toast"] { --tpl-icon: url("../../img/tpl/capulana/icon-toast.svg"); }
+body.inv--template-capulana [data-tpl-icon="dinner"] { --tpl-icon: url("../../img/tpl/capulana/icon-dinner.svg"); }
+body.inv--template-capulana [data-tpl-icon="music"] { --tpl-icon: url("../../img/tpl/capulana/icon-music.svg"); }
+body.inv--template-capulana [data-tpl-icon="heart"] { --tpl-icon: url("../../img/tpl/capulana/icon-heart.svg"); }
+body.inv--template-capulana .inv-timeline { --tpl-icon: url("../../img/tpl/capulana/icon-heart.svg"); }
+
+/* --- Keyframes ------------------------------------------------------- */
+@keyframes cp-rise { from { opacity: 0; transform: translate3d(0, 16px, 0); } to { opacity: 1; transform: none; } }
+@keyframes cp-names-in { from { opacity: 0; transform: translate3d(0, 12px, 0) scale(.96); letter-spacing: .18em; } to { opacity: 1; transform: none; } }
+@keyframes cp-shimmer { from { background-position: 110% 0; } to { background-position: -110% 0; } }
+@keyframes cp-crest-in { 0% { opacity: 0; transform: translate3d(0, -14px, 0) scale(.72); } 60% { opacity: 1; transform: scale(1.04); } 100% { opacity: 1; transform: none; } }
+@keyframes cp-frame-in { from { opacity: 0; transform: scale(1.06); } to { opacity: 1; transform: none; } }
+@keyframes cp-frame-out { to { opacity: 0; transform: scale(1.12); } }
+@keyframes cp-glow { from { opacity: .55; transform: translate(-50%, -50%) scale(.9); } to { opacity: 1; transform: translate(-50%, -50%) scale(1.08); } }
+@keyframes cp-flash { 0% { opacity: .8; transform: translate(-50%, -50%) scale(1); } 45% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -50%) scale(2.6); } }
+@keyframes cp-card-out { 25% { transform: scale(1.03); } to { opacity: 0; transform: translate3d(0, -36px, 0) scale(.94); } }
+@keyframes cp-glint { 0%, 55% { transform: translateX(-60%); } 80%, 100% { transform: translateX(60%); } }
+@keyframes cp-spark { 0%, 100% { opacity: 0; transform: scale(.3) rotate(0); } 50% { opacity: .9; transform: scale(1) rotate(45deg); } }
+@keyframes cp-tick { from { opacity: .35; transform: translateY(-5px); } to { opacity: 1; transform: none; } }
+@keyframes cp-corner-in { from { opacity: 0; transform: var(--c-t) scale(.6); } to { opacity: 1; transform: var(--c-t); } }
+@keyframes cp-corner-out { to { opacity: 0; transform: var(--c-t) scale(1.35); } }

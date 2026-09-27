@@ -1,0 +1,17 @@
+{% comment %}
+Camada decorativa do Capulana Moçambicana: selo dourado com monograma, cantos de capulana
+e brilhos dourados. Fica escondida; static/js/tpl/capulana.js coloca
+cada peça no sítio certo. Sem JavaScript o convite continua completo.
+{% endcomment %}
+<div class="tpl-capulana-decor" data-tpl-decor hidden aria-hidden="true">
+    <div class="tpl-crest" data-tpl-piece="crest">
+        <span class="tpl-crest__mono">{{ monogram|slice:":1" }}{% if monogram|length > 1 %}<i></i>{{ monogram|slice:"1:" }}{% endif %}</span>
+    </div>
+    <div class="tpl-corners" data-tpl-piece="corners"><i></i><i></i><i></i><i></i></div>
+    <div class="tpl-sparkle" data-tpl-piece="sparkle">
+        <i style="--x:14%;--y:22%;--w:-.4s"></i><i style="--x:84%;--y:16%;--w:-1.6s"></i>
+        <i style="--x:22%;--y:74%;--w:-2.3s"></i><i style="--x:78%;--y:68%;--w:-3.1s"></i>
+        <i style="--x:50%;--y:9%;--w:-.9s"></i><i style="--x:9%;--y:48%;--w:-2.8s"></i>
+        <i style="--x:92%;--y:44%;--w:-1.2s"></i><i style="--x:62%;--y:86%;--w:-3.6s"></i>
+    </div>
+</div>
