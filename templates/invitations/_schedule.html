@@ -1,6 +1,6 @@
-{% if schedule %}
+{% load invitation_texts %}{% if schedule %}
     <section class="inv-section inv-section--schedule">
-        <h2 class="inv-section__title">Programa</h2>
+        <h2 class="inv-section__title">{% invtext "schedule_title" %}</h2>
         <svg class="inv-divider" viewBox="0 0 200 24" aria-hidden="true"><use href="#inv-divider"/></svg>
 
         <ol class="inv-timeline">
@@ -15,10 +15,10 @@
                         <details class="inv-map">
                             <summary>
                                 <span class="inv-timeline__label">{{ item.programme_title }}</span>
-                                <span class="inv-map__toggle"><i class="bi bi-map"></i> Mapa <i class="bi bi-chevron-down"></i></span>
+                                <span class="inv-map__toggle"><i class="bi bi-map"></i> {% invtext "map_toggle" %} <i class="bi bi-chevron-down"></i></span>
                             </summary>
                             <div class="inv-map__frame"><iframe src="{{ item.location.embed_url }}" title="Mapa de {{ item.location.name }}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
-                            {% if item.location.directions_url %}<a class="inv-map__external" href="{{ item.location.directions_url }}" target="_blank" rel="noopener noreferrer"><i class="bi bi-box-arrow-up-right"></i> Abrir no Google Maps</a>{% endif %}
+                            {% if item.location.directions_url %}<a class="inv-map__external" href="{{ item.location.directions_url }}" target="_blank" rel="noopener noreferrer"><i class="bi bi-box-arrow-up-right"></i> {% invtext "map_open" %}</a>{% endif %}
                         </details>
                         {% else %}
                         <span class="inv-timeline__label">{{ item.programme_title }}</span>

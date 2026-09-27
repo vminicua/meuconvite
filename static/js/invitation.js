@@ -40,7 +40,7 @@
         const kind = rawKind === "danger" ? "error" : rawKind;
         if (window.Swal) window.Swal.fire({
             toast: true, position: "top-end", icon: kind,
-            title: flash.dataset.message, showConfirmButton: false, timer: 4200,
+            titleText: flash.dataset.message, showConfirmButton: false, timer: 4200,
             target: invitationViewport || document.body
         });
     });
@@ -68,7 +68,9 @@
         let resumeWhenVisible = false;
         function showMusicState(playing) {
             musicPlayer.classList.toggle("is-playing", playing);
-            toggle.querySelector("span").textContent = playing ? "Pausar" : "Ouvir";
+            toggle.querySelector("span").textContent = playing
+                ? (toggle.dataset.labelPause || "Pausar")
+                : (toggle.dataset.labelPlay || "Ouvir");
         }
         startMusic = function () {
             if (document.hidden || !audio.paused) return;

@@ -79,7 +79,7 @@
         </section>
 
         <details class="details-panel details-disclosure" data-mobile-collapsible open>
-            <summary class="details-panel__heading"><span class="details-panel__number">03</span><div>{% if wedding.category.code == "evento-corporativo" %}<h3>Comunicação do evento</h3><p>Mensagens institucionais da capa, do convite e das partilhas.</p>{% else %}<h3>Palavras que dão personalidade</h3><p>Todas as mensagens da capa, do convite e das partilhas.</p>{% endif %}</div><i class="bi bi-chevron-down details-disclosure__chevron"></i></summary>
+            <summary class="details-panel__heading"><span class="details-panel__number">03</span><div>{% if wedding.category.code == "evento-corporativo" %}<h3>Comunicação do evento</h3><p>Mensagens institucionais e todas as frases do convite, da capa à confirmação.</p>{% else %}<h3>Palavras que dão personalidade</h3><p>Todas as mensagens e frases do convite, da capa à confirmação e às partilhas.</p>{% endif %}</div><i class="bi bi-chevron-down details-disclosure__chevron"></i></summary>
             <div class="row g-4 personality-message-grid">
                 <div class="col-lg-6 personality-message-grid__channels">
                     <div class="personality-message-box">
@@ -100,6 +100,50 @@
                     {% for field in form.details_extra_fields %}{% include "weddings/_detail_field_full.html" %}{% endfor %}
                 </div>
             </div>
+            {% if form.invitation_text_groups %}
+            <div class="invitation-texts" data-invitation-texts>
+                <div class="invitation-texts__intro">
+                    <div>
+                        <span class="workspace-eyebrow">TEXTOS DO CONVITE</span>
+                        <h4>Todas as frases que o convidado lê</h4>
+                        <p>Títulos, botões e avisos{% if form.invitation_template_name %} do modelo «{{ form.invitation_template_name }}»{% endif %}, organizados pelo sítio onde aparecem. Em branco, o convite usa o texto original (a cinzento). Em qualquer frase pode usar <code>{nomes}</code>, <code>{nomes_completos}</code>, <code>{categoria}</code> e <code>{convidado}</code>.</p>
+                    </div>
+                    <div class="invitation-texts__tools">
+                        <label class="visually-hidden" for="invtext-search">Procurar texto</label>
+                        <input id="invtext-search" type="search" class="form-control form-control-sm" placeholder="Procurar uma frase…" data-invtext-search autocomplete="off">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" data-invtext-toggle-all><i class="bi bi-arrows-expand me-1"></i><span>Abrir todos</span></button>
+                    </div>
+                </div>
+                {% for block in form.invitation_text_groups %}
+                <details class="invitation-texts__group" data-invtext-group{% if block.custom_count %} open{% endif %}>
+                    <summary>
+                        <i class="bi {{ block.group.icon }} invitation-texts__icon" aria-hidden="true"></i>
+                        <span class="invitation-texts__heading"><strong>{{ block.label }}</strong><small>{{ block.group.description }}</small></span>
+                        <span class="invitation-texts__badge" data-invtext-count{% if not block.custom_count %} hidden{% endif %}>{{ block.custom_count }} personalizado{{ block.custom_count|pluralize }}</span>
+                        <i class="bi bi-chevron-down invitation-texts__chevron" aria-hidden="true"></i>
+                    </summary>
+                    <div class="invitation-texts__rows">
+                        {% if block.group.code == "historia" %}<p class="invitation-texts__note"><i class="bi bi-info-circle me-1"></i>O título desta secção («{{ wedding.story_heading }}») edita-se no <a href="{% url 'weddings:story' wedding.pk %}">editor da história</a>.</p>{% endif %}
+                        {% for row in block.rows %}
+                        <div class="invitation-texts__row{% if row.field.errors %} has-error{% endif %}" data-invtext-row data-search="{{ row.entry.label|lower }} {{ row.field.field.widget.attrs.placeholder|lower }}">
+                            <div class="invitation-texts__label">
+                                <label class="form-label" for="{{ row.field.id_for_label }}">{{ row.entry.label }}</label>
+                                <span class="invitation-texts__length"><span data-invtext-length>0</span>/{{ row.entry.max_length }}</span>
+                            </div>
+                            <div class="invitation-texts__control">
+                                {{ row.field }}
+                                <button type="button" class="btn btn-sm btn-outline-secondary invitation-texts__reset" data-invtext-reset title="Repor texto original" aria-label="Repor texto original de «{{ row.entry.label }}»"><i class="bi bi-arrow-counterclockwise"></i><span>Repor</span></button>
+                            </div>
+                            {% if row.entry.help or row.tokens %}<div class="form-text">{{ row.entry.help }}{% if row.tokens %} Pode usar {% for token in row.tokens %}<code>{{ token }}</code>{% if not forloop.last %}, {% endif %}{% endfor %}.{% endif %}</div>{% endif %}
+                            {% for error in row.field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </details>
+                {% endfor %}
+                <p class="invitation-texts__empty text-muted small" data-invtext-empty hidden>Nenhuma frase corresponde à pesquisa.</p>
+            </div>
+            {% endif %}
         </details>
 
         <details class="details-panel details-disclosure" data-mobile-collapsible open>
@@ -131,6 +175,83 @@
     };
     radios.forEach((radio) => radio.addEventListener("change", refresh));
     refresh();
+})();
+
+(() => {
+    const root = document.querySelector("[data-invitation-texts]");
+    if (!root) return;
+    const groups = Array.from(root.querySelectorAll("[data-invtext-group]"));
+
+    const refreshRow = (row) => {
+        const input = row.querySelector("[data-invtext-input]");
+        const length = row.querySelector("[data-invtext-length]");
+        const reset = row.querySelector("[data-invtext-reset]");
+        if (!input) return;
+        if (length) length.textContent = input.value.length;
+        if (reset) reset.disabled = input.value.trim() === "";
+        row.classList.toggle("is-custom", input.value.trim() !== "");
+    };
+    const refreshGroup = (group) => {
+        const count = group.querySelectorAll("[data-invtext-row].is-custom").length;
+        const badge = group.querySelector("[data-invtext-count]");
+        if (!badge) return;
+        badge.textContent = count + (count === 1 ? " personalizado" : " personalizados");
+        badge.hidden = count === 0;
+    };
+
+    groups.forEach((group) => {
+        group.querySelectorAll("[data-invtext-row]").forEach((row) => {
+            const input = row.querySelector("[data-invtext-input]");
+            refreshRow(row);
+            input?.addEventListener("input", () => { refreshRow(row); refreshGroup(group); });
+            row.querySelector("[data-invtext-reset]")?.addEventListener("click", () => {
+                input.value = "";
+                refreshRow(row);
+                refreshGroup(group);
+                input.focus();
+            });
+        });
+        refreshGroup(group);
+        if (group.querySelector(".has-error")) group.open = true;
+    });
+
+    // Mensagens com campo próprio: o mesmo «repor» esvazia o campo.
+    document.querySelectorAll("[data-invtext-default]:not([data-invtext-input])").forEach((input) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "btn btn-link btn-sm px-0 invitation-texts__field-reset";
+        button.innerHTML = '<i class="bi bi-arrow-counterclockwise me-1"></i>Repor texto original';
+        button.addEventListener("click", () => { input.value = ""; input.focus(); });
+        input.insertAdjacentElement("afterend", button);
+    });
+
+    const toggleAll = root.querySelector("[data-invtext-toggle-all]");
+    toggleAll?.addEventListener("click", () => {
+        const open = !groups.every((group) => group.open);
+        groups.forEach((group) => { group.open = open; });
+        toggleAll.querySelector("span").textContent = open ? "Fechar todos" : "Abrir todos";
+    });
+
+    const search = root.querySelector("[data-invtext-search]");
+    const empty = root.querySelector("[data-invtext-empty]");
+    search?.addEventListener("input", () => {
+        const term = search.value.trim().toLowerCase();
+        let matches = 0;
+        groups.forEach((group) => {
+            let groupMatches = 0;
+            group.querySelectorAll("[data-invtext-row]").forEach((row) => {
+                const input = row.querySelector("[data-invtext-input]");
+                const haystack = (row.dataset.search + " " + (input?.value || "")).toLowerCase();
+                const visible = !term || haystack.includes(term);
+                row.hidden = !visible;
+                if (visible) groupMatches += 1;
+            });
+            group.hidden = groupMatches === 0;
+            if (term && groupMatches) group.open = true;
+            matches += groupMatches;
+        });
+        if (empty) empty.hidden = matches > 0;
+    });
 })();
 </script>
 {% endblock %}

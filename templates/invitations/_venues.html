@@ -1,6 +1,6 @@
-{% if locations %}
+{% load invitation_texts %}{% if locations %}
     <section class="inv-section inv-section--venues">
-        <h2 class="inv-section__title">Onde será</h2>
+        <h2 class="inv-section__title">{% invtext "venues_title" %}</h2>
         <svg class="inv-divider" viewBox="0 0 200 24" aria-hidden="true"><use href="#inv-divider"/></svg>
 
         <div class="inv-venues">
@@ -18,9 +18,9 @@
                     {% endif %}
                     {% if location.embed_url %}
                         <details class="inv-venue-map">
-                            <summary><i class="bi bi-map"></i> Mapa <i class="bi bi-chevron-down"></i></summary>
+                            <summary><i class="bi bi-map"></i> {% invtext "map_toggle" %} <i class="bi bi-chevron-down"></i></summary>
                             <div class="inv-venue__map"><iframe src="{{ location.embed_url }}" title="Mapa de {{ location.name }}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
-                            {% if location.directions_url %}<a class="inv-map__external" href="{{ location.directions_url }}" target="_blank" rel="noopener noreferrer"><i class="bi bi-box-arrow-up-right"></i> Abrir no Google Maps</a>{% endif %}
+                            {% if location.directions_url %}<a class="inv-map__external" href="{{ location.directions_url }}" target="_blank" rel="noopener noreferrer"><i class="bi bi-box-arrow-up-right"></i> {% invtext "map_open" %}</a>{% endif %}
                         </details>
                     {% endif %}
                 </article>
