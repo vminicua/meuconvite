@@ -70,11 +70,12 @@ class PublicPageTests(TestCase):
         self.assertEqual(location.path, reverse("account_login"))
         self.assertEqual(parse_qs(location.query)["next"], [selection_url])
 
-    def test_home_redirects_authenticated_users(self) -> None:
+    def test_home_renders_for_authenticated_users(self) -> None:
         create_user()
         self.client.login(email="noiva@example.com", password=DEFAULT_PASSWORD)
         response = self.client.get(reverse("core:home"))
-        self.assertRedirects(response, reverse("weddings:list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, reverse("weddings:list"))
 
     def test_health_endpoint(self) -> None:
         response = self.client.get(reverse("core:health"))

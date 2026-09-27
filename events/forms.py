@@ -138,7 +138,8 @@ class WeddingEventForm(BootstrapModelForm):
             required=False,
             widget=forms.Select(attrs={"class": "form-select"}),
         )
-        if not self.is_bound and self.instance and self.instance.pk:
+        # UUID primary keys exist before saving, so `pk` alone does not mean "existing event".
+        if not self.is_bound and self.instance and not self.instance._state.adding:
             event = self.instance
             if not event.description:
                 self.initial["description"] = _("%(event)s de %(couple)s.") % {

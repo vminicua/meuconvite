@@ -67,10 +67,7 @@ LEGAL_PAGES = {
 
 
 def home(request: HttpRequest) -> HttpResponse:
-    """Public landing page. Authenticated users go straight to their weddings."""
-    if request.user.is_authenticated:
-        return redirect("weddings:list")
-
+    """Public landing page, also reachable by signed-in users through the logo."""
     from weddings.selectors import categories_with_templates
 
     return render(
