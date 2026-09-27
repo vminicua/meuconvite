@@ -1,0 +1,11 @@
+{% comment %}Camada decorativa do tema Festa Vibrante (só visual).{% endcomment %}<style>body.inv.inv--template-aniversario-festa-vibrante { {% if template.cover_image %}--tpl-art:url('{{ template.cover_image.url }}');{% endif %}{% if wedding.cover_image and not ignore_custom_cover %}--tpl-cover-art:none;--t-cover-veil:linear-gradient(180deg,rgba(0,0,0,.18),rgba(0,0,0,.62));--t-cover-ink:#fff;--t-cover-kicker:#fff;--t-cover-names:#fff;--t-cover-shadow:0 2px 18px rgba(0,0,0,.45);{% else %}--tpl-cover-art:var(--tpl-art);{% endif %} }</style>
+<svg class="tpl-symbols" width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <symbol id="inv-divider" viewBox="0 0 200 24"><g stroke-linecap="round" fill="none" stroke-width="2.2"><path d="M8 14c8-6 16 6 24 0s16 6 24 0" stroke="#ff6b5f"/><path d="M144 14c8-6 16 6 24 0s16 6 24 0" stroke="#214bb8"/></g>
+<ellipse cx="88" cy="10" rx="6" ry="7.5" fill="#ff6b5f"/><ellipse cx="100" cy="8" rx="6.5" ry="8" fill="#214bb8"/><ellipse cx="112" cy="10" rx="6" ry="7.5" fill="#f7b928"/>
+<path d="M88 17.5l0 5M100 16l0 6.5M112 17.5l0 5" stroke="#1e2742" stroke-width=".8" opacity=".5"/>
+<rect x="66" y="6" width="3" height="6" rx="1" fill="#f7b928" transform="rotate(25 67 9)"/><rect x="131" y="12" width="3" height="6" rx="1" fill="#ff6b5f" transform="rotate(-30 132 15)"/></symbol>
+</svg>
+<div class="tpl-decor" aria-hidden="true">
+    <div class="tpl-backdrop"></div>
+    <div class="tpl-ambient" data-tpl-ambient></div>
+</div>

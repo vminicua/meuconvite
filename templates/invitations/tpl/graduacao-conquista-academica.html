@@ -1,0 +1,12 @@
+{% comment %}Camada decorativa do tema Conquista Académica (só visual).{% endcomment %}<style>body.inv.inv--template-graduacao-conquista-academica { {% if template.cover_image %}--tpl-art:url('{{ template.cover_image.url }}');{% endif %}{% if wedding.cover_image and not ignore_custom_cover %}--tpl-cover-art:none;--t-cover-veil:linear-gradient(180deg,rgba(0,0,0,.18),rgba(0,0,0,.62));--t-cover-ink:#fff;--t-cover-kicker:#fff;--t-cover-names:#fff;--t-cover-shadow:0 2px 18px rgba(0,0,0,.45);{% else %}--tpl-cover-art:var(--tpl-art);{% endif %} }</style>
+<svg class="tpl-symbols" width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <symbol id="inv-divider" viewBox="0 0 200 24"><g fill="none" stroke="currentColor" stroke-width="1.2"><path d="M6 13h64M130 13h64"/>
+<path d="M76 20c-6-2-9-6-9-11M124 20c6-2 9-6 9-11" stroke-linecap="round"/></g>
+<g fill="currentColor"><path d="M70 9c3 0 5 2 5 4-3 0-5-2-5-4zM72 16c3-1 5 0 6 2-3 1-5 0-6-2zM130 9c-3 0-5 2-5 4 3 0 5-2 5-4zM128 16c-3-1-5 0-6 2 3 1 5 0 6-2z"/>
+<path d="M100 4l16 6-16 6-16-6z"/><path d="M92 13v4c4 3 12 3 16 0v-4l-8 3z"/></g>
+<path d="M114 10.5v7" stroke="currentColor" stroke-width="1.1"/><circle cx="114" cy="18.5" r="1.4" fill="currentColor"/></symbol>
+</svg>
+<div class="tpl-decor" aria-hidden="true">
+    <div class="tpl-backdrop"></div>
+    <div class="tpl-ambient" data-tpl-ambient></div>
+</div>
