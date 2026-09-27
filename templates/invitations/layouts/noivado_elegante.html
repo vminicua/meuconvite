@@ -1,3 +1,4 @@
+{% load invitation_texts %}
 {% include "invitations/_ornaments.html" %}
 
 {% if template.has_cover %}
@@ -26,25 +27,25 @@
         <span class="inv-engagement-light inv-engagement-light--two"></span>
     </div>
     <div class="inv-engagement-card">
-        <span class="inv-engagement-card__kicker">{{ wedding.cover_message|default:"Uma promessa para toda a vida" }}</span>
+        <span class="inv-engagement-card__kicker">{% invtext "cover_message" %}</span>
         <h1>{{ wedding.display_names }}</h1>
         <p class="inv-engagement-card__date">{{ wedding.main_date|date:"d · m · Y" }}</p>
-        <button type="button" class="inv-btn inv-btn--light" data-open-invitation>Abrir o convite</button>
+        <button type="button" class="inv-btn inv-btn--light" data-open-invitation>{% invtext "open_button" %}</button>
     </div>
 </section>
 {% endif %}
 
 <main class="inv-main" id="inv-main" {% if template.has_cover %}hidden{% endif %}>
     <header class="inv-hero">
-        <p class="inv-hero__eyebrow">{{ invitation_eyebrow }}</p>
+        <p class="inv-hero__eyebrow">{% invtext "hero_eyebrow" %}</p>
         <h1 class="inv-hero__names"><span class="inv-hero__name">{{ wedding.primary_short_name }}</span>{% if wedding.secondary_short_name %}<span class="inv-hero__amp">{{ wedding.names_separator }}</span><span class="inv-hero__name">{{ wedding.secondary_short_name }}</span>{% endif %}</h1>
         <svg class="inv-divider" viewBox="0 0 200 24" aria-hidden="true"><use href="#inv-divider"/></svg>
-        {% if guest_name %}<p class="inv-hero__greeting">Caro(a) {{ guest_name }},</p>{% endif %}
-        <p class="inv-hero__text">{% if wedding.invitation_message %}{{ wedding.invitation_message|linebreaksbr }}{% else %}{{ wedding.full_names }} {{ invitation_greeting }}{% endif %}</p>
+        {% if guest_name %}<p class="inv-hero__greeting">{% invtext "greeting" %}</p>{% endif %}
+        <p class="inv-hero__text">{% invtext "invitation_message" %}</p>
         <p class="inv-hero__date">{{ wedding.main_date|date:"d \d\e F \d\e Y" }}</p>
         {% include "invitations/_countdown.html" %}
-        {% if seats %}<p class="inv-seats"><span>Lugares reservados</span><strong>{{ seats }}</strong></p>{% endif %}
-        {% if seating_assignment %}<p class="inv-seats"><span>Mesa / cadeira</span><strong>{{ seating_assignment }}</strong></p>{% endif %}
+        {% if seats %}<p class="inv-seats"><span>{% invtext "seats_label" %}</span><strong>{{ seats }}</strong></p>{% endif %}
+        {% if seating_assignment %}<p class="inv-seats"><span>{% invtext "seating_label" %}</span><strong>{{ seating_assignment }}</strong></p>{% endif %}
     </header>
 
     {% if wedding.welcome_message %}<section class="inv-section"><p class="inv-text inv-text--lead">{{ wedding.welcome_message|linebreaksbr }}</p></section>{% endif %}

@@ -1,17 +1,17 @@
-{% if qr_data_uri %}
+{% load invitation_texts %}{% if qr_data_uri %}
 <section class="inv-section inv-section--qr" aria-label="QR Code pessoal do convidado">
-    <p class="inv-qr__eyebrow">Entrada digital</p>
-    <h2 class="inv-section__title">O seu QR Code</h2>
+    <p class="inv-qr__eyebrow">{% invtext "qr_eyebrow" %}</p>
+    <h2 class="inv-section__title">{% invtext "qr_title" %}</h2>
     <svg class="inv-divider" viewBox="0 0 200 24" aria-hidden="true"><use href="#inv-divider"/></svg>
 
     <div class="inv-qr__card">
         <img class="inv-qr__image" src="{{ qr_data_uri }}" alt="QR Code pessoal para o check-in">
-        <p class="inv-qr__guest">{{ guest_name|default:"Convidado" }}</p>
-        <p class="inv-qr__seats">{{ seats|default:1 }} lugar{{ seats|default:1|pluralize:"es" }}</p>
+        <p class="inv-qr__guest">{% if guest_name %}{{ guest_name }}{% else %}{% invtext "qr_guest_fallback" %}{% endif %}</p>
+        <p class="inv-qr__seats">{% with total=seats|default:1 %}{% if total == 1 %}{% invtext "qr_seat_one" total=total %}{% else %}{% invtext "qr_seats" total=total %}{% endif %}{% endwith %}</p>
     </div>
 
     <p class="inv-text inv-qr__instructions">
-        Apresente este código à entrada. É pessoal e identifica os seus lugares reservados.
+        {% invtext "qr_instructions" %}
     </p>
     {% if qr_events %}<ul class="inv-qr__events">
         {% for event in qr_events %}
